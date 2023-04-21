@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreatePurchaseRequisitionRelatedColumns extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreatePurchaseRequisitionRelatedColumns extends Migration
     public function up()
     {
         Schema::table('purchase_lines', function (Blueprint $table) {
-            $table->integer('purchase_requisition_line_id')->after('tax_id')->nullable();;
+            $table->integer('purchase_requisition_line_id')->after('tax_id')->nullable();
         });
 
         Schema::table('transactions', function (Blueprint $table) {
@@ -30,4 +30,4 @@ class CreatePurchaseRequisitionRelatedColumns extends Migration
     public function down()
     {
     }
-}
+};

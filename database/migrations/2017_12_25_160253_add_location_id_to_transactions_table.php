@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddLocationIdToTransactionsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -29,7 +29,7 @@ class AddLocationIdToTransactionsTable extends Migration
     public function down()
     {
         Schema::table('transactions', function (Blueprint $table) {
-                $table->dropColumn('location_id');
+            $table->dropColumn('location_id');
         });
     }
-}
+};

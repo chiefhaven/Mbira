@@ -10,7 +10,6 @@ class Transaction extends Model
 
     //Transaction status = ['received','pending','ordered','draft','final', 'in_transit', 'completed']
 
-    
     /**
      * The attributes that aren't mass assignable.
      *
@@ -27,7 +26,7 @@ class Transaction extends Model
         'purchase_order_ids' => 'array',
         'sales_order_ids' => 'array',
         'export_custom_fields_info' => 'array',
-        'purchase_requisition_ids' => 'array'
+        'purchase_requisition_ids' => 'array',
     ];
 
     /**
@@ -36,7 +35,7 @@ class Transaction extends Model
      * @var string
      */
     protected $table = 'transactions';
-    
+
     public function purchase_lines()
     {
         return $this->hasMany(\App\PurchaseLine::class);
@@ -132,8 +131,8 @@ class Transaction extends Model
      */
     public function getDocumentPathAttribute()
     {
-        $path = !empty($this->document) ? asset('/uploads/documents/' . $this->document) : null;
-        
+        $path = ! empty($this->document) ? asset('/uploads/documents/'.$this->document) : null;
+
         return $path;
     }
 
@@ -142,7 +141,8 @@ class Transaction extends Model
      */
     public function getDocumentNameAttribute()
     {
-        $document_name = !empty(explode("_", $this->document, 2)[1]) ? explode("_", $this->document, 2)[1] : $this->document ;
+        $document_name = ! empty(explode('_', $this->document, 2)[1]) ? explode('_', $this->document, 2)[1] : $this->document;
+
         return $document_name;
     }
 
@@ -156,33 +156,33 @@ class Transaction extends Model
      */
     public function shipping_address($array = false)
     {
-        $addresses = !empty($this->order_addresses) ? json_decode($this->order_addresses, true) : [];
+        $addresses = ! empty($this->order_addresses) ? json_decode($this->order_addresses, true) : [];
 
         $shipping_address = [];
 
-        if (!empty($addresses['shipping_address'])) {
-            if (!empty($addresses['shipping_address']['shipping_name'])) {
+        if (! empty($addresses['shipping_address'])) {
+            if (! empty($addresses['shipping_address']['shipping_name'])) {
                 $shipping_address['name'] = $addresses['shipping_address']['shipping_name'];
             }
-            if (!empty($addresses['shipping_address']['company'])) {
+            if (! empty($addresses['shipping_address']['company'])) {
                 $shipping_address['company'] = $addresses['shipping_address']['company'];
             }
-            if (!empty($addresses['shipping_address']['shipping_address_line_1'])) {
+            if (! empty($addresses['shipping_address']['shipping_address_line_1'])) {
                 $shipping_address['address_line_1'] = $addresses['shipping_address']['shipping_address_line_1'];
             }
-            if (!empty($addresses['shipping_address']['shipping_address_line_2'])) {
+            if (! empty($addresses['shipping_address']['shipping_address_line_2'])) {
                 $shipping_address['address_line_2'] = $addresses['shipping_address']['shipping_address_line_2'];
             }
-            if (!empty($addresses['shipping_address']['shipping_city'])) {
+            if (! empty($addresses['shipping_address']['shipping_city'])) {
                 $shipping_address['city'] = $addresses['shipping_address']['shipping_city'];
             }
-            if (!empty($addresses['shipping_address']['shipping_state'])) {
+            if (! empty($addresses['shipping_address']['shipping_state'])) {
                 $shipping_address['state'] = $addresses['shipping_address']['shipping_state'];
             }
-            if (!empty($addresses['shipping_address']['shipping_country'])) {
+            if (! empty($addresses['shipping_address']['shipping_country'])) {
                 $shipping_address['country'] = $addresses['shipping_address']['shipping_country'];
             }
-            if (!empty($addresses['shipping_address']['shipping_zip_code'])) {
+            if (! empty($addresses['shipping_address']['shipping_zip_code'])) {
                 $shipping_address['zipcode'] = $addresses['shipping_address']['shipping_zip_code'];
             }
         }
@@ -199,33 +199,33 @@ class Transaction extends Model
      */
     public function billing_address($array = false)
     {
-        $addresses = !empty($this->order_addresses) ? json_decode($this->order_addresses, true) : [];
+        $addresses = ! empty($this->order_addresses) ? json_decode($this->order_addresses, true) : [];
 
         $billing_address = [];
 
-        if (!empty($addresses['billing_address'])) {
-            if (!empty($addresses['billing_address']['billing_name'])) {
+        if (! empty($addresses['billing_address'])) {
+            if (! empty($addresses['billing_address']['billing_name'])) {
                 $billing_address['name'] = $addresses['billing_address']['billing_name'];
             }
-            if (!empty($addresses['billing_address']['company'])) {
+            if (! empty($addresses['billing_address']['company'])) {
                 $billing_address['company'] = $addresses['billing_address']['company'];
             }
-            if (!empty($addresses['billing_address']['billing_address_line_1'])) {
+            if (! empty($addresses['billing_address']['billing_address_line_1'])) {
                 $billing_address['address_line_1'] = $addresses['billing_address']['billing_address_line_1'];
             }
-            if (!empty($addresses['billing_address']['billing_address_line_2'])) {
+            if (! empty($addresses['billing_address']['billing_address_line_2'])) {
                 $billing_address['address_line_2'] = $addresses['billing_address']['billing_address_line_2'];
             }
-            if (!empty($addresses['billing_address']['billing_city'])) {
+            if (! empty($addresses['billing_address']['billing_city'])) {
                 $billing_address['city'] = $addresses['billing_address']['billing_city'];
             }
-            if (!empty($addresses['billing_address']['billing_state'])) {
+            if (! empty($addresses['billing_address']['billing_state'])) {
                 $billing_address['state'] = $addresses['billing_address']['billing_state'];
             }
-            if (!empty($addresses['billing_address']['billing_country'])) {
+            if (! empty($addresses['billing_address']['billing_country'])) {
                 $billing_address['country'] = $addresses['billing_address']['billing_country'];
             }
-            if (!empty($addresses['billing_address']['billing_zip_code'])) {
+            if (! empty($addresses['billing_address']['billing_zip_code'])) {
                 $billing_address['zipcode'] = $addresses['billing_address']['billing_zip_code'];
             }
         }
@@ -260,36 +260,36 @@ class Transaction extends Model
     {
         return $this->belongsTo(\App\Account::class, 'prefer_payment_account');
     }
-    
+
     /**
      * Returns the list of discount types.
      */
     public static function discountTypes()
     {
         return [
-                'fixed' => __('lang_v1.fixed'),
-                'percentage' => __('lang_v1.percentage')
-            ];
+            'fixed' => __('lang_v1.fixed'),
+            'percentage' => __('lang_v1.percentage'),
+        ];
     }
 
     public static function transactionTypes()
     {
         return  [
-                'sell' => __('sale.sale'),
-                'purchase' => __('lang_v1.purchase'),
-                'sell_return' => __('lang_v1.sell_return'),
-                'purchase_return' =>  __('lang_v1.purchase_return'),
-                'opening_balance' => __('lang_v1.opening_balance'),
-                'payment' => __('lang_v1.payment'),
-                'ledger_discount' => __('lang_v1.ledger_discount')
-            ];
+            'sell' => __('sale.sale'),
+            'purchase' => __('lang_v1.purchase'),
+            'sell_return' => __('lang_v1.sell_return'),
+            'purchase_return' => __('lang_v1.purchase_return'),
+            'opening_balance' => __('lang_v1.opening_balance'),
+            'payment' => __('lang_v1.payment'),
+            'ledger_discount' => __('lang_v1.ledger_discount'),
+        ];
     }
 
     public static function getPaymentStatus($transaction)
     {
         $payment_status = $transaction->payment_status;
 
-        if (in_array($payment_status, ['partial', 'due']) && !empty($transaction->pay_term_number) && !empty($transaction->pay_term_type)) {
+        if (in_array($payment_status, ['partial', 'due']) && ! empty($transaction->pay_term_number) && ! empty($transaction->pay_term_type)) {
             $transaction_date = \Carbon::parse($transaction->transaction_date);
             $due_date = $transaction->pay_term_type == 'days' ? $transaction_date->addDays($transaction->pay_term_number) : $transaction_date->addMonths($transaction->pay_term_number);
             $now = \Carbon::now();
@@ -307,7 +307,7 @@ class Transaction extends Model
     public function getDueDateAttribute()
     {
         $transaction_date = \Carbon::parse($this->transaction_date);
-        if (!empty($this->pay_term_type) && !empty($this->pay_term_number)) {
+        if (! empty($this->pay_term_type) && ! empty($this->pay_term_number)) {
             $due_date = $this->pay_term_type == 'days' ? $transaction_date->addDays($this->pay_term_number) : $transaction_date->addMonths($this->pay_term_number);
         } else {
             $due_date = $transaction_date->addDays(0);
@@ -324,7 +324,8 @@ class Transaction extends Model
     /**
      * Attributes to be logged for activity
      */
-    public function getLogPropertiesAttribute() {
+    public function getLogPropertiesAttribute()
+    {
         $properties = [];
 
         if (in_array($this->type, ['sell_transfer'])) {
@@ -355,48 +356,49 @@ class Transaction extends Model
     public static function sell_statuses()
     {
         return [
-            'final' => __('sale.final'), 
-            'draft' => __('sale.draft'), 
-            'quotation' => __('lang_v1.quotation'), 
-            'proforma' => __('lang_v1.proforma')
+            'final' => __('sale.final'),
+            'draft' => __('sale.draft'),
+            'quotation' => __('lang_v1.quotation'),
+            'proforma' => __('lang_v1.proforma'),
         ];
     }
 
     public static function sales_order_statuses($only_key_value = false)
     {
         if ($only_key_value) {
-           return [
+            return [
                 'ordered' => __('lang_v1.ordered'),
                 'partial' => __('lang_v1.partial'),
-                'completed' => __('restaurant.completed')
+                'completed' => __('restaurant.completed'),
             ];
         }
+
         return [
             'ordered' => [
                 'label' => __('lang_v1.ordered'),
-                'class' => 'bg-info'
+                'class' => 'bg-info',
             ],
             'partial' => [
                 'label' => __('lang_v1.partial'),
-                'class' => 'bg-yellow'
+                'class' => 'bg-yellow',
             ],
             'completed' => [
                 'label' => __('restaurant.completed'),
-                'class' => 'bg-green'
-            ]
+                'class' => 'bg-green',
+            ],
         ];
     }
 
     public function salesOrders()
     {
         $sales_orders = null;
-        if (!empty($this->sales_order_ids)) {
+        if (! empty($this->sales_order_ids)) {
             $sales_orders = Transaction::where('business_id', $this->business_id)
                                 ->where('type', 'sales_order')
                                 ->whereIn('id', $this->sales_order_ids)
                                 ->get();
         }
-        
+
         return $sales_orders;
     }
 }

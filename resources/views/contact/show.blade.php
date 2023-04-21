@@ -308,6 +308,11 @@
 </div>
 <div class="modal fade pay_contact_due_modal" tabindex="-1" role="dialog" 
         aria-labelledby="gridSystemModalLabel"></div>
+<div class="modal fade" id="edit_ledger_discount_modal" tabindex="-1" role="dialog" 
+        aria-labelledby="gridSystemModalLabel">
+</div>
+@include('ledger_discount.create')
+
 @stop
 @section('javascript')
 <script type="text/javascript">
@@ -340,7 +345,7 @@ $(document).ready( function(){
         processing: true,
         serverSide: true,
         'ajax': {
-            url: "{{action('ContactController@getSupplierStockReport', [$contact->id])}}",
+            url: "{{action([\App\Http\Controllers\ContactController::class, 'getSupplierStockReport'], [$contact->id])}}",
             data: function (d) {
                 d.location_id = $('#sr_location_id').val();
             }
@@ -350,6 +355,7 @@ $(document).ready( function(){
             { data: 'sub_sku', name: 'v.sub_sku'  },
             { data: 'purchase_quantity', name: 'purchase_quantity', searchable: false},
             { data: 'total_quantity_sold', name: 'total_quantity_sold', searchable: false},
+            { data: 'total_quantity_transfered', name: 'total_quantity_transfered', searchable: false},
             { data: 'total_quantity_returned', name: 'total_quantity_returned', searchable: false},
             { data: 'current_stock', name: 'current_stock', searchable: false},
             { data: 'stock_price', name: 'stock_price', searchable: false}
@@ -372,7 +378,74 @@ $(document).ready( function(){
     $('a[href="#sales_tab"]').on('shown.bs.tab', function (e) {
         sell_table.ajax.reload();
     });
+
+    //Date picker
+    $('#discount_date').datetimepicker({
+        format: moment_date_format + ' ' + moment_time_format,
+        ignoreReadonly: true,
+    });
+
+    $(document).on('submit', 'form#add_discount_form, form#edit_discount_form', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var data = form.serialize();
+
+        $.ajax({
+            method: 'POST',
+            url: $(this).attr('action'),
+            dataType: 'json',
+            data: data,
+            success: function(result) {
+                if (result.success === true) {
+                    $('div#add_discount_modal').modal('hide');
+                    $('div#edit_ledger_discount_modal').modal('hide');
+                    toastr.success(result.msg);
+                    form[0].reset();
+                    form.find('button[type="submit"]').removeAttr('disabled');
+                    get_contact_ledger();
+                } else {
+                    toastr.error(result.msg);
+                }
+            },
+        });
+    });
+
+    $(document).on('click', 'button.delete_ledger_discount', function() {
+        swal({
+            title: LANG.sure,
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(willDelete => {
+            if (willDelete) {
+                var href = $(this).data('href');
+                var data = $(this).serialize();
+
+                $.ajax({
+                    method: 'DELETE',
+                    url: href,
+                    dataType: 'json',
+                    data: data,
+                    success: function(result) {
+                        if (result.success == true) {
+                            toastr.success(result.msg);
+                            get_contact_ledger();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    },
+                });
+            }
+        });
+    });
 });
+
+$(document).on('shown.bs.modal', '#edit_ledger_discount_modal', function(e){
+    $('#edit_ledger_discount_modal').find('#edit_discount_date').datetimepicker({
+        format: moment_date_format + ' ' + moment_time_format,
+        ignoreReadonly: true,
+    });
+})
 
 $("input.transaction_types, input#show_payments").on('ifChanged', function (e) {
     get_contact_ledger();
@@ -393,7 +466,7 @@ $(document).on('click', '#contact_payments_pagination a', function(e){
 
 function get_contact_payments(url = null) {
     if (!url) {
-        url = "{{action('ContactController@getContactPayments', [$contact->id])}}";
+        url = "{{action([\App\Http\Controllers\ContactController::class, 'getContactPayments'], [$contact->id])}}";
     }
     $.ajax({
         url: url,
@@ -455,7 +528,7 @@ $(document).on('click', '#send_ledger', function() {
 
     var location_id = $('#ledger_location').val();
 
-    var url = "{{action('NotificationController@getTemplate', [$contact->id, 'send_ledger'])}}" + '?start_date=' + start_date + '&end_date=' + end_date + '&format=' + format + '&location_id=' + location_id;
+    var url = "{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], [$contact->id, 'send_ledger'])}}" + '?start_date=' + start_date + '&end_date=' + end_date + '&format=' + format + '&location_id=' + location_id;
 
     $.ajax({
         url: url,

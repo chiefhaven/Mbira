@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-lg" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('BusinessLocationController@update', [$location->id]), 'method' => 'PUT', 'id' => 'business_location_add_form' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\BusinessLocationController::class, 'update'], [$location->id]), 'method' => 'PUT', 'id' => 'business_location_add_form' ]) !!}
 
     {!! Form::hidden('hidden_id', $location->id, ['id' => 'hidden_id']); !!}
     <div class="modal-header">

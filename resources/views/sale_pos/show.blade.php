@@ -92,6 +92,10 @@
             <br>
               {{__('contact.landline')}}: {{ $sell->contact->landline }}
           @endif
+          @if($sell->contact->email)
+            <br>
+              {{__('business.email')}}: {{ $sell->contact->email }}
+          @endif
         @endif
         
       </div>

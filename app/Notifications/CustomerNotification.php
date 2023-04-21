@@ -12,7 +12,9 @@ class CustomerNotification extends Notification
     use Queueable;
 
     protected $notificationInfo;
+
     protected $cc;
+
     protected $bcc;
 
     /**
@@ -25,10 +27,10 @@ class CustomerNotification extends Notification
         $this->notificationInfo = $notificationInfo;
         $notificationUtil = new NotificationUtil();
         $notificationUtil->configureEmail($notificationInfo);
-        $this->cc = !empty($notificationInfo['cc']) ? $notificationInfo['cc'] : null;
-        $this->bcc = !empty($notificationInfo['bcc']) ? $notificationInfo['bcc'] : null;
-        $this->attachment = !empty($notificationInfo['attachment']) ? $notificationInfo['attachment'] : null;
-        $this->attachment_name = !empty($notificationInfo['attachment_name']) ? $notificationInfo['attachment_name'] : null;
+        $this->cc = ! empty($notificationInfo['cc']) ? $notificationInfo['cc'] : null;
+        $this->bcc = ! empty($notificationInfo['bcc']) ? $notificationInfo['bcc'] : null;
+        $this->attachment = ! empty($notificationInfo['attachment']) ? $notificationInfo['attachment'] : null;
+        $this->attachment_name = ! empty($notificationInfo['attachment_name']) ? $notificationInfo['attachment_name'] : null;
     }
 
     /**
@@ -58,17 +60,17 @@ class CustomerNotification extends Notification
                         'emails.plain_html',
                         ['content' => $data['email_body']]
                     );
-        if (!empty($this->cc)) {
+        if (! empty($this->cc)) {
             $mail->cc($this->cc);
         }
-        if (!empty($this->bcc)) {
+        if (! empty($this->bcc)) {
             $mail->bcc($this->bcc);
         }
-        if (!empty($this->attachment)) {
+        if (! empty($this->attachment)) {
             $mail->attach($this->attachment, ['as' => $this->attachment_name]);
         }
 
-        if (!empty($data['pdf']) && !empty($data['pdf_name'])) {
+        if (! empty($data['pdf']) && ! empty($data['pdf_name'])) {
             $mail->attachData($data['pdf']->Output($data['pdf_name'], 'S'), $data['pdf_name'], [
                 'mime' => 'application/pdf',
             ]);

@@ -17,11 +17,10 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('InvoiceLayoutController@store'), 'method' => 'post', 'id' => 'add_invoice_layout_form', 'files' => true]) !!}
+{!! Form::open(['url' => action([\App\Http\Controllers\InvoiceLayoutController::class, 'store']), 'method' => 'post', 'id' => 'add_invoice_layout_form', 'files' => true]) !!}
   <div class="box box-solid">
     <div class="box-body">
       <div class="row">
-
         <div class="col-sm-6">
           <div class="form-group">
             {!! Form::label('name', __('invoice.layout_name') . ':*') !!}
@@ -64,16 +63,34 @@
           </div>
 
         </div>
+        <div class="clearfix"></div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="checkbox">
+                    <label>
+                        {!! Form::checkbox('show_letter_head', 1, false, 
+                            ['class' => 'input-icheck', 'id' => 'show_letter_head']); !!} @lang('lang_v1.show_letter_head')</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 letter_head_input hide">
+                <div class="form-group">
+                    {!! Form::label('letter_head', __('lang_v1.letter_head') . ':') !!}
+                    {!! Form::file('letter_head', ['accept' => 'image/*']); !!}
+                    <span class="help-block">@lang('lang_v1.letter_head_help') <br> @lang('lang_v1.invoice_logo_help', ['max_size' => '1 MB'])</span>
+                </div>
+            </div>
+        <div class="clearfix"></div>
 
         <!-- Logo -->
-        <div class="col-sm-6">
+        <div class="col-sm-6 hide-for-letterhead">
           <div class="form-group">
             {!! Form::label('logo', __('invoice.invoice_logo') . ':') !!}
             {!! Form::file('logo', ['accept' => 'image/*']); !!}
             <span class="help-block">@lang('lang_v1.invoice_logo_help', ['max_size' => '1 MB'])</span>
           </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6 hide-for-letterhead">
           <div class="form-group">
             <div class="checkbox">
               <label>
@@ -81,15 +98,16 @@
               </div>
           </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-12 hide-for-letterhead">
           <div class="form-group">
             {!! Form::label('header_text', __('invoice.header_text') . ':' ) !!}
             {!! Form::textarea('header_text','', ['class' => 'form-control',
               'placeholder' => __('invoice.header_text'), 'rows' => 3]); !!}
           </div>
         </div>
-        <div class="clearfix"></div>
-        <div class="col-sm-3">
+      </div>
+      <div class="row hide-for-letterhead">
+      <div class="col-sm-3">
           <div class="form-group">
             {!! Form::label('sub_heading_line1', __('lang_v1.sub_heading_line', ['_number_' => 1]) . ':' ) !!}
             {!! Form::text('sub_heading_line1', null, ['class' => 'form-control',
@@ -125,7 +143,6 @@
               'placeholder' => __('lang_v1.sub_heading_line', ['_number_' => 5]) ]); !!}
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -361,9 +378,9 @@
               {!! Form::checkbox('contact_custom_fields[]', 'custom_field4', false, ['class' => 'input-icheck']); !!} {{ $custom_labels['contact']['custom_field_4'] ?? __('lang_v1.contact_custom_field4') }}</label>
           </div>
         </div>
-      </div>
-
-        <div class="clearfix"></div>
+      </div>        
+    </div>
+    <div class="row hide-for-letterhead">
         <div class="col-sm-12">
           <h4>@lang('invoice.fields_to_be_shown_in_address'):</h4>
         </div>
@@ -494,7 +511,6 @@
               </div>
           </div>
         </div>
-        
     </div>
     </div>
   </div>
@@ -597,6 +613,14 @@
                 {!! Form::checkbox('show_sale_description', 1, false, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_sale_description')</label>
             </div>
             <p class="help-block">@lang('lang_v1.product_imei_or_sn')</p>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('common_settings[show_product_description]', 1, false, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_product_description')</label>
+              </div>
           </div>
         </div>
         <div class="clearfix"></div>
@@ -733,6 +757,14 @@
             {!! Form::label('total_label', __('invoice.total_label') . ':' ) !!}
             {!! Form::text('total_label', __('sale.total'), ['class' => 'form-control',
               'placeholder' => __('invoice.total_label') ]); !!}
+          </div>
+        </div>
+
+        <div class="col-sm-3">
+          <div class="form-group">
+            {!! Form::label('total_items_label', __('lang_v1.total_items_label') . ':' ) !!}
+            {!! Form::text('common_settings[total_items_label]', null, ['class' => 'form-control',
+              'placeholder' => __('lang_v1.total_items_label'), 'id' => 'total_items_label' ]); !!}
           </div>
         </div>
         
@@ -1056,5 +1088,18 @@
 @section('javascript')
 <script type="text/javascript">
   __page_leave_confirmation('#add_invoice_layout_form');
+    $(document).on('ifChanged', '#show_letter_head', function() {
+        letter_head_changed();
+    });
+
+    function letter_head_changed() {
+        if($('#show_letter_head').is(":checked")) {
+            $('.hide-for-letterhead').addClass('hide');
+            $('.letter_head_input').removeClass('hide');
+        } else {
+            $('.hide-for-letterhead').removeClass('hide');
+            $('.letter_head_input').addClass('hide');
+        }
+    }
 </script>
 @endsection

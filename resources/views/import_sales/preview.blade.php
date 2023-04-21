@@ -10,7 +10,7 @@
 
 <!-- Main content -->
 <section class="content">
-    {!! Form::open(['url' => action('ImportSalesController@import'), 'method' => 'post', 'id' => 'import_sale_form']) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\ImportSalesController::class, 'import']), 'method' => 'post', 'id' => 'import_sale_form']) !!}
     {!! Form::hidden('file_name', $file_name); !!}
     @component('components.widget')
     <div class="row">

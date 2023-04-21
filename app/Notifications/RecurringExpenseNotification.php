@@ -4,8 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 
 class RecurringExpenseNotification extends Notification
 {
@@ -52,7 +50,7 @@ class RecurringExpenseNotification extends Notification
     {
         return [
             'transaction_id' => $this->expense->id,
-            'ref_no' => $this->expense->ref_no
+            'ref_no' => $this->expense->ref_no,
         ];
     }
 }

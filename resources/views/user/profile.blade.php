@@ -14,7 +14,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('UserController@updatePassword'), 'method' => 'post', 'id' => 'edit_password_form',
+{!! Form::open(['url' => action([\App\Http\Controllers\UserController::class, 'updatePassword']), 'method' => 'post', 'id' => 'edit_password_form',
             'class' => 'form-horizontal' ]) !!}
 <div class="row">
     <div class="col-sm-12">
@@ -64,7 +64,7 @@
     </div>
 </div>
 {!! Form::close() !!}
-{!! Form::open(['url' => action('UserController@updateProfile'), 'method' => 'post', 'id' => 'edit_user_profile_form', 'files' => true ]) !!}
+{!! Form::open(['url' => action([\App\Http\Controllers\UserController::class, 'updateProfile']), 'method' => 'post', 'id' => 'edit_user_profile_form', 'files' => true ]) !!}
 <div class="row">
     <div class="col-sm-8">
         <div class="box box-solid"> <!--business info box start-->

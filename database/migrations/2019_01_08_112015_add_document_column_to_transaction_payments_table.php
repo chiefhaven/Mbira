@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddDocumentColumnToTransactionPaymentsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -35,29 +35,31 @@ class AddDocumentColumnToTransactionPaymentsTable extends Migration
         });
     }
 
-    private function copyFiles($dir){
-
-        if (!file_exists(storage_path('app/public/' . $dir))) {
+    private function copyFiles($dir)
+    {
+        if (! file_exists(storage_path('app/public/'.$dir))) {
             return false;
         }
 
         $delete = [];
         // Get array of all source files
-        $files = scandir(storage_path('app/public/' . $dir));
+        $files = scandir(storage_path('app/public/'.$dir));
         // Identify directories
-        $source = storage_path('app/public/' . $dir . '/');
-        $destination = public_path('uploads/' . $dir . '/');
+        $source = storage_path('app/public/'.$dir.'/');
+        $destination = public_path('uploads/'.$dir.'/');
 
-        if (!file_exists($destination)) {
+        if (! file_exists($destination)) {
             @mkdir($destination, 0775, true);
         }
         // Cycle through all source files
         foreach ($files as $file) {
-          if (in_array($file, [".",".."])) continue;
-          // If we copied this successfully, mark it for deletion
-          if ( file_exists($source.$file) && @copy($source.$file, $destination.$file)) {
-            $delete[] = $source.$file;
-          }
+            if (in_array($file, ['.', '..'])) {
+                continue;
+            }
+            // If we copied this successfully, mark it for deletion
+            if (file_exists($source.$file) && @copy($source.$file, $destination.$file)) {
+                $delete[] = $source.$file;
+            }
         }
 
         // Delete all successfully-copied files
@@ -65,4 +67,4 @@ class AddDocumentColumnToTransactionPaymentsTable extends Migration
             @unlink($file);
         }
     }
-}
+};

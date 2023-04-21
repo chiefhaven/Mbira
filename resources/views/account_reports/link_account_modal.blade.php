@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('AccountReportsController@postLinkAccount'), 'method' => 'post', 'id' => 'link_account_form' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\AccountReportsController::class, 'postLinkAccount']), 'method' => 'post', 'id' => 'link_account_form' ]) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

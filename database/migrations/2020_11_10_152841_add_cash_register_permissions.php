@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Spatie\Permission\Models\Permission;
 
-class AddCashRegisterPermissions extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -12,18 +12,18 @@ class AddCashRegisterPermissions extends Migration
      */
     public function up()
     {
-        $exising_permissions = Permission::whereIn('name', 
+        $exising_permissions = Permission::whereIn('name',
                             ['view_cash_register', 'close_cash_register'])
                                     ->pluck('name')
                                     ->toArray();
-                                    
-        if (!in_array('view_cash_register', $exising_permissions)) {
-            Permission::create(['name' => 'view_cash_register']);
-        } 
 
-        if (!in_array('close_cash_register', $exising_permissions)) {
+        if (! in_array('view_cash_register', $exising_permissions)) {
+            Permission::create(['name' => 'view_cash_register']);
+        }
+
+        if (! in_array('close_cash_register', $exising_permissions)) {
             Permission::create(['name' => 'close_cash_register']);
-        }                     
+        }
     }
 
     /**
@@ -35,4 +35,4 @@ class AddCashRegisterPermissions extends Migration
     {
         //
     }
-}
+};

@@ -133,7 +133,7 @@
                     <div class="row no-print">
                         <div class="col-md-12 text-right">
                             <button type="button" class="btn btn-info btn-modal btn-xs" 
-                            data-href="{{action('NotificationController@getTemplate', ['transaction_id' => $transaction->id,'template_for' => 'payment_paid'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_paid_notification')</button>
+                            data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_paid'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_paid_notification')</button>
                         </div>
                     </div>
                     <br>
@@ -142,11 +142,11 @@
                     <div class="row no-print">
                         <div class="col-md-12 text-right">
                             <button type="button" class="btn btn-info btn-modal btn-xs" 
-                            data-href="{{action('NotificationController@getTemplate', ['transaction_id' => $transaction->id,'template_for' => 'payment_received'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_received_notification')</button>
+                            data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_received'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_received_notification')</button>
                           
                             @if($transaction->payment_status != 'paid')
                                 &nbsp;
-                                <button type="button" class="btn btn-warning btn-modal btn-xs" data-href="{{action('NotificationController@getTemplate', ['transaction_id' => $transaction->id,'template_for' => 'payment_reminder'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.send_payment_reminder')</button>
+                                <button type="button" class="btn btn-warning btn-modal btn-xs" data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_reminder'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.send_payment_reminder')</button>
                             @endif
                         </div>
                     </div>
@@ -157,7 +157,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         @if((auth()->user()->can('purchase.payments') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('sell.payments') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) &&  $transaction->type == 'expense') )
-                            <a href="{{ action('TransactionPaymentController@addPayment', [$transaction->id]) }}" class="btn btn-primary btn-xs pull-right add_payment_modal no-print"><i class="fa fa-plus" aria-hidden="true"></i> @lang("purchase.add_payment")</a>
+                            <a href="{{ action([\App\Http\Controllers\TransactionPaymentController::class, 'addPayment'], [$transaction->id]) }}" class="btn btn-primary btn-xs pull-right add_payment_modal no-print"><i class="fa fa-plus" aria-hidden="true"></i> @lang("purchase.add_payment")</a>
                         @endif
                     </div>
                 </div>
@@ -191,17 +191,17 @@
                               @if((auth()->user()->can('edit_purchase_payment') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('edit_sell_payment') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) && $transaction->type == 'expense') )
                                     @if($payment->method != 'advance')
                                         <button type="button" class="btn btn-info btn-xs edit_payment" 
-                                    data-href="{{action('TransactionPaymentController@edit', [$payment->id]) }}"><i class="glyphicon glyphicon-edit"></i></button>
+                                    data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'edit'], [$payment->id]) }}"><i class="glyphicon glyphicon-edit"></i></button>
                                     @endif
                                 @endif
 
                                 @if((auth()->user()->can('delete_purchase_payment') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('delete_sell_payment') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) && $transaction->type == 'expense') )
                                     &nbsp; <button type="button" class="btn btn-danger btn-xs delete_payment" 
-                                    data-href="{{ action('TransactionPaymentController@destroy', [$payment->id]) }}"
+                                    data-href="{{ action([\App\Http\Controllers\TransactionPaymentController::class, 'destroy'], [$payment->id]) }}"
                                     ><i class="fa fa-trash" aria-hidden="true"></i></button>
                                 @endif
                               &nbsp;
-                                <button type="button" class="btn btn-primary btn-xs view_payment" data-href="{{ action('TransactionPaymentController@viewPayment', [$payment->id]) }}">
+                                <button type="button" class="btn btn-primary btn-xs view_payment" data-href="{{ action([\App\Http\Controllers\TransactionPaymentController::class, 'viewPayment'], [$payment->id]) }}">
                                   <i class="fa fa-eye" aria-hidden="true"></i>
                                 </button>
                               @if(!empty($payment->document_path))

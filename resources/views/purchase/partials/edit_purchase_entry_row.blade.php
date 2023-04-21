@@ -3,8 +3,8 @@
     if( session()->get('business.enable_inline_tax') == 0){
         $hide_tax = 'hide';
     }
-    $currency_precision = config('constants.currency_precision', 2);
-    $quantity_precision = config('constants.quantity_precision', 2);
+    $currency_precision = session('business.currency_precision', 2);
+    $quantity_precision = session('business.quantity_precision', 2);
 @endphp
 <div class="table-responsive">
     <table class="table table-condensed table-bordered table-th-green text-center table-striped" 
@@ -43,7 +43,7 @@
         <tbody>
     <?php $row_count = 0; ?>
     @foreach($purchase->purchase_lines as $purchase_line)
-        <tr @if(!empty($purchase_line->purchase_order_line) && !empty($common_settings['enable_purchase_order'])) data-purchase_order_id="{{$purchase_line->purchase_order_line->transaction_id}}" @endif>
+        <tr @if(!empty($purchase_line->purchase_order_line) && !empty($common_settings['enable_purchase_order'])) data-purchase_order_id="{{$purchase_line->purchase_order_line->transaction_id}}" @endif  @if(!empty($purchase_line->purchase_requisition_line) && !empty($common_settings['enable_purchase_requisition'])) data-purchase_requisition_id="{{$purchase_line->purchase_requisition_line->transaction_id}}" @endif>
             <td><span class="sr_number"></span></td>
             <td>
                 {{ $purchase_line->product->name }} ({{$purchase_line->variations->sub_sku}})
@@ -56,6 +56,11 @@
                 @if(!empty($purchase_line->purchase_order_line_id) && !empty($common_settings['enable_purchase_order']))
                     {!! Form::hidden('purchases[' . $loop->index . '][purchase_order_line_id]', $purchase_line->purchase_order_line_id ); !!}
                 @endif
+
+                @if(!empty($purchase_line->purchase_requisition_line_id) && !empty($common_settings['enable_purchase_requisition']))
+                    {!! Form::hidden('purchases[' . $loop->index . '][purchase_requisition_line_id]', $purchase_line->purchase_requisition_line_id ); !!}
+                @endif
+
                 {!! Form::hidden('purchases[' . $loop->index . '][product_id]', $purchase_line->product_id ); !!}
                 {!! Form::hidden('purchases[' . $loop->index . '][variation_id]', $purchase_line->variation_id ); !!}
                 {!! Form::hidden('purchases[' . $loop->index . '][purchase_line_id]',
@@ -105,6 +110,17 @@
                 <input type="hidden" name="purchases[{{$loop->index}}][product_unit_id]" value="{{$purchase_line->product->unit->id}}">
 
                 <input type="hidden" class="base_unit_selling_price" value="{{$purchase_line->variations->sell_price_inc_tax}}">
+
+                @if(!empty($purchase_line->product->second_unit))
+                    <br><br>
+                    <span style="white-space: nowrap;">
+                    @lang('lang_v1.quantity_in_second_unit', ['unit' => $purchase_line->product->second_unit->short_name])*:</span><br>
+                    <input type="text" 
+                    name="purchases[{{$row_count}}][secondary_unit_quantity]" 
+                    value="{{@format_quantity($purchase_line->secondary_unit_quantity)}}"
+                    class="form-control input-sm input_number"
+                    required>
+                @endif
             </td>
             <td>
                 {!! Form::text('purchases[' . $loop->index . '][pp_without_discount]', number_format($purchase_line->pp_without_discount/$purchase->exchange_rate, $currency_precision, $currency_details->decimal_separator, $currency_details->thousand_separator), ['class' => 'form-control input-sm purchase_unit_cost_without_discount input_number', 'required']); !!}

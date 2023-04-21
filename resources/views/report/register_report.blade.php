@@ -13,7 +13,7 @@
     <div class="row">
         <div class="col-md-12">
             @component('components.filters', ['title' => __('report.filters')])
-              {!! Form::open(['url' => action('ReportController@getStockReport'), 'method' => 'get', 'id' => 'register_report_filter_form' ]) !!}
+              {!! Form::open(['url' => action([\App\Http\Controllers\ReportController::class, 'getStockReport']), 'method' => 'get', 'id' => 'register_report_filter_form' ]) !!}
                 <div class="col-md-4">
                     <div class="form-group">
                         {!! Form::label('register_user_id',  __('report.user') . ':') !!}

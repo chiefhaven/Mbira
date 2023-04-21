@@ -27,7 +27,7 @@
     <div class="row">
         <div class="col-md-12">
             @component('components.widget')
-                {!! Form::open(['url' => action('ImportSalesController@preview'), 'method' => 'post', 'enctype' => 'multipart/form-data' ]) !!}
+                {!! Form::open(['url' => action([\App\Http\Controllers\ImportSalesController::class, 'preview']), 'method' => 'post', 'enctype' => 'multipart/form-data' ]) !!}
                     <div class="row">
                         <div class="col-sm-6">
                         <div class="col-sm-8">
@@ -122,7 +122,7 @@
                                 </p>
                             </td>
                             @can('sell.delete')
-                                <td><a href="{{action('ImportSalesController@revertSaleImport', $key)}}" class="btn btn-xs btn-danger revert_import"><i class="fas fa-undo"></i> @lang('lang_v1.revert_import')</a></td>
+                                <td><a href="{{action([\App\Http\Controllers\ImportSalesController::class, 'revertSaleImport'], $key)}}" class="btn btn-xs btn-danger revert_import"><i class="fas fa-undo"></i> @lang('lang_v1.revert_import')</a></td>
                             @endcan
                         </tr>
                     @endforeach

@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class RenamePurchaseLineIdInStockAdjustmentLinesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +12,7 @@ class RenamePurchaseLineIdInStockAdjustmentLinesTable extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE stock_adjustment_lines CHANGE COLUMN purchase_line_id removed_purchase_line INT(11) DEFAULT NULL");
+        DB::statement('ALTER TABLE stock_adjustment_lines CHANGE COLUMN purchase_line_id removed_purchase_line INT(11) DEFAULT NULL');
     }
 
     /**
@@ -26,4 +24,4 @@ class RenamePurchaseLineIdInStockAdjustmentLinesTable extends Migration
     {
         //
     }
-}
+};

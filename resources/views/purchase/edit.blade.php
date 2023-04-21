@@ -22,10 +22,10 @@
 
   @include('layouts.partials.error')
 
-  {!! Form::open(['url' =>  action('PurchaseController@update' , [$purchase->id] ), 'method' => 'PUT', 'id' => 'add_purchase_form', 'files' => true ]) !!}
+  {!! Form::open(['url' =>  action([\App\Http\Controllers\PurchaseController::class, 'update'] , [$purchase->id] ), 'method' => 'PUT', 'id' => 'add_purchase_form', 'files' => true ]) !!}
 
   @php
-    $currency_precision = config('constants.currency_precision', 2);
+    $currency_precision = session('business.currency_precision', 2);
   @endphp
 
   <input type="hidden" id="purchase_id" value="{{ $purchase->id }}">
@@ -238,7 +238,7 @@
             </div>
             <div class="col-sm-2">
               <div class="form-group">
-                <button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action('ProductController@quickAdd')}}" 
+                <button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" 
                       data-container=".quick_add_product_modal"><i class="fa fa-plus"></i> @lang( 'product.add_new_product' ) </button>
               </div>
             </div>

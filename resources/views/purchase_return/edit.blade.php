@@ -11,7 +11,7 @@
 
 <!-- Main content -->
 <section class="content no-print">
-	{!! Form::open(['url' => action('CombinedPurchaseReturnController@update'), 'method' => 'post', 'id' => 'purchase_return_form', 'files' => true ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\CombinedPurchaseReturnController::class, 'update']), 'method' => 'post', 'id' => 'purchase_return_form', 'files' => true ]) !!}
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">

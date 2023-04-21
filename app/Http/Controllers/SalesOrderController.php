@@ -2,23 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\BusinessLocation;
 use App\Contact;
 use App\Transaction;
-use App\Utils\TransactionUtil;
 use App\Utils\BusinessUtil;
+use App\Utils\TransactionUtil;
 use App\Utils\Util;
+use Illuminate\Http\Request;
 
 class SalesOrderController extends Controller
 {
     protected $transactionUtil;
+
     protected $businessUtil;
+
     protected $commonUtil;
+
     /**
      * Constructor
      *
-     * @param ProductUtils $product
+     * @param  ProductUtils  $product
      * @return void
      */
     public function __construct(TransactionUtil $transactionUtil, BusinessUtil $businessUtil, Util $commonUtil)
@@ -29,16 +32,16 @@ class SalesOrderController extends Controller
         $this->sales_order_statuses = [
             'ordered' => [
                 'label' => __('lang_v1.ordered'),
-                'class' => 'bg-info'
+                'class' => 'bg-info',
             ],
             'partial' => [
                 'label' => __('lang_v1.partial'),
-                'class' => 'bg-yellow'
+                'class' => 'bg-yellow',
             ],
             'completed' => [
                 'label' => __('restaurant.completed'),
-                'class' => 'bg-green'
-            ]
+                'class' => 'bg-green',
+            ],
         ];
     }
 
@@ -49,14 +52,14 @@ class SalesOrderController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('so.view_own') && !auth()->user()->can('so.view_all') && !auth()->user()->can('so.create')) {
+        if (! auth()->user()->can('so.view_own') && ! auth()->user()->can('so.view_all') && ! auth()->user()->can('so.create')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
 
         $business_locations = BusinessLocation::forDropdown($business_id, false);
-        $customers = Contact::customersDropdown($business_id, false);    
+        $customers = Contact::customersDropdown($business_id, false);
 
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
@@ -73,7 +76,7 @@ class SalesOrderController extends Controller
     {
         $business_id = request()->session()->get('user.business_id');
         $location_id = request()->input('location_id');
-        
+
         $sales_orders = Transaction::where('business_id', $business_id)
                             ->where('location_id', $location_id)
                             ->where('type', 'sales_order')
@@ -86,16 +89,16 @@ class SalesOrderController extends Controller
     }
 
     /**
-     * get required resources 
+     * get required resources
      *
      * to edit sales order status
      *
      * @return \Illuminate\Http\Response
      */
     public function getEditSalesOrderStatus(Request $request, $id)
-    {   
+    {
         $is_admin = $this->businessUtil->is_admin(auth()->user());
-        if ( !$is_admin) {
+        if (! $is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -120,19 +123,18 @@ class SalesOrderController extends Controller
     public function postEditSalesOrderStatus(Request $request, $id)
     {
         $is_admin = $this->businessUtil->is_admin(auth()->user());
-        if ( !$is_admin) {
+        if (! $is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
         if ($request->ajax()) {
             try {
-                
                 $business_id = request()->session()->get('user.business_id');
                 $transaction = Transaction::where('business_id', $business_id)
                                 ->findOrFail($id);
 
                 $transaction_before = $transaction->replicate();
-                
+
                 $transaction->status = $request->input('status');
                 $transaction->save();
 
@@ -141,17 +143,17 @@ class SalesOrderController extends Controller
 
                 $output = [
                     'success' => 1,
-                    'msg' => trans("lang_v1.success")
+                    'msg' => trans('lang_v1.success'),
                 ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
                 $output = [
                     'success' => 0,
-                    'msg' => trans("messages.something_went_wrong")
+                    'msg' => trans('messages.something_went_wrong'),
                 ];
             }
+
             return $output;
         }
     }
-
 }

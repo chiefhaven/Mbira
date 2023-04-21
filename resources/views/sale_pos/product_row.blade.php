@@ -1,6 +1,8 @@
 @php
 	$common_settings = session()->get('business.common_settings');
 	$multiplier = 1;
+
+	$action = !empty($action) ? $action : '';
 @endphp
 
 @foreach($sub_units as $key => $value)
@@ -49,14 +51,15 @@
 			$item_tax = !empty($product->item_tax) ? $product->item_tax : 0;
 			$unit_price_inc_tax = $product->sell_price_inc_tax;
 
-			if(!empty($so_line)) {
-				$tax_id = $so_line->tax_id;
-				$item_tax = $so_line->item_tax;
-			}
-
 			if($hide_tax == 'hide'){
 				$tax_id = null;
 				$unit_price_inc_tax = $product->default_sell_price;
+			}
+
+			if(!empty($so_line) && $action !== 'edit') {
+				$tax_id = $so_line->tax_id;
+				$item_tax = $so_line->item_tax;
+				$unit_price_inc_tax = $so_line->unit_price_inc_tax;
 			}
 
 			$discount_type = !empty($product->line_discount_type) ? $product->line_discount_type : 'fixed';
@@ -67,7 +70,7 @@
 				$discount_amount = $discount->discount_amount;
 			}
 
-			if(!empty($so_line)) {
+			if(!empty($so_line) && $action !== 'edit') {
 				$discount_type = $so_line->line_discount_type;
 				$discount_amount = $so_line->line_discount_amount;
 			}
@@ -75,6 +78,9 @@
   			$sell_line_note = '';
   			if(!empty($product->sell_line_note)){
   				$sell_line_note = $product->sell_line_note;
+  			}
+			  if(!empty($so_line)){
+  				$sell_line_note = $so_line->sell_line_note;
   			}
   		@endphp
 
@@ -113,7 +119,7 @@
 				if(!empty($so_line)) {
 					$qty_available = $so_line->quantity - $so_line->so_quantity_invoiced + $product->quantity_ordered;
 					$max_quantity = $qty_available;
-					$formatted_max_quantity = number_format($qty_available, config('constants.currency_precision', 2), session('currency')['decimal_separator'], session('currency')['thousand_separator']);
+					$formatted_max_quantity = number_format($qty_available, session('business.quantity_precision', 2), session('currency')['decimal_separator'], session('currency')['thousand_separator']);
 				}
 			} else {
 				if(!empty($so_line) && $so_line->qty_available <= $max_quantity) {
@@ -255,6 +261,17 @@
 			{{$product->unit}}
 		@endif
 
+		@if(!empty($product->second_unit))
+            <br>
+            <span style="white-space: nowrap;">
+            @lang('lang_v1.quantity_in_second_unit', ['unit' => $product->second_unit])*:</span><br>
+            <input type="text" 
+            name="products[{{$row_count}}][secondary_unit_quantity]" 
+            value="{{@format_quantity($product->secondary_unit_quantity)}}"
+            class="form-control input-sm input_number"
+            required>
+        @endif
+
 		<input type="hidden" class="base_unit_multiplier" name="products[{{$row_count}}][base_unit_multiplier]" value="{{$multiplier}}">
 
 		<input type="hidden" class="hidden_base_unit_sell_price" value="{{$product->default_sell_price / $multiplier}}">
@@ -312,18 +329,35 @@
 		@php
 			$pos_unit_price = !empty($product->unit_price_before_discount) ? $product->unit_price_before_discount : $product->default_sell_price;
 
-			if(!empty($so_line)) {
+			if(!empty($so_line) && $action !== 'edit') {
 				$pos_unit_price = $so_line->unit_price_before_discount;
 			}
 		@endphp
 		<td class="@if(!auth()->user()->can('edit_product_price_from_sale_screen')) hide @endif">
-			<input type="text" name="products[{{$row_count}}][unit_price]" class="form-control pos_unit_price input_number mousetrap" value="{{@num_format($pos_unit_price)}}" @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$pos_unit_price}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($pos_unit_price)])}}" @endif>
+			<input type="text" name="products[{{$row_count}}][unit_price]" class="form-control pos_unit_price input_number mousetrap" value="{{@num_format($pos_unit_price)}}" @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$pos_unit_price}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($pos_unit_price)])}}" @endif> 
+
+			@if(!empty($last_sell_line))
+				<br>
+				<small class="text-muted">@lang('lang_v1.prev_unit_price'): @format_currency($last_sell_line->unit_price_before_discount)</small>
+			@endif
 		</td>
 		<td @if(!$edit_discount) class="hide" @endif>
 			{!! Form::text("products[$row_count][line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number row_discount_amount']); !!}<br>
 			{!! Form::select("products[$row_count][line_discount_type]", ['fixed' => __('lang_v1.fixed'), 'percentage' => __('lang_v1.percentage')], $discount_type , ['class' => 'form-control row_discount_type']); !!}
 			@if(!empty($discount))
 				<p class="help-block">{!! __('lang_v1.applied_discount_text', ['discount_name' => $discount->name, 'starts_at' => $discount->formated_starts_at, 'ends_at' => $discount->formated_ends_at]) !!}</p>
+			@endif
+
+			@if(!empty($last_sell_line))
+				<br>
+				<small class="text-muted">
+					@lang('lang_v1.prev_discount'): 
+					@if($last_sell_line->line_discount_type == 'percentage')
+						{{@num_format($last_sell_line->line_discount_amount)}}%
+					@else
+						@format_currency($last_sell_line->line_discount_amount)
+					@endif
+				</small>
 			@endif
 		</td>
 		<td class="text-center {{$hide_tax}}">

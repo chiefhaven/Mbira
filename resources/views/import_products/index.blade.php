@@ -30,7 +30,7 @@
     <div class="row">
         <div class="col-sm-12">
             @component('components.widget', ['class' => 'box-primary'])
-                {!! Form::open(['url' => action('ImportProductsController@store'), 'method' => 'post', 'enctype' => 'multipart/form-data' ]) !!}
+                {!! Form::open(['url' => action([\App\Http\Controllers\ImportProductsController::class, 'store']), 'method' => 'post', 'enctype' => 'multipart/form-data' ]) !!}
                     <div class="row">
                         <div class="col-sm-6">
                         <div class="col-sm-8">

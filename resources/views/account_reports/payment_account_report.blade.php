@@ -50,8 +50,10 @@
                                 <th>@lang('messages.date')</th>
                                 <th>@lang('account.payment_ref_no')</th>
                                 <th>@lang('account.invoice_ref_no')</th>
+                                <th>@lang('sale.amount')</th>
                                 <th>@lang('lang_v1.payment_type')</th>
                                 <th>@lang('account.account')</th>
+                                <th>@lang( 'lang_v1.description' )</th>
                                 <th>@lang('messages.action')</th>
                             </tr>
                         </thead>
@@ -89,7 +91,7 @@
                             processing: true,
                             serverSide: true,
                             "ajax": {
-                                "url": "{{action('AccountReportsController@paymentAccountReport')}}",
+                                "url": "{{action([\App\Http\Controllers\AccountReportsController::class, 'paymentAccountReport'])}}",
                                 "data": function ( d ) {
                                     d.account_id = $('#account_id').val();
                                     var start_date = '';
@@ -103,7 +105,7 @@
                                 }
                             },
                             columnDefs:[{
-                                "targets": 5,
+                                "targets": 7,
                                 "orderable": false,
                                 "searchable": false
                             }],
@@ -111,8 +113,10 @@
                                 {data: 'paid_on', name: 'paid_on'},
                                 {data: 'payment_ref_no', name: 'payment_ref_no'},
                                 {data: 'transaction_number', name: 'transaction_number'},
+                                {data: 'amount', name: 'amount'},
                                 {data: 'type', name: 'T.type'},
                                 {data: 'account', name: 'account'},
+                                {data: 'details', name: 'details', "searchable": false},
                                 {data: 'action', name: 'action'}
                             ],
                             "fnDrawCallback": function (oSettings) {

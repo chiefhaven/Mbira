@@ -160,5 +160,28 @@
             </div>
         </div>
 
+        <div class="col-sm-4 @if(config('constants.enable_secondary_unit') == false) hide @endif">
+            <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('common_settings[enable_secondary_unit]', 1, !empty($common_settings['enable_secondary_unit']) ? true : false, 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.enable_secondary_unit' ) }}
+                  </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('common_settings[is_product_image_required]', 1, 
+                        !empty($common_settings['is_product_image_required']) ? true : false, 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.is_product_image_required' ) }}
+                  </label>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

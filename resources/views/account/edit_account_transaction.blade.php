@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('AccountController@updateAccountTransaction', ['id' => $account_transaction->id ]), 'method' => 'post', 'id' => 'edit_account_transaction_form' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\AccountController::class, 'updateAccountTransaction'], ['id' => $account_transaction->id ]), 'method' => 'post', 'id' => 'edit_account_transaction_form' ]) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

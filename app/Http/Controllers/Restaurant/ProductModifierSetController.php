@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Restaurant;
 
 use App\Product;
 use App\Variation;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -12,9 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 class ProductModifierSetController extends Controller
 {
-
     /**
      * Show the form for editing the specified resource.
+     *
      * @return Response
      */
     public function edit($id)
@@ -34,6 +33,7 @@ class ProductModifierSetController extends Controller
 
     /**
      * Add new product row
+     *
      * @return Response
      */
     public function product_row($product_id)
@@ -52,7 +52,8 @@ class ProductModifierSetController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * @param  Request $request
+     *
+     * @param  Request  $request
      * @return Response
      */
     public function update($modifier_set_id, Request $request)
@@ -70,20 +71,20 @@ class ProductModifierSetController extends Controller
                     ->first();
 
             $products = [];
-            if (!empty($input['products'])) {
+            if (! empty($input['products'])) {
                 $products = $input['products'];
             }
             $modifer_set->modifier_products()->sync($products);
 
             DB::commit();
 
-            $output = ['success' => 1, 'msg' => __("lang_v1.success")];
+            $output = ['success' => 1, 'msg' => __('lang_v1.success')];
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                'msg' => __("messages.something_went_wrong")];
+                'msg' => __('messages.something_went_wrong'), ];
         }
 
         return $output;

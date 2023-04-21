@@ -1,9 +1,9 @@
 <!-- default value -->
 @php
-    $go_back_url = action('SellPosController@index');
+    $go_back_url = action([\App\Http\Controllers\SellPosController::class, 'index']);
     $transaction_sub_type = '';
-    $view_suspended_sell_url = action('SellController@index').'?suspended=1';
-    $pos_redirect_url = action('SellPosController@create');
+    $view_suspended_sell_url = action([\App\Http\Controllers\SellController::class, 'index']).'?suspended=1';
+    $pos_redirect_url = action([\App\Http\Controllers\SellPosController::class, 'create']);
 @endphp
 
 @if(!empty($pos_module_data))
@@ -49,22 +49,33 @@
       <a href="{{$go_back_url}}" title="{{ __('lang_v1.go_back') }}" class="btn btn-info btn-flat m-6 btn-xs m-5 pull-right">
         <strong><i class="fa fa-backward fa-lg"></i></strong>
       </a>
+      @if(!empty($pos_settings['inline_service_staff']))
+        <button type="button" id="show_service_staff_availability" title="{{ __('lang_v1.service_staff_availability') }}" class="btn btn-primary btn-flat m-6 btn-xs m-5 pull-right" data-container=".view_modal" 
+          data-href="{{ action([\App\Http\Controllers\SellPosController::class, 'showServiceStaffAvailibility'])}}">
+            <strong><i class="fa fa-users fa-lg"></i></strong>
+        </button>
+      @endif
+
       @can('close_cash_register')
       <button type="button" id="close_register" title="{{ __('cash_register.close_register') }}" class="btn btn-danger btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".close_register_modal" 
-          data-href="{{ action('CashRegisterController@getCloseRegister')}}">
+          data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getCloseRegister'])}}">
             <strong><i class="fa fa-window-close fa-lg"></i></strong>
       </button>
       @endcan
       
       @can('view_cash_register')
       <button type="button" id="register_details" title="{{ __('cash_register.register_details') }}" class="btn btn-success btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".register_details_modal" 
-          data-href="{{ action('CashRegisterController@getRegisterDetails')}}">
+          data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getRegisterDetails'])}}">
             <strong><i class="fa fa-briefcase fa-lg" aria-hidden="true"></i></strong>
       </button>
       @endcan
 
       <button title="@lang('lang_v1.calculator')" id="btnCalculator" type="button" class="btn btn-success btn-flat pull-right m-5 btn-xs mt-10 popover-default" data-toggle="popover" data-trigger="click" data-content='@include("layouts.partials.calculator")' data-html="true" data-placement="bottom">
             <strong><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></strong>
+      </button>
+
+      <button type="button" class="btn btn-danger btn-flat m-6 btn-xs m-5 pull-right popover-default" id="return_sale" title="@lang('lang_v1.sell_return')" data-toggle="popover" data-trigger="click" data-content='<div class="m-8"><input type="text" class="form-control" placeholder="@lang("sale.invoice_no")" id="send_for_sell_return_invoice_no"></div><div class="w-100 text-center"><button type="button" class="btn btn-danger" id="send_for_sell_return">@lang("lang_v1.send")</button></div>' data-html="true" data-placement="bottom">
+            <strong><i class="fas fa-undo fa-lg"></i></strong>
       </button>
 
       <button type="button" title="{{ __('lang_v1.full_screen') }}" class="btn btn-primary btn-flat m-6 hidden-xs btn-xs m-5 pull-right" id="full_screen">
@@ -88,7 +99,7 @@
 
         @if(in_array('pos_sale', $enabled_modules) && !empty($transaction_sub_type))
           @can('sell.create')
-            <a href="{{action('SellPosController@create')}}" title="@lang('sale.pos_sale')" class="btn btn-success btn-flat m-6 btn-xs m-5 pull-right">
+            <a href="{{action([\App\Http\Controllers\SellPosController::class, 'create'])}}" title="@lang('sale.pos_sale')" class="btn btn-success btn-flat m-6 btn-xs m-5 pull-right">
               <strong><i class="fa fa-th-large"></i> &nbsp; @lang('sale.pos_sale')</strong>
             </a>
           @endcan

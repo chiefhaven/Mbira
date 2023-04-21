@@ -29,7 +29,7 @@
         @can('purchase.update')
             @slot('tool')
                 <div class="box-tools">
-                    <a class="btn btn-block btn-primary" href="{{action('CombinedPurchaseReturnController@create')}}">
+                    <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\CombinedPurchaseReturnController::class, 'create'])}}">
                     <i class="fa fa-plus"></i> @lang('messages.add')</a>
                 </div>
             @endslot

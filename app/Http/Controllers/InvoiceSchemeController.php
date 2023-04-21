@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\InvoiceScheme;
 use App\InvoiceLayout;
-use Illuminate\Http\Request;
+use App\InvoiceScheme;
 use Datatables;
+use Illuminate\Http\Request;
 
 class InvoiceSchemeController extends Controller
 {
@@ -16,7 +16,7 @@ class InvoiceSchemeController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -28,34 +28,34 @@ class InvoiceSchemeController extends Controller
             return Datatables::of($schemes)
                 ->addColumn(
                     'action',
-                    '<button type="button" data-href="{{action(\'InvoiceSchemeController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".invoice_edit_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    '<button type="button" data-href="{{action(\'App\Http\Controllers\InvoiceSchemeController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".invoice_edit_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
-                        <button type="button" data-href="{{action(\'InvoiceSchemeController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_invoice_button" @if($is_default) disabled @endif><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>&nbsp;
+                        <button type="button" data-href="{{action(\'App\Http\Controllers\InvoiceSchemeController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_invoice_button" @if($is_default) disabled @endif><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>&nbsp;
                         @if($is_default)
                             <button type="button" class="btn btn-xs btn-success" disabled><i class="fa fa-check-square-o" aria-hidden="true"></i> @lang("barcode.default")</button>
                         @else
-                            <button class="btn btn-xs btn-info set_default_invoice" data-href="{{action(\'InvoiceSchemeController@setDefault\', [$id])}}">@lang("barcode.set_as_default")</button>
+                            <button class="btn btn-xs btn-info set_default_invoice" data-href="{{action(\'App\Http\Controllers\InvoiceSchemeController@setDefault\', [$id])}}">@lang("barcode.set_as_default")</button>
                         @endif
                         '
                 )
                 ->editColumn('prefix', function ($row) {
                     if ($row->scheme_type == 'year') {
-                        return $row->prefix.date('Y') . config('constants.invoice_scheme_separator');
+                        return $row->prefix.date('Y').config('constants.invoice_scheme_separator');
                     } else {
                         return $row->prefix;
                     }
                 })
                 ->editColumn('name', function ($row) {
                     if ($row->is_default == 1) {
-                        return $row->name . ' &nbsp; <span class="label label-success">' . __("barcode.default") .'</span>' ;
+                        return $row->name.' &nbsp; <span class="label label-success">'.__('barcode.default').'</span>';
                     } else {
-                        return $row->name ;
+                        return $row->name;
                     }
                 })
                 ->removeColumn('id')
                 ->removeColumn('is_default')
                 ->removeColumn('scheme_type')
-                ->rawColumns([5,0])
+                ->rawColumns([5, 0])
                 ->make(false);
         }
 
@@ -74,7 +74,7 @@ class InvoiceSchemeController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -89,7 +89,7 @@ class InvoiceSchemeController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -98,23 +98,23 @@ class InvoiceSchemeController extends Controller
             $business_id = $request->session()->get('user.business_id');
             $input['business_id'] = $business_id;
 
-            if (!empty($request->input('is_default'))) {
+            if (! empty($request->input('is_default'))) {
                 //get_default
                 $default = InvoiceScheme::where('business_id', $business_id)
                                 ->where('is_default', 1)
-                                ->update(['is_default' => 0 ]);
+                                ->update(['is_default' => 0]);
                 $input['is_default'] = 1;
             }
             InvoiceScheme::create($input);
             $output = ['success' => true,
-                            'msg' => __("invoice.added_success")
-                        ];
+                'msg' => __('invoice.added_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -128,7 +128,7 @@ class InvoiceSchemeController extends Controller
      */
     public function show($id)
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -143,7 +143,7 @@ class InvoiceSchemeController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -163,7 +163,7 @@ class InvoiceSchemeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -173,14 +173,14 @@ class InvoiceSchemeController extends Controller
             $invoice = InvoiceScheme::where('id', $id)->update($input);
 
             $output = ['success' => true,
-                            'msg' => __('invoice.updated_success')
-                        ];
+                'msg' => __('invoice.updated_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -194,7 +194,7 @@ class InvoiceSchemeController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -204,58 +204,60 @@ class InvoiceSchemeController extends Controller
                 if ($invoice->is_default != 1) {
                     $invoice->delete();
                     $output = ['success' => true,
-                                'msg' => __("invoice.deleted_success")
-                                ];
+                        'msg' => __('invoice.deleted_success'),
+                    ];
                 } else {
                     $output = ['success' => false,
-                                'msg' => __("messages.something_went_wrong")
-                                ];
+                        'msg' => __('messages.something_went_wrong'),
+                    ];
                 }
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;
         }
     }
+
     /**
      * Sets invoice scheme setting as default
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function setDefault($id)
     {
-        if (!auth()->user()->can('invoice_settings.access')) {
+        if (! auth()->user()->can('invoice_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
-        
+
         if (request()->ajax()) {
             try {
                 //get_default
                 $business_id = request()->session()->get('user.business_id');
                 $default = InvoiceScheme::where('business_id', $business_id)
                                 ->where('is_default', 1)
-                                 ->update(['is_default' => 0 ]);
-                                 
+                                 ->update(['is_default' => 0]);
+
                 $invoice = InvoiceScheme::find($id);
                 $invoice->is_default = 1;
                 $invoice->save();
 
                 $output = ['success' => true,
-                            'msg' => __("barcode.default_set_success")
-                        ];
+                    'msg' => __('barcode.default_set_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
+
             return $output;
         }
     }

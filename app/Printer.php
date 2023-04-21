@@ -20,7 +20,7 @@ class Printer extends Model
             'simple' => 'Simple',
             'SP2000' => 'Star Branded',
             'TEP-200M' => 'Espon Tep',
-            'P822D' => 'P822D'
+            'P822D' => 'P822D',
         ];
 
         return $profiles;
@@ -38,7 +38,7 @@ class Printer extends Model
         $types = [
             'network' => 'Network',
             'windows' => 'Windows',
-            'linux' => 'Linux'
+            'linux' => 'Linux',
         ];
 
         return $types;
@@ -54,9 +54,8 @@ class Printer extends Model
     /**
      * Return list of printers for a business
      *
-     * @param int $business_id
-     * @param boolean $show_select = true
-     *
+     * @param  int  $business_id
+     * @param  bool  $show_select = true
      * @return array
      */
     public static function forDropdown($business_id, $show_select = true)
@@ -67,6 +66,7 @@ class Printer extends Model
         if ($show_select) {
             $printers->prepend(__('messages.please_select'), '');
         }
+
         return $printers;
     }
 }

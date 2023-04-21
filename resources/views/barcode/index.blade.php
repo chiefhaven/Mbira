@@ -19,7 +19,7 @@
     @component('components.widget', ['class' => 'box-primary', 'title' => __('barcode.all_your_barcode')])
         @slot('tool')
             <div class="box-tools">
-                <a class="btn btn-block btn-primary" href="{{action('BarcodeController@create')}}">
+                <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\BarcodeController::class, 'create'])}}">
                 <i class="fa fa-plus"></i> @lang('barcode.add_new_setting')</a>
             </div>
         @endslot

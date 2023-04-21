@@ -1,6 +1,6 @@
 <div class="modal-dialog modal-lg" role="document">
   <div class="modal-content">
-    {!! Form::open(['url' => action('CashRegisterController@postCloseRegister'), 'method' => 'post' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\CashRegisterController::class, 'postCloseRegister']), 'method' => 'post' ]) !!}
 
     {!! Form::hidden('user_id', $register_details->user_id); !!}
     <div class="modal-header">

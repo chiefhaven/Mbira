@@ -32,10 +32,10 @@
     @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.import_export_selling_price_group_prices')])
             <div class="row">
                 <div class="col-sm-6">
-                    <a href="{{action('SellingPriceGroupController@export')}}" class="btn btn-primary">@lang('lang_v1.export_selling_price_group_prices')</a>
+                    <a href="{{action([\App\Http\Controllers\SellingPriceGroupController::class, 'export'])}}" class="btn btn-primary">@lang('lang_v1.export_selling_price_group_prices')</a>
                 </div>
                 <div class="col-sm-6">
-                    {!! Form::open(['url' => action('SellingPriceGroupController@import'), 'method' => 'post', 'enctype' => 'multipart/form-data' ]) !!}
+                    {!! Form::open(['url' => action([\App\Http\Controllers\SellingPriceGroupController::class, 'import']), 'method' => 'post', 'enctype' => 'multipart/form-data' ]) !!}
                     <div class="form-group">
                         {!! Form::label('name', __( 'product.file_to_import' ) . ':') !!}
                         {!! Form::file('product_group_prices', ['required' => 'required']); !!}
@@ -63,7 +63,7 @@
         @slot('tool')
             <div class="box-tools">
                 <button type="button" class="btn btn-block btn-primary btn-modal" 
-                    data-href="{{action('SellingPriceGroupController@create')}}" 
+                    data-href="{{action([\App\Http\Controllers\SellingPriceGroupController::class, 'create'])}}" 
                     data-container=".view_modal">
                     <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
             </div>

@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class ModifyUsersTableForSalesCmmsnAgnt extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class ModifyUsersTableForSalesCmmsnAgnt extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN surname CHAR(10)");
+        DB::statement('ALTER TABLE users MODIFY COLUMN surname CHAR(10)');
 
         Schema::table('users', function (Blueprint $table) {
             $table->char('contact_no', 15)->nullable()->after('language');
@@ -35,4 +35,4 @@ class ModifyUsersTableForSalesCmmsnAgnt extends Migration
             //
         });
     }
-}
+};

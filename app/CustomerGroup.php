@@ -6,13 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomerGroup extends Model
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-    
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -26,7 +23,6 @@ class CustomerGroup extends Model
      * @param $business_id int
      * @param $prepend_none = true (boolean)
      * @param $prepend_all = false (boolean)
-     *
      * @return array
      */
     public static function forDropdown($business_id, $prepend_none = true, $prepend_all = false)
@@ -36,14 +32,14 @@ class CustomerGroup extends Model
 
         //Prepend none
         if ($prepend_none) {
-            $all_cg = $all_cg->prepend(__("lang_v1.none"), '');
+            $all_cg = $all_cg->prepend(__('lang_v1.none'), '');
         }
 
         //Prepend none
         if ($prepend_all) {
-            $all_cg = $all_cg->prepend(__("report.all"), '');
+            $all_cg = $all_cg->prepend(__('report.all'), '');
         }
-        
+
         return $all_cg;
     }
 }

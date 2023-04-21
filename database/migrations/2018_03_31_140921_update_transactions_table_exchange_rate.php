@@ -1,10 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateTransactionsTableExchangeRate extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +11,7 @@ class UpdateTransactionsTableExchangeRate extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN exchange_rate DECIMAL(20,3) NOT NULL DEFAULT 0");
+        DB::statement('ALTER TABLE transactions MODIFY COLUMN exchange_rate DECIMAL(20,3) NOT NULL DEFAULT 0');
     }
 
     /**
@@ -25,4 +23,4 @@ class UpdateTransactionsTableExchangeRate extends Migration
     {
         //
     }
-}
+};

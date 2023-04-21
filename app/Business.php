@@ -21,10 +21,10 @@ class Business extends Model
     protected $guarded = ['id', 'woocommerce_api_settings'];
 
     /**
-      * The attributes that should be hidden for arrays.
-      *
-      * @var array
-      */
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
     protected $hidden = ['woocommerce_api_settings'];
 
     /**
@@ -38,7 +38,7 @@ class Business extends Model
         'email_settings' => 'array',
         'sms_settings' => 'array',
         'common_settings' => 'array',
-        'weighing_scale_setting' => 'array'
+        'weighing_scale_setting' => 'array',
     ];
 
     /**
@@ -50,7 +50,7 @@ class Business extends Model
             'd-m-Y' => 'dd-mm-yyyy',
             'm-d-Y' => 'mm-dd-yyyy',
             'd/m/Y' => 'dd/mm/yyyy',
-            'm/d/Y' => 'mm/dd/yyyy'
+            'm/d/Y' => 'mm/dd/yyyy',
         ];
     }
 
@@ -87,8 +87,8 @@ class Business extends Model
     }
 
     /**
-    * Get the Business subscriptions.
-    */
+     * Get the Business subscriptions.
+     */
     public function subscriptions()
     {
         return $this->hasMany('\Modules\Superadmin\Entities\Subscription');
@@ -102,29 +102,30 @@ class Business extends Model
     public static function create_business($details)
     {
         $business = Business::create($details);
+
         return $business;
     }
 
     /**
      * Updates a business based on the input provided.
-     * @param int $business_id
-     * @param array $details
      *
+     * @param  int  $business_id
+     * @param  array  $details
      * @return object
      */
     public static function update_business($business_id, $details)
     {
-        if (!empty($details)) {
+        if (! empty($details)) {
             Business::where('id', $business_id)
                 ->update($details);
         }
     }
 
-    public function getBusinessAddressAttribute() 
+    public function getBusinessAddressAttribute()
     {
         $location = $this->locations->first();
-        $address = $location->landmark . ', ' .$location->city . 
-        ', ' . $location->state . '<br>' . $location->country . ', ' . $location->zip_code;
+        $address = $location->landmark.', '.$location->city.
+        ', '.$location->state.'<br>'.$location->country.', '.$location->zip_code;
 
         return $address;
     }

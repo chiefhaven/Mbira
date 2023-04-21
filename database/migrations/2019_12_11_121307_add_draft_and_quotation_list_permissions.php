@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Spatie\Permission\Models\Permission;
 
-class AddDraftAndQuotationListPermissions extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -25,4 +25,4 @@ class AddDraftAndQuotationListPermissions extends Migration
     {
         //
     }
-}
+};

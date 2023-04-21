@@ -2,11 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Business;
+use App\Utils\BusinessUtil;
 use Closure;
 use Illuminate\Support\Facades\Auth;
-use App\Utils\BusinessUtil;
-
-use App\Business;
 
 class SetSessionData
 {
@@ -19,27 +18,27 @@ class SetSessionData
      */
     public function handle($request, Closure $next)
     {
-        if (!$request->session()->has('user')) {
+        if (! $request->session()->has('user')) {
             $business_util = new BusinessUtil;
 
             $user = Auth::user();
             $session_data = ['id' => $user->id,
-                            'surname' => $user->surname,
-                            'first_name' => $user->first_name,
-                            'last_name' => $user->last_name,
-                            'email' => $user->email,
-                            'business_id' => $user->business_id,
-                            'language' => $user->language,
-                            ];
+                'surname' => $user->surname,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'business_id' => $user->business_id,
+                'language' => $user->language,
+            ];
             $business = Business::findOrFail($user->business_id);
-            
+
             $currency = $business->currency;
             $currency_data = ['id' => $currency->id,
-                                'code' => $currency->code,
-                                'symbol' => $currency->symbol,
-                                'thousand_separator' => $currency->thousand_separator,
-                                'decimal_separator' => $currency->decimal_separator
-                            ];
+                'code' => $currency->code,
+                'symbol' => $currency->symbol,
+                'thousand_separator' => $currency->thousand_separator,
+                'decimal_separator' => $currency->decimal_separator,
+            ];
 
             $request->session()->put('user', $session_data);
             $request->session()->put('business', $business);

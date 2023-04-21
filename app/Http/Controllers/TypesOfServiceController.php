@@ -13,14 +13,13 @@ class TypesOfServiceController extends Controller
 {
     /**
      * All Utils instance.
-     *
      */
     protected $commonUtil;
 
     /**
      * Constructor
      *
-     * @param TaxUtil $taxUtil
+     * @param  TaxUtil  $taxUtil
      * @return void
      */
     public function __construct(Util $commonUtil)
@@ -35,8 +34,8 @@ class TypesOfServiceController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('access_types_of_service')) {
-             abort(403, 'Unauthorized action.');
+        if (! auth()->user()->can('access_types_of_service')) {
+            abort(403, 'Unauthorized action.');
         }
 
         if (request()->ajax()) {
@@ -48,13 +47,13 @@ class TypesOfServiceController extends Controller
             return Datatables::of($tax_rates)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'TypesOfServiceController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".type_of_service_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    '<button data-href="{{action(\'App\Http\Controllers\TypesOfServiceController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".type_of_service_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
-                    <button data-href="{{action(\'TypesOfServiceController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_type_of_service"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
+                    <button data-href="{{action(\'App\Http\Controllers\TypesOfServiceController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_type_of_service"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
                 )
                 ->editColumn('packing_charge', function ($row) {
-                    $html = '<span class="display_currency" data-currency_symbol="false">' . $row->packing_charge . '</span>';
-                    
+                    $html = '<span class="display_currency" data-currency_symbol="false">'.$row->packing_charge.'</span>';
+
                     if ($row->packing_charge_type == 'percent') {
                         $html .= '%';
                     }
@@ -76,8 +75,8 @@ class TypesOfServiceController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('access_types_of_service')) {
-             abort(403, 'Unauthorized action.');
+        if (! auth()->user()->can('access_types_of_service')) {
+            abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
@@ -96,30 +95,30 @@ class TypesOfServiceController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('access_types_of_service')) {
-             abort(403, 'Unauthorized action.');
+        if (! auth()->user()->can('access_types_of_service')) {
+            abort(403, 'Unauthorized action.');
         }
 
         try {
             $input = $request->only(['name', 'description',
                 'location_price_group', 'packing_charge_type',
-                'packing_charge']);
+                'packing_charge', ]);
 
             $input['business_id'] = $request->session()->get('user.business_id');
-            $input['packing_charge'] = !empty($input['packing_charge']) ? $this->commonUtil->num_uf($input['packing_charge']) : 0;
-            $input['enable_custom_fields'] = !empty($request->input('enable_custom_fields')) ? 1 : 0;
+            $input['packing_charge'] = ! empty($input['packing_charge']) ? $this->commonUtil->num_uf($input['packing_charge']) : 0;
+            $input['enable_custom_fields'] = ! empty($request->input('enable_custom_fields')) ? 1 : 0;
 
             TypesOfService::create($input);
 
             $output = ['success' => true,
-                            'msg' => __("lang_v1.added_success")
-                        ];
+                'msg' => __('lang_v1.added_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -144,8 +143,8 @@ class TypesOfServiceController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('access_types_of_service')) {
-             abort(403, 'Unauthorized action.');
+        if (! auth()->user()->can('access_types_of_service')) {
+            abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
@@ -168,33 +167,33 @@ class TypesOfServiceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('access_types_of_service')) {
-             abort(403, 'Unauthorized action.');
+        if (! auth()->user()->can('access_types_of_service')) {
+            abort(403, 'Unauthorized action.');
         }
 
         try {
             $input = $request->only(['name', 'description',
                 'location_price_group', 'packing_charge_type',
-                'packing_charge']);
+                'packing_charge', ]);
 
             $business_id = $request->session()->get('user.business_id');
-            $input['packing_charge'] = !empty($input['packing_charge']) ? $this->commonUtil->num_uf($input['packing_charge']) : 0;
-            $input['enable_custom_fields'] = !empty($request->input('enable_custom_fields')) ? 1 : 0;
-            $input['location_price_group'] = !empty($input['location_price_group']) ? json_encode($input['location_price_group']) : null;
+            $input['packing_charge'] = ! empty($input['packing_charge']) ? $this->commonUtil->num_uf($input['packing_charge']) : 0;
+            $input['enable_custom_fields'] = ! empty($request->input('enable_custom_fields')) ? 1 : 0;
+            $input['location_price_group'] = ! empty($input['location_price_group']) ? json_encode($input['location_price_group']) : null;
 
             TypesOfService::where('business_id', $business_id)
                         ->where('id', $id)
                         ->update($input);
 
             $output = ['success' => true,
-                            'msg' => __("lang_v1.updated_success")
-                        ];
+                'msg' => __('lang_v1.updated_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -208,10 +207,10 @@ class TypesOfServiceController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('access_types_of_service')) {
-             abort(403, 'Unauthorized action.');
+        if (! auth()->user()->can('access_types_of_service')) {
+            abort(403, 'Unauthorized action.');
         }
-        
+
         if (request()->ajax()) {
             try {
                 $business_id = request()->session()->get('user.business_id');
@@ -220,14 +219,14 @@ class TypesOfServiceController extends Controller
                         ->delete();
 
                 $output = ['success' => true,
-                            'msg' => __("lang_v1.deleted_success")
-                            ];
+                    'msg' => __('lang_v1.deleted_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;

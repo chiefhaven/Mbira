@@ -2,7 +2,7 @@
     $is_cat_code_enabled = isset($module_category_data['enable_taxonomy_code']) && !$module_category_data['enable_taxonomy_code'] ? false : true;
 @endphp
 @can('category.create')
-	<button type="button" class="btn btn-sm pull-right btn-primary btn-modal" data-href="{{action('TaxonomyController@create')}}?type={{$category_type}}" data-container=".category_modal">
+	<button type="button" class="btn btn-sm pull-right btn-primary btn-modal" data-href="{{action([\App\Http\Controllers\TaxonomyController::class, 'create'])}}?type={{$category_type}}" data-container=".category_modal">
 		<i class="fa fa-plus"></i>
 		@lang( 'messages.add' )
 	</button>

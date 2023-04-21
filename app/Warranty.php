@@ -20,9 +20,9 @@ class Warranty extends Model
         $dropdown = [];
 
         foreach ($warranties as $warranty) {
-            $dropdown[$warranty->id] = $warranty->name . ' (' . $warranty->duration . ' ' . __('lang_v1.' . $warranty->duration_type) . ')';
+            $dropdown[$warranty->id] = $warranty->name.' ('.$warranty->duration.' '.__('lang_v1.'.$warranty->duration_type).')';
         }
-        
+
         return $dropdown;
     }
 
@@ -33,7 +33,8 @@ class Warranty extends Model
      */
     public function getDisplayNameAttribute()
     {
-        $name = $this->name . ' (' . $this->duration . ' ' . __('lang_v1.' . $this->duration_type) . ')';
+        $name = $this->name.' ('.$this->duration.' '.__('lang_v1.'.$this->duration_type).')';
+
         return $name;
     }
 

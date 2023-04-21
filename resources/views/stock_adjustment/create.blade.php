@@ -15,7 +15,7 @@
 
 <!-- Main content -->
 <section class="content no-print">
-	{!! Form::open(['url' => action('StockAdjustmentController@store'), 'method' => 'post', 'id' => 'stock_adjustment_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\StockAdjustmentController::class, 'store']), 'method' => 'post', 'id' => 'stock_adjustment_form' ]) !!}
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">

@@ -11,14 +11,13 @@ class TaxonomyController extends Controller
 {
     /**
      * All Utils instance.
-     *
      */
     protected $moduleUtil;
 
     /**
      * Constructor
      *
-     * @param ProductUtils $product
+     * @param  ProductUtils  $product
      * @return void
      */
     public function __construct(ModuleUtil $moduleUtil)
@@ -34,18 +33,18 @@ class TaxonomyController extends Controller
     public function index()
     {
         $category_type = request()->get('type');
-        if ($category_type == 'product' && !auth()->user()->can('category.view') && !auth()->user()->can('category.create')) {
+        if ($category_type == 'product' && ! auth()->user()->can('category.view') && ! auth()->user()->can('category.create')) {
             abort(403, 'Unauthorized action.');
         }
 
         if (request()->ajax()) {
             $can_edit = true;
-            if($category_type == 'product' && !auth()->user()->can('category.update')) {
+            if ($category_type == 'product' && ! auth()->user()->can('category.update')) {
                 $can_edit = false;
             }
 
             $can_delete = true;
-            if($category_type == 'product' && !auth()->user()->can('category.delete')) {
+            if ($category_type == 'product' && ! auth()->user()->can('category.delete')) {
                 $can_delete = false;
             }
 
@@ -57,15 +56,14 @@ class TaxonomyController extends Controller
 
             return Datatables::of($category)
                 ->addColumn(
-                    'action', function ($row) use ($can_edit, $can_delete, $category_type)
-                    {
+                    'action', function ($row) use ($can_edit, $can_delete, $category_type) {
                         $html = '';
                         if ($can_edit) {
-                            $html .= '<button data-href="' . action('TaxonomyController@edit', [$row->id]) . '?type=' . $category_type . '" class="btn btn-xs btn-primary edit_category_button"><i class="glyphicon glyphicon-edit"></i>' . __("messages.edit") . '</button>';
+                            $html .= '<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'edit'], [$row->id]).'?type='.$category_type.'" class="btn btn-xs btn-primary edit_category_button"><i class="glyphicon glyphicon-edit"></i>'.__('messages.edit').'</button>';
                         }
 
                         if ($can_delete) {
-                            $html .= '&nbsp;<button data-href="' . action('TaxonomyController@destroy', [$row->id]) . '" class="btn btn-xs btn-danger delete_category_button"><i class="glyphicon glyphicon-trash"></i> ' . __("messages.delete") . '</button>';
+                            $html .= '&nbsp;<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'destroy'], [$row->id]).'" class="btn btn-xs btn-danger delete_category_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
                         }
 
                         return $html;
@@ -73,7 +71,7 @@ class TaxonomyController extends Controller
                 )
                 ->editColumn('name', function ($row) {
                     if ($row->parent_id != 0) {
-                        return '--' . $row->name;
+                        return '--'.$row->name;
                     } else {
                         return $row->name;
                     }
@@ -97,7 +95,7 @@ class TaxonomyController extends Controller
     public function create()
     {
         $category_type = request()->get('type');
-        if ($category_type == 'product' && !auth()->user()->can('category.create')) {
+        if ($category_type == 'product' && ! auth()->user()->can('category.create')) {
             abort(403, 'Unauthorized action.');
         }
         $business_id = request()->session()->get('user.business_id');
@@ -111,7 +109,7 @@ class TaxonomyController extends Controller
                         ->get();
 
         $parent_categories = [];
-        if (!empty($categories)) {
+        if (! empty($categories)) {
             foreach ($categories as $category) {
                 $parent_categories[$category->id] = $category->name;
             }
@@ -130,13 +128,13 @@ class TaxonomyController extends Controller
     public function store(Request $request)
     {
         $category_type = request()->input('category_type');
-        if ($category_type == 'product' && !auth()->user()->can('category.create')) {
+        if ($category_type == 'product' && ! auth()->user()->can('category.create')) {
             abort(403, 'Unauthorized action.');
         }
 
         try {
             $input = $request->only(['name', 'short_code', 'category_type', 'description']);
-            if (!empty($request->input('add_as_sub_cat')) &&  $request->input('add_as_sub_cat') == 1 && !empty($request->input('parent_id'))) {
+            if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_id'))) {
                 $input['parent_id'] = $request->input('parent_id');
             } else {
                 $input['parent_id'] = 0;
@@ -146,15 +144,15 @@ class TaxonomyController extends Controller
 
             $category = Category::create($input);
             $output = ['success' => true,
-                            'data' => $category,
-                            'msg' => __("category.added_success")
-                        ];
+                'data' => $category,
+                'msg' => __('category.added_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -180,14 +178,14 @@ class TaxonomyController extends Controller
     public function edit($id)
     {
         $category_type = request()->get('type');
-        if ($category_type == 'product' && !auth()->user()->can('category.update')) {
+        if ($category_type == 'product' && ! auth()->user()->can('category.update')) {
             abort(403, 'Unauthorized action.');
         }
 
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
             $category = Category::where('business_id', $business_id)->find($id);
-            
+
             $module_category_data = $this->moduleUtil->getTaxonomyData($category_type);
 
             $parent_categories = Category::where('business_id', $business_id)
@@ -196,12 +194,12 @@ class TaxonomyController extends Controller
                                         ->where('id', '!=', $id)
                                         ->pluck('name', 'id');
             $is_parent = false;
-            
+
             if ($category->parent_id == 0) {
                 $is_parent = true;
                 $selected_parent = null;
             } else {
-                $selected_parent = $category->parent_id ;
+                $selected_parent = $category->parent_id;
             }
 
             return view('taxonomy.edit')
@@ -213,12 +211,11 @@ class TaxonomyController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-
         if (request()->ajax()) {
             try {
                 $input = $request->only(['name', 'description']);
@@ -226,15 +223,15 @@ class TaxonomyController extends Controller
 
                 $category = Category::where('business_id', $business_id)->findOrFail($id);
 
-                if ($category->category_type == 'product' && !auth()->user()->can('category.update')) {
+                if ($category->category_type == 'product' && ! auth()->user()->can('category.update')) {
                     abort(403, 'Unauthorized action.');
                 }
 
                 $category->name = $input['name'];
                 $category->description = $input['description'];
                 $category->short_code = $request->input('short_code');
-                
-                if (!empty($request->input('add_as_sub_cat')) &&  $request->input('add_as_sub_cat') == 1 && !empty($request->input('parent_id'))) {
+
+                if (! empty($request->input('add_as_sub_cat')) && $request->input('add_as_sub_cat') == 1 && ! empty($request->input('parent_id'))) {
                     $category->parent_id = $request->input('parent_id');
                 } else {
                     $category->parent_id = 0;
@@ -242,14 +239,14 @@ class TaxonomyController extends Controller
                 $category->save();
 
                 $output = ['success' => true,
-                            'msg' => __("category.updated_success")
-                            ];
+                    'msg' => __('category.updated_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;
@@ -264,28 +261,27 @@ class TaxonomyController extends Controller
      */
     public function destroy($id)
     {
-
         if (request()->ajax()) {
             try {
                 $business_id = request()->session()->get('user.business_id');
 
                 $category = Category::where('business_id', $business_id)->findOrFail($id);
 
-                if ($category->category_type == 'product' && !auth()->user()->can('category.delete')) {
+                if ($category->category_type == 'product' && ! auth()->user()->can('category.delete')) {
                     abort(403, 'Unauthorized action.');
                 }
 
                 $category->delete();
 
                 $output = ['success' => true,
-                            'msg' => __("category.deleted_success")
-                            ];
+                    'msg' => __('category.deleted_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;
@@ -298,11 +294,11 @@ class TaxonomyController extends Controller
             $api_token = request()->header('API-TOKEN');
 
             $api_settings = $this->moduleUtil->getApiSettings($api_token);
-            
+
             $categories = Category::catAndSubCategories($api_settings->business_id);
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             return $this->respondWentWrong($e);
         }
 
@@ -312,6 +308,7 @@ class TaxonomyController extends Controller
     /**
      * get taxonomy index page
      * through ajax
+     *
      * @return \Illuminate\Http\Response
      */
     public function getTaxonomyIndexPage(Request $request)

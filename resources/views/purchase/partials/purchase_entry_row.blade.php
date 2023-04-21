@@ -1,5 +1,5 @@
 @foreach( $variations as $variation)
-    <tr @if(!empty($purchase_order_line)) data-purchase_order_id="{{$purchase_order_line->transaction_id}}" @endif>
+    <tr @if(!empty($purchase_order_line)) data-purchase_order_id="{{$purchase_order_line->transaction_id}}" @endif @if(!empty($purchase_requisition_line)) data-purchase_requisition_id="{{$purchase_requisition_line->transaction_id}}" @endif>
         <td><span class="sr_number"></span></td>
         <td>
             {{ $product->name }} ({{$variation->sub_sku}})
@@ -18,6 +18,10 @@
                 {!! Form::hidden('purchases[' . $row_count . '][purchase_order_line_id]', $purchase_order_line->id ); !!}
             @endif
 
+            @if(!empty($purchase_requisition_line))
+                {!! Form::hidden('purchases[' . $row_count . '][purchase_requisition_line_id]', $purchase_requisition_line->id ); !!}
+            @endif
+
             {!! Form::hidden('purchases[' . $row_count . '][product_id]', $product->id ); !!}
             {!! Form::hidden('purchases[' . $row_count . '][variation_id]', $variation->id , ['class' => 'hidden_variation_id']); !!}
 
@@ -26,11 +30,15 @@
                 if($product->unit->allow_decimal == 0){
                     $check_decimal = 'true';
                 }
-                $currency_precision = config('constants.currency_precision', 2);
-                $quantity_precision = config('constants.quantity_precision', 2);
+                $currency_precision = session('business.currency_precision', 2);
+                $quantity_precision = session('business.quantity_precision', 2);
 
                 $quantity_value = !empty($purchase_order_line) ? $purchase_order_line->quantity : 1;
+
+                $quantity_value = !empty($purchase_requisition_line) ? $purchase_requisition_line->quantity - $purchase_requisition_line->po_quantity_purchased : $quantity_value;
                 $max_quantity = !empty($purchase_order_line) ? $purchase_order_line->quantity - $purchase_order_line->po_quantity_purchased : 0;
+
+                $max_quantity = !empty($purchase_requisition_line) ? $purchase_requisition_line->quantity - $purchase_requisition_line->po_quantity_purchased : $max_quantity;
 
                 $quantity_value = !empty($imported_data) ? $imported_data['quantity'] : $quantity_value;
             @endphp
@@ -65,6 +73,20 @@
             @else 
                 {{ $product->unit->short_name }}
             @endif
+
+            @if(!empty($product->second_unit))
+                @php
+                    $secondary_unit_quantity = !empty($purchase_requisition_line) ? $purchase_requisition_line->secondary_unit_quantity : "";
+                @endphp
+                <br>
+                <span style="white-space: nowrap;">
+                @lang('lang_v1.quantity_in_second_unit', ['unit' => $product->second_unit->short_name])*:</span><br>
+                <input type="text" 
+                name="purchases[{{$row_count}}][secondary_unit_quantity]" 
+                @if($secondary_unit_quantity !== '')value="{{@format_quantity($secondary_unit_quantity)}}" @endif
+                class="form-control input-sm input_number"
+                required>
+            @endif
         </td>
         <td>
             @php
@@ -84,9 +106,22 @@
             @endphp
             {!! Form::text('purchases[' . $row_count . '][pp_without_discount]',
             number_format($pp_without_discount, $currency_precision, $currency_details->decimal_separator, $currency_details->thousand_separator), ['class' => 'form-control input-sm purchase_unit_cost_without_discount input_number', 'required']); !!}
+
+            @if(!empty($last_purchase_line))
+                <br>
+                <small class="text-muted">@lang('lang_v1.prev_unit_price'): @format_currency($last_purchase_line->pp_without_discount)</small>
+            @endif
         </td>
         <td>
             {!! Form::text('purchases[' . $row_count . '][discount_percent]', number_format($discount_percent, $currency_precision, $currency_details->decimal_separator, $currency_details->thousand_separator), ['class' => 'form-control input-sm inline_discounts input_number', 'required']); !!}
+
+            @if(!empty($last_purchase_line))
+                <br>
+                <small class="text-muted">
+                    @lang('lang_v1.prev_discount'): 
+                    {{@num_format($last_purchase_line->discount_percent)}}%
+                </small>
+            @endif
         </td>
         <td>
             {!! Form::text('purchases[' . $row_count . '][purchase_price]',

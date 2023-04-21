@@ -3,34 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\BusinessLocation;
-
 use App\Charts\CommonChart;
 use App\Currency;
+use App\Media;
 use App\Transaction;
+use App\User;
 use App\Utils\BusinessUtil;
-
 use App\Utils\ModuleUtil;
+use App\Utils\RestaurantUtil;
 use App\Utils\TransactionUtil;
+use App\Utils\Util;
 use App\VariationLocationDetails;
 use Datatables;
 use DB;
 use Illuminate\Http\Request;
-use App\Utils\Util;
-use App\Utils\RestaurantUtil;
-use App\User;
 use Illuminate\Notifications\DatabaseNotification;
-use App\Media;
 
 class HomeController extends Controller
 {
     /**
      * All Utils instance.
-     *
      */
     protected $businessUtil;
+
     protected $transactionUtil;
+
     protected $moduleUtil;
+
     protected $commonUtil;
+
     protected $restUtil;
 
     /**
@@ -59,11 +60,16 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+        if ($user->user_type == 'user_customer') {
+            return redirect()->action([\Modules\Crm\Http\Controllers\DashboardController::class, 'index']);
+        }
+
         $business_id = request()->session()->get('user.business_id');
 
         $is_admin = $this->businessUtil->is_admin(auth()->user());
 
-        if (!auth()->user()->can('dashboard.data')) {
+        if (! auth()->user()->can('dashboard.data')) {
             return view('home.index');
         }
 
@@ -75,7 +81,7 @@ class HomeController extends Controller
 
         //get all sells
         $sells_this_fy = $this->transactionUtil->getSellsCurrentFy($business_id, $least_30_days, $fy['end']);
-        
+
         $all_locations = BusinessLocation::forDropdown($business_id)->toArray();
 
         //Chart for sells last 30 days
@@ -90,7 +96,7 @@ class HomeController extends Controller
 
             $total_sell_on_date = $sells_this_fy->where('date', $date)->sum('total_sells');
 
-            if (!empty($total_sell_on_date)) {
+            if (! empty($total_sell_on_date)) {
                 $all_sell_values[] = (float) $total_sell_on_date;
             } else {
                 $all_sell_values[] = 0;
@@ -103,8 +109,8 @@ class HomeController extends Controller
             $values = [];
             foreach ($dates as $date) {
                 $total_sell_on_date_location = $sells_this_fy->where('date', $date)->where('location_id', $loc_id)->sum('total_sells');
-                
-                if (!empty($total_sell_on_date_location)) {
+
+                if (! empty($total_sell_on_date_location)) {
                     $values[] = (float) $total_sell_on_date_location;
                 } else {
                     $values[] = 0;
@@ -122,7 +128,7 @@ class HomeController extends Controller
                             ['currency' => $currency->code]
                             )));
 
-        if (!empty($location_sells)) {
+        if (! empty($location_sells)) {
             foreach ($location_sells as $location_sell) {
                 $sells_chart_1->dataset($location_sell['loc_label'], 'line', $location_sell['values']);
             }
@@ -135,7 +141,7 @@ class HomeController extends Controller
         $labels = [];
         $values = [];
         $date = strtotime($fy['start']);
-        $last   = date('m-Y', strtotime($fy['end']));
+        $last = date('m-Y', strtotime($fy['end']));
         $fy_months = [];
         do {
             $month_year = date('m-Y', $date);
@@ -147,7 +153,7 @@ class HomeController extends Controller
 
             $total_sell_in_month_year = $sells_this_fy->where('yearmonth', $month_year)->sum('total_sells');
 
-            if (!empty($total_sell_in_month_year)) {
+            if (! empty($total_sell_in_month_year)) {
                 $values[] = (float) $total_sell_in_month_year;
             } else {
                 $values[] = 0;
@@ -160,8 +166,8 @@ class HomeController extends Controller
             $values_data = [];
             foreach ($fy_months as $month) {
                 $total_sell_in_month_year_location = $sells_this_fy->where('yearmonth', $month)->where('location_id', $loc_id)->sum('total_sells');
-                
-                if (!empty($total_sell_in_month_year_location)) {
+
+                if (! empty($total_sell_in_month_year_location)) {
                     $values_data[] = (float) $total_sell_in_month_year_location;
                 } else {
                     $values_data[] = 0;
@@ -177,7 +183,7 @@ class HomeController extends Controller
                         'home.total_sells',
                         ['currency' => $currency->code]
                             )));
-        if (!empty($fy_sells_by_location_data)) {
+        if (! empty($fy_sells_by_location_data)) {
             foreach ($fy_sells_by_location_data as $location_sell) {
                 $sells_chart_2->dataset($location_sell['loc_label'], 'line', $location_sell['values']);
             }
@@ -192,12 +198,12 @@ class HomeController extends Controller
         $widgets = [];
 
         foreach ($module_widgets as $widget_array) {
-            if (!empty($widget_array['position'])) {
+            if (! empty($widget_array['position'])) {
                 $widgets[$widget_array['position']][] = $widget_array['widget'];
             }
         }
 
-        $common_settings = !empty(session('business.common_settings')) ? session('business.common_settings') : [];
+        $common_settings = ! empty(session('business.common_settings')) ? session('business.common_settings') : [];
 
         return view('home.index', compact('sells_chart_1', 'sells_chart_2', 'widgets', 'all_locations', 'common_settings', 'is_admin'));
     }
@@ -224,7 +230,7 @@ class HomeController extends Controller
             $purchase_details['purchase_due'] = $purchase_details['purchase_due'] - $total_ledger_discount['total_purchase_discount'];
 
             $transaction_types = [
-                'purchase_return', 'sell_return', 'expense'
+                'purchase_return', 'sell_return', 'expense',
             ];
 
             $transaction_totals = $this->transactionUtil->getTransactionTotals(
@@ -235,7 +241,7 @@ class HomeController extends Controller
                 $location_id
             );
 
-            $total_purchase_inc_tax = !empty($purchase_details['total_purchase_inc_tax']) ? $purchase_details['total_purchase_inc_tax'] : 0;
+            $total_purchase_inc_tax = ! empty($purchase_details['total_purchase_inc_tax']) ? $purchase_details['total_purchase_inc_tax'] : 0;
             $total_purchase_return_inc_tax = $transaction_totals['total_purchase_return_inc_tax'];
 
             $output = $purchase_details;
@@ -243,8 +249,8 @@ class HomeController extends Controller
             $output['total_purchase_return'] = $total_purchase_return_inc_tax;
             $output['total_purchase_return_paid'] = $this->transactionUtil->getTotalPurchaseReturnPaid($business_id, $start, $end, $location_id);
 
-            $total_sell_inc_tax = !empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
-            $total_sell_return_inc_tax = !empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
+            $total_sell_inc_tax = ! empty($sell_details['total_sell_inc_tax']) ? $sell_details['total_sell_inc_tax'] : 0;
+            $total_sell_return_inc_tax = ! empty($transaction_totals['total_sell_return_inc_tax']) ? $transaction_totals['total_sell_return_inc_tax'] : 0;
             $output['total_sell_return_paid'] = $this->transactionUtil->getTotalSellReturnPaid($business_id, $start, $end, $location_id);
 
             $output['total_sell'] = $total_sell_inc_tax;
@@ -255,7 +261,7 @@ class HomeController extends Controller
 
             //NET = TOTAL SALES - INVOICE DUE - EXPENSE
             $output['net'] = $output['total_sell'] - $output['invoice_due'] - $output['total_expense'];
-            
+
             return $output;
         }
     }
@@ -308,7 +314,7 @@ class HomeController extends Controller
                 $query->whereIn('variation_location_details.location_id', $permitted_locations);
             }
 
-            if (!empty(request()->input('location_id'))) {
+            if (! empty(request()->input('location_id'))) {
                 $query->where('variation_location_details.location_id', request()->input('location_id'));
             }
 
@@ -329,14 +335,15 @@ class HomeController extends Controller
             return Datatables::of($products)
                 ->editColumn('product', function ($row) {
                     if ($row->type == 'single') {
-                        return $row->product . ' (' . $row->sku . ')';
+                        return $row->product.' ('.$row->sku.')';
                     } else {
-                        return $row->product . ' - ' . $row->product_variation . ' - ' . $row->variation . ' (' . $row->sub_sku . ')';
+                        return $row->product.' - '.$row->product_variation.' - '.$row->variation.' ('.$row->sub_sku.')';
                     }
                 })
                 ->editColumn('stock', function ($row) {
-                    $stock = $row->stock ? $row->stock : 0 ;
-                    return '<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>'. (float)$stock . '</span> ' . $row->unit;
+                    $stock = $row->stock ? $row->stock : 0;
+
+                    return '<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>'.(float) $stock.'</span> '.$row->unit;
                 })
                 ->removeColumn('sku')
                 ->removeColumn('sub_sku')
@@ -358,7 +365,7 @@ class HomeController extends Controller
     {
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
-            $today = \Carbon::now()->format("Y-m-d H:i:s");
+            $today = \Carbon::now()->format('Y-m-d H:i:s');
 
             $query = Transaction::join(
                 'contacts as c',
@@ -383,11 +390,11 @@ class HomeController extends Controller
                 $query->whereIn('transactions.location_id', $permitted_locations);
             }
 
-            if (!empty(request()->input('location_id'))) {
+            if (! empty(request()->input('location_id'))) {
                 $query->where('transactions.location_id', request()->input('location_id'));
             }
 
-            $dues =  $query->select(
+            $dues = $query->select(
                 'transactions.id as id',
                 'c.name as supplier',
                 'c.supplier_business_name',
@@ -399,19 +406,21 @@ class HomeController extends Controller
 
             return Datatables::of($dues)
                 ->addColumn('due', function ($row) {
-                    $total_paid = !empty($row->total_paid) ? $row->total_paid : 0;
+                    $total_paid = ! empty($row->total_paid) ? $row->total_paid : 0;
                     $due = $row->final_total - $total_paid;
-                    return '<span class="display_currency" data-currency_symbol="true">' .
-                    $due . '</span>';
+
+                    return '<span class="display_currency" data-currency_symbol="true">'.
+                    $due.'</span>';
                 })
-                ->addColumn('action', '@can("purchase.create") <a href="{{action("TransactionPaymentController@addPayment", [$id])}}" class="btn btn-xs btn-success add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endcan')
+                ->addColumn('action', '@can("purchase.create") <a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="btn btn-xs btn-success add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endcan')
                 ->removeColumn('supplier_business_name')
                 ->editColumn('supplier', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$supplier}}')
                 ->editColumn('ref_no', function ($row) {
                     if (auth()->user()->can('purchase.view')) {
-                        return  '<a href="#" data-href="' . action('PurchaseController@show', [$row->id]) . '"
-                                    class="btn-modal" data-container=".view_modal">' . $row->ref_no . '</a>';
+                        return  '<a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'show'], [$row->id]).'"
+                                    class="btn-modal" data-container=".view_modal">'.$row->ref_no.'</a>';
                     }
+
                     return $row->ref_no;
                 })
                 ->removeColumn('id')
@@ -431,7 +440,7 @@ class HomeController extends Controller
     {
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
-            $today = \Carbon::now()->format("Y-m-d H:i:s");
+            $today = \Carbon::now()->format('Y-m-d H:i:s');
 
             $query = Transaction::join(
                 'contacts as c',
@@ -458,11 +467,11 @@ class HomeController extends Controller
                 $query->whereIn('transactions.location_id', $permitted_locations);
             }
 
-            if (!empty(request()->input('location_id'))) {
+            if (! empty(request()->input('location_id'))) {
                 $query->where('transactions.location_id', request()->input('location_id'));
             }
 
-            $dues =  $query->select(
+            $dues = $query->select(
                 'transactions.id as id',
                 'c.name as customer',
                 'c.supplier_business_name',
@@ -474,19 +483,21 @@ class HomeController extends Controller
 
             return Datatables::of($dues)
                 ->addColumn('due', function ($row) {
-                    $total_paid = !empty($row->total_paid) ? $row->total_paid : 0;
+                    $total_paid = ! empty($row->total_paid) ? $row->total_paid : 0;
                     $due = $row->final_total - $total_paid;
-                    return '<span class="display_currency" data-currency_symbol="true">' .
-                    $due . '</span>';
+
+                    return '<span class="display_currency" data-currency_symbol="true">'.
+                    $due.'</span>';
                 })
                 ->editColumn('invoice_no', function ($row) {
                     if (auth()->user()->can('sell.view')) {
-                        return  '<a href="#" data-href="' . action('SellController@show', [$row->id]) . '"
-                                    class="btn-modal" data-container=".view_modal">' . $row->invoice_no . '</a>';
+                        return  '<a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]).'"
+                                    class="btn-modal" data-container=".view_modal">'.$row->invoice_no.'</a>';
                     }
+
                     return $row->invoice_no;
                 })
-                ->addColumn('action', '@if(auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access")) <a href="{{action("TransactionPaymentController@addPayment", [$id])}}" class="btn btn-xs btn-success add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endif')
+                ->addColumn('action', '@if(auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access")) <a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="btn btn-xs btn-success add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endif')
                 ->editColumn('customer', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$customer}}')
                 ->removeColumn('supplier_business_name')
                 ->removeColumn('id')
@@ -527,13 +538,13 @@ class HomeController extends Controller
                 $unread_notification->markAsRead();
             }
         }
-        if (!empty($modal_notifications)) {
+        if (! empty($modal_notifications)) {
             $notification_html = view('home.notification_modal')->with(['notifications' => $modal_notifications])->render();
         }
 
         return [
             'total_unread' => $total_unread,
-            'notification_html' => $notification_html
+            'notification_html' => $notification_html,
         ];
     }
 
@@ -541,15 +552,16 @@ class HomeController extends Controller
     {
         return [
             'yAxis' => [
-                    'title' => [
-                        'text' => $title
-                    ]
+                'title' => [
+                    'text' => $title,
                 ],
+            ],
             'legend' => [
                 'align' => 'right',
                 'verticalAlign' => 'top',
                 'floating' => true,
-                'layout' => 'vertical'
+                'layout' => 'vertical',
+                'padding' => 20,
             ],
         ];
     }
@@ -563,23 +575,23 @@ class HomeController extends Controller
             $data = [
                 'start_date' => request()->start,
                 'end_date' => request()->end,
-                'user_id' => ($is_admin || $is_superadmin) && !empty(request()->user_id) ? request()->user_id : auth()->user()->id,
-                'location_id' => !empty(request()->location_id) ? request()->location_id : null,
+                'user_id' => ($is_admin || $is_superadmin) && ! empty(request()->user_id) ? request()->user_id : auth()->user()->id,
+                'location_id' => ! empty(request()->location_id) ? request()->location_id : null,
                 'business_id' => $business_id,
                 'events' => request()->events ?? [],
-                'color' => '#007FFF'
+                'color' => '#007FFF',
             ];
             $events = [];
 
             if (in_array('bookings', $data['events'])) {
                 $events = $this->restUtil->getBookingsForCalendar($data);
             }
-            
+
             $module_events = $this->moduleUtil->getModuleData('calendarEvents', $data);
 
             foreach ($module_events as $module_event) {
                 $events = array_merge($events, $module_event);
-            }  
+            }
 
             return $events;
         }
@@ -593,14 +605,14 @@ class HomeController extends Controller
         $event_types = [
             'bookings' => [
                 'label' => __('restaurant.bookings'),
-                'color' => '#007FFF'
-            ]
+                'color' => '#007FFF',
+            ],
         ];
         $module_event_types = $this->moduleUtil->getModuleData('eventTypes');
         foreach ($module_event_types as $module_event_type) {
             $event_types = array_merge($event_types, $module_event_type);
         }
-        
+
         return view('home.calendar')->with(compact('all_locations', 'users', 'event_types'));
     }
 
@@ -613,15 +625,14 @@ class HomeController extends Controller
         $notification->markAsRead();
 
         return view('home.notification_modal')->with([
-                'notifications' => [$notification]
-            ]);
+            'notifications' => [$notification],
+        ]);
     }
 
     public function attachMediasToGivenModel(Request $request)
-    {   
+    {
         if ($request->ajax()) {
             try {
-                
                 $business_id = request()->session()->get('user.business_id');
 
                 $model_id = $request->input('model_id');
@@ -640,17 +651,16 @@ class HomeController extends Controller
 
                 $output = [
                     'success' => true,
-                    'msg' => __('lang_v1.success')
+                    'msg' => __('lang_v1.success'),
                 ];
             } catch (Exception $e) {
-
                 DB::rollBack();
 
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
                 $output = [
                     'success' => false,
-                    'msg' => __('messages.something_went_wrong')
+                    'msg' => __('messages.something_went_wrong'),
                 ];
             }
 

@@ -14,19 +14,19 @@ use Illuminate\Support\Facades\DB;
 
 class CombinedPurchaseReturnController extends Controller
 {
-
     /**
      * All Utils instance.
-     *
      */
     protected $productUtil;
+
     protected $moduleUtil;
+
     protected $transactionUtil;
 
     /**
      * Constructor
      *
-     * @param ProductUtils $product
+     * @param  ProductUtils  $product
      * @return void
      */
     public function __construct(ProductUtil $productUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil)
@@ -43,14 +43,14 @@ class CombinedPurchaseReturnController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('purchase.update')) {
+        if (! auth()->user()->can('purchase.update')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
 
         //Check if subscribed or not
-        if (!$this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_id)) {
             return $this->moduleUtil->expiredResponse();
         }
 
@@ -72,22 +72,22 @@ class CombinedPurchaseReturnController extends Controller
      */
     public function save(Request $request)
     {
-        if (!auth()->user()->can('purchase.update')) {
+        if (! auth()->user()->can('purchase.update')) {
             abort(403, 'Unauthorized action.');
         }
 
         try {
             DB::beginTransaction();
 
-            $input_data = $request->only([ 'location_id', 'transaction_date', 'final_total', 'ref_no',
-                'tax_id', 'tax_amount', 'contact_id']);
+            $input_data = $request->only(['location_id', 'transaction_date', 'final_total', 'ref_no',
+                'tax_id', 'tax_amount', 'contact_id', ]);
             $business_id = $request->session()->get('user.business_id');
 
             //Check if subscribed or not
-            if (!$this->moduleUtil->isSubscribed($business_id)) {
+            if (! $this->moduleUtil->isSubscribed($business_id)) {
                 return $this->moduleUtil->expiredResponse();
             }
-        
+
             $user_id = $request->session()->get('user.id');
 
             $input_data['type'] = 'purchase_return';
@@ -108,7 +108,7 @@ class CombinedPurchaseReturnController extends Controller
 
             $products = $request->input('products');
 
-            if (!empty($products)) {
+            if (! empty($products)) {
                 $product_data = [];
 
                 foreach ($products as $product) {
@@ -121,10 +121,10 @@ class CombinedPurchaseReturnController extends Controller
                         'pp_without_discount' => $unit_price,
                         'purchase_price_inc_tax' => $unit_price,
                         'quantity_returned' => $this->productUtil->num_uf($product['quantity']),
-                        'lot_number' => !empty($product['lot_number']) ? $product['lot_number'] : null,
-                        'exp_date' => !empty($product['exp_date']) ? $this->productUtil->uf_date($product['exp_date']) : null
+                        'lot_number' => ! empty($product['lot_number']) ? $product['lot_number'] : null,
+                        'exp_date' => ! empty($product['exp_date']) ? $this->productUtil->uf_date($product['exp_date']) : null,
                     ];
-                    
+
                     $product_data[] = $return_line;
 
                     //Decrease available quantity
@@ -144,18 +144,18 @@ class CombinedPurchaseReturnController extends Controller
             }
 
             $output = ['success' => 1,
-                            'msg' => __('lang_v1.purchase_return_added_success')
-                        ];
+                'msg' => __('lang_v1.purchase_return_added_success'),
+            ];
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return redirect('purchase-return')->with('status', $output);
@@ -169,7 +169,7 @@ class CombinedPurchaseReturnController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('purchase.update')) {
+        if (! auth()->user()->can('purchase.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -179,8 +179,7 @@ class CombinedPurchaseReturnController extends Controller
                                     ->with(['contact'])
                                     ->find($id);
         $location_id = $purchase_return->location_id;
-        $purchase_lines = PurchaseLine::
-                        join(
+        $purchase_lines = PurchaseLine::join(
                             'products AS p',
                             'purchase_lines.product_id',
                             '=',
@@ -247,7 +246,7 @@ class CombinedPurchaseReturnController extends Controller
      */
     public function update(Request $request)
     {
-        if (!auth()->user()->can('purchase.update')) {
+        if (! auth()->user()->can('purchase.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -255,25 +254,25 @@ class CombinedPurchaseReturnController extends Controller
             DB::beginTransaction();
 
             $input_data = $request->only(['transaction_date', 'final_total',
-                'tax_id', 'tax_amount', 'contact_id']);
+                'tax_id', 'tax_amount', 'contact_id', ]);
             $business_id = $request->session()->get('user.business_id');
 
-            if (!empty($request->input('ref_no'))) {
+            if (! empty($request->input('ref_no'))) {
                 $input_data['ref_no'] = $request->input('ref_no');
             }
 
             //Check if subscribed or not
-            if (!$this->moduleUtil->isSubscribed($business_id)) {
+            if (! $this->moduleUtil->isSubscribed($business_id)) {
                 return $this->moduleUtil->expiredResponse();
             }
-        
+
             $input_data['transaction_date'] = $this->productUtil->uf_date($input_data['transaction_date'], true);
             $input_data['total_before_tax'] = $input_data['final_total'] - $input_data['tax_amount'];
 
             //upload document
             $doc_name = $this->productUtil->uploadFile($request, 'document', 'documents');
 
-            if (!empty($doc_name)) {
+            if (! empty($doc_name)) {
                 $input_data['document'] = $doc_name;
             }
 
@@ -283,13 +282,13 @@ class CombinedPurchaseReturnController extends Controller
                                 ->where('type', 'purchase_return')
                                 ->find($purchase_return_id);
 
-            if (!empty($products)) {
+            if (! empty($products)) {
                 $product_data = [];
                 $updated_purchase_lines = [];
 
                 foreach ($products as $product) {
                     $unit_price = $this->productUtil->num_uf($product['unit_price']);
-                    if (!empty($product['purchase_line_id'])) {
+                    if (! empty($product['purchase_line_id'])) {
                         $return_line = PurchaseLine::find($product['purchase_line_id']);
                         $updated_purchase_lines[] = $return_line->id;
 
@@ -304,7 +303,7 @@ class CombinedPurchaseReturnController extends Controller
                         $return_line = new PurchaseLine([
                             'product_id' => $product['product_id'],
                             'variation_id' => $product['variation_id'],
-                            'quantity' => 0
+                            'quantity' => 0,
                         ]);
 
                         //Decrease available quantity
@@ -319,8 +318,8 @@ class CombinedPurchaseReturnController extends Controller
                     $return_line->pp_without_discount = $unit_price;
                     $return_line->purchase_price_inc_tax = $unit_price;
                     $return_line->quantity_returned = $this->productUtil->num_uf($product['quantity']);
-                    $return_line->lot_number = !empty($product['lot_number']) ? $product['lot_number'] : null;
-                    $return_line->exp_date = !empty($product['exp_date']) ? $this->productUtil->uf_date($product['exp_date']) : null;
+                    $return_line->lot_number = ! empty($product['lot_number']) ? $product['lot_number'] : null;
+                    $return_line->exp_date = ! empty($product['exp_date']) ? $this->productUtil->uf_date($product['exp_date']) : null;
                     $product_data[] = $return_line;
                 }
 
@@ -346,18 +345,18 @@ class CombinedPurchaseReturnController extends Controller
             }
 
             $output = ['success' => 1,
-                            'msg' => __('lang_v1.purchase_return_updated_success')
-                        ];
+                'msg' => __('lang_v1.purchase_return_updated_success'),
+            ];
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return redirect('purchase-return')->with('status', $output);
@@ -366,7 +365,7 @@ class CombinedPurchaseReturnController extends Controller
     /**
      * Return product rows
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Http\Response
      */
     public function getProductRow(Request $request)
@@ -379,7 +378,7 @@ class CombinedPurchaseReturnController extends Controller
             $business_id = $request->session()->get('user.business_id');
             $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id);
             $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available);
-            
+
             return view('purchase_return.partials.product_table_row')
             ->with(compact('product', 'row_index'));
         }

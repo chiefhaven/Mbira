@@ -35,6 +35,48 @@
 							</div>
 						</div>
 						<br>
+						<div class="row @if($change_return['amount'] == 0) hide @endif payment_row" id="change_return_payment_data">
+							<div class="col-md-12">
+								<div class="box box-solid payment_row bg-lightgray">
+									<div class="box-body" >
+										<div class="col-md-4">
+											<div class="form-group">
+												{!! Form::label("change_return_method" , __('lang_v1.change_return_payment_method') . ':*') !!}
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="fas fa-money-bill-alt"></i>
+													</span>
+													@php
+														$_payment_method = empty($change_return['method']) && array_key_exists('cash', $payment_types) ? 'cash' : $change_return['method'];
+
+														$_payment_types = $payment_types;
+														if(isset($_payment_types['advance'])) {
+															unset($_payment_types['advance']);
+														}
+													@endphp
+													{!! Form::select("payment[change_return][method]", $_payment_types, $_payment_method, ['class' => 'form-control col-md-12 payment_types_dropdown', 'id' => 'change_return_method', 'style' => 'width:100%;']); !!}
+												</div>
+											</div>
+										</div>
+										@if(!empty($accounts))
+										<div class="col-md-4">
+											<div class="form-group">
+												{!! Form::label("change_return_account" , __('lang_v1.change_return_payment_account') . ':') !!}
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="fas fa-money-bill-alt"></i>
+													</span>
+													{!! Form::select("payment[change_return][account_id]", $accounts, !empty($change_return['account_id']) ? $change_return['account_id'] : '' , ['class' => 'form-control select2', 'id' => 'change_return_account', 'style' => 'width:100%;']); !!}
+												</div>
+											</div>
+										</div>
+										@endif
+										<div class="clearfix"></div>
+										@include('sale_pos.partials.payment_type_details', ['payment_line' => $change_return, 'row_index' => 'change_return'])
+									</div>
+								</div>
+							</div>
+						</div>
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">

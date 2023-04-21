@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Contact;
 use App\Transaction;
 use App\Utils\Util;
-use App\Contact;
+use Illuminate\Http\Request;
 
 class LedgerDiscountController extends Controller
 {
@@ -14,7 +14,7 @@ class LedgerDiscountController extends Controller
     /**
      * Constructor
      *
-     * @param Util $commonUtil
+     * @param  Util  $commonUtil
      * @return void
      */
     public function __construct(
@@ -60,7 +60,7 @@ class LedgerDiscountController extends Controller
             $sub_type = 'sell_discount';
             if ($contact->type == 'customer') {
                 $sub_type = 'sell_discount';
-            } else if ($contact->type == 'supplier') {
+            } elseif ($contact->type == 'supplier') {
                 $sub_type = 'purchase_discount';
             } else {
                 $sub_type = $request->input('sub_type');
@@ -75,22 +75,21 @@ class LedgerDiscountController extends Controller
                 'contact_id' => $input['contact_id'],
                 'created_by' => auth()->user()->id,
                 'additional_notes' => $input['note'],
-                'transaction_date' => $this->commonUtil->uf_date($input['date'], true)
+                'transaction_date' => $this->commonUtil->uf_date($input['date'], true),
             ];
 
             $discount = Transaction::create($transaction_data);
-            
-            $output = ['success' => true, 'msg' => __('lang_v1.success')];
 
+            $output = ['success' => true, 'msg' => __('lang_v1.success')];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
-        return $output;  
+        return $output;
     }
 
     /**
@@ -114,12 +113,12 @@ class LedgerDiscountController extends Controller
     {
         $is_admin = $this->commonUtil->is_admin(auth()->user());
 
-        if (!$is_admin) {
+        if (! $is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
-        
+
         $discount = Transaction::where('business_id', $business_id)
                     ->where('type', 'ledger_discount')
                     ->find($id);
@@ -146,7 +145,7 @@ class LedgerDiscountController extends Controller
                 'final_total' => $this->commonUtil->num_uf($input['amount']),
                 'total_before_tax' => $this->commonUtil->num_uf($input['amount']),
                 'additional_notes' => $input['note'],
-                'transaction_date' => $this->commonUtil->uf_date($input['date'], true)
+                'transaction_date' => $this->commonUtil->uf_date($input['date'], true),
             ];
 
             if ($request->has('sub_type')) {
@@ -157,18 +156,17 @@ class LedgerDiscountController extends Controller
                     ->where('type', 'ledger_discount')
                     ->where('id', $id)
                     ->update($transaction_data);
-            
-            $output = ['success' => true, 'msg' => __('lang_v1.success')];
 
+            $output = ['success' => true, 'msg' => __('lang_v1.success')];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
-        return $output;  
+        return $output;
     }
 
     /**
@@ -181,26 +179,25 @@ class LedgerDiscountController extends Controller
     {
         $is_admin = $this->commonUtil->is_admin(auth()->user());
 
-        if (!$is_admin) {
+        if (! $is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
-        
+
         try {
             Transaction::where('business_id', $business_id)
                     ->where('type', 'ledger_discount')
                     ->where('id', $id)
                     ->delete();
-            
-            $output = ['success' => true, 'msg' => __('lang_v1.success')];
 
+            $output = ['success' => true, 'msg' => __('lang_v1.success')];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => "File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage()
-                        ];
+                'msg' => 'File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage(),
+            ];
         }
 
         return $output;

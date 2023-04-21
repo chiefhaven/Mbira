@@ -24,7 +24,7 @@
 <div class="row">
     <div class="col-md-12 form_col" style="display: none;">
         @component('components.widget')
-            {!! Form::open(['url' => action('\App\Http\Controllers\Install\ModulesController@uploadModule'), 'id' => 'upload_module_form','files' => true, 'style' => 'display:none']) !!}
+            {!! Form::open(['url' => action([\App\Http\Controllers\Install\ModulesController::class, 'uploadModule']), 'id' => 'upload_module_form','files' => true, 'style' => 'display:none']) !!}
                 <div class="row">
                     <div class="col-md-5">
                         <div class="form-group">
@@ -92,7 +92,7 @@
                             {{-- Commented Activate/Deactivate
                             @if($module['active'] == 1)
                                 <form 
-                                    action="{{action('Install\ModulesController@update', ['module_name' => $module['name']])}}" 
+                                    action="{{action([\App\Http\Controllers\Install\ModulesController::class, 'update'], ['module_name' => $module['name']])}}" 
                                     style="display: inline;" 
                                     method="post">
                                     @method('PUT')
@@ -101,7 +101,7 @@
                                     <button class="btn btn-warning btn-xs">Deactivate</button>
                                 </form>
                             @else
-                                <form action="{{action('Install\ModulesController@update', ['module_name' => $module['name']])}}" 
+                                <form action="{{action([\App\Http\Controllers\Install\ModulesController::class, 'update'], ['module_name' => $module['name']])}}" 
                                     style="display: inline;" 
                                     method="post"
                                 >
@@ -115,7 +115,7 @@
                         @endif
 
                         <form 
-                            action="{{action('Install\ModulesController@destroy', ['module_name' => $module['name']])}}"
+                            action="{{action([\App\Http\Controllers\Install\ModulesController::class, 'destroy'], ['module_name' => $module['name']])}}"
                                 style="display: inline;" 
                                 method="post"
                                 onsubmit="return confirm('Do you really want to delete the module? Module code will be deleted but the data will not be deleted')"

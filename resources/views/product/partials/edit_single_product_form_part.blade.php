@@ -9,6 +9,9 @@
     $class = '';
   @endphp
 @endif
+@php
+    $common_settings = session()->get('business.common_settings');
+@endphp
 
 <div class="col-sm-12"><br>
     <div class="table-responsive">
@@ -20,6 +23,9 @@
           <th>@lang('lang_v1.product_image')</th>
         </tr>
         @foreach($product_deatails->variations as $variation )
+            @php
+                $is_image_required = !empty($common_settings['is_product_image_required']) && count($variation->media) == 0;
+            @endphp
             @if($loop->first)
                 <tr>
                     <td>
@@ -56,14 +62,15 @@
                         @if($action !== 'duplicate')
                             @foreach($variation->media as $media)
                                 <div class="img-thumbnail">
-                                    <span class="badge bg-red delete-media" data-href="{{ action('ProductController@deleteMedia', ['media_id' => $media->id])}}"><i class="fas fa-times"></i></span>
+                                    <span class="badge bg-red delete-media" data-href="{{ action([\App\Http\Controllers\ProductController::class, 'deleteMedia'], ['media_id' => $media->id])}}"><i class="fas fa-times"></i></span>
                                     {!! $media->thumbnail() !!}
                                 </div>
                             @endforeach
                         @endif
                         <div class="form-group">
                             {!! Form::label('variation_images', __('lang_v1.product_image') . ':') !!}
-                            {!! Form::file('variation_images[]', ['class' => 'variation_images', 'accept' => 'image/*', 'multiple']); !!}
+                            {!! Form::file('variation_images[]', ['class' => 'variation_images', 
+                                'accept' => 'image/*', 'multiple', 'required' => $is_image_required]); !!}
                             <small><p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1')</p></small>
                         </div>
                     </td>

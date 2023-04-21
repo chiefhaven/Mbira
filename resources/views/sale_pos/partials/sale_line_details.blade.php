@@ -1,8 +1,8 @@
-<table class="table bg-gray">
-        <tr class="bg-green">
+<table class="table @if(!empty($for_ledger)) table-slim mb-0 bg-light-gray @else bg-gray @endif" @if(!empty($for_pdf)) style="width: 100%;" @endif>
+        <tr @if(empty($for_ledger)) class="bg-green" @endif>
         <th>#</th>
         <th>{{ __('sale.product') }}</th>
-        @if( session()->get('business.enable_lot_number') == 1)
+        @if( session()->get('business.enable_lot_number') == 1 && empty($for_ledger))
             <th>{{ __('lang_v1.lot_n_expiry') }}</th>
         @endif
         @if($sell->type == 'sales_order')
@@ -47,11 +47,11 @@
                     @endif
                 @endif
 
-                @if(in_array('kitchen', $enabled_modules))
+                @if(in_array('kitchen', $enabled_modules) && empty($for_ledger))
                     <br><span class="label @if($sell_line->res_line_order_status == 'cooked' ) bg-red @elseif($sell_line->res_line_order_status == 'served') bg-green @else bg-light-blue @endif">@lang('restaurant.order_statuses.' . $sell_line->res_line_order_status) </span>
                 @endif
             </td>
-            @if( session()->get('business.enable_lot_number') == 1)
+            @if( session()->get('business.enable_lot_number') == 1 && empty($for_ledger))
                 <td>{{ $sell_line->lot_details->lot_number ?? '--' }}
                     @if( session()->get('business.enable_product_expiry') == 1 && !empty($sell_line->lot_details->exp_date))
                     ({{@format_date($sell_line->lot_details->exp_date)}})
@@ -62,7 +62,22 @@
                 <td><span class="display_currency" data-currency_symbol="false" data-is_quantity="true">{{ $sell_line->quantity - $sell_line->so_quantity_invoiced }}</span> @if(!empty($sell_line->sub_unit)) {{$sell_line->sub_unit->short_name}} @else {{$sell_line->product->unit->short_name}} @endif</td>
             @endif
             <td>
-                <span class="display_currency" data-currency_symbol="false" data-is_quantity="true">{{ $sell_line->quantity }}</span> @if(!empty($sell_line->sub_unit)) {{$sell_line->sub_unit->short_name}} @else {{$sell_line->product->unit->short_name}} @endif
+                @if(!empty($for_ledger))
+                    {{@format_quantity($sell_line->quantity)}}
+                @else
+                    <span class="display_currency" data-currency_symbol="false" data-is_quantity="true">{{ $sell_line->quantity }}</span> 
+                @endif
+                    @if(!empty($sell_line->sub_unit)) {{$sell_line->sub_unit->short_name}} @else {{$sell_line->product->unit->short_name}} @endif
+
+                @if(!empty($sell_line->product->second_unit) && $sell_line->secondary_unit_quantity != 0)
+                    <br>
+                    @if(!empty($for_ledger))
+                        {{@format_quantity($sell_line->secondary_unit_quantity)}}
+                    @else
+                        <span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $sell_line->secondary_unit_quantity }}</span> 
+                    @endif
+                    {{$sell_line->product->second_unit->short_name}}
+                @endif
             </td>
             @if(!empty($pos_settings['inline_service_staff']))
                 <td>
@@ -70,22 +85,43 @@
                 </td>
             @endif
             <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->unit_price_before_discount }}</span>
+                @if(!empty($for_ledger))
+                    @format_currency($sell_line->unit_price_before_discount)
+                @else
+                    <span class="display_currency" data-currency_symbol="true">{{ $sell_line->unit_price_before_discount }}</span>
+                @endif
             </td>
             <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->get_discount_amount() }}</span> @if($sell_line->line_discount_type == 'percentage') ({{$sell_line->line_discount_amount}}%) @endif
+                @if(!empty($for_ledger))
+                    @format_currency($sell_line->get_discount_amount())
+                @else
+                    <span class="display_currency" data-currency_symbol="true">{{ $sell_line->get_discount_amount() }}</span>
+                @endif
+                @if($sell_line->line_discount_type == 'percentage') ({{$sell_line->line_discount_amount}}%) @endif
             </td>
             <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->item_tax }}</span> 
+                @if(!empty($for_ledger))
+                    @format_currency($sell_line->item_tax)
+                @else
+                    <span class="display_currency" data-currency_symbol="true">{{ $sell_line->item_tax }}</span> 
+                @endif
                 @if(!empty($taxes[$sell_line->tax_id]))
                 ( {{ $taxes[$sell_line->tax_id]}} )
                 @endif
             </td>
             <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->unit_price_inc_tax }}</span>
+                @if(!empty($for_ledger))
+                    @format_currency($sell_line->unit_price_inc_tax)
+                @else
+                    <span class="display_currency" data-currency_symbol="true">{{ $sell_line->unit_price_inc_tax }}</span>
+                @endif
             </td>
             <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->quantity * $sell_line->unit_price_inc_tax }}</span>
+                @if(!empty($for_ledger))
+                    @format_currency($sell_line->quantity * $sell_line->unit_price_inc_tax)
+                @else
+                    <span class="display_currency" data-currency_symbol="true">{{ $sell_line->quantity * $sell_line->unit_price_inc_tax }}</span>
+                @endif
             </td>
         </tr>
         @if(!empty($sell_line->modifiers))
@@ -106,22 +142,38 @@
                     </td>
                 @endif
                 <td>
-                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->unit_price }}</span>
+                    @if(!empty($for_ledger))
+                        @format_currency($modifier->unit_price)
+                    @else
+                        <span class="display_currency" data-currency_symbol="true">{{ $modifier->unit_price }}</span>
+                    @endif
                 </td>
                 <td>
                     &nbsp;
                 </td>
                 <td>
-                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->item_tax }}</span> 
+                    @if(!empty($for_ledger))
+                        @format_currency($modifier->item_tax)
+                    @else
+                        <span class="display_currency" data-currency_symbol="true">{{ $modifier->item_tax }}</span> 
+                    @endif
                     @if(!empty($taxes[$modifier->tax_id]))
                     ( {{ $taxes[$modifier->tax_id]}} )
                     @endif
                 </td>
                 <td>
-                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->unit_price_inc_tax }}</span>
+                    @if(!empty($for_ledger))
+                        @format_currency($modifier->unit_price_inc_tax)
+                    @else
+                        <span class="display_currency" data-currency_symbol="true">{{ $modifier->unit_price_inc_tax }}</span>
+                    @endif
                 </td>
                 <td>
-                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->quantity * $modifier->unit_price_inc_tax }}</span>
+                    @if(!empty($for_ledger))
+                        @format_currency($modifier->quantity * $modifier->unit_price_inc_tax)
+                    @else
+                        <span class="display_currency" data-currency_symbol="true">{{ $modifier->quantity * $modifier->unit_price_inc_tax }}</span>
+                    @endif
                 </td>
             </tr>
             @endforeach

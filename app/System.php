@@ -12,7 +12,7 @@ class System extends Model
      * @var string
      */
     protected $table = 'system';
-    
+
     /**
      * Indicates if the model should be timestamped.
      *
@@ -21,10 +21,10 @@ class System extends Model
     public $timestamps = false;
 
     /**
-    * The attributes that aren't mass assignable.
-    *
-    * @var array
-    */
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
     protected $guarded = ['id'];
 
     /**
@@ -76,7 +76,7 @@ class System extends Model
                 ->value;
 
         $currency = Currency::find($c_id);
-        
+
         return $currency;
     }
 
@@ -85,7 +85,6 @@ class System extends Model
      *
      * @param $key
      * @param $value
-     *
      * @return void
      */
     public static function setProperty($key, $value)

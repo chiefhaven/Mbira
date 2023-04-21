@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('Restaurant\ProductModifierSetController@update', [$modifer_set->id]), 'method' => 'post', 'id' => 'table_add_form' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\Restaurant\ProductModifierSetController::class, 'update'], [$modifer_set->id]), 'method' => 'post', 'id' => 'table_add_form' ]) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

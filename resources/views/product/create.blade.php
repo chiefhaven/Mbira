@@ -16,8 +16,9 @@
 <section class="content">
 @php
   $form_class = empty($duplicate_product) ? 'create' : '';
+  $is_image_required = !empty($common_settings['is_product_image_required']);
 @endphp
-{!! Form::open(['url' => action('ProductController@store'), 'method' => 'post', 
+{!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'store']), 'method' => 'post', 
     'id' => 'product_add_form','class' => 'product_form ' . $form_class, 'files' => true ]) !!}
     @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
@@ -50,7 +51,7 @@
             <div class="input-group">
               {!! Form::select('unit_id', $units, !empty($duplicate_product->unit_id) ? $duplicate_product->unit_id : session('business.default_unit'), ['class' => 'form-control select2', 'required']); !!}
               <span class="input-group-btn">
-                <button type="button" @if(!auth()->user()->can('unit.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action('UnitController@create', ['quick_add' => true])}}" title="@lang('unit.add_unit')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+                <button type="button" @if(!auth()->user()->can('unit.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action([\App\Http\Controllers\UnitController::class, 'create'], ['quick_add' => true])}}" title="@lang('unit.add_unit')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
               </span>
             </div>
           </div>
@@ -63,6 +64,14 @@
             {!! Form::select('sub_unit_ids[]', [], !empty($duplicate_product->sub_unit_ids) ? $duplicate_product->sub_unit_ids : null, ['class' => 'form-control select2', 'multiple', 'id' => 'sub_unit_ids']); !!}
           </div>
         </div>
+        @if(!empty($common_settings['enable_secondary_unit']))
+        <div class="col-sm-4">
+            <div class="form-group">
+                {!! Form::label('secondary_unit_id', __('lang_v1.secondary_unit') . ':') !!} @show_tooltip(__('lang_v1.secondary_unit_help'))
+                {!! Form::select('secondary_unit_id', $units, !empty($duplicate_product->secondary_unit_id) ? $duplicate_product->secondary_unit_id : null, ['class' => 'form-control select2']); !!}
+            </div>
+        </div>
+        @endif
 
         <div class="col-sm-4 @if(!session('business.enable_brand')) hide @endif">
           <div class="form-group">
@@ -70,14 +79,11 @@
             <div class="input-group">
               {!! Form::select('brand_id', $brands, !empty($duplicate_product->brand_id) ? $duplicate_product->brand_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
             <span class="input-group-btn">
-                <button type="button" @if(!auth()->user()->can('brand.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action('BrandController@create', ['quick_add' => true])}}" title="@lang('brand.add_brand')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+                <button type="button" @if(!auth()->user()->can('brand.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action([\App\Http\Controllers\BrandController::class, 'create'], ['quick_add' => true])}}" title="@lang('brand.add_brand')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
               </span>
             </div>
           </div>
         </div>
-
-        <div class="clearfix"></div>
-
         <div class="col-sm-4 @if(!session('business.enable_category')) hide @endif">
           <div class="form-group">
             {!! Form::label('category_id', __('product.category') . ':') !!}
@@ -149,7 +155,8 @@
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('image', __('lang_v1.product_image') . ':') !!}
-            {!! Form::file('image', ['id' => 'upload_image', 'accept' => 'image/*']); !!}
+            {!! Form::file('image', ['id' => 'upload_image', 'accept' => 'image/*', 
+                'required' => $is_image_required, 'class' => 'upload-element']); !!}
             <small><p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1')</p></small>
           </div>
         </div>
@@ -284,6 +291,13 @@
           <div class="form-group">
             {!! Form::label('product_custom_field4',  $product_custom_field4 . ':') !!}
             {!! Form::text('product_custom_field4', !empty($duplicate_product->product_custom_field4) ? $duplicate_product->product_custom_field4 : null, ['class' => 'form-control', 'placeholder' => $product_custom_field4]); !!}
+          </div>
+        </div>
+
+        <div class="col-sm-3">
+          <div class="form-group">
+            {!! Form::label('preparation_time_in_minutes',  __('lang_v1.preparation_time_in_minutes') . ':') !!}
+            {!! Form::number('preparation_time_in_minutes', !empty($duplicate_product->preparation_time_in_minutes) ? $duplicate_product->preparation_time_in_minutes : null, ['class' => 'form-control', 'placeholder' => __('lang_v1.preparation_time_in_minutes')]); !!}
           </div>
         </div>
         <!--custom fields-->

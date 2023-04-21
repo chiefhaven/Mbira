@@ -80,7 +80,7 @@ class ProductsExport implements FromArray
                 $product->product_custom_field3,
                 $product->product_custom_field4,
                 $product->not_for_selling,
-                $locations
+                $locations,
             ];
 
             $products_array[] = $product_arr;

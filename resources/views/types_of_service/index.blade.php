@@ -15,7 +15,7 @@
         @slot('tool')
             <div class="box-tools">
                 <button type="button" class="btn btn-block btn-primary btn-modal" 
-                    data-href="{{action('TypesOfServiceController@create')}}" 
+                    data-href="{{action([\App\Http\Controllers\TypesOfServiceController::class, 'create'])}}" 
                     data-container=".type_of_service_modal">
                     <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
             </div>

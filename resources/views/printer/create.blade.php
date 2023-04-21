@@ -18,7 +18,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('PrinterController@store'), 'method' => 'post', 'id' => 'add_printer_form' ]) !!}
+{!! Form::open(['url' => action([\App\Http\Controllers\PrinterController::class, 'store']), 'method' => 'post', 'id' => 'add_printer_form' ]) !!}
 	<div class="box box-solid">
     <div class="box-body">
       <div class="row">

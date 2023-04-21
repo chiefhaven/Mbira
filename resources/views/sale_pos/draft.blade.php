@@ -41,7 +41,7 @@
     @component('components.widget', ['class' => 'box-primary'])
         @slot('tool')
             <div class="box-tools">
-                <a class="btn btn-block btn-primary" href="{{action('SellController@create', ['status' => 'draft'])}}">
+                <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'draft'])}}">
                 <i class="fa fa-plus"></i> @lang('lang_v1.add_draft')</a>
             </div>
         @endslot

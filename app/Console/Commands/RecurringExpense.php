@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Transaction;
 use App\User;
-use App\Utils\TransactionUtil;
 use App\Utils\NotificationUtil;
+use App\Utils\TransactionUtil;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class RecurringExpense extends Command
@@ -59,19 +59,19 @@ class RecurringExpense extends Command
             foreach ($transactions as $transaction) {
                 date_default_timezone_set($transaction->business->time_zone);
                 //inner try-catch block open
-                try { 
+                try {
 
                     //Check if no. of generated invoices exceed limit
                     $no_of_recurring_invoice_generated = count($transaction->recurring_invoices);
 
-                    if (!empty($transaction->recur_repetitions) && $no_of_recurring_invoice_generated >= $transaction->recur_repetitions) {
+                    if (! empty($transaction->recur_repetitions) && $no_of_recurring_invoice_generated >= $transaction->recur_repetitions) {
                         continue;
                     }
 
                     //Check if generate interval is today
                     $last_generated = $no_of_recurring_invoice_generated > 0 ? $transaction->recurring_invoices->max('transaction_date') : $transaction->transaction_date;
 
-                    if (!empty($last_generated)) {
+                    if (! empty($last_generated)) {
                         $last_generated_string = \Carbon::parse($last_generated)->format('Y-m-d');
                         $last_generated = \Carbon::parse($last_generated_string);
                         $today = \Carbon::parse(\Carbon::now()->format('Y-m-d'));
@@ -81,15 +81,15 @@ class RecurringExpense extends Command
                         } elseif ($transaction->recur_interval_type == 'months') {
 
                             //check repeat on date and set last generated date part to reapeat on date
-                            if (!empty($transaction->subscription_repeat_on)) {
+                            if (! empty($transaction->subscription_repeat_on)) {
                                 $last_generated_string = $last_generated->format('Y-m');
-                                $last_generated = \Carbon::parse($last_generated_string . '-' . $transaction->subscription_repeat_on);
+                                $last_generated = \Carbon::parse($last_generated_string.'-'.$transaction->subscription_repeat_on);
                             }
                             $diff_from_today = $last_generated->diffInMonths($today);
                         } elseif ($transaction->recur_interval_type == 'years') {
                             $diff_from_today = $last_generated->diffInYears($today);
                         }
-                        
+
                         //if last generated is today or less than today then continue
                         if ($diff_from_today == 0) {
                             continue;
@@ -105,7 +105,6 @@ class RecurringExpense extends Command
                     //Create new recurring expense
                     $recurring_expense = $this->transactionUtil->createRecurringExpense($transaction);
 
-
                     //Save database notification
                     $created_by = User::find($transaction->created_by);
                     $this->notificationUtil->recurringExpenseNotification($created_by, $recurring_expense);
@@ -118,14 +117,13 @@ class RecurringExpense extends Command
                     DB::commit();
                 } catch (\Exception $e) {
                     DB::rollBack();
-                    \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                    \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
                 }
                 //inner try-catch block close
             }
-
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            die($e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+            exit($e->getMessage());
         }
     }
 }

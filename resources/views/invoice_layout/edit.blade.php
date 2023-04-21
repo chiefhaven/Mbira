@@ -14,7 +14,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('InvoiceLayoutController@update', [$invoice_layout->id]), 'method' => 'put', 
+{!! Form::open(['url' => action([\App\Http\Controllers\InvoiceLayoutController::class, 'update'], [$invoice_layout->id]), 'method' => 'put', 
   'id' => 'add_invoice_layout_form', 'files' => true]) !!}
 
   @php
@@ -72,7 +72,26 @@
 
           </div>
         </div>
-
+        <div class="clearfix"></div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="checkbox">
+                    <label>
+                        {!! Form::checkbox('show_letter_head', 1, $invoice_layout->show_letter_head, 
+                            ['class' => 'input-icheck', 'id' => 'show_letter_head']); !!} 
+                            @lang('lang_v1.show_letter_head')</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 letter_head_input">
+                <div class="form-group">
+                    {!! Form::label('letter_head', __('lang_v1.letter_head') . ':') !!}
+                    {!! Form::file('letter_head', ['accept' => 'image/*']); !!}
+                    <span class="help-block">@lang('lang_v1.letter_head_help') <br> @lang('lang_v1.invoice_logo_help', ['max_size' => '1 MB']) <br> @lang('lang_v1.letter_head_help2')</span>
+                </div>
+            </div>
+      </div>
+      <div class="row hide-for-letterhead">
         <!-- Logo -->
         <div class="col-sm-6">
           <div class="form-group">
@@ -133,7 +152,6 @@
               'placeholder' => __('lang_v1.sub_heading_line', ['_number_' => 5]) ]); !!}
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -361,9 +379,11 @@
               {!! Form::checkbox('contact_custom_fields[]', 'custom_field4', in_array('custom_field4', $contact_custom_fields), ['class' => 'input-icheck']); !!} {{ $custom_labels['contact']['custom_field_4'] ?? __('lang_v1.contact_custom_field4') }}</label>
           </div>
         </div>
+      </div>        
+
       </div>
-      <div class="clearfix"></div>
-        <div class="col-sm-12">
+      <div class="row hide-for-letterhead">
+      <div class="col-sm-12">
             <h4>@lang('invoice.fields_to_be_shown_in_address'):</h4>
         </div>
         <div class="clearfix"></div>
@@ -493,7 +513,6 @@
               </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -591,6 +610,14 @@
               {!! Form::checkbox('show_sale_description', 1, $invoice_layout->show_sale_description, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_sale_description')</label>
             </div>
             <p class="help-block">@lang('lang_v1.product_imei_or_sn')</p>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('common_settings[show_product_description]', 1, !empty($invoice_layout->common_settings['show_product_description']), ['class' => 'input-icheck']); !!} @lang('lang_v1.show_product_description')</label>
+              </div>
           </div>
         </div>
         <div class="col-sm-3">
@@ -727,6 +754,13 @@
             {!! Form::label('total_label', __('invoice.total_label') . ':' ) !!}
             {!! Form::text('total_label', $invoice_layout->total_label, ['class' => 'form-control',
               'placeholder' => __('invoice.total_label') ]); !!}
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="form-group">
+            {!! Form::label('total_items_label', __('lang_v1.total_items_label') . ':' ) !!}
+            {!! Form::text('common_settings[total_items_label]', !empty($invoice_layout->common_settings['total_items_label']) ? $invoice_layout->common_settings['total_items_label'] : null, ['class' => 'form-control',
+              'placeholder' => __('lang_v1.total_items_label'), 'id' => 'total_items_label' ]); !!}
           </div>
         </div>
         <div class="col-sm-3">
@@ -1053,5 +1087,22 @@
 @section('javascript')
 <script type="text/javascript">
   __page_leave_confirmation('#add_invoice_layout_form');
+    $(document).on('ifChanged', '#show_letter_head', function() {
+        letter_head_changed();
+    });
+
+    function letter_head_changed() {
+        if($('#show_letter_head').is(":checked")) {
+            $('.hide-for-letterhead').addClass('hide');
+            $('.letter_head_input').removeClass('hide');
+        } else {
+            $('.hide-for-letterhead').removeClass('hide');
+            $('.letter_head_input').addClass('hide');
+        }
+    }
+
+    $(document).ready(function(){
+        letter_head_changed();
+    })
 </script>
 @endsection

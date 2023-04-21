@@ -22,7 +22,7 @@
         	<h3 class="box-title">@lang( 'cash_register.all_your_cash_register' )</h3>
         	<div class="box-tools">
                 <button type="button" class="btn btn-block btn-primary btn-modal" 
-                	data-href="{{action('CashRegisterController@create')}}" 
+                	data-href="{{action([\App\Http\Controllers\CashRegisterController::class, 'create'])}}" 
                 	data-container=".location_add_modal">
                 	<i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
             </div>

@@ -14,7 +14,7 @@
       $pos_settings = !empty(session('business.pos_settings')) ? json_decode(session('business.pos_settings'), true) : [];
     @endphp
     @component('components.widget', ['class' => 'box-primary'])
-        {!! Form::open(['url' => action('RoleController@update', [$role->id]), 'method' => 'PUT', 'id' => 'role_form' ]) !!}
+        {!! Form::open(['url' => action([\App\Http\Controllers\RoleController::class, 'update'], [$role->id]), 'method' => 'PUT', 'id' => 'role_form' ]) !!}
         <div class="row">
         <div class="col-md-4">
           <div class="form-group">
@@ -464,6 +464,56 @@
         </div>
         <hr>
         @endif
+        @if(!empty($common_settings['enable_purchase_requisition']))
+          <div class="row check_group">
+            <div class="col-md-1">
+              <h4>@lang( 'lang_v1.purchase_requisition' )</h4>
+            </div>
+            <div class="col-md-2">
+              <div class="checkbox">
+                  <label>
+                    <input type="checkbox" class="check_all input-icheck" > {{ __( 'role.select_all' ) }}
+                  </label>
+                </div>
+            </div>
+            <div class="col-md-9">
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::radio('radio_option[purchase_requisition_view]', 'purchase_requisition.view_all', in_array('purchase_requisition.view_all', $role_permissions), 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.view_all_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::radio('radio_option[purchase_requisition_view]', 'purchase_requisition.view_own', in_array('purchase_requisition.view_own', $role_permissions), 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.view_own_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'purchase_requisition.create', in_array('purchase_requisition.create', $role_permissions), 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.create_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'purchase_requisition.delete', in_array('purchase_requisition.delete', $role_permissions), 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.delete_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <hr>
+        @endif
         @if(!empty($common_settings['enable_purchase_order']))
           <div class="row check_group">
             <div class="col-md-1">
@@ -584,7 +634,15 @@
                       </label>
                     </div>
                   </div>
-
+                  <div class="col-md-12">
+                    <div class="checkbox">
+                      <label>
+                        {!! Form::checkbox('permissions[]', 'edit_pos_payment', 
+                            in_array('edit_pos_payment', $role_permissions), ['class' => 'input-icheck']); !!}
+                        {{ __('lang_v1.add_edit_payment') }}
+                      </label>
+                    </div>
+                  </div>
                   <div class="col-md-12">
                     <div class="checkbox">
                       <label>

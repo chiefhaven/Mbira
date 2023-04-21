@@ -12,7 +12,7 @@ class CashRegister extends Model
      * @var array
      */
     protected $casts = [
-        'denominations' => 'array'
+        'denominations' => 'array',
     ];
 
     /**

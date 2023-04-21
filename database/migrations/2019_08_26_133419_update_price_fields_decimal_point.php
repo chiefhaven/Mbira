@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class UpdatePriceFieldsDecimalPoint extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -25,7 +25,7 @@ class UpdatePriceFieldsDecimalPoint extends Migration
 
         //Alter all columns
         foreach ($columns as $col) {
-            if(!empty($col->table_name)){
+            if (! empty($col->table_name)) {
                 $table_name = $col->table_name;
                 $col_name = $col->column_name;
                 $default = is_null($col->column_default) ? 'NULL' : $col->column_default;
@@ -44,4 +44,4 @@ class UpdatePriceFieldsDecimalPoint extends Migration
     {
         //
     }
-}
+};

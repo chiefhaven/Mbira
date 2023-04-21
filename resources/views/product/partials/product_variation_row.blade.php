@@ -15,6 +15,10 @@
     <td>
         {!! Form::select('product_variation[' . $row_index .'][variation_template_id]', $variation_templates, null, ['class' => 'form-control input-sm variation_template', 'required']); !!}
         <input type="hidden" class="row_index" value="{{$row_index}}">
+        <div class="form-group variation_template_values_div mt-15 hide">
+            <label>@lang('lang_v1.select_variation_values')</label>
+            {!! Form::select('product_variation[' . $row_index .'][variation_template_values][]', [], null, ['class' => 'form-control input-sm variation_template_values', 'multiple', 'style' => 'width: 100%;']); !!}
+        </div>
     </td>
 
     <td>
@@ -76,7 +80,8 @@
 
                      {!! Form::text('product_variation[' . $row_index .'][variations][0][sell_price_inc_tax]', $default, ['class' => 'form-control input-sm variable_dsp_inc_tax input_number', 'placeholder' => __('product.inc_of_tax'), 'required']); !!}
                 </td>
-                <td>{!! Form::file('variation_images_' . $row_index .'_0[]', ['class' => 'variation_images', 'accept' => 'image/*', 'multiple']); !!}</td>
+                <td>{!! Form::file('variation_images_' . $row_index .'_0[]', ['class' => 'variation_images', 
+                    'accept' => 'image/*', 'multiple']); !!}</td>
                 <td>
                     <button type="button" class="btn btn-danger btn-xs remove_variation_value_row">-</button>
                     <input type="hidden" class="variation_row_index" value="0">

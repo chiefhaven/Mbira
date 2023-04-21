@@ -27,8 +27,8 @@ class AdvanceBalanceNotAvailable extends Exception
     public function render($request)
     {
         $output = ['success' => 0,
-                            'msg' => $this->getMessage()
-                        ];
+            'msg' => $this->getMessage(),
+        ];
 
         if ($request->ajax()) {
             return $output;

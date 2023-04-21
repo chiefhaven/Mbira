@@ -58,7 +58,15 @@
                 if (result.success === true) {
                     $('div.category_modal').modal('hide');
                     toastr.success(result.msg);
-                    category_table.ajax.reload();
+                    if(typeof category_table !== 'undefined') {
+                        category_table.ajax.reload();
+                    }
+
+                    var evt = new CustomEvent("categoryAdded", {detail: result.data});
+                    window.dispatchEvent(evt);
+
+                    //event can be listened as
+                    //window.addEventListener("categoryAdded", function(evt) {}
                 } else {
                     toastr.error(result.msg);
                 }

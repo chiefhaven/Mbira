@@ -3,21 +3,20 @@
 namespace App\Listeners;
 
 use App\AccountTransaction;
-
 use App\Events\TransactionPaymentAdded;
-
 use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 
 class AddAccountTransaction
 {
     protected $transactionUtil;
+
     protected $moduleUtil;
 
     /**
      * Constructor
      *
-     * @param TransactionUtil $transactionUtil
+     * @param  TransactionUtil  $transactionUtil
      * @return void
      */
     public function __construct(TransactionUtil $transactionUtil, ModuleUtil $moduleUtil)
@@ -39,13 +38,13 @@ class AddAccountTransaction
             $this->transactionUtil->updateContactBalance($event->transactionPayment->payment_for, $event->transactionPayment->amount, 'deduct');
         }
 
-        if (!$this->moduleUtil->isModuleEnabled('account', $event->transactionPayment->business_id)) {
+        if (! $this->moduleUtil->isModuleEnabled('account', $event->transactionPayment->business_id)) {
             return true;
         }
 
         // //Create new account transaction
-        if (!empty($event->formInput['account_id']) && $event->transactionPayment->method != 'advance') {
-            $type = !empty($event->transactionPayment->payment_type) ? $event->transactionPayment->payment_type : AccountTransaction::getAccountTransactionType($event->formInput['transaction_type']);
+        if (! empty($event->formInput['account_id']) && $event->transactionPayment->method != 'advance') {
+            $type = ! empty($event->transactionPayment->payment_type) ? $event->transactionPayment->payment_type : AccountTransaction::getAccountTransactionType($event->formInput['transaction_type']);
             $account_transaction_data = [
                 'amount' => $event->formInput['amount'],
                 'account_id' => $event->formInput['account_id'],
@@ -53,7 +52,7 @@ class AddAccountTransaction
                 'operation_date' => $event->transactionPayment->paid_on,
                 'created_by' => $event->transactionPayment->created_by,
                 'transaction_id' => $event->transactionPayment->transaction_id,
-                'transaction_payment_id' =>  $event->transactionPayment->id
+                'transaction_payment_id' => $event->transactionPayment->id,
             ];
 
             //If change return then set type as debit

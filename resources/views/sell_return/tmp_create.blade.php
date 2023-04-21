@@ -35,7 +35,7 @@
 	</div>
 	<input type="hidden" id="product_row_count" value="0">
 	
-	{!! Form::open(['url' => action('SellReturnController@store'), 'method' => 'post', 'id' => 'sell_return_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\SellReturnController::class, 'store']), 'method' => 'post', 'id' => 'sell_return_form' ]) !!}
 	
 	<div class="box box-solid">
 		<div class="box-body">

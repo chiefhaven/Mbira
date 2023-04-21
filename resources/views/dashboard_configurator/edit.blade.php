@@ -11,7 +11,7 @@
 <section class="content">
 
 	{!! Form::open([
-		'url' => action('DashboardConfiguratorController@update', 
+		'url' => action([\App\Http\Controllers\DashboardConfiguratorController::class, 'update'], 
 		['id' => $dashboard->id]), 'method' => 'put'])!!}
 		@csrf
 		<input type="hidden" name="configuration" 

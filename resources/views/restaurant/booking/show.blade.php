@@ -26,13 +26,13 @@
 				<hr>
 				<div class="row">
 					<div class="col-sm-12">
-						<button type="button" class="btn btn-info btn-modal pull-right" data-href="{{action('NotificationController@getTemplate', ['transaction_id' => $booking->id,'template_for' => 'new_booking'])}}" data-container=".view_modal">@lang('restaurant.send_notification_to_customer')</button>
+						<button type="button" class="btn btn-info btn-modal pull-right" data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $booking->id,'template_for' => 'new_booking'])}}" data-container=".view_modal">@lang('restaurant.send_notification_to_customer')</button>
 					</div>
 				</div>
 				<br>
 				<div class="row">
 					<div class="col-sm-9">
-						{!! Form::open(['url' => action('Restaurant\BookingController@update', [$booking->id]), 'method' => 'PUT', 'id' => 'edit_booking_form' ]) !!}
+						{!! Form::open(['url' => action([\App\Http\Controllers\Restaurant\BookingController::class, 'update'], [$booking->id]), 'method' => 'PUT', 'id' => 'edit_booking_form' ]) !!}
 							<div class="input-group">
 				                <!-- /btn-group -->
 				                {!! Form::select('booking_status', $booking_statuses, $booking->booking_status, ['class' => 'form-control', 'placeholder' => __('restaurant.change_booking_status'), 'required']); !!}
@@ -43,7 +43,7 @@
 						{!! Form::close() !!}
 					</div>
 					<div class="col-sm-3 text-center">
-						<button type="button" class="btn btn-danger" id="delete_booking" data-href="{{action('Restaurant\BookingController@destroy', [$booking->id])}}">@lang('restaurant.delete_booking')</button>
+						<button type="button" class="btn btn-danger" id="delete_booking" data-href="{{action([\App\Http\Controllers\Restaurant\BookingController::class, 'destroy'], [$booking->id])}}">@lang('restaurant.delete_booking')</button>
 					</div>
 				</div>
 			<br>

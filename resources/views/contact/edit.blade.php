@@ -9,7 +9,7 @@
         $opening_balance = 0;
         $lead_users = $contact->leadUsers->pluck('id');
     } else {
-      $url = action('ContactController@update', [$contact->id]);
+      $url = action([\App\Http\Controllers\ContactController::class, 'update'], [$contact->id]);
       $sources = [];
       $life_stages = [];
       $lead_users = [];
@@ -208,7 +208,7 @@
           </div>
         </div>
 
-        @if(config('constants.enable_contact_assign'))
+        @if(config('constants.enable_contact_assign') && $contact->type !== 'lead')
           <!-- User in create customer & supplier -->
           <div class="col-md-6">
                 <div class="form-group">
@@ -217,7 +217,7 @@
                         <span class="input-group-addon">
                             <i class="fa fa-user"></i>
                         </span>
-                        {!! Form::select('assigned_to_users[]', $users, $assigned_to_users , ['class' => 'form-control select2', 'id' => 'assigned_to_users', 'multiple', 'style' => 'width: 100%;']); !!}
+                        {!! Form::select('assigned_to_users[]', $users, $assigned_to_users ?? [] , ['class' => 'form-control select2', 'id' => 'assigned_to_users', 'multiple', 'style' => 'width: 100%;']); !!}
                     </div>
                 </div>
           </div>

@@ -43,7 +43,7 @@
                         @if(Module::has('Essentials'))
                         <div class="col-md-12">
                             <button class="btn btn-block btn-success btn-modal" 
-                                data-href="{{action('\Modules\Essentials\Http\Controllers\ToDoController@create')}}?from_calendar=true" 
+                                data-href="{{action([\Modules\Essentials\Http\Controllers\ToDoController::class, 'create'])}}?from_calendar=true" 
                                 data-container="#task_modal">
                                 <i class="fa fa-plus"></i> @lang( 'essentials::lang.add_to_do' )</a>
                             </button>

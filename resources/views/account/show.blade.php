@@ -56,7 +56,7 @@
                             {!! Form::label('transaction_type', __('account.transaction_type') . ':') !!}
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="fas fa-exchange-alt"></i></span>
-                                {!! Form::select('transaction_type', ['' => __('messages.all'),'debit' => __('account.debit'), 'credit' => __('account.credit')], '', ['class' => 'form-control']) !!}
+                                {!! Form::select('transaction_type', ['' => __('messages.all'),'credit' => __('account.debit'), 'debit' => __('account.credit')], '', ['class' => 'form-control']) !!}
                             </div>
                         </div>
                     </div>
@@ -136,7 +136,7 @@
                             processing: true,
                             serverSide: true,
                             ajax: {
-                                url: '{{action("AccountController@show",[$account->id])}}',
+                                url: '{{action([\App\Http\Controllers\AccountController::class, 'show'],[$account->id])}}',
                                 data: function(d) {
                                     var start = '';
                                     var end = '';
@@ -151,18 +151,17 @@
                                 }
                             },
                             "ordering": false,
-                            "searching": false,
                             columns: [
                                 {data: 'operation_date', name: 'operation_date'},
                                 {data: 'sub_type', name: 'sub_type'},
-                                {data: 'method', name: 'TP.method'},
-                                {data: 'payment_details', name: 'payment_details', searchable: false},
+                                {data: 'method', name: 'tp.method'},
+                                {data: 'payment_details', name: 'tp.payment_ref_no'},
                                 {data: 'note', name: 'note'},
                                 {data: 'added_by', name: 'added_by'},
-                                {data: 'credit', name: 'amount'},
-                                {data: 'debit', name: 'amount'},
-                                {data: 'balance', name: 'balance'},
-                                {data: 'action', name: 'action'}
+                                {data: 'credit', name: 'amount', searchable: false},
+                                {data: 'debit', name: 'amount', searchable: false},
+                                {data: 'balance', name: 'balance', searchable: false},
+                                {data: 'action', name: 'action', searchable: false}
                             ],
                             "fnDrawCallback": function (oSettings) {
                                 __currency_convert_recursively($('#account_book'));
@@ -252,7 +251,7 @@
     function update_account_balance(argument) {
         $('span#account_balance').html('<i class="fas fa-sync fa-spin"></i>');
         $.ajax({
-            url: '{{action("AccountController@getAccountBalance", [$account->id])}}',
+            url: '{{action([\App\Http\Controllers\AccountController::class, 'getAccountBalance'], [$account->id])}}',
             dataType: "json",
             success: function(data){
                 $('span#account_balance').text(__currency_trans_from_en(data.balance, true));

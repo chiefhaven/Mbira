@@ -1,12 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Transaction;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use App\Transaction;
 
-class ChangeStatusColumnToVarcharInTransactionTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +13,7 @@ class ChangeStatusColumnToVarcharInTransactionTable extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN `status` VARCHAR(191) NOT NULL;");
+        DB::statement('ALTER TABLE transactions MODIFY COLUMN `status` VARCHAR(191) NOT NULL;');
 
         Transaction::where('type', 'sell_transfer')
                 ->update(['status' => 'final']);
@@ -32,4 +30,4 @@ class ChangeStatusColumnToVarcharInTransactionTable extends Migration
     public function down()
     {
     }
-}
+};

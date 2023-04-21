@@ -33,6 +33,27 @@
                     </div>
                 </div>
 
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('cs_report_location_id', __( 'sale.location' ) . ':') !!}
+                        {!! Form::select('cs_report_location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'cs_report_location_id']); !!}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('scr_contact_id', __( 'report.contact' ) . ':') !!}
+                        {!! Form::select('scr_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'id' => 'scr_contact_id', 'placeholder' => __('lang_v1.all')]); !!}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('scr_date_filter', __('report.date_range') . ':') !!}
+                        {!! Form::text('date_range', null, ['placeholder' => __('lang_v1.select_a_date_range'), 'class' => 'form-control', 'id' => 'scr_date_filter', 'readonly']); !!}
+                    </div>
+                </div>
+
             @endcomponent
         </div>
     </div>

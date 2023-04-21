@@ -19,7 +19,7 @@
             @can('brand.create')
             	<div class="box-tools">
                     <button type="button" class="btn btn-block btn-primary btn-modal" 
-                    data-href="{{action('DiscountController@create')}}" 
+                    data-href="{{action([\App\Http\Controllers\DiscountController::class, 'create'])}}" 
                     data-container=".discount_modal">
                     <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
                 </div>
@@ -48,7 +48,7 @@
                     <tr>
                         <td colspan="11">
                         <div style="display: flex; width: 100%;">
-                            {!! Form::open(['url' => action('DiscountController@massDeactivate'), 'method' => 'post', 'id' => 'mass_deactivate_form' ]) !!}
+                            {!! Form::open(['url' => action([\App\Http\Controllers\DiscountController::class, 'massDeactivate']), 'method' => 'post', 'id' => 'mass_deactivate_form' ]) !!}
                             {!! Form::hidden('selected_discounts', null, ['id' => 'selected_discounts']); !!}
                             {!! Form::submit(__('lang_v1.deactivate_selected'), array('class' => 'btn btn-xs btn-warning', 'id' => 'deactivate-selected')) !!}
                             {!! Form::close() !!}

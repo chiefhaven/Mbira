@@ -10,7 +10,7 @@
 
 <!-- Main content -->
 <section class="content">
-	{!! Form::open(['url' => action('ProductController@saveSellingPrices'), 'method' => 'post', 'id' => 'selling_price_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'saveSellingPrices']), 'method' => 'post', 'id' => 'selling_price_form' ]) !!}
 	{!! Form::hidden('product_id', $product->id); !!}
 	<div class="row">
 		<div class="col-xs-12">

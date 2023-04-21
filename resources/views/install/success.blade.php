@@ -9,7 +9,6 @@
         <div class="col-md-8 col-md-offset-2">
           <h3 class="text-success">Great! <br/>Your application is succesfully installed.</h3>
           <hr>
-          <hr><a target="_blank" href="https://bit.ly/3Iparq4">NULLED Scripts!</a>
           <p>All the application details is saved in <b>.env</b> file. You can change them anytime there.</p>
 
           <p>Start by registering your business <a href="{{route('business.getRegister')}}">here</a>.</p>

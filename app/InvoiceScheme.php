@@ -32,6 +32,7 @@ class InvoiceScheme extends Model
         $default = InvoiceScheme::where('business_id', $business_id)
                                 ->where('is_default', 1)
                                 ->first();
+
         return $default;
     }
 }

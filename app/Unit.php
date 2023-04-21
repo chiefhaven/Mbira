@@ -14,8 +14,7 @@ class Unit extends Model
      *
      * @var array
      */
-    
-    
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -26,9 +25,8 @@ class Unit extends Model
     /**
      * Return list of units for a business
      *
-     * @param int $business_id
-     * @param boolean $show_none = true
-     *
+     * @param  int  $business_id
+     * @param  bool  $show_none = true
      * @return array
      */
     public static function forDropdown($business_id, $show_none = false, $only_base = true)
@@ -43,7 +41,7 @@ class Unit extends Model
         if ($show_none) {
             $dropdown->prepend(__('messages.please_select'), '');
         }
-        
+
         return $dropdown;
     }
 

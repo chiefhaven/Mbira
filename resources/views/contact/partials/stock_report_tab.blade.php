@@ -18,6 +18,7 @@
                         <th>@lang('product.sku')</th>
                         <th>@lang('purchase.purchase_quantity')</th>
                         <th>@lang('lang_v1.total_sold')</th>
+                        <th>@lang('lang_v1.total_unit_transfered')</th>
                         <th>@lang('lang_v1.total_returned')</th>
                         <th>@lang('report.current_stock')</th>
                         <th>@lang('lang_v1.total_stock_price')</th>

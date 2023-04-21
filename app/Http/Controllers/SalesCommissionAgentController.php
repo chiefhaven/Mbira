@@ -11,11 +11,11 @@ use Illuminate\Http\Request;
 class SalesCommissionAgentController extends Controller
 {
     /**
-       * Constructor
-       *
-       * @param Util $commonUtil
-       * @return void
-       */
+     * Constructor
+     *
+     * @param  Util  $commonUtil
+     * @return void
+     */
     public function __construct(Util $commonUtil)
     {
         $this->commonUtil = $commonUtil;
@@ -28,7 +28,7 @@ class SalesCommissionAgentController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('user.view') && !auth()->user()->can('user.create')) {
+        if (! auth()->user()->can('user.view') && ! auth()->user()->can('user.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -39,17 +39,17 @@ class SalesCommissionAgentController extends Controller
                         ->where('is_cmmsn_agnt', 1)
                         ->select(['id',
                             DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"),
-                            'email', 'contact_no', 'address', 'cmmsn_percent']);
+                            'email', 'contact_no', 'address', 'cmmsn_percent', ]);
 
             return Datatables::of($users)
                 ->addColumn(
                     'action',
                     '@can("user.update")
-                    <button type="button" data-href="{{action(\'SalesCommissionAgentController@edit\', [$id])}}" data-container=".commission_agent_modal" class="btn btn-xs btn-modal btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    <button type="button" data-href="{{action(\'App\Http\Controllers\SalesCommissionAgentController@edit\', [$id])}}" data-container=".commission_agent_modal" class="btn btn-xs btn-modal btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                         @endcan
                         @can("user.delete")
-                        <button data-href="{{action(\'SalesCommissionAgentController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_commsn_agnt_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\SalesCommissionAgentController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_commsn_agnt_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                         @endcan'
                 )
                 ->filterColumn('full_name', function ($query, $keyword) {
@@ -70,7 +70,7 @@ class SalesCommissionAgentController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('user.create')) {
+        if (! auth()->user()->can('user.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -85,7 +85,7 @@ class SalesCommissionAgentController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('user.create')) {
+        if (! auth()->user()->can('user.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -98,16 +98,16 @@ class SalesCommissionAgentController extends Controller
             $input['is_cmmsn_agnt'] = 1;
 
             $user = User::create($input);
-            
+
             $output = ['success' => true,
-                          'msg' => __("lang_v1.commission_agent_added_success")
-                      ];
+                'msg' => __('lang_v1.commission_agent_added_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                           'msg' => __("messages.something_went_wrong")
-                       ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -121,7 +121,7 @@ class SalesCommissionAgentController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('user.update')) {
+        if (! auth()->user()->can('user.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -140,7 +140,7 @@ class SalesCommissionAgentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('user.update')) {
+        if (! auth()->user()->can('user.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -157,14 +157,14 @@ class SalesCommissionAgentController extends Controller
                 $user->update($input);
 
                 $output = ['success' => true,
-                            'msg' => __("lang_v1.commission_agent_updated_success")
-                            ];
+                    'msg' => __('lang_v1.commission_agent_updated_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;
@@ -179,7 +179,7 @@ class SalesCommissionAgentController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('user.delete')) {
+        if (! auth()->user()->can('user.delete')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -193,14 +193,14 @@ class SalesCommissionAgentController extends Controller
                     ->delete();
 
                 $output = ['success' => true,
-                                'msg' => __("lang_v1.commission_agent_deleted_success")
-                                ];
+                    'msg' => __('lang_v1.commission_agent_deleted_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;

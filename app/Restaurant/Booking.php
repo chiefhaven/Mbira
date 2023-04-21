@@ -47,7 +47,6 @@ class Booking extends Model
 
     public static function createBooking($input)
     {
-
         $data = [
             'contact_id' => $input['contact_id'],
             'waiter_id' => isset($input['res_waiter_id']) ? $input['res_waiter_id'] : null,
@@ -59,7 +58,7 @@ class Booking extends Model
             'booking_end' => $input['booking_end'],
             'created_by' => $input['created_by'],
             'booking_status' => isset($input['booking_status']) ? $input['booking_status'] : 'booked',
-            'booking_note' => $input['booking_note']
+            'booking_note' => $input['booking_note'],
         ];
         $booking = Booking::create($data);
 

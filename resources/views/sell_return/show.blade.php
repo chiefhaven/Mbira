@@ -122,7 +122,7 @@
   </div>
 </div>
 <div class="modal-footer">
-    <a href="#" class="print-invoice btn btn-primary" data-href="{{action('SellReturnController@printInvoice', [$sell->return_parent->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a>
+    <a href="#" class="print-invoice btn btn-primary" data-href="{{action([\App\Http\Controllers\SellReturnController::class, 'printInvoice'], [$sell->return_parent->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a>
       <button type="button" class="btn btn-default no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
   </div>

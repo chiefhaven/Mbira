@@ -116,7 +116,7 @@
             processing: true,
             serverSide: true,
             "ajax": {
-                    "url": "{{action("AccountController@cashFlow")}}",
+                    "url": "{{action([\App\Http\Controllers\AccountController::class, 'cashFlow'])}}",
                     "data": function ( d ) {
                         var start = '';
                         var end = '';
@@ -134,17 +134,16 @@
                     }
                 },
             "ordering": false,
-            "searching": false,
             columns: [
                 {data: 'operation_date', name: 'operation_date'},
-                {data: 'account_name', name: 'account_name'},
-                {data: 'sub_type', name: 'sub_type'},
+                {data: 'account_name', name: 'A.name'},
+                {data: 'sub_type', name: 'sub_type', searchable: false},
                 {data: 'method', name: 'TP.method'},
-                {data: 'payment_details', name: 'payment_details', searchable: false},
-                {data: 'debit', name: 'amount'},
-                {data: 'credit', name: 'amount'},
-                {data: 'balance', name: 'balance'},
-                {data: 'total_balance', name: 'total_balance'},
+                {data: 'payment_details', name: 'TP.payment_ref_no'},
+                {data: 'debit', name: 'amount', searchable: false},
+                {data: 'credit', name: 'amount', searchable: false},
+                {data: 'balance', name: 'balance', searchable: false},
+                {data: 'total_balance', name: 'total_balance', searchable: false},
             ],
             "fnDrawCallback": function (oSettings) {
                 __currency_convert_recursively($('#cash_flow_table'));

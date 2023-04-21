@@ -55,7 +55,7 @@
 	$common_settings = session()->get('business.common_settings');
 @endphp
 <input type="hidden" id="item_addition_method" value="{{$business_details->item_addition_method}}">
-	{!! Form::open(['url' => action('SellPosController@store'), 'method' => 'post', 'id' => 'add_sell_form', 'files' => true ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\SellPosController::class, 'store']), 'method' => 'post', 'id' => 'add_sell_form', 'files' => true ]) !!}
 	 @if(!empty($sale_type))
 	 	<input type="hidden" id="sale_type" name="type" value="{{$sale_type}}">
 	 @endif
@@ -74,9 +74,10 @@
 									</span>
 									@php
 										reset($price_groups);
+										$selected_price_group = !empty($default_price_group_id) && array_key_exists($default_price_group_id, $price_groups) ? $default_price_group_id : null;
 									@endphp
 									{!! Form::hidden('hidden_price_group', key($price_groups), ['id' => 'hidden_price_group']) !!}
-									{!! Form::select('price_group', $price_groups, null, ['class' => 'form-control select2', 'id' => 'price_group']); !!}
+									{!! Form::select('price_group', $price_groups, $selected_price_group, ['class' => 'form-control select2', 'id' => 'price_group']); !!}
 									<span class="input-group-addon">
 										@show_tooltip(__('lang_v1.price_group_help_text'))
 									</span> 
@@ -213,6 +214,10 @@
 				</div>
 				@if(!empty($status))
 					<input type="hidden" name="status" id="status" value="{{$status}}">
+
+					@if(in_array($status, ['draft', 'quotation']))
+						<input type="hidden" id="disable_qty_alert">
+					@endif
 				@else
 					<div class="@if(!empty($commission_agent)) col-sm-3 @else col-sm-4 @endif">
 						<div class="form-group">
@@ -356,7 +361,7 @@
 							'autofocus' => is_null($default_location)? false : true,
 							]); !!}
 							<span class="input-group-btn">
-								<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action('ProductController@quickAdd')}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+								<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
 							</span>
 						</div>
 					</div>
@@ -507,7 +512,7 @@
 			                {!! Form::select('tax_rate_id', $taxes['tax_rates'], $default_sales_tax, ['placeholder' => __('messages.please_select'), 'class' => 'form-control', 'data-default'=> $default_sales_tax], $taxes['attributes']); !!}
 
 							<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
-							value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format(optional($transaction->tax)->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
+							value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format($transaction->tax?->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
 			            </div>
 			        </div>
 			    </div>
@@ -798,7 +803,60 @@
 							{!! Form::hidden('advance_balance', null, ['id' => 'advance_balance', 'data-error-msg' => __('lang_v1.required_advance_balance_not_available')]); !!}
 						</div>
 					</div>
-					@include('sale_pos.partials.payment_row_form', ['row_index' => 0, 'show_date' => true])
+					@include('sale_pos.partials.payment_row_form', ['row_index' => 0, 'show_date' => true, 'show_denomination' => true])
+                </div>
+                <div class="payment_row">
+					<div class="row">
+						<div class="col-md-12">
+			        		<hr>
+			        		<strong>
+			        			@lang('lang_v1.change_return'):
+			        		</strong>
+			        		<br/>
+			        		<span class="lead text-bold change_return_span">0</span>
+			        		{!! Form::hidden("change_return", $change_return['amount'], ['class' => 'form-control change_return input_number', 'required', 'id' => "change_return"]); !!}
+			        		<!-- <span class="lead text-bold total_quantity">0</span> -->
+			        		@if(!empty($change_return['id']))
+			            		<input type="hidden" name="change_return_id" 
+			            		value="{{$change_return['id']}}">
+			            	@endif
+						</div>
+					</div>
+					<div class="row hide payment_row" id="change_return_payment_data">
+						<div class="col-md-4">
+							<div class="form-group">
+								{!! Form::label("change_return_method" , __('lang_v1.change_return_payment_method') . ':*') !!}
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fas fa-money-bill-alt"></i>
+									</span>
+									@php
+										$_payment_method = empty($change_return['method']) && array_key_exists('cash', $payment_types) ? 'cash' : $change_return['method'];
+
+										$_payment_types = $payment_types;
+										if(isset($_payment_types['advance'])) {
+											unset($_payment_types['advance']);
+										}
+									@endphp
+									{!! Form::select("payment[change_return][method]", $_payment_types, $_payment_method, ['class' => 'form-control col-md-12 payment_types_dropdown', 'id' => 'change_return_method', 'style' => 'width:100%;']); !!}
+								</div>
+							</div>
+						</div>
+						@if(!empty($accounts))
+						<div class="col-md-4">
+							<div class="form-group">
+								{!! Form::label("change_return_account" , __('lang_v1.change_return_payment_account') . ':') !!}
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fas fa-money-bill-alt"></i>
+									</span>
+									{!! Form::select("payment[change_return][account_id]", $accounts, !empty($change_return['account_id']) ? $change_return['account_id'] : '' , ['class' => 'form-control select2', 'id' => 'change_return_account', 'style' => 'width:100%;']); !!}
+								</div>
+							</div>
+						</div>
+						@endif
+						@include('sale_pos.partials.payment_type_details', ['payment_line' => $change_return, 'row_index' => 'change_return'])
+					</div>
 					<hr>
 					<div class="row">
 						<div class="col-sm-12">
@@ -920,6 +978,11 @@
 	                $('div.export_div').hide();
 	            }
 	        });
+
+			if($('.payment_types_dropdown').length){
+				$('.payment_types_dropdown').change();
+			}
+
     	});
     </script>
 @endsection

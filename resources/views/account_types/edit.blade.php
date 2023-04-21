@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   	<div class="modal-content">
 
-    {!! Form::open(['url' => action('AccountTypeController@update', $account_type->id), 'method' => 'put', 'id' => 'account_type_form' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\AccountTypeController::class, 'update'], $account_type->id), 'method' => 'put', 'id' => 'account_type_form' ]) !!}
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <h4 class="modal-title">@lang( 'lang_v1.edit_account_type' )</h4>

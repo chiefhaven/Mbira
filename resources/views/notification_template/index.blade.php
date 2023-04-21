@@ -10,7 +10,7 @@
 
 <!-- Main content -->
 <section class="content">
-    {!! Form::open(['url' => action('NotificationTemplateController@store'), 'method' => 'post' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\NotificationTemplateController::class, 'store']), 'method' => 'post' ]) !!}
 
     <div class="row">
         <div class="col-md-12">

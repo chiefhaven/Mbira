@@ -5,7 +5,6 @@ namespace App\Utils;
 use App\CashRegister;
 use App\CashRegisterTransaction;
 use App\Transaction;
-
 use DB;
 
 class CashRegisterUtil extends Util
@@ -19,9 +18,10 @@ class CashRegisterUtil extends Util
     public function countOpenedRegister()
     {
         $user_id = auth()->user()->id;
-        $count =  CashRegister::where('user_id', $user_id)
+        $count = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
                                 ->count();
+
         return $count;
     }
 
@@ -29,19 +29,18 @@ class CashRegisterUtil extends Util
      * Adds sell payments to currently opened cash register
      *
      * @param object/int $transaction
-     * @param array $payments
-     *
-     * @return boolean
+     * @param  array  $payments
+     * @return bool
      */
     public function addSellPayments($transaction, $payments)
     {
         $user_id = auth()->user()->id;
-        $register =  CashRegister::where('user_id', $user_id)
+        $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
                                 ->first();
         $payments_formatted = [];
         foreach ($payments as $payment) {
-            $payment_amount = (isset($payment['is_return']) && $payment['is_return'] == 1) ? (-1*$this->num_uf($payment['amount'])) : $this->num_uf($payment['amount']);
+            $payment_amount = (isset($payment['is_return']) && $payment['is_return'] == 1) ? (-1 * $this->num_uf($payment['amount'])) : $this->num_uf($payment['amount']);
             if ($payment_amount != 0) {
                 $type = 'credit';
                 if ($transaction->type == 'expense') {
@@ -53,12 +52,12 @@ class CashRegisterUtil extends Util
                     'pay_method' => $payment['method'],
                     'type' => $type,
                     'transaction_type' => $transaction->type,
-                    'transaction_id' => $transaction->id
+                    'transaction_id' => $transaction->id,
                 ]);
             }
         }
 
-        if (!empty($payments_formatted)) {
+        if (! empty($payments_formatted)) {
             $register->cash_register_transactions()->saveMany($payments_formatted);
         }
 
@@ -69,14 +68,13 @@ class CashRegisterUtil extends Util
      * Adds sell payments to currently opened cash register
      *
      * @param object/int $transaction
-     * @param array $payments
-     *
-     * @return boolean
+     * @param  array  $payments
+     * @return bool
      */
     public function updateSellPayments($status_before, $transaction, $payments)
     {
         $user_id = auth()->user()->id;
-        $register =  CashRegister::where('user_id', $user_id)
+        $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
                                 ->first();
         //If draft -> final then add all
@@ -103,7 +101,7 @@ class CashRegisterUtil extends Util
                                 DB::raw("SUM(IF(pay_method='custom_pay_7', IF(type='credit', amount, -1 * amount), 0)) as total_custom_pay_7"),
                                 DB::raw("SUM(IF(pay_method='advance', IF(type='credit', amount, -1 * amount), 0)) as total_advance")
                             )->first();
-            if (!empty($prev_payments)) {
+            if (! empty($prev_payments)) {
                 $payment_diffs = [
                     'cash' => $prev_payments->total_cash,
                     'card' => $prev_payments->total_card,
@@ -117,7 +115,7 @@ class CashRegisterUtil extends Util
                     'custom_pay_5' => $prev_payments->total_custom_pay_5,
                     'custom_pay_6' => $prev_payments->total_custom_pay_6,
                     'custom_pay_7' => $prev_payments->total_custom_pay_7,
-                    'advance' => $prev_payments->total_advance 
+                    'advance' => $prev_payments->total_advance,
                 ];
 
                 foreach ($payments as $payment) {
@@ -135,7 +133,7 @@ class CashRegisterUtil extends Util
                             'pay_method' => $key,
                             'type' => 'debit',
                             'transaction_type' => 'refund',
-                            'transaction_id' => $transaction->id
+                            'transaction_id' => $transaction->id,
                         ]);
                     } elseif ($value < 0) {
                         $payments_formatted[] = new CashRegisterTransaction([
@@ -143,11 +141,11 @@ class CashRegisterUtil extends Util
                             'pay_method' => $key,
                             'type' => 'credit',
                             'transaction_type' => 'sell',
-                            'transaction_id' => $transaction->id
+                            'transaction_id' => $transaction->id,
                         ]);
                     }
                 }
-                if (!empty($payments_formatted)) {
+                if (! empty($payments_formatted)) {
                     $register->cash_register_transactions()->saveMany($payments_formatted);
                 }
             }
@@ -160,13 +158,12 @@ class CashRegisterUtil extends Util
      * Refunds all payments of a sell
      *
      * @param object/int $transaction
-     *
-     * @return boolean
+     * @return bool
      */
     public function refundSell($transaction)
     {
         $user_id = auth()->user()->id;
-        $register =  CashRegister::where('user_id', $user_id)
+        $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
                                 ->first();
 
@@ -186,19 +183,19 @@ class CashRegisterUtil extends Util
                                 DB::raw("SUM(IF(pay_method='custom_pay_7', IF(type='credit', amount, -1 * amount), 0)) as total_custom_pay_7")
                             )->first();
         $refunds = [
-                    'cash' => $total_payment->total_cash,
-                    'card' => $total_payment->total_card,
-                    'cheque' => $total_payment->total_cheque,
-                    'bank_transfer' => $total_payment->total_bank_transfer,
-                    'other' => $total_payment->total_other,
-                    'custom_pay_1' => $total_payment->total_custom_pay_1,
-                    'custom_pay_2' => $total_payment->total_custom_pay_2,
-                    'custom_pay_3' => $total_payment->total_custom_pay_3,
-                    'custom_pay_4' => $total_payment->total_custom_pay_4,
-                    'custom_pay_5' => $total_payment->total_custom_pay_5,
-                    'custom_pay_6' => $total_payment->total_custom_pay_6,
-                    'custom_pay_7' => $total_payment->total_custom_pay_7
-                ];
+            'cash' => $total_payment->total_cash,
+            'card' => $total_payment->total_card,
+            'cheque' => $total_payment->total_cheque,
+            'bank_transfer' => $total_payment->total_bank_transfer,
+            'other' => $total_payment->total_other,
+            'custom_pay_1' => $total_payment->total_custom_pay_1,
+            'custom_pay_2' => $total_payment->total_custom_pay_2,
+            'custom_pay_3' => $total_payment->total_custom_pay_3,
+            'custom_pay_4' => $total_payment->total_custom_pay_4,
+            'custom_pay_5' => $total_payment->total_custom_pay_5,
+            'custom_pay_6' => $total_payment->total_custom_pay_6,
+            'custom_pay_7' => $total_payment->total_custom_pay_7,
+        ];
         $refund_formatted = [];
         foreach ($refunds as $key => $val) {
             if ($val > 0) {
@@ -207,14 +204,15 @@ class CashRegisterUtil extends Util
                     'pay_method' => $key,
                     'type' => 'debit',
                     'transaction_type' => 'refund',
-                    'transaction_id' => $transaction->id
+                    'transaction_id' => $transaction->id,
                 ]);
             }
         }
 
-        if (!empty($refund_formatted)) {
+        if (! empty($refund_formatted)) {
             $register->cash_register_transactions()->saveMany($refund_formatted);
         }
+
         return true;
     }
 
@@ -222,7 +220,6 @@ class CashRegisterUtil extends Util
      * Retrieves details of given rigister id else currently opened register
      *
      * @param $register_id default null
-     *
      * @return object
      */
     public function getRegisterDetails($register_id = null)
@@ -252,7 +249,7 @@ class CashRegisterUtil extends Util
         } else {
             $query->where('cash_registers.id', $register_id);
         }
-                              
+
         $register_details = $query->select(
             'cash_registers.created_at as open_time',
             'cash_registers.closed_at as closed_at',
@@ -309,6 +306,7 @@ class CashRegisterUtil extends Util
             'u.email',
             'bl.name as location_name'
         )->first();
+
         return $register_details;
     }
 
@@ -318,7 +316,6 @@ class CashRegisterUtil extends Util
      * @param $user_id int
      * @param $open_time datetime
      * @param $close_time datetime
-     *
      * @return array
      */
     public function getRegisterTransactionDetails($user_id, $open_time, $close_time, $is_types_of_service_enabled = false)
@@ -395,22 +392,21 @@ class CashRegisterUtil extends Util
                 ->first();
 
         return ['product_details_by_brand' => $product_details_by_brand,
-                'transaction_details' => $transaction_details,
-                'types_of_service_details' => $types_of_service_details,
-                'product_details' => $product_details
-            ];
+            'transaction_details' => $transaction_details,
+            'types_of_service_details' => $types_of_service_details,
+            'product_details' => $product_details,
+        ];
     }
 
     /**
      * Retrieves the currently opened cash register for the user
      *
      * @param $int user_id
-     *
      * @return obj
      */
     public function getCurrentCashRegister($user_id)
     {
-        $register =  CashRegister::where('user_id', $user_id)
+        $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
                                 ->first();
 

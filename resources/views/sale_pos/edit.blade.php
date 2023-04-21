@@ -15,7 +15,7 @@
 		$is_discount_enabled = $pos_settings['disable_discount'] != 1 ? true : false;
 		$is_rp_enabled = session('business.enable_rp') == 1 ? true : false;
 	@endphp
-	{!! Form::open(['url' => action('SellPosController@update', [$transaction->id]), 'method' => 'post', 'id' => 'edit_pos_sell_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\SellPosController::class, 'update'], [$transaction->id]), 'method' => 'post', 'id' => 'edit_pos_sell_form' ]) !!}
 	{{ method_field('PUT') }}
 	<div class="row mb-12">
 		<div class="col-md-12">
@@ -41,9 +41,12 @@
 									@include('sale_pos.partials.recurring_invoice_modal')
 								@endif
 							</div>
+							@if(!empty($only_payment))
+								<div class="overlay"></div>
+							@endif
 						</div>
 					</div>
-				@if(empty($pos_settings['hide_product_suggestion'])  && !isMobile())
+				@if(empty($pos_settings['hide_product_suggestion'])  && !isMobile() && empty($only_payment))
 					<div class="col-md-5 no-padding">
 						@include('sale_pos.partials.pos_sidebar')
 					</div>
@@ -121,6 +124,10 @@
 		    height: auto !important;
 		    margin-top: 0mm;
 		    margin-bottom: 0mm;
+		}
+		.overlay {
+			background: rgba(255,255,255,0) !important;
+			cursor: not-allowed;
 		}
 	</style>
 	<!-- include module css -->

@@ -10,7 +10,7 @@
 
 <!-- Main content -->
 <section class="content no-print">
-	{!! Form::open(['url' => action('StockTransferController@update', [$sell_transfer->id]), 'method' => 'put', 'id' => 'stock_transfer_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\StockTransferController::class, 'update'], [$sell_transfer->id]), 'method' => 'put', 'id' => 'stock_transfer_form' ]) !!}
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">

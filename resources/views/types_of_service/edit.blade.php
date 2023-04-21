@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('TypesOfServiceController@update', $type_of_service->id), 'method' => 'put', 'id' => 'types_of_service_form' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\TypesOfServiceController::class, 'update'], $type_of_service->id), 'method' => 'put', 'id' => 'types_of_service_form' ]) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

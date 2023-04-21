@@ -46,11 +46,17 @@
 	</tr>
 	<tr>
 		<td>@lang('lang_v1.advance_balance')</td>
-		<td class="align-right">@format_currency($contact->balance)</td>
+		<td class="align-right">@format_currency($contact->balance - $ledger_details['total_reverse_payment'])</td>
 	</tr>
+	@if($ledger_details['ledger_discount'] > 0)
+		<tr>
+			<td>@lang('lang_v1.ledger_discount')</td>
+			<td class="align-right">@format_currency($ledger_details['ledger_discount'])</td>
+		</tr>
+	@endif
 	<tr>
 		<td><strong>@lang('lang_v1.balance_due')</strong></td>
-		<td class="align-right">@format_currency($ledger_details['balance_due'])</td>
+		<td class="align-right">@format_currency($ledger_details['balance_due'] - $ledger_details['ledger_discount'])</td>
 	</tr>
 	</table>
 </div>
@@ -86,7 +92,15 @@
 					<td class="ws-nowrap align-right">@if($data['credit'] != '') @format_currency($data['credit']) @endif</td>
 					<td class="ws-nowrap align-right">{{$data['balance']}}</td>
 					<td>{{$data['payment_method']}}</td>
-					<td>{!! $data['others'] !!}</td>
+					<td>
+						{!! $data['others'] !!}
+
+						@if(!empty($is_admin) && !empty($data['transaction_id']) && $data['transaction_type'] == 'ledger_discount')
+							<br>
+							<button type="button" class="btn btn-xs btn-danger delete_ledger_discount" data-href="{{action([\App\Http\Controllers\LedgerDiscountController::class, 'destroy'], ['id' => $data['transaction_id']])}}"><i class="fas fa-trash"></i></button>
+							<button type="button" class="btn btn-xs btn-primary btn-modal" data-href="{{action([\App\Http\Controllers\LedgerDiscountController::class, 'edit'], ['id' => $data['transaction_id']])}}" data-container="#edit_ledger_discount_modal"><i class="fas fa-edit"></i></button>
+						@endif
+					</td>
 				</tr>
 			@endforeach
 		</tbody>

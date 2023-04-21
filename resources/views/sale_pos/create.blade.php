@@ -15,7 +15,7 @@
 		$is_discount_enabled = $pos_settings['disable_discount'] != 1 ? true : false;
 		$is_rp_enabled = session('business.enable_rp') == 1 ? true : false;
 	@endphp
-	{!! Form::open(['url' => action('SellPosController@store'), 'method' => 'post', 'id' => 'add_pos_sell_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\SellPosController::class, 'store']), 'method' => 'post', 'id' => 'add_pos_sell_form' ]) !!}
 	<div class="row mb-12">
 		<div class="col-md-12">
 			<div class="row">

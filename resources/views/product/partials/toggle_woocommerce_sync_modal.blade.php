@@ -1,5 +1,5 @@
 <div class="modal fade" id ="woocommerce_sync_modal" tabindex="-1" role="dialog">
-    {!! Form::open(['url' => action('ProductController@toggleWooCommerceSync'), 'method' => 'post', 'id' => 'toggle_woocommerce_sync_form' ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'toggleWooCommerceSync']), 'method' => 'post', 'id' => 'toggle_woocommerce_sync_form' ]) !!}
         <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">

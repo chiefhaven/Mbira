@@ -1,7 +1,7 @@
 <!-- <strong>{{ $contact->name }}</strong><br><br> -->
 <h3 class="profile-username">
     <i class="fas fa-user-tie"></i>
-    {{ $contact->name }}
+    {{ $contact->full_name_with_business }}
     <small>
         @if($contact->type == 'both')
             {{__('role.customer')}} & {{__('role.supplier')}}

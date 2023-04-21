@@ -3,18 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\BusinessLocation;
-use App\Printer;
 use App\InvoiceLayout;
 use App\InvoiceScheme;
-
+use App\Printer;
 use Illuminate\Http\Request;
 
 class LocationSettingsController extends Controller
 {
     /**
-    * All class instance.
-    *
-    */
+     * All class instance.
+     */
     protected $printReceiptOnInvoice;
 
     /**
@@ -36,8 +34,8 @@ class LocationSettingsController extends Controller
     public function index($location_id)
     {
         //Check for locations access permission
-        if (!auth()->user()->can('business_settings.access') ||
-            !auth()->user()->can_access_this_location($location_id)
+        if (! auth()->user()->can('business_settings.access') ||
+            ! auth()->user()->can_access_this_location($location_id)
         ) {
             abort(403, 'Unauthorized action.');
         }
@@ -73,12 +71,12 @@ class LocationSettingsController extends Controller
     {
         try {
             //Check for locations access permission
-            if (!auth()->user()->can('business_settings.access') ||
-                !auth()->user()->can_access_this_location($location_id)
+            if (! auth()->user()->can('business_settings.access') ||
+                ! auth()->user()->can_access_this_location($location_id)
             ) {
                 abort(403, 'Unauthorized action.');
             }
-            
+
             $input = $request->only(['print_receipt_on_invoice', 'receipt_printer_type', 'printer_id', 'invoice_layout_id', 'invoice_scheme_id']);
 
             //Auto set to browser in demo.
@@ -95,12 +93,12 @@ class LocationSettingsController extends Controller
             $location->update();
 
             $output = ['success' => 1,
-                        'msg' => __("receipt.receipt_settings_updated")
-                    ];
+                'msg' => __('receipt.receipt_settings_updated'),
+            ];
         } catch (\Exception $e) {
             $output = ['success' => 0,
-                        'msg' => __("messages.something_went_wrong")
-                    ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return back()->with('status', $output);

@@ -12,9 +12,10 @@ class VariationTemplate extends Model
      * @var array
      */
     protected $guarded = ['id'];
+
     /**
-    * Get the attributes for the variation.
-    */
+     * Get the attributes for the variation.
+     */
     public function values()
     {
         return $this->hasMany(\App\VariationValueTemplate::class);

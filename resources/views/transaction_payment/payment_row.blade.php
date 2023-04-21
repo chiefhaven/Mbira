@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('TransactionPaymentController@store'), 'method' => 'post', 'id' => 'transaction_payment_add_form', 'files' => true ]) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\TransactionPaymentController::class, 'store']), 'method' => 'post', 'id' => 'transaction_payment_add_form', 'files' => true ]) !!}
     {!! Form::hidden('transaction_id', $transaction->id); !!}
     @if(!empty($transaction->location))
       {!! Form::hidden('default_payment_accounts', $transaction->location->default_payment_accounts, ['id' => 'default_payment_accounts']); !!}
@@ -22,10 +22,8 @@
             @elseif(in_array($transaction->type, ['sell', 'sell_return']))
               @lang('contact.customer') 
             @endif
-            </strong>:{{ $transaction->contact->name }}<br>
-            @if($transaction->type == 'purchase')
+            </strong>:{{ $transaction->contact->full_name_with_business }}<br>
             <strong>@lang('business.business'): </strong>{{ $transaction->contact->supplier_business_name }}
-            @endif
           </div>
         </div>
         @endif
@@ -66,12 +64,12 @@
       <div class="row payment_row">
         <div class="col-md-4">
           <div class="form-group">
-            {!! Form::label("amount" , __('sale.amount') . ':*') !!}
+            {!! Form::label("method" , __('purchase.payment_method') . ':*') !!}
             <div class="input-group">
               <span class="input-group-addon">
                 <i class="fas fa-money-bill-alt"></i>
               </span>
-              {!! Form::text("amount", @num_format($payment_line->amount), ['class' => 'form-control input_number', 'required', 'placeholder' => 'Amount', 'data-rule-max-value' => $payment_line->amount, 'data-msg-max-value' => __('lang_v1.max_amount_to_be_paid_is', ['amount' => $amount_formated])]); !!}
+              {!! Form::select("method", $payment_types, $payment_line->method, ['class' => 'form-control select2 payment_types_dropdown', 'required', 'style' => 'width:100%;']); !!}
             </div>
           </div>
         </div>
@@ -88,15 +86,69 @@
         </div>
         <div class="col-md-4">
           <div class="form-group">
-            {!! Form::label("method" , __('purchase.payment_method') . ':*') !!}
+            {!! Form::label("amount" , __('sale.amount') . ':*') !!}
             <div class="input-group">
               <span class="input-group-addon">
                 <i class="fas fa-money-bill-alt"></i>
               </span>
-              {!! Form::select("method", $payment_types, $payment_line->method, ['class' => 'form-control select2 payment_types_dropdown', 'required', 'style' => 'width:100%;']); !!}
+              {!! Form::text("amount", @num_format($payment_line->amount), ['class' => 'form-control input_number payment_amount', 'required', 'placeholder' => 'Amount', 'data-rule-max-value' => $payment_line->amount, 'data-msg-max-value' => __('lang_v1.max_amount_to_be_paid_is', ['amount' => $amount_formated])]); !!}
             </div>
           </div>
         </div>
+
+        @php
+            $pos_settings = !empty(session()->get('business.pos_settings')) ? json_decode(session()->get('business.pos_settings'), true) : [];
+            $enable_cash_denomination_for_payment_methods = !empty($pos_settings['enable_cash_denomination_for_payment_methods']) ? $pos_settings['enable_cash_denomination_for_payment_methods'] : [];
+        @endphp
+
+        @if(!empty($pos_settings['enable_cash_denomination_on']) && $pos_settings['enable_cash_denomination_on'] == 'all_screens')
+            <input type="hidden" class="enable_cash_denomination_for_payment_methods" value="{{json_encode($pos_settings['enable_cash_denomination_for_payment_methods'])}}">
+            <div class="clearfix"></div>
+            <div class="col-md-12 cash_denomination_div @if(!in_array($payment_line->method, $enable_cash_denomination_for_payment_methods)) hide @endif">
+                <hr>
+                <strong>@lang( 'lang_v1.cash_denominations' )</strong>
+                  @if(!empty($pos_settings['cash_denominations']))
+                    <table class="table table-slim">
+                      <thead>
+                        <tr>
+                          <th width="20%" class="text-right">@lang('lang_v1.denomination')</th>
+                          <th width="20%">&nbsp;</th>
+                          <th width="20%" class="text-center">@lang('lang_v1.count')</th>
+                          <th width="20%">&nbsp;</th>
+                          <th width="20%" class="text-left">@lang('sale.subtotal')</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @foreach(explode(',', $pos_settings['cash_denominations']) as $dnm)
+                        <tr>
+                          <td class="text-right">{{$dnm}}</td>
+                          <td class="text-center" >X</td>
+                          <td>{!! Form::number("denominations[$dnm]", null, ['class' => 'form-control cash_denomination input-sm', 'min' => 0, 'data-denomination' => $dnm, 'style' => 'width: 100px; margin:auto;' ]); !!}</td>
+                          <td class="text-center">=</td>
+                          <td class="text-left">
+                            <span class="denomination_subtotal">0</span>
+                          </td>
+                        </tr>
+                        @endforeach
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th colspan="4" class="text-center">@lang('sale.total')</th>
+                          <td>
+                            <span class="denomination_total">0</span>
+                            <input type="hidden" class="denomination_total_amount" value="0">
+                            <input type="hidden" class="is_strict" value="{{$pos_settings['cash_denomination_strict_check'] ?? ''}}">
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                    <p class="cash_denomination_error error hide">@lang('lang_v1.cash_denomination_error')</p>
+                  @else
+                    <p class="help-block">@lang('lang_v1.denomination_add_help_text')</p>
+                  @endif
+            </div>
+            <div class="clearfix"></div>
+        @endif
         @if(!empty($accounts))
           <div class="col-md-6">
             <div class="form-group">

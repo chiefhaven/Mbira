@@ -49,7 +49,7 @@
         @can('purchase_order.create')
             @slot('tool')
                 <div class="box-tools">
-                    <a class="btn btn-block btn-primary" href="{{action('PurchaseOrderController@create')}}">
+                    <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\PurchaseOrderController::class, 'create'])}}">
                     <i class="fa fa-plus"></i> @lang('messages.add')</a>
                 </div>
             @endslot
@@ -88,7 +88,7 @@
             scrollX:        true,
             scrollCollapse: true,
             ajax: {
-                url: '{{action("PurchaseOrderController@index")}}',
+                url: '{{action([\App\Http\Controllers\PurchaseOrderController::class, 'index'])}}',
                 data: function(d) {
                     if ($('#po_list_filter_location_id').length) {
                         d.location_id = $('#po_list_filter_location_id').val();

@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\TransactionPayment;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddBusinessIdToTransactionPaymentsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -20,7 +20,7 @@ class AddBusinessIdToTransactionPaymentsTable extends Migration
 
         $transaction_payments = TransactionPayment::with(['created_user'])->get();
         foreach ($transaction_payments as $transaction_payment) {
-            $transaction_payment->business_id = optional($transaction_payment->created_user)->business_id;
+            $transaction_payment->business_id = $transaction_payment->created_user?->business_id;
             $transaction_payment->save();
         }
     }
@@ -36,4 +36,4 @@ class AddBusinessIdToTransactionPaymentsTable extends Migration
             //
         });
     }
-}
+};

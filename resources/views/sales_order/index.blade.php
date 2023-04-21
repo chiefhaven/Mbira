@@ -49,7 +49,7 @@
         @can('so.create')
             @slot('tool')
                 <div class="box-tools">
-                    <a class="btn btn-block btn-primary" href="{{action('SellController@create')}}?sale_type=sales_order">
+                    <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\SellController::class, 'create'])}}?sale_type=sales_order">
                     <i class="fa fa-plus"></i> @lang('lang_v1.add_sales_order')</a>
                 </div>
             @endslot

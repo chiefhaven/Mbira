@@ -83,5 +83,18 @@
         </div>
     </div>
 
+    <div class="clearfix"></div>
+
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="checkbox">
+                <label>
+                {!! Form::checkbox('common_settings[enable_purchase_requisition]', 1, !empty($common_settings['enable_purchase_requisition']) , [ 'class' => 'input-icheck', 'id' => 'enable_purchase_requisition']); !!} {{ __( 'lang_v1.enable_purchase_requisition' ) }}
+                </label>
+              @show_tooltip(__('lang_v1.purchase_requisition_help_text'))
+            </div>
+        </div>
+    </div>
+
     </div>
 </div>

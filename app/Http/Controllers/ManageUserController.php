@@ -3,24 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\BusinessLocation;
-use App\Contact;
-use App\System;
 use App\User;
 use App\Utils\ModuleUtil;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
-use Spatie\Activitylog\Models\Activity;
-use Illuminate\Support\Facades\Auth;
 
 class ManageUserController extends Controller
 {
     /**
      * Constructor
      *
-     * @param Util $commonUtil
+     * @param  Util  $commonUtil
      * @return void
      */
     public function __construct(ModuleUtil $moduleUtil)
@@ -35,7 +33,7 @@ class ManageUserController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('user.view') && !auth()->user()->can('user.create')) {
+        if (! auth()->user()->can('user.view') && ! auth()->user()->can('user.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -47,7 +45,7 @@ class ManageUserController extends Controller
                         ->user()
                         ->where('is_cmmsn_agnt', 0)
                         ->select(['id', 'username',
-                            DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email', 'allow_login']);
+                            DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email', 'allow_login', ]);
 
             return Datatables::of($users)
                 ->editColumn('username', '{{$username}} @if(empty($allow_login)) <span class="label bg-gray">@lang("lang_v1.login_not_allowed")</span>@endif')
@@ -55,21 +53,22 @@ class ManageUserController extends Controller
                     'role',
                     function ($row) {
                         $role_name = $this->moduleUtil->getUserRoleName($row->id);
+
                         return $role_name;
                     }
                 )
                 ->addColumn(
                     'action',
                     '@can("user.update")
-                        <a href="{{action(\'ManageUserController@edit\', [$id])}}" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a>
+                        <a href="{{action(\'App\Http\Controllers\ManageUserController@edit\', [$id])}}" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a>
                         &nbsp;
                     @endcan
                     @can("user.view")
-                    <a href="{{action(\'ManageUserController@show\', [$id])}}" class="btn btn-xs btn-info"><i class="fa fa-eye"></i> @lang("messages.view")</a>
+                    <a href="{{action(\'App\Http\Controllers\ManageUserController@show\', [$id])}}" class="btn btn-xs btn-info"><i class="fa fa-eye"></i> @lang("messages.view")</a>
                     &nbsp;
                     @endcan
                     @can("user.delete")
-                        <button data-href="{{action(\'ManageUserController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_user_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\ManageUserController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_user_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
                 ->filterColumn('full_name', function ($query, $keyword) {
@@ -90,20 +89,20 @@ class ManageUserController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('user.create')) {
+        if (! auth()->user()->can('user.create')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
 
         //Check if subscribed or not, then check for users quota
-        if (!$this->moduleUtil->isSubscribed($business_id)) {
+        if (! $this->moduleUtil->isSubscribed($business_id)) {
             return $this->moduleUtil->expiredResponse();
-        } elseif (!$this->moduleUtil->isQuotaAvailable('users', $business_id)) {
-            return $this->moduleUtil->quotaExpiredResponse('users', $business_id, action('ManageUserController@index'));
+        } elseif (! $this->moduleUtil->isQuotaAvailable('users', $business_id)) {
+            return $this->moduleUtil->quotaExpiredResponse('users', $business_id, action([\App\Http\Controllers\ManageUserController::class, 'index']));
         }
 
-        $roles  = $this->getRolesArray($business_id);
+        $roles = $this->getRolesArray($business_id);
         $username_ext = $this->moduleUtil->getUsernameExtension();
         $locations = BusinessLocation::where('business_id', $business_id)
                                     ->Active()
@@ -124,31 +123,30 @@ class ManageUserController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('user.create')) {
+        if (! auth()->user()->can('user.create')) {
             abort(403, 'Unauthorized action.');
         }
 
         try {
-            
-            if (!empty($request->input('dob'))) {
+            if (! empty($request->input('dob'))) {
                 $request['dob'] = $this->moduleUtil->uf_date($request->input('dob'));
             }
-            
-            $request['cmmsn_percent'] = !empty($request->input('cmmsn_percent')) ? $this->moduleUtil->num_uf($request->input('cmmsn_percent')) : 0;
 
-            $request['max_sales_discount_percent'] = !is_null($request->input('max_sales_discount_percent')) ? $this->moduleUtil->num_uf($request->input('max_sales_discount_percent')) : null;
+            $request['cmmsn_percent'] = ! empty($request->input('cmmsn_percent')) ? $this->moduleUtil->num_uf($request->input('cmmsn_percent')) : 0;
+
+            $request['max_sales_discount_percent'] = ! is_null($request->input('max_sales_discount_percent')) ? $this->moduleUtil->num_uf($request->input('max_sales_discount_percent')) : null;
 
             $user = $this->moduleUtil->createUser($request);
 
             $output = ['success' => 1,
-                        'msg' => __("user.user_added")
-                    ];
+                'msg' => __('user.user_added'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                        'msg' => __("messages.something_went_wrong")
-                    ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return redirect('users')->with('status', $output);
@@ -162,7 +160,7 @@ class ManageUserController extends Controller
      */
     public function show($id)
     {
-        if (!auth()->user()->can('user.view')) {
+        if (! auth()->user()->can('user.view')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -193,7 +191,7 @@ class ManageUserController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('user.update')) {
+        if (! auth()->user()->can('user.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -201,7 +199,7 @@ class ManageUserController extends Controller
         $user = User::where('business_id', $business_id)
                     ->with(['contactAccess'])
                     ->findOrFail($id);
-                    
+
         $roles = $this->getRolesArray($business_id);
 
         $contact_access = $user->contactAccess->pluck('name', 'id')->toArray();
@@ -220,7 +218,7 @@ class ManageUserController extends Controller
 
         //Get user form part from modules
         $form_partials = $this->moduleUtil->getModuleData('moduleViewPartials', ['view' => 'manage_user.edit', 'user' => $user]);
-        
+
         return view('manage_user.edit')
                 ->with(compact('roles', 'user', 'contact_access', 'is_checked_checkbox', 'locations', 'permitted_locations', 'form_partials', 'username_ext'));
     }
@@ -234,7 +232,7 @@ class ManageUserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('user.update')) {
+        if (! auth()->user()->can('user.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -243,12 +241,12 @@ class ManageUserController extends Controller
                 'blood_group', 'contact_number', 'fb_link', 'twitter_link', 'social_media_1',
                 'social_media_2', 'permanent_address', 'current_address',
                 'guardian_name', 'custom_field_1', 'custom_field_2',
-                'custom_field_3', 'custom_field_4', 'id_proof_name', 'id_proof_number', 'cmmsn_percent', 'gender', 'max_sales_discount_percent', 'family_number', 'alt_number']);
+                'custom_field_3', 'custom_field_4', 'id_proof_name', 'id_proof_number', 'cmmsn_percent', 'gender', 'max_sales_discount_percent', 'family_number', 'alt_number', ]);
 
-            $user_data['status'] = !empty($request->input('is_active')) ? 'active' : 'inactive';
+            $user_data['status'] = ! empty($request->input('is_active')) ? 'active' : 'inactive';
             $business_id = request()->session()->get('user.business_id');
 
-            if (!isset($user_data['selected_contacts'])) {
+            if (! isset($user_data['selected_contacts'])) {
                 $user_data['selected_contacts'] = 0;
             }
 
@@ -260,20 +258,20 @@ class ManageUserController extends Controller
                 $user_data['allow_login'] = 1;
             }
 
-            if (!empty($request->input('password'))) {
+            if (! empty($request->input('password'))) {
                 $user_data['password'] = $user_data['allow_login'] == 1 ? Hash::make($request->input('password')) : null;
             }
 
             //Sales commission percentage
-            $user_data['cmmsn_percent'] = !empty($user_data['cmmsn_percent']) ? $this->moduleUtil->num_uf($user_data['cmmsn_percent']) : 0;
+            $user_data['cmmsn_percent'] = ! empty($user_data['cmmsn_percent']) ? $this->moduleUtil->num_uf($user_data['cmmsn_percent']) : 0;
 
-            $user_data['max_sales_discount_percent'] = !is_null($user_data['max_sales_discount_percent']) ? $this->moduleUtil->num_uf($user_data['max_sales_discount_percent']) : null;
+            $user_data['max_sales_discount_percent'] = ! is_null($user_data['max_sales_discount_percent']) ? $this->moduleUtil->num_uf($user_data['max_sales_discount_percent']) : null;
 
-            if (!empty($request->input('dob'))) {
+            if (! empty($request->input('dob'))) {
                 $user_data['dob'] = $this->moduleUtil->uf_date($request->input('dob'));
             }
 
-            if (!empty($request->input('bank_details'))) {
+            if (! empty($request->input('bank_details'))) {
                 $user_data['bank_details'] = json_encode($request->input('bank_details'));
             }
 
@@ -287,7 +285,7 @@ class ManageUserController extends Controller
                 }
 
                 $username_ext = $this->moduleUtil->getUsernameExtension();
-                if (!empty($username_ext)) {
+                if (! empty($username_ext)) {
                     $user_data['username'] .= $username_ext;
                 }
             }
@@ -298,7 +296,7 @@ class ManageUserController extends Controller
             $user->update($user_data);
             $role_id = $request->input('role');
             $user_role = $user->roles->first();
-            $previous_role = !empty($user_role->id) ? $user_role->id : 0;
+            $previous_role = ! empty($user_role->id) ? $user_role->id : 0;
             if ($previous_role != $role_id) {
                 $is_admin = $this->moduleUtil->is_admin($user);
                 $all_admins = $this->getAdmins();
@@ -306,10 +304,10 @@ class ManageUserController extends Controller
                 if ($is_admin && count($all_admins) <= 1) {
                     throw new \Exception(__('lang_v1.cannot_change_role'));
                 }
-                if (!empty($previous_role)) {
+                if (! empty($previous_role)) {
                     $user->removeRole($user_role->name);
                 }
-                
+
                 $role = Role::findOrFail($role_id);
                 $user->assignRole($role->name);
             }
@@ -331,20 +329,18 @@ class ManageUserController extends Controller
             $this->moduleUtil->activityLog($user, 'edited', null, ['name' => $user->user_full_name]);
 
             $output = ['success' => 1,
-                        'msg' => __("user.user_update_success")
-                    ];
+                'msg' => __('user.user_update_success'),
+            ];
 
             DB::commit();
-
         } catch (\Exception $e) {
-
             DB::rollBack();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => $e->getMessage()
-                        ];
+                'msg' => $e->getMessage(),
+            ];
         }
 
         return redirect('users')->with('status', $output);
@@ -353,7 +349,7 @@ class ManageUserController extends Controller
     private function getAdmins()
     {
         $business_id = request()->session()->get('user.business_id');
-        $admins = User::role('Admin#' . $business_id)->get();
+        $admins = User::role('Admin#'.$business_id)->get();
 
         return $admins;
     }
@@ -366,14 +362,14 @@ class ManageUserController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('user.delete')) {
+        if (! auth()->user()->can('user.delete')) {
             abort(403, 'Unauthorized action.');
         }
 
         if (request()->ajax()) {
             try {
                 $business_id = request()->session()->get('user.business_id');
-                
+
                 $user = User::where('business_id', $business_id)
                     ->findOrFail($id);
 
@@ -381,14 +377,14 @@ class ManageUserController extends Controller
 
                 $user->delete();
                 $output = ['success' => true,
-                                'msg' => __("user.user_delete_success")
-                                ];
+                    'msg' => __('user.user_delete_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;
@@ -409,11 +405,12 @@ class ManageUserController extends Controller
         $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_id);
 
         foreach ($roles_array as $key => $value) {
-            if (!$is_admin && $value == 'Admin#' . $business_id) {
+            if (! $is_admin && $value == 'Admin#'.$business_id) {
                 continue;
             }
-            $roles[$key] = str_replace('#' . $business_id, '', $value);
+            $roles[$key] = str_replace('#'.$business_id, '', $value);
         }
+
         return $roles;
     }
 
@@ -424,7 +421,7 @@ class ManageUserController extends Controller
      */
     public function signInAsUser($id)
     {
-        if (!auth()->user()->can('superadmin') && empty(session('previous_user_id'))) {
+        if (! auth()->user()->can('superadmin') && empty(session('previous_user_id'))) {
             abort(403, 'Unauthorized action.');
         }
 

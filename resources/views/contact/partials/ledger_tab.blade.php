@@ -20,7 +20,7 @@
                 {!! Form::text('ledger_date_range', null, ['placeholder' => __('lang_v1.select_a_date_range'), 'class' => 'form-control', 'readonly']); !!}
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="form-group">
                 <label>@lang('lang_v1.ledger_format')</label>
             <div class="btn-group" data-toggle="buttons">
@@ -29,6 +29,9 @@
                 </label>
                 <label class="btn btn-default">
                     <input type="radio" name="ledger_format" value="format_2"> @lang('lang_v1.format_2')
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="ledger_format" value="format_3"> @lang('lang_v1.format_3')
                 </label>
             </div>
             </div>
@@ -39,8 +42,8 @@
                 {!! Form::select('ledger_location', $business_locations, null , ['class' => 'form-control select2', 'id' => 'ledger_location']); !!}
             </div>
         </div>
-        <div class="col-md-3 text-right">
-            <button data-href="{{action('ContactController@getLedger')}}?contact_id={{$contact->id}}&action=pdf" class="btn btn-default btn-xs" id="print_ledger_pdf"><i class="fas fa-file-pdf"></i></button>
+        <div class="col-md-2 text-right">
+            <button data-href="{{action([\App\Http\Controllers\ContactController::class, 'getLedger'])}}?contact_id={{$contact->id}}&action=pdf" class="btn btn-default btn-xs" id="print_ledger_pdf"><i class="fas fa-file-pdf"></i></button>
 
             <button type="button" class="btn btn-default btn-xs" id="send_ledger"><i class="fas fa-envelope"></i></button>
         </div>

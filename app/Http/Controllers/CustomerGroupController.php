@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\CustomerGroup;
+use App\SellingPriceGroup;
 use App\Utils\Util;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
-use App\SellingPriceGroup;
 
 class CustomerGroupController extends Controller
 {
     /**
-       * Constructor
-       *
-       * @param Util $commonUtil
-       * @return void
-       */
+     * Constructor
+     *
+     * @param  Util  $commonUtil
+     * @return void
+     */
     public function __construct(Util $commonUtil)
     {
         $this->commonUtil = $commonUtil;
@@ -28,7 +28,7 @@ class CustomerGroupController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('customer.view')) {
+        if (! auth()->user()->can('customer.view')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -43,12 +43,12 @@ class CustomerGroupController extends Controller
                     ->addColumn(
                         'action',
                         '@can("customer.update")
-                            <button data-href="{{action(\'CustomerGroupController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_customer_group_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                            <button data-href="{{action(\'App\Http\Controllers\CustomerGroupController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_customer_group_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                         @endcan
 
                         @can("customer.delete")
-                            <button data-href="{{action(\'CustomerGroupController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_customer_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                            <button data-href="{{action(\'App\Http\Controllers\CustomerGroupController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_customer_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                         @endcan'
                     )
                     ->editColumn('selling_price_group', '@if($price_calculation_type=="selling_price_group") {{$selling_price_group}} @else -- @endif ')
@@ -69,7 +69,7 @@ class CustomerGroupController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('customer.create')) {
+        if (! auth()->user()->can('customer.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -87,7 +87,7 @@ class CustomerGroupController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('customer.create')) {
+        if (! auth()->user()->can('customer.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -95,19 +95,19 @@ class CustomerGroupController extends Controller
             $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_id']);
             $input['business_id'] = $request->session()->get('user.business_id');
             $input['created_by'] = $request->session()->get('user.id');
-            $input['amount'] = !empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;
+            $input['amount'] = ! empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;
 
             $customer_group = CustomerGroup::create($input);
             $output = ['success' => true,
-                            'data' => $customer_group,
-                            'msg' => __("lang_v1.success")
-                        ];
+                'data' => $customer_group,
+                'msg' => __('lang_v1.success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -121,7 +121,7 @@ class CustomerGroupController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('customer.update')) {
+        if (! auth()->user()->can('customer.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -146,7 +146,7 @@ class CustomerGroupController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('customer.update')) {
+        if (! auth()->user()->can('customer.update')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -155,21 +155,21 @@ class CustomerGroupController extends Controller
                 $input = $request->only(['name', 'amount', 'price_calculation_type', 'selling_price_group_id']);
                 $business_id = $request->session()->get('user.business_id');
 
-                $input['amount'] = !empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;
+                $input['amount'] = ! empty($input['amount']) ? $this->commonUtil->num_uf($input['amount']) : 0;
 
                 $customer_group = CustomerGroup::where('business_id', $business_id)->findOrFail($id);
 
                 $customer_group->update($input);
 
                 $output = ['success' => true,
-                            'msg' => __("lang_v1.success")
-                            ];
+                    'msg' => __('lang_v1.success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;
@@ -179,12 +179,12 @@ class CustomerGroupController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('customer.delete')) {
+        if (! auth()->user()->can('customer.delete')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -196,14 +196,14 @@ class CustomerGroupController extends Controller
                 $cg->delete();
 
                 $output = ['success' => true,
-                            'msg' => __("lang_v1.success")
-                            ];
+                    'msg' => __('lang_v1.success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;

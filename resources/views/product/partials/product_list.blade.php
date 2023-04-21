@@ -39,7 +39,7 @@
             <td colspan="{{$colspan}}">
             <div style="display: flex; width: 100%;">
                 @can('product.delete')
-                    {!! Form::open(['url' => action('ProductController@massDestroy'), 'method' => 'post', 'id' => 'mass_delete_form' ]) !!}
+                    {!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'massDestroy']), 'method' => 'post', 'id' => 'mass_delete_form' ]) !!}
                     {!! Form::hidden('selected_rows', null, ['id' => 'selected_rows']); !!}
                     {!! Form::submit(__('lang_v1.delete_selected'), array('class' => 'btn btn-xs btn-danger', 'id' => 'delete-selected')) !!}
                     {!! Form::close() !!}
@@ -50,7 +50,7 @@
                     
                         @if(config('constants.enable_product_bulk_edit'))
                             &nbsp;
-                            {!! Form::open(['url' => action('ProductController@bulkEdit'), 'method' => 'post', 'id' => 'bulk_edit_form' ]) !!}
+                            {!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'bulkEdit']), 'method' => 'post', 'id' => 'bulk_edit_form' ]) !!}
                             {!! Form::hidden('selected_products', null, ['id' => 'selected_products_for_edit']); !!}
                             <button type="submit" class="btn btn-xs btn-primary" id="edit-selected"> <i class="fa fa-edit"></i>{{__('lang_v1.bulk_edit')}}</button>
                             {!! Form::close() !!}
@@ -62,7 +62,7 @@
                     @endcan
                 
                 &nbsp;
-                {!! Form::open(['url' => action('ProductController@massDeactivate'), 'method' => 'post', 'id' => 'mass_deactivate_form' ]) !!}
+                {!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'massDeactivate']), 'method' => 'post', 'id' => 'mass_deactivate_form' ]) !!}
                 {!! Form::hidden('selected_products', null, ['id' => 'selected_products']); !!}
                 {!! Form::submit(__('lang_v1.deactivate_selected'), array('class' => 'btn btn-xs btn-warning', 'id' => 'deactivate-selected')) !!}
                 {!! Form::close() !!} @show_tooltip(__('lang_v1.deactive_product_tooltip'))

@@ -19,7 +19,7 @@
 
 	@include('layouts.partials.error')
 
-	{!! Form::open(['url' => action('PurchaseOrderController@store'), 'method' => 'post', 'id' => 'add_purchase_form', 'files' => true ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\PurchaseOrderController::class, 'store']), 'method' => 'post', 'id' => 'add_purchase_form', 'files' => true ]) !!}
 	@component('components.widget', ['class' => 'box-solid'])
 		<input type="hidden" id="is_purchase_order">
 		<div class="row">
@@ -55,6 +55,18 @@
 							<i class="fa fa-calendar"></i>
 						</span>
 						{!! Form::text('transaction_date', @format_datetime('now'), ['class' => 'form-control', 'readonly', 'required']); !!}
+					</div>
+				</div>
+			</div>
+
+			<div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
+				<div class="form-group">
+					{!! Form::label('delivery_date', __('lang_v1.delivery_date') . ':') !!}
+					<div class="input-group">
+						<span class="input-group-addon">
+							<i class="fa fa-calendar"></i>
+						</span>
+						{!! Form::text('delivery_date', null, ['class' => 'form-control']); !!}
 					</div>
 				</div>
 			</div>
@@ -121,6 +133,16 @@
                 </div>
             </div>
 		</div>
+		@if(!empty($common_settings['enable_purchase_requisition']))
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="form-group">
+					{!! Form::label('purchase_requisition_ids', __('lang_v1.purchase_requisition').':') !!}
+					{!! Form::select('purchase_requisition_ids[]', [], null, ['class' => 'form-control select2', 'multiple', 'id' => 'purchase_requisition_ids']); !!}
+				</div>
+			</div>
+		</div>
+		@endif
 	@endcomponent
 
 	@component('components.widget', ['class' => 'box-solid'])
@@ -137,7 +159,7 @@
 			</div>
 			<div class="col-sm-2">
 				<div class="form-group">
-					<button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action('ProductController@quickAdd')}}" 
+					<button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" 
             	data-container=".quick_add_product_modal"><i class="fa fa-plus"></i> @lang( 'product.add_new_product' ) </button>
 				</div>
 			</div>
@@ -500,6 +522,10 @@
 		        browseLabel: LANG.file_browse_label,
 		        removeLabel: LANG.remove,
 		    });
+
+			if($('#location_id').length){
+				$('#location_id').change();
+			}
     	});
 	</script>
 	@include('purchase.partials.keyboard_shortcuts')

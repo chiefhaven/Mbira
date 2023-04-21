@@ -1,10 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSellReturnToTransactionTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -25,4 +23,4 @@ class AddSellReturnToTransactionTable extends Migration
     {
         //
     }
-}
+};

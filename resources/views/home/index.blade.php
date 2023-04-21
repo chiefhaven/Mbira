@@ -33,79 +33,45 @@
         		</div>
         	</div>
     	   <br>
-    	   <div class="row row-custom">
-            	<div class="col-md-3 col-sm-6 col-xs-12 col-custom">
-            	   <div class="info-box info-box-new-style">
-            	        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
+    	   <div class="row">
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+                   <div class="info-box info-box-new-style">
+                        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
 
-            	        <div class="info-box-content">
-            	          <span class="info-box-text">{{ __('home.total_purchase') }}</span>
-            	          <span class="info-box-number total_purchase"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
-            	        </div>
-            	        <!-- /.info-box-content -->
-            	   </div>
-        	       <!-- /.info-box -->
-        	    </div>
-        	    <!-- /.col -->
-        	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
-        	       <div class="info-box info-box-new-style">
-            	        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
-
-            	        <div class="info-box-content">
-            	          <span class="info-box-text">{{ __('home.total_sell') }}</span>
-            	          <span class="info-box-number total_sell"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
-            	        </div>
-            	        <!-- /.info-box-content -->
-        	       </div>
-        	      <!-- /.info-box -->
-        	    </div>
-        	    <!-- /.col -->
-        	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
-        	       <div class="info-box info-box-new-style">
-            	        <span class="info-box-icon bg-yellow">
-            	        	<i class="fa fa-dollar"></i>
-            				<i class="fa fa-exclamation"></i>
-            	        </span>
-
-            	        <div class="info-box-content">
-            	          <span class="info-box-text">{{ __('home.purchase_due') }}</span>
-            	          <span class="info-box-number purchase_due"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
-            	        </div>
-            	        <!-- /.info-box-content -->
-        	       </div>
-        	      <!-- /.info-box -->
-        	    </div>
-        	    <!-- /.col -->
-
-    	       <!-- fix for small devices only -->
-        	    <!-- <div class="clearfix visible-sm-block"></div> -->
-        	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
-        	        <div class="info-box info-box-new-style">
-        	           <span class="info-box-icon bg-yellow">
-            	        	<i class="ion ion-ios-paper-outline"></i>
-            	        	<i class="fa fa-exclamation"></i>
-        	           </span>
-
-            	        <div class="info-box-content">
-            	          <span class="info-box-text">{{ __('home.invoice_due') }}</span>
-            	          <span class="info-box-number invoice_due"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
-            	        </div>
-            	        <!-- /.info-box-content -->
-        	        </div>
-        	      <!-- /.info-box -->
-        	    </div>
-    	    <!-- /.col -->
-            </div>
-          	<div class="row row-custom">
+                        <div class="info-box-content">
+                          <span class="info-box-text">{{ __('home.total_sell') }}</span>
+                          <span class="info-box-number total_sell"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+                        </div>
+                        <!-- /.info-box-content -->
+                   </div>
+                  <!-- /.info-box -->
+                </div>
                 <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
                     <div class="info-box info-box-new-style">
-                       <span class="info-box-icon bg-red text-white">
-                            <i class="fas fa-undo-alt"></i>
+                       <span class="info-box-icon bg-green">
+                            <i class="ion ion-ios-paper-outline"></i>
+                            
                        </span>
 
                         <div class="info-box-content">
-                          <span class="info-box-text">{{ __('lang_v1.total_purchase_return') }}</span>
-                          <span class="info-box-number total_purchase_return"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+                          <span class="info-box-text">{{ __('lang_v1.net') }} @show_tooltip(__('lang_v1.net_home_tooltip'))</span>
+                          <span class="info-box-number net"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                  <!-- /.info-box -->
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+                    <div class="info-box info-box-new-style">
+                       <span class="info-box-icon bg-yellow">
+                            <i class="ion ion-ios-paper-outline"></i>
+                            <i class="fa fa-exclamation"></i>
+                       </span>
+
+                        <div class="info-box-content">
+                          <span class="info-box-text">{{ __('home.invoice_due') }}</span>
+                          <span class="info-box-number invoice_due"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>
@@ -123,9 +89,61 @@
                           <span class="info-box-number total_sell_return"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
                         </div>
                         <!-- /.info-box-content -->
+                        <p class="mb-0 text-muted fs-10 mt-5">{{ __('lang_v1.total_sell_return')}}: <span class="total_sr"></span><br>
+                            {{ __('lang_v1.total_sell_return_paid')}}<span class="total_srp"></span></p>
                     </div>
                   <!-- /.info-box -->
                 </div>
+    	    <!-- /.col -->
+            </div>
+          	<div class="row">
+                <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+                   <div class="info-box info-box-new-style">
+                        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
+
+                        <div class="info-box-content">
+                          <span class="info-box-text">{{ __('home.total_purchase') }}</span>
+                          <span class="info-box-number total_purchase"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+                        </div>
+                        <!-- /.info-box-content -->
+                   </div>
+                   <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+
+                <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+                   <div class="info-box info-box-new-style">
+                        <span class="info-box-icon bg-yellow">
+                            <i class="fa fa-dollar"></i>
+                            <i class="fa fa-exclamation"></i>
+                        </span>
+
+                        <div class="info-box-content">
+                          <span class="info-box-text">{{ __('home.purchase_due') }}</span>
+                          <span class="info-box-number purchase_due"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+                        </div>
+                        <!-- /.info-box-content -->
+                   </div>
+                  <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+                    <div class="info-box info-box-new-style">
+                       <span class="info-box-icon bg-red text-white">
+                            <i class="fas fa-undo-alt"></i>
+                       </span>
+
+                        <div class="info-box-content">
+                          <span class="info-box-text">{{ __('lang_v1.total_purchase_return') }}</span>
+                          <span class="info-box-number total_purchase_return"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+                        </div>
+                        <!-- /.info-box-content -->
+                         <p class="mb-0 text-muted fs-10 mt-5">{{ __('lang_v1.total_purchase_return')}}: <span class="total_pr"></span><br>
+                            {{ __('lang_v1.total_purchase_return_paid')}}<span class="total_prp"></span></p>
+                    </div>
+                  <!-- /.info-box -->
+                </div>
+
                 <!-- expense -->
                 <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
                     <div class="info-box info-box-new-style">
@@ -258,15 +276,24 @@
                       @slot('title')
                         {{ __('home.product_stock_alert') }} @show_tooltip(__('tooltip.product_stock_alert'))
                       @endslot
-                      <table class="table table-bordered table-striped" id="stock_alert_table" style="width: 100%;">
-                        <thead>
-                          <tr>
-                            <th>@lang( 'sale.product' )</th>
-                            <th>@lang( 'business.location' )</th>
-                            <th>@lang( 'report.current_stock' )</th>
-                          </tr>
-                        </thead>
-                      </table>
+                      <div class="row">
+                            @if(count($all_locations) > 1)
+                                <div class="col-md-6 col-sm-6 col-md-offset-6 mb-10">
+                                    {!! Form::select('stock_alert_location', $all_locations, null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.select_location'), 'id' => 'stock_alert_location']); !!}
+                                </div>
+                            @endif
+                            <div class="col-md-12">
+                                <table class="table table-bordered table-striped" id="stock_alert_table" style="width: 100%;">
+                                    <thead>
+                                      <tr>
+                                        <th>@lang( 'sale.product' )</th>
+                                        <th>@lang( 'business.location' )</th>
+                                        <th>@lang( 'report.current_stock' )</th>
+                                      </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                      </div>
                     @endcomponent
                 </div>
                 @if(session('business.enable_product_expiry') == 1)
@@ -335,6 +362,46 @@
                 </div>
             </div>
         @endif
+
+        @if(!empty($common_settings['enable_purchase_requisition']) && (auth()->user()->can('purchase_requisition.view_all') || auth()->user()->can('purchase_requisition.view_own')) )
+            <div class="row" @if(!auth()->user()->can('dashboard.data'))style="margin-top: 190px !important;"@endif>
+                <div class="col-sm-12">
+                    @component('components.widget', ['class' => 'box-warning'])
+                      @slot('icon')
+                          <i class="fas fa-list-alt text-yellow fa-lg" aria-hidden="true"></i>
+                      @endslot
+                      @slot('title')
+                          @lang('lang_v1.purchase_requisition')
+                      @endslot
+                        <div class="row">
+                        @if(count($all_locations) > 1)
+                            <div class="col-md-4 col-sm-6 col-md-offset-8 mb-10">
+                                {!! Form::select('pr_location', $all_locations, null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.select_location'), 'id' => 'pr_location']); !!}
+                            </div>
+                        @endif
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped ajax_view" id="purchase_requisition_table" style="width: 100%;">
+                                      <thead>
+                                          <tr>
+                                            <th>@lang('messages.action')</th>
+                                            <th>@lang('messages.date')</th>
+                                            <th>@lang('purchase.ref_no')</th>
+                                            <th>@lang('purchase.location')</th>
+                                            <th>@lang('sale.status')</th>
+                                            <th>@lang('lang_v1.required_by_date')</th>
+                                            <th>@lang('lang_v1.added_by')</th>
+                                          </tr>
+                                      </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    @endcomponent
+                </div>
+            </div>
+        @endif
+
         @if(!empty($common_settings['enable_purchase_order']) && (auth()->user()->can('purchase_order.view_all') || auth()->user()->can('purchase_order.view_own')) )
             <div class="row" @if(!auth()->user()->can('dashboard.data'))style="margin-top: 190px !important;"@endif>
                 <div class="col-sm-12">
@@ -508,7 +575,7 @@
           scrollCollapse: true,
           aaSorting: [[1, 'desc']],
           "ajax": {
-              "url": '{{action("SellController@index")}}?sale_type=sales_order',
+              "url": '{{action([\App\Http\Controllers\SellController::class, 'index'])}}?sale_type=sales_order',
               "data": function ( d ) {
                     d.for_dashboard_sales_order = true;
 
@@ -543,7 +610,7 @@
                 processing: true,
                 serverSide: true,
                 "ajax": {
-                        "url": "{{action("AccountController@cashFlow")}}",
+                        "url": "{{action([\App\Http\Controllers\AccountController::class, 'cashFlow'])}}",
                         "data": function ( d ) {
                             d.type = 'credit';
                             d.only_payment_recovered = true;
@@ -588,7 +655,7 @@
               scrollX:        true,
               scrollCollapse: true,
               ajax: {
-                  url: '{{action("PurchaseOrderController@index")}}',
+                  url: '{{action([\App\Http\Controllers\PurchaseOrderController::class, 'index'])}}',
                   data: function(d) {
                       d.from_dashboard = true;
 
@@ -614,6 +681,68 @@
             });
         @endif
 
+        @if(!empty($common_settings['enable_purchase_requisition']))
+          //Purchase table
+          purchase_requisition_table = $('#purchase_requisition_table').DataTable({
+              processing: true,
+              serverSide: true,
+              aaSorting: [[1, 'desc']],
+              scrollY: "75vh",
+              scrollX:        true,
+              scrollCollapse: true,
+              ajax: {
+                  url: '{{action([\App\Http\Controllers\PurchaseRequisitionController::class, 'index'])}}',
+                  data: function(d) {
+                      d.from_dashboard = true;
+
+                        if ($('#pr_location').length > 0) {
+                            d.location_id = $('#pr_location').val();
+                        }
+                  },
+              },
+              columns: [
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                    { data: 'transaction_date', name: 'transaction_date' },
+                    { data: 'ref_no', name: 'ref_no' },
+                    { data: 'location_name', name: 'BS.name' },
+                    { data: 'status', name: 'status' },
+                    { data: 'delivery_date', name: 'delivery_date' },
+                    { data: 'added_by', name: 'u.first_name' },
+              ]
+            })
+
+            $('#pr_location').change( function(){
+                purchase_requisition_table.ajax.reload();
+            });
+
+            $(document).on('click', 'a.delete-purchase-requisition', function(e) {
+                e.preventDefault();
+                swal({
+                    title: LANG.sure,
+                    icon: 'warning',
+                    buttons: true,
+                    dangerMode: true,
+                }).then(willDelete => {
+                    if (willDelete) {
+                        var href = $(this).attr('href');
+                        $.ajax({
+                            method: 'DELETE',
+                            url: href,
+                            dataType: 'json',
+                            success: function(result) {
+                                if (result.success == true) {
+                                    toastr.success(result.msg);
+                                    purchase_requisition_table.ajax.reload();
+                                } else {
+                                    toastr.error(result.msg);
+                                }
+                            },
+                        });
+                    }
+                });
+            });
+        @endif
+
         sell_table = $('#shipments_table').DataTable({
             processing: true,
             serverSide: true,
@@ -622,7 +751,7 @@
             scrollX:        true,
             scrollCollapse: true,
             "ajax": {
-                "url": '{{action("SellController@index")}}',
+                "url": '{{action([\App\Http\Controllers\SellController::class, 'index'])}}',
                 "data": function ( d ) {
                     d.only_pending_shipments = true;
                     if ($('#pending_shipments_location').length > 0) {

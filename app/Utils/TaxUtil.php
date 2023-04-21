@@ -3,16 +3,13 @@
 namespace App\Utils;
 
 use App\TaxRate;
-use App\GroupSubTax;
 
 class TaxUtil extends Util
 {
-
     /**
      * Updates tax amount of a tax group
      *
-     * @param int $group_tax_id
-     *
+     * @param  int  $group_tax_id
      * @return void
      */
     public function updateGroupTaxAmount($group_tax_id)

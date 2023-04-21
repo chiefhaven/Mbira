@@ -27,7 +27,7 @@
         @can('direct_sell.access')
             @slot('tool')
                 <div class="box-tools">
-                    <a class="btn btn-block btn-primary" href="{{action('SellController@create')}}">
+                    <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\SellController::class, 'create'])}}">
                     <i class="fa fa-plus"></i> @lang('messages.add')</a>
                 </div>
             @endslot

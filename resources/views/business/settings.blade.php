@@ -12,7 +12,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('BusinessController@postBusinessSettings'), 'method' => 'post', 'id' => 'bussiness_edit_form',
+{!! Form::open(['url' => action([\App\Http\Controllers\BusinessController::class, 'postBusinessSettings']), 'method' => 'post', 'id' => 'bussiness_edit_form',
            'files' => true ]) !!}
     <div class="row">
         <div class="col-xs-12">
@@ -27,6 +27,7 @@
                     <a href="#" class="list-group-item text-center">@lang('business.sale')</a>
                     <a href="#" class="list-group-item text-center">@lang('sale.pos_sale')</a>
                     <a href="#" class="list-group-item text-center">@lang('purchase.purchases')</a>
+                    <a href="#" class="list-group-item text-center">@lang('lang_v1.payment')</a>
                     <a href="#" class="list-group-item text-center">@lang('business.dashboard')</a>
                     <a href="#" class="list-group-item text-center">@lang('business.system')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.prefixes')</a>
@@ -55,6 +56,8 @@
                 <!-- tab 4 end -->
                 <!-- tab 5 start -->
                 @include('business.partials.settings_purchase')
+
+                @include('business.partials.settings_payment')
                 <!-- tab 5 end -->
                 <!-- tab 6 start -->
                 @include('business.partials.settings_dashboard')
@@ -120,7 +123,7 @@
         $.ajax({
             method: 'post',
             data: data,
-            url: "{{ action('BusinessController@testEmailConfiguration') }}",
+            url: "{{ action([\App\Http\Controllers\BusinessController::class, 'testEmailConfiguration']) }}",
             dataType: 'json',
             success: function(result) {
                 if (result.success == true) {
@@ -179,7 +182,7 @@
         $.ajax({
             method: 'post',
             data: data,
-            url: "{{ action('BusinessController@testSmsConfiguration') }}",
+            url: "{{ action([\App\Http\Controllers\BusinessController::class, 'testSmsConfiguration']) }}",
             dataType: 'json',
             success: function(result) {
                 if (result.success == true) {

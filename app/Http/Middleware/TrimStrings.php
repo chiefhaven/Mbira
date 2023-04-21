@@ -28,6 +28,6 @@ class TrimStrings extends BaseTrimmer
         'ref_no_prefixes.business_location',
         'ref_no_prefixes.username',
         'ref_no_prefixes.subscription',
-        'ref_no_prefixes.draft'
+        'ref_no_prefixes.draft',
     ];
 }

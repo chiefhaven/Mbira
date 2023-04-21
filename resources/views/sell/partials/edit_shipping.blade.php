@@ -1,5 +1,5 @@
 <div class="modal-dialog" role="document">
-	{!! Form::open(['url' => action('SellController@updateShipping', [$transaction->id]), 'method' => 'put', 'id' => 'edit_shipping_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\SellController::class, 'updateShipping'], [$transaction->id]), 'method' => 'put', 'id' => 'edit_shipping_form' ]) !!}
 	<div class="modal-content">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

@@ -41,6 +41,15 @@
                         __('report.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'expense_category_id']); !!}
                     </div>
                 </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('expense_sub_category_id_filter',__('product.sub_category').':') !!}
+                        {!! Form::select('expense_sub_category_id_filter', $sub_categories, null, ['placeholder' =>
+                        __('report.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'expense_sub_category_id_filter']); !!}
+                    </div>
+                </div>
+
                 <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('expense_date_range', __('report.date_range') . ':') !!}
@@ -62,7 +71,7 @@
                 @can('expense.add')
                     @slot('tool')
                         <div class="box-tools">
-                            <a class="btn btn-block btn-primary" href="{{action('ExpenseController@create')}}">
+                            <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\ExpenseController::class, 'create'])}}">
                             <i class="fa fa-plus"></i> @lang('messages.add')</a>
                         </div>
                     @endslot
@@ -76,6 +85,7 @@
                                 <th>@lang('purchase.ref_no')</th>
                                 <th>@lang('lang_v1.recur_details')</th>
                                 <th>@lang('expense.expense_category')</th>
+                                <th>@lang('product.sub_category')</th>
                                 <th>@lang('business.location')</th>
                                 <th>@lang('sale.payment_status')</th>
                                 <th>@lang('product.tax')</th>
@@ -89,7 +99,7 @@
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 text-center footer-total">
-                                <td colspan="6"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="7"><strong>@lang('sale.total'):</strong></td>
                                 <td class="footer_payment_status_count"></td>
                                 <td></td>
                                 <td class="footer_expense_total"></td>

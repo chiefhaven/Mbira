@@ -2,7 +2,7 @@
     aria-labelledby="gridSystemModalLabel">
     <div class="modal-dialog" role="document">
 	    <div class="modal-content">
-	    	{!! Form::open(['url' => action('ProductController@updateProductLocation'), 'method' => 'post', 'id' => 'edit_product_location_form' ]) !!}
+	    	{!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'updateProductLocation']), 'method' => 'post', 'id' => 'edit_product_location_form' ]) !!}
 		    	<div class="modal-header">
 			    	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				      <h4 class="modal-title"><span class="add_to_location_title hide">@lang( 'lang_v1.add_location_to_the_selected_products' )</span><span class="remove_from_location_title hide">@lang( 'lang_v1.remove_location_from_the_selected_products' )</span></h4>

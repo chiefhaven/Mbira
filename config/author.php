@@ -16,8 +16,8 @@ return [
     'vendor' => 'Ultimate Fosters',
     'vendor_url' => 'http://ultimatefosters.com',
     'email' => 'thewebfosters@gmail.com',
-    'app_version' => "4.8",
+    'app_version' => '5.0',
     'lic1' => 'aHR0cHM6Ly9sLnVsdGltYXRlZm9zdGVycy5jb20vYXBpL3R5cGVfMQ==',
     'pid' => 1,
-    'envato_purchase_code' => env('ENVATO_PURCHASE_CODE', 0)
+    'envato_purchase_code' => env('ENVATO_PURCHASE_CODE', 0),
 ];

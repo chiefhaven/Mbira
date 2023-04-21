@@ -1,9 +1,9 @@
-<table style="width:100%;">
+<table style="width:100%; color: #000000 !important;">
 	<thead>
 		<tr>
 			<td>
 
-			<p class="text-right color-555">
+			<p class="text-right color-555 font-30">
 				@lang('lang_v1.packing_slip')
 			</p>
 
@@ -29,7 +29,7 @@
 		<!-- Shop & Location Name  -->
 		@if(!empty($receipt_details->display_name))
 			<p>
-				{{$receipt_details->display_name}}
+				<span style="font-size:24px; font-weight:900; color:black;">{{$receipt_details->display_name}}</span>
 				@if(!empty($receipt_details->address))
 					<br/>{!! $receipt_details->address !!}
 				@endif
@@ -233,9 +233,3 @@
 		</tr>
 	</tbody>
 </table>
-
-<style type="text/css">
-	body {
-		color: #000000;
-	}
-</style>

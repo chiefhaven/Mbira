@@ -10,7 +10,7 @@
 
 <!-- Main content -->
 <section class="content">
-	{!! Form::open(['url' => action('OpeningStockController@save'), 'method' => 'post', 'id' => 'add_opening_stock_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\OpeningStockController::class, 'save']), 'method' => 'post', 'id' => 'add_opening_stock_form' ]) !!}
 	{!! Form::hidden('product_id', $product->id); !!}
 	@include('opening_stock.form-part')
 	<div class="row">

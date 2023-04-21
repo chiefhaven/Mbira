@@ -2,7 +2,6 @@
 
 namespace App\Utils;
 
-use \Module;
 use App\Account;
 use App\BusinessLocation;
 use App\Product;
@@ -10,14 +9,15 @@ use App\System;
 use App\Transaction;
 use App\User;
 use Composer\Semver\Comparator;
+use Module;
 
 class ModuleUtil extends Util
 {
     /**
      * This function check if a module is installed or not.
      *
-     * @param string $module_name (Exact module name, with first letter capital)
-     * @return boolean
+     * @param  string  $module_name (Exact module name, with first letter capital)
+     * @return bool
      */
     public function isModuleInstalled($module_name)
     {
@@ -25,20 +25,21 @@ class ModuleUtil extends Util
 
         if ($is_available) {
             //Check if installed by checking the system table {module_name}_version
-            $module_version = System::getProperty(strtolower($module_name) . '_version');
+            $module_version = System::getProperty(strtolower($module_name).'_version');
             if (empty($module_version)) {
                 return false;
             } else {
                 return true;
             }
         }
-      
+
         return false;
     }
 
     /**
      * This function check if superadmin module is installed or not.
-     * @return boolean
+     *
+     * @return bool
      */
     public function isSuperadminInstalled()
     {
@@ -49,14 +50,13 @@ class ModuleUtil extends Util
      * This function check if a function provided exist in all modules
      * DataController, merges the data and returned it.
      *
-     * @param string $function_name
-     *
+     * @param  string  $function_name
      * @return array
      */
     public function getModuleData($function_name, $arguments = null)
     {
         $modules = Module::toCollection()->toArray();
-        
+
         $installed_modules = [];
         foreach ($modules as $module => $details) {
             if ($this->isModuleInstalled($details['name'])) {
@@ -65,14 +65,14 @@ class ModuleUtil extends Util
         }
 
         $data = [];
-        if (!empty($installed_modules)) {
+        if (! empty($installed_modules)) {
             foreach ($installed_modules as $module) {
-                $class = 'Modules\\' . $module['name'] . '\Http\Controllers\DataController';
-                
+                $class = 'Modules\\'.$module['name'].'\Http\Controllers\DataController';
+
                 if (class_exists($class)) {
                     $class_object = new $class();
                     if (method_exists($class_object, $function_name)) {
-                        if (!empty($arguments)) {
+                        if (! empty($arguments)) {
                             $data[$module['name']] = call_user_func([$class_object, $function_name], $arguments);
                         } else {
                             $data[$module['name']] = call_user_func([$class_object, $function_name]);
@@ -88,7 +88,7 @@ class ModuleUtil extends Util
     /**
      * Checks if a module is defined
      *
-     * @param string $module_name
+     * @param  string  $module_name
      * @return bool
      */
     public function isModuleDefined($module_name)
@@ -97,10 +97,10 @@ class ModuleUtil extends Util
 
         $check_for_enable = [];
 
-        $output = !empty($is_installed) ? true : false;
-        
+        $output = ! empty($is_installed) ? true : false;
+
         if (in_array($module_name, $check_for_enable) &&
-            !$this->isModuleEnabled(strtolower($module_name))) {
+            ! $this->isModuleEnabled(strtolower($module_name))) {
             $output = false;
         }
 
@@ -110,45 +110,43 @@ class ModuleUtil extends Util
     /**
      * This function check if a business has active subscription packages
      *
-     * @param int $business_id
-     * @return boolean
+     * @param  int  $business_id
+     * @return bool
      */
     public function isSubscribed($business_id)
     {
         if ($this->isSuperadminInstalled()) {
             $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_id);
-           
+
             if (empty($package)) {
                 return false;
             }
         }
-      
+
         return true;
     }
 
     /**
      * This function checks if a business has
      *
-     * @param int $business_id
-     * @param string $permission
-     * @param string $callback_function = null
-     *
-     * @return boolean
+     * @param  int  $business_id
+     * @param  string  $permission
+     * @param  string  $callback_function = null
+     * @return bool
      */
     public function hasThePermissionInSubscription($business_id, $permission, $callback_function = null)
     {
         if ($this->isSuperadminInstalled()) {
-
-            if(auth()->user()->can('superadmin')){
+            if (auth()->user()->can('superadmin')) {
                 return true;
             }
 
             $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_id);
-           
+
             if (empty($package)) {
                 return false;
             } elseif (isset($package['package_details'][$permission])) {
-                if (!is_null($callback_function)) {
+                if (! is_null($callback_function)) {
                     $obj = new ModuleUtil();
                     $permissions = $obj->getModuleData($callback_function);
 
@@ -171,7 +169,7 @@ class ModuleUtil extends Util
                 return false;
             }
         }
-      
+
         return true;
     }
 
@@ -183,13 +181,13 @@ class ModuleUtil extends Util
     public static function expiredResponse($redirect_url = null)
     {
         $response_array = ['success' => 0,
-                        'msg' => __(
-                            "superadmin::lang.subscription_expired_toastr",
-                            ['app_name' => config('app.name'),
-                                'subscribe_url' => action('\Modules\Superadmin\Http\Controllers\SubscriptionController@index')
-                            ]
-                        )
-                    ];
+            'msg' => __(
+                'superadmin::lang.subscription_expired_toastr',
+                ['app_name' => config('app.name'),
+                    'subscribe_url' => action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'index']),
+                ]
+            ),
+        ];
 
         if (request()->ajax()) {
             if (request()->wantsJson()) {
@@ -228,11 +226,11 @@ class ModuleUtil extends Util
     public function countProducts($business_id, $start_dt, $end_dt)
     {
         $query = Product::where('business_id', $business_id);
-        
-        if (!empty($start_dt) && !empty($start_dt)) {
+
+        if (! empty($start_dt) && ! empty($start_dt)) {
             $query->whereBetween('created_at', [$start_dt, $end_dt]);
         }
-                            
+
         $count = $query->count();
 
         return $count;
@@ -244,10 +242,10 @@ class ModuleUtil extends Util
                             ->where('type', 'sell')
                             ->where('status', 'final');
 
-        if (!empty($start_dt) && !empty($start_dt)) {
+        if (! empty($start_dt) && ! empty($start_dt)) {
             $query->whereBetween('created_at', [$start_dt, $end_dt]);
         }
-                            
+
         $count = $query->count();
 
         return $count;
@@ -256,19 +254,19 @@ class ModuleUtil extends Util
     public function getResourceCount($business_id, $package)
     {
         $is_available = $this->isSuperadminInstalled();
-        
+
         $start_dt = null;
         $end_dt = null;
 
-        if (!empty($package)) {
+        if (! empty($package)) {
             $start_dt = $package->start_date->toDateTimeString();
             $end_dt = $package->end_date->endOfDay()->toDateTimeString();
         }
         $output = [
-            'locations_created' =>  $this->countBusinessLocation($business_id),
+            'locations_created' => $this->countBusinessLocation($business_id),
             'users_created' => $this->countUsers($business_id),
             'products_created' => $this->countProducts($business_id, $start_dt, $end_dt),
-            'invoices_created' => $this->countInvoice($business_id, $start_dt, $end_dt)
+            'invoices_created' => $this->countInvoice($business_id, $start_dt, $end_dt),
         ];
 
         return $output;
@@ -277,16 +275,15 @@ class ModuleUtil extends Util
     /**
      * This function check if a business has available quota for various types.
      *
-     * @param string $type
-     * @param int $business_id
-     * @param int $total_rows default 0
-     *
-     * @return boolean
+     * @param  string  $type
+     * @param  int  $business_id
+     * @param  int  $total_rows default 0
+     * @return bool
      */
     public function isQuotaAvailable($type, $business_id, $total_rows = 0)
     {
         $is_available = $this->isSuperadminInstalled();
-        
+
         if ($is_available) {
             $package = \Modules\Superadmin\Entities\Subscription::active_subscription($business_id);
 
@@ -334,7 +331,7 @@ class ModuleUtil extends Util
                 }
             } elseif ($type == 'invoices') {
                 $max_allowed = isset($package->package_details['invoice_count']) ? $package->package_details['invoice_count'] : 0;
-                
+
                 if ($max_allowed == 0) {
                     return true;
                 } else {
@@ -352,10 +349,9 @@ class ModuleUtil extends Util
     /**
      * This function returns the response for expired quota
      *
-     * @param string $type
-     * @param int $business_id
-     * @param string $redirect_url = null
-     *
+     * @param  string  $type
+     * @param  int  $business_id
+     * @param  string  $redirect_url = null
      * @return \Illuminate\Http\Response
      */
     public function quotaExpiredResponse($type, $business_id, $redirect_url = null)
@@ -364,8 +360,9 @@ class ModuleUtil extends Util
             if (request()->ajax()) {
                 if (request()->wantsJson()) {
                     $response_array = ['success' => 0,
-                            'msg' => __("superadmin::lang.max_locations")
-                        ];
+                        'msg' => __('superadmin::lang.max_locations'),
+                    ];
+
                     return $response_array;
                 } else {
                     return view('superadmin::subscription.max_location_modal');
@@ -373,21 +370,22 @@ class ModuleUtil extends Util
             }
         } elseif ($type == 'users') {
             $response_array = ['success' => 0,
-                        'msg' => __("superadmin::lang.max_users")
-                    ];
+                'msg' => __('superadmin::lang.max_users'),
+            ];
+
             return redirect($redirect_url)
                     ->with('status', $response_array);
         } elseif ($type == 'products') {
             $response_array = ['success' => 0,
-                        'msg' => __("superadmin::lang.max_products")
-                    ];
+                'msg' => __('superadmin::lang.max_products'),
+            ];
 
             return redirect($redirect_url)
                     ->with('status', $response_array);
         } elseif ($type == 'invoices') {
             $response_array = ['success' => 0,
-                        'msg' => __("superadmin::lang.max_invoices")
-                    ];
+                'msg' => __('superadmin::lang.max_invoices'),
+            ];
 
             if (request()->wantsJson()) {
                 return $response_array;
@@ -414,17 +412,16 @@ class ModuleUtil extends Util
      * required by any module which will be included during adding
      * or updating a resource
      *
-     * @param string $function_name function name to be called to get data from
-     *
+     * @param  string  $function_name function name to be called to get data from
      * @return array
      */
     public function getModuleFormField($function_name)
     {
         $form_fields = [];
         $module_form_fields = $this->getModuleData($function_name);
-        if (!empty($module_form_fields)) {
+        if (! empty($module_form_fields)) {
             foreach ($module_form_fields as $key => $value) {
-                if (!empty($value) && is_array($value)) {
+                if (! empty($value) && is_array($value)) {
                     $form_fields = array_merge($form_fields, $value);
                 }
             }
@@ -445,28 +442,28 @@ class ModuleUtil extends Util
      * This function returns the installed version, available version
      * and uses comparator to check if update is available or not.
      *
-     * @param string $module_name (Exact module name, with first letter capital)
+     * @param  string  $module_name (Exact module name, with first letter capital)
      * @return array
      */
     public function getModuleVersionInfo($module_name)
     {
         $output = ['installed_version' => null,
-                    'available_version' => null,
-                    'is_update_available' => null
-                ];
+            'available_version' => null,
+            'is_update_available' => null,
+        ];
 
         $is_available = Module::has($module_name);
 
         if ($is_available) {
             //Check if installed by checking the system table {module_name}_version
-            $module_version = System::getProperty(strtolower($module_name) . '_version');
+            $module_version = System::getProperty(strtolower($module_name).'_version');
 
             $output['installed_version'] = $module_version;
-            $output['available_version'] = config(strtolower($module_name) . '.module_version');
+            $output['available_version'] = config(strtolower($module_name).'.module_version');
 
             $output['is_update_available'] = Comparator::greaterThan($output['available_version'], $output['installed_version']);
         }
-        
+
         return $output;
     }
 
@@ -480,24 +477,24 @@ class ModuleUtil extends Util
             'stock_adjustment' => ['name' => __('stock_adjustment.stock_adjustment')],
             'expenses' => ['name' => __('expense.expenses')],
             'account' => ['name' => __('lang_v1.account')],
-            'tables' => [ 'name' => __('restaurant.tables'),
-                        'tooltip' => __('restaurant.tooltip_tables')
-                    ] ,
-            'modifiers' => [ 'name' => __('restaurant.modifiers'),
-                    'tooltip' => __('restaurant.tooltip_modifiers')
-                ],
+            'tables' => ['name' => __('restaurant.tables'),
+                'tooltip' => __('restaurant.tooltip_tables'),
+            ],
+            'modifiers' => ['name' => __('restaurant.modifiers'),
+                'tooltip' => __('restaurant.tooltip_modifiers'),
+            ],
             'service_staff' => [
-                    'name' => __('restaurant.service_staff'),
-                    'tooltip' => __('restaurant.tooltip_service_staff')
-                ],
+                'name' => __('restaurant.service_staff'),
+                'tooltip' => __('restaurant.tooltip_service_staff'),
+            ],
             'booking' => ['name' => __('lang_v1.enable_booking')],
             'kitchen' => [
-                'name' => __('restaurant.kitchen_for_restaurant')
+                'name' => __('restaurant.kitchen_for_restaurant'),
             ],
             'subscription' => ['name' => __('lang_v1.enable_subscription')],
             'types_of_service' => ['name' => __('lang_v1.types_of_service'),
-                        'tooltip' => __('lang_v1.types_of_service_help_long')
-                    ]
+                'tooltip' => __('lang_v1.types_of_service_help_long'),
+            ],
         ];
     }
 
@@ -518,7 +515,7 @@ class ModuleUtil extends Util
             foreach ($data  as $key => $value) {
                 //key is category type
                 //check if category type is duplicate
-                if (!in_array($key, $category_types)) {
+                if (! in_array($key, $category_types)) {
                     $category_types[] = $key;
                 } else {
                     echo __('lang_v1.duplicate_taxonomy_type_found');
@@ -531,10 +528,11 @@ class ModuleUtil extends Util
             }
         }
 
-        if (!in_array($category_type, $category_types)) {
+        if (! in_array($category_type, $category_types)) {
             echo __('lang_v1.taxonomy_type_not_found');
             exit;
         }
+
         return $module_data;
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateAccountsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateAccountsTable extends Migration
     public function up()
     {
         Schema::dropIfExists('accounts');
-        
+
         Schema::create('accounts', function (Blueprint $table) {
             $table->increments('id');
 
@@ -39,4 +39,4 @@ class CreateAccountsTable extends Migration
     {
         Schema::dropIfExists('accounts');
     }
-}
+};

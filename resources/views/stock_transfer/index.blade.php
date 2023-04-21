@@ -14,7 +14,7 @@
     @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.all_stock_transfers')])
         @slot('tool')
             <div class="box-tools">
-                <a class="btn btn-block btn-primary" href="{{action('StockTransferController@create')}}">
+                <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\StockTransferController::class, 'create'])}}">
                 <i class="fa fa-plus"></i> @lang('messages.add')</a>
             </div>
         @endslot

@@ -151,12 +151,15 @@
                     { data: 'product', name: 'product'  },
                     { data: 'gross_profit', "searchable": false},
                 ],
-                fnDrawCallback: function(oSettings) {
-                    var total_profit = sum_table_col($('#profit_by_products_table'), 'gross-profit');
-                    $('#profit_by_products_table .footer_total').text(total_profit);
+                footerCallback: function ( row, data, start, end, display ) {
+                    var total_profit = 0;
+                    for (var r in data){
+                        total_profit += $(data[r].gross_profit).data('orig-value') ? 
+                        parseFloat($(data[r].gross_profit).data('orig-value')) : 0;
+                    }
 
-                    __currency_convert_recursively($('#profit_by_products_table'));
-                },
+                    $('#profit_by_products_table .footer_total').html(__currency_trans_from_en(total_profit));
+                }
             });
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -182,11 +185,14 @@
                             { data: 'category', name: 'C.name'  },
                             { data: 'gross_profit', "searchable": false},
                         ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_categories_table'), 'gross-profit');
-                            $('#profit_by_categories_table .footer_total').text(total_profit);
+                        footerCallback: function ( row, data, start, end, display ) {
+                            var total_profit = 0;
+                            for (var r in data){
+                                total_profit += $(data[r].gross_profit).data('orig-value') ? 
+                                parseFloat($(data[r].gross_profit).data('orig-value')) : 0;
+                            }
 
-                            __currency_convert_recursively($('#profit_by_categories_table'));
+                            $('#profit_by_categories_table .footer_total').html(__currency_trans_from_en(total_profit));
                         },
                     });
                 } else {
@@ -213,11 +219,14 @@
                             { data: 'brand', name: 'B.name'  },
                             { data: 'gross_profit', "searchable": false},
                         ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_brands_table'), 'gross-profit');
-                            $('#profit_by_brands_table .footer_total').text(total_profit);
+                        footerCallback: function ( row, data, start, end, display ) {
+                            var total_profit = 0;
+                            for (var r in data){
+                                total_profit += $(data[r].gross_profit).data('orig-value') ? 
+                                parseFloat($(data[r].gross_profit).data('orig-value')) : 0;
+                            }
 
-                            __currency_convert_recursively($('#profit_by_brands_table'));
+                            $('#profit_by_brands_table .footer_total').html(__currency_trans_from_en(total_profit));
                         },
                     });
                 } else {
@@ -244,11 +253,14 @@
                             { data: 'location', name: 'L.name'  },
                             { data: 'gross_profit', "searchable": false},
                         ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_locations_table'), 'gross-profit');
-                            $('#profit_by_locations_table .footer_total').text(total_profit);
+                        footerCallback: function ( row, data, start, end, display ) {
+                            var total_profit = 0;
+                            for (var r in data){
+                                total_profit += $(data[r].gross_profit).data('orig-value') ? 
+                                parseFloat($(data[r].gross_profit).data('orig-value')) : 0;
+                            }
 
-                            __currency_convert_recursively($('#profit_by_locations_table'));
+                            $('#profit_by_locations_table .footer_total').html(__currency_trans_from_en(total_profit));
                         },
                     });
                 } else {
@@ -275,11 +287,14 @@
                             { data: 'invoice_no', name: 'sale.invoice_no'  },
                             { data: 'gross_profit', "searchable": false},
                         ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_invoice_table'), 'gross-profit');
-                            $('#profit_by_invoice_table .footer_total').text(total_profit);
+                        footerCallback: function ( row, data, start, end, display ) {
+                            var total_profit = 0;
+                            for (var r in data){
+                                total_profit += $(data[r].gross_profit).data('orig-value') ? 
+                                parseFloat($(data[r].gross_profit).data('orig-value')) : 0;
+                            }
 
-                            __currency_convert_recursively($('#profit_by_invoice_table'));
+                            $('#profit_by_invoice_table .footer_total').html(__currency_trans_from_en(total_profit));
                         },
                     });
                 } else {
@@ -306,10 +321,14 @@
                             { data: 'transaction_date', name: 'sale.transaction_date'  },
                             { data: 'gross_profit', "searchable": false},
                         ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_date_table'), 'gross-profit');
-                            $('#profit_by_date_table .footer_total').text(total_profit);
-                            __currency_convert_recursively($('#profit_by_date_table'));
+                        footerCallback: function ( row, data, start, end, display ) {
+                            var total_profit = 0;
+                            for (var r in data){
+                                total_profit += $(data[r].gross_profit).data('orig-value') ? 
+                                parseFloat($(data[r].gross_profit).data('orig-value')) : 0;
+                            }
+
+                            $('#profit_by_date_table .footer_total').html(__currency_trans_from_en(total_profit));
                         },
                     });
                 } else {
@@ -336,10 +355,14 @@
                             { data: 'customer', name: 'CU.name'  },
                             { data: 'gross_profit', "searchable": false},
                         ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_customer_table'), 'gross-profit');
-                            $('#profit_by_customer_table .footer_total').text(total_profit);
-                            __currency_convert_recursively($('#profit_by_customer_table'));
+                        footerCallback: function ( row, data, start, end, display ) {
+                            var total_profit = 0;
+                            for (var r in data){
+                                total_profit += $(data[r].gross_profit).data('orig-value') ? 
+                                parseFloat($(data[r].gross_profit).data('orig-value')) : 0;
+                            }
+
+                            $('#profit_by_customer_table .footer_total').html(__currency_trans_from_en(total_profit));
                         },
                     });
                 } else {

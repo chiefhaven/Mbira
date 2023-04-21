@@ -15,7 +15,7 @@
         @slot('tool')
             <div class="box-tools">
                 <button type="button" class="btn btn-block btn-primary btn-modal" 
-                    data-href="{{action('WarrantyController@create')}}" 
+                    data-href="{{action([\App\Http\Controllers\WarrantyController::class, 'create'])}}" 
                     data-container=".view_modal">
                     <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
             </div>
@@ -43,7 +43,7 @@
         var warranty_table = $('#warranty_table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{action('WarrantyController@index')}}",
+                ajax: "{{action([\App\Http\Controllers\WarrantyController::class, 'index'])}}",
                 columnDefs: [ {
                     "targets": 3,
                     "orderable": false,

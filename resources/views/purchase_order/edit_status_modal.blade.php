@@ -1,5 +1,5 @@
 <div class="modal-dialog" role="document">
-    {!! Form::open(['url' => action('PurchaseOrderController@postEditPurchaseOrderStatus', ['id' => $id]), 'method' => 'put', 'id' => 'update_po_status_form']) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\PurchaseOrderController::class, 'postEditPurchaseOrderStatus'], ['id' => $id]), 'method' => 'put', 'id' => 'update_po_status_form']) !!}
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">

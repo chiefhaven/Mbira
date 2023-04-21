@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTransactionPaymentsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -33,7 +33,7 @@ class CreateTransactionPaymentsTable extends Migration
             $table->string('bank_account_number')->nullable();
 
             $table->string('note')->nullable();
-            
+
             $table->timestamps();
         });
     }
@@ -47,4 +47,4 @@ class CreateTransactionPaymentsTable extends Migration
     {
         Schema::dropIfExists('transaction_payments');
     }
-}
+};

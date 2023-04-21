@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\DashboardConfiguration;
+use Illuminate\Http\Request;
 
 class DashboardConfiguratorController extends Controller
-{    
+{
     /**
      * Display a listing of the resource.
      *
@@ -62,12 +62,12 @@ class DashboardConfiguratorController extends Controller
         //get the configuration.
         $dashboard = DashboardConfiguration::where('business_id', $business_id)->findorfail($id);
         $dashboard->configuration = json_decode($dashboard->configuration, true);
-        
+
         //Get all widgets
         $available_widgets = [
             'widget1' => ['title' => 'Widget 1'],
             'widget2' => ['title' => 'Widget 2'],
-            'widget3' => ['title' => 'Widget 3']
+            'widget3' => ['title' => 'Widget 3'],
         ];
 
         return view('dashboard_configurator.edit', compact('dashboard', 'available_widgets'));
@@ -82,7 +82,7 @@ class DashboardConfiguratorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('configure_dashboard')) {
+        if (! auth()->user()->can('configure_dashboard')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -95,14 +95,14 @@ class DashboardConfiguratorController extends Controller
             $dashboard->save();
 
             $output = ['success' => true,
-                        'msg' => __("lang_v1.success")
-                        ];
+                'msg' => __('lang_v1.success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-        
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                        'msg' => __("messages.something_went_wrong")
-                    ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return back()->with('status', $output);

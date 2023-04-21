@@ -3,6 +3,10 @@
 
 @section('content')
 
+@php
+  $is_image_required = !empty($common_settings['is_product_image_required']) && empty($product->image);
+@endphp
+
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <h1>@lang('product.edit_product')</h1>
@@ -14,7 +18,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('ProductController@update' , [$product->id] ), 'method' => 'PUT', 'id' => 'product_add_form',
+{!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'update'] , [$product->id] ), 'method' => 'PUT', 'id' => 'product_add_form',
         'class' => 'product_form', 'files' => true ]) !!}
     <input type="hidden" id="product_id" value="{{ $product->id }}">
 
@@ -51,7 +55,7 @@
                 <div class="input-group">
                   {!! Form::select('unit_id', $units, $product->unit_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'required']); !!}
                   <span class="input-group-btn">
-                    <button type="button" @if(!auth()->user()->can('unit.create')) disabled @endif class="btn btn-default bg-white btn-flat quick_add_unit btn-modal" data-href="{{action('UnitController@create', ['quick_add' => true])}}" title="@lang('unit.add_unit')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+                    <button type="button" @if(!auth()->user()->can('unit.create')) disabled @endif class="btn btn-default bg-white btn-flat quick_add_unit btn-modal" data-href="{{action([\App\Http\Controllers\UnitController::class, 'create'], ['quick_add' => true])}}" title="@lang('unit.add_unit')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
                   </span>
                 </div>
               </div>
@@ -65,12 +69,20 @@
                   @foreach($sub_units as $sub_unit_id => $sub_unit_value)
                     <option value="{{$sub_unit_id}}" 
                       @if(is_array($product->sub_unit_ids) &&in_array($sub_unit_id, $product->sub_unit_ids))   selected 
-                      @endif
-                    >{{$sub_unit_value['name']}}</option>
+                      @endif>{{$sub_unit_value['name']}}</option>
                   @endforeach
                 </select>
               </div>
             </div>
+
+            @if(!empty($common_settings['enable_secondary_unit']))
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        {!! Form::label('secondary_unit_id', __('lang_v1.secondary_unit') . ':') !!} @show_tooltip(__('lang_v1.secondary_unit_help'))
+                        {!! Form::select('secondary_unit_id', $units, $product->secondary_unit_id, ['class' => 'form-control select2']); !!}
+                    </div>
+                </div>
+            @endif
 
             <div class="col-sm-4 @if(!session('business.enable_brand')) hide @endif">
               <div class="form-group">
@@ -78,15 +90,11 @@
                 <div class="input-group">
                   {!! Form::select('brand_id', $brands, $product->brand_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
                   <span class="input-group-btn">
-                    <button type="button" @if(!auth()->user()->can('brand.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action('BrandController@create', ['quick_add' => true])}}" title="@lang('brand.add_brand')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+                    <button type="button" @if(!auth()->user()->can('brand.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action([\App\Http\Controllers\BrandController::class, 'create'], ['quick_add' => true])}}" title="@lang('brand.add_brand')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
                   </span>
                 </div>
               </div>
             </div>
-
-            
-
-            <div class="clearfix"></div>
             <div class="col-sm-4 @if(!session('business.enable_category')) hide @endif">
               <div class="form-group">
                 {!! Form::label('category_id', __('product.category') . ':') !!}
@@ -121,7 +129,7 @@
             <div class="col-sm-4" id="alert_quantity_div" @if(!$product->enable_stock) style="display:none" @endif>
               <div class="form-group">
                 {!! Form::label('alert_quantity', __('product.alert_quantity') . ':') !!} @show_tooltip(__('tooltip.alert_quantity'))
-                {!! Form::text('alert_quantity', @format_quantity($product->alert_quantity), ['class' => 'form-control input_number',
+                {!! Form::text('alert_quantity', $alert_quantity, ['class' => 'form-control input_number',
                 'placeholder' => __('product.alert_quantity') , 'min' => '0']); !!}
               </div>
             </div>
@@ -151,7 +159,7 @@
             <div class="col-sm-4">
               <div class="form-group">
                 {!! Form::label('image', __('lang_v1.product_image') . ':') !!}
-                {!! Form::file('image', ['id' => 'upload_image', 'accept' => 'image/*']); !!}
+                {!! Form::file('image', ['id' => 'upload_image', 'accept' => 'image/*', 'required' => $is_image_required]); !!}
                 <small><p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]). @lang('lang_v1.aspect_ratio_should_be_1_1') @if(!empty($product->image)) <br> @lang('lang_v1.previous_image_will_be_replaced') @endif</p></small>
               </div>
             </div>
@@ -306,6 +314,12 @@
           <div class="form-group">
             {!! Form::label('product_custom_field4',  $product_custom_field4 . ':') !!}
             {!! Form::text('product_custom_field4', $product->product_custom_field4, ['class' => 'form-control', 'placeholder' => $product_custom_field4]); !!}
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="form-group">
+            {!! Form::label('preparation_time_in_minutes',  __('lang_v1.preparation_time_in_minutes') . ':') !!}
+            {!! Form::number('preparation_time_in_minutes', $product->preparation_time_in_minutes, ['class' => 'form-control', 'placeholder' => __('lang_v1.preparation_time_in_minutes')]); !!}
           </div>
         </div>
         <!--custom fields-->

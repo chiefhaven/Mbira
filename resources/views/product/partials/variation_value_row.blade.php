@@ -19,9 +19,18 @@
     @endphp
 @endif
 
-<tr>
+@php
+    $is_variation_value_hidden = !empty($variation_value_id) ? 1 : 0;
+@endphp
+
+<tr @if(!empty($variation_value_id)) 
+        data-variation_value_id="{{$variation_value_id}}" 
+        class="variation_value_row hide" 
+    @endif>
     <td>
         {!! Form::text($name . '[' . $variation_index . '][variations][' . $value_index . '][sub_sku]', null, ['class' => 'form-control input-sm input_sub_sku']); !!}
+        {!! Form::hidden($name . '[' . $variation_index . '][variations][' . $value_index . '][is_hidden]', 
+            $is_variation_value_hidden , ['class' => 'is_variation_value_hidden']) !!}
 
         {!! Form::hidden($name . '[' . $variation_index . '][variations][' . $value_index . '][variation_value_id]', $variation_value_id) !!}
     </td>
@@ -59,7 +68,8 @@
 
         {!! Form::text($name . '[' . $variation_index . '][variations][' . $value_index . '][sell_price_inc_tax]', $default, ['class' => 'form-control input-sm variable_dsp_inc_tax input_number', 'placeholder' => __('product.inc_of_tax'), 'required']); !!}
     </td>
-    <td>{!! Form::file('variation_images_' . $variation_index . '_' . $value_index . '[]', ['class' => 'variation_images', 'accept' => 'image/*', 'multiple']); !!}</td>
+    <td>{!! Form::file('variation_images_' . $variation_index . '_' . $value_index . '[]', ['class' => 
+        'variation_images', 'accept' => 'image/*', 'multiple']); !!}</td>
     <td>
         <button type="button" class="btn btn-danger btn-xs remove_variation_value_row">-</button>
         <input type="hidden" class="variation_row_index" value="{{$value_index}}">

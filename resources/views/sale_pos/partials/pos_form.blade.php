@@ -45,7 +45,7 @@
 					@endif
 					
 
-					<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action('ProductController@quickAdd')}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+					<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
 				</span>
 			</div>
 		</div>
@@ -149,9 +149,17 @@
 	@endif
 
 	@if(!empty($pos_settings['show_invoice_scheme']))
+		@php
+			$invoice_scheme_id = $default_invoice_schemes->id;
+			if(!empty($default_location->invoice_scheme_id)) {
+				$invoice_scheme_id = $default_location->invoice_scheme_id;
+			}
+		@endphp
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">
-				{!! Form::select('invoice_scheme_id', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme')]); !!}
+				{!! Form::select('invoice_scheme_id', $invoice_schemes, $invoice_scheme_id, 
+					['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme'), 
+					'id' => 'invoice_scheme_id']); !!}
 			</div>
 		</div>
 	@endif

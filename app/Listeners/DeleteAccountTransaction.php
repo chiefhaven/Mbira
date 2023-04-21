@@ -2,23 +2,20 @@
 
 namespace App\Listeners;
 
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-
 use App\AccountTransaction;
-
 use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 
 class DeleteAccountTransaction
 {
     protected $transactionUtil;
+
     protected $moduleUtil;
 
     /**
      * Constructor
      *
-     * @param TransactionUtil $transactionUtil
+     * @param  TransactionUtil  $transactionUtil
      * @return void
      */
     public function __construct(TransactionUtil $transactionUtil, ModuleUtil $moduleUtil)
@@ -40,7 +37,7 @@ class DeleteAccountTransaction
             $this->transactionUtil->updateContactBalance($event->transactionPayment->payment_for, $event->transactionPayment->amount);
         }
 
-        if(!$this->moduleUtil->isModuleEnabled('account')){
+        if (! $this->moduleUtil->isModuleEnabled('account')) {
             return true;
         }
 

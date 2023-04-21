@@ -14,7 +14,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('PrinterController@update', [$printer->id]), 'method' => 'PUT', 
+{!! Form::open(['url' => action([\App\Http\Controllers\PrinterController::class, 'update'], [$printer->id]), 'method' => 'PUT', 
 'id' => 'add_printer_form' ]) !!}
   <div class="box box-solid">
     <div class="box-body">

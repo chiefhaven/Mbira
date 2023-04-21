@@ -18,7 +18,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('BarcodeController@store'), 'method' => 'post', 
+{!! Form::open(['url' => action([\App\Http\Controllers\BarcodeController::class, 'store']), 'method' => 'post', 
 'id' => 'add_barcode_settings_form' ]) !!}
 	<div class="box box-solid">
     <div class="box-body">

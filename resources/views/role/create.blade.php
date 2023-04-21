@@ -14,7 +14,7 @@
       $pos_settings = !empty(session('business.pos_settings')) ? json_decode(session('business.pos_settings'), true) : [];
     @endphp
     @component('components.widget', ['class' => 'box-primary'])
-        {!! Form::open(['url' => action('RoleController@store'), 'method' => 'post', 'id' => 'role_add_form' ]) !!}
+        {!! Form::open(['url' => action([\App\Http\Controllers\RoleController::class, 'store']), 'method' => 'post', 'id' => 'role_add_form' ]) !!}
         <div class="row">
         <div class="col-md-4">
           <div class="form-group">
@@ -467,6 +467,57 @@
         <hr>
         @endif
 
+        @if(!empty($common_settings['enable_purchase_requisition']))
+          <div class="row check_group">
+            <div class="col-md-1">
+              <h4>@lang( 'lang_v1.purchase_requisition' )</h4>
+            </div>
+            <div class="col-md-2">
+              <div class="checkbox">
+                  <label>
+                    <input type="checkbox" class="check_all input-icheck" > {{ __( 'role.select_all' ) }}
+                  </label>
+                </div>
+            </div>
+            <div class="col-md-9">
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::radio('radio_option[purchase_requisition_view]', 'purchase_requisition.view_all', false, 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.view_all_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::radio('radio_option[purchase_requisition_view]', 'purchase_requisition.view_own', false, 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.view_own_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'purchase_requisition.create', false, 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.create_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'purchase_requisition.delete', false, 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.delete_purchase_requisition' ) }}
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <hr>
+        @endif
+
         @if(!empty($common_settings['enable_purchase_order']))
           <div class="row check_group">
             <div class="col-md-1">
@@ -584,6 +635,14 @@
                   <label>
                     {!! Form::checkbox('permissions[]', 'edit_product_discount_from_pos_screen', false, ['class' => 'input-icheck']); !!}
                     {{ __('lang_v1.edit_product_discount_from_pos_screen') }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'edit_pos_payment', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.add_edit_payment') }}
                   </label>
                 </div>
               </div>

@@ -10,7 +10,7 @@
             @foreach($days as $day)
                 <tr>
                     <td>@lang('lang_v1.' . $day)</td>
-                    <td><span class="display_currency gross-profit" data-currency_symbol="true" data-orig-value="{{$profits[$day] ?? 0}}">{{$profits[$day] ?? 0}}</span></td>
+                    <td><span class="gross-profit" data-orig-value="{{$profits[$day] ?? 0}}">@if(isset($profits[$day]))@format_currency($profits[$day]) @else 0 @endif</span></td>
                 </tr>
             @endforeach
         </tbody>

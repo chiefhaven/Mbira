@@ -37,12 +37,22 @@
 					              	<br>@lang('restaurant.service_staff'): {{$sale->service_staff->user_full_name}}
 					              @endif
 					            </div>
-					            <a href="{{action('SellPosController@edit', ['id' => $sale->id]).$subtype}}" class="small-box-footer bg-blue p-10">
-					              @lang('sale.edit_sale') <i class="fa fa-arrow-circle-right"></i>
-					            </a>
-					            <a href="{{action('SellPosController@destroy', ['id' => $sale->id])}}" class="small-box-footer delete-sale bg-red is_suspended">
-					              @lang('messages.delete') <i class="fas fa-trash"></i>
-					            </a>
+								@if(auth()->user()->can('sell.update') || auth()->user()->can('direct_sell.update'))
+									<a href="{{action([\App\Http\Controllers\SellPosController::class, 'edit'], ['po' => $sale->id]).$subtype}}" class="small-box-footer bg-blue p-10">
+									@lang('sale.edit_sale') <i class="fa fa-arrow-circle-right"></i>
+									</a>
+								@endif
+								@if(auth()->user()->can('sell.delete') || auth()->user()->can('direct_sell.delete'))
+									<a href="{{action([\App\Http\Controllers\SellPosController::class, 'destroy'], ['po' => $sale->id])}}" class="small-box-footer delete-sale bg-red is_suspended">
+										@lang('messages.delete') <i class="fas fa-trash"></i>
+					            	</a>
+								@endif
+								@if(!auth()->user()->can('sell.update') && auth()->user()->can('edit_pos_payment'))
+									<a href="{{route('edit-pos-payment', ['po' => $sale->id])}}" 
+									class="small-box-footer bg-blue p-10">
+									@lang('lang_v1.add_edit_payment') <i class="fas fa-money-bill-alt"></i>
+									</a>
+								@endif
 					         </div>
 				         </div>
 				        @php

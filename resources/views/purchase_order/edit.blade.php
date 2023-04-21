@@ -19,10 +19,10 @@
 
   @include('layouts.partials.error')
 
-  {!! Form::open(['url' =>  action('PurchaseOrderController@update' , [$purchase->id] ), 'method' => 'PUT', 'id' => 'add_purchase_form', 'files' => true ]) !!}
+  {!! Form::open(['url' =>  action([\App\Http\Controllers\PurchaseOrderController::class, 'update'] , [$purchase->id] ), 'method' => 'PUT', 'id' => 'add_purchase_form', 'files' => true ]) !!}
 
   @php
-    $currency_precision = config('constants.currency_precision', 2);
+    $currency_precision = session('business.currency_precision', 2);
   @endphp
   <input type="hidden" id="is_purchase_order">
   <input type="hidden" id="purchase_id" value="{{ $purchase->id }}">
@@ -68,6 +68,18 @@
                 </div>
               </div>
             </div>
+            <div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
+                <div class="form-group">
+                    {!! Form::label('delivery_date', __('lang_v1.delivery_date') . ':') !!}
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        {!! Form::text('delivery_date', $delivery_date, ['class' => 'form-control']); !!}
+                    </div>
+                </div>
+            </div>
+
             <div class="col-sm-3">
               <div class="form-group">
                 {!! Form::label('location_id', __('purchase.business_location').':*') !!}
@@ -118,6 +130,16 @@
                 </div>
             </div>
         </div>
+        @if(!empty($common_settings['enable_purchase_requisition']))
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    {!! Form::label('purchase_requisition_ids', __('lang_v1.purchase_requisition').':') !!}
+                    {!! Form::select('purchase_requisition_ids[]', $purchase_requisitions, $purchase->purchase_requisition_ids, ['class' => 'form-control select2', 'multiple', 'id' => 'purchase_requisition_ids']); !!}
+                </div>
+            </div>
+        </div>
+        @endif
     @endcomponent
 
     @component('components.widget', ['class' => 'box-primary'])
@@ -134,7 +156,7 @@
             </div>
             <div class="col-sm-2">
               <div class="form-group">
-                <button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action('ProductController@quickAdd')}}" 
+                <button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" 
                       data-container=".quick_add_product_modal"><i class="fa fa-plus"></i> @lang( 'product.add_new_product' ) </button>
               </div>
             </div>

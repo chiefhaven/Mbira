@@ -4,25 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Barcode;
 use App\Product;
+use App\SellingPriceGroup;
 use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\SellingPriceGroup;
 
 class LabelsController extends Controller
 {
     /**
      * All Utils instance.
-     *
      */
     protected $transactionUtil;
+
     protected $productUtil;
 
     /**
      * Constructor
      *
-     * @param TransactionUtil $TransactionUtil
+     * @param  TransactionUtil  $TransactionUtil
      * @return void
      */
     public function __construct(TransactionUtil $transactionUtil, ProductUtil $productUtil)
@@ -53,7 +53,7 @@ class LabelsController extends Controller
 
         //get price groups
         $price_groups = [];
-        if(!empty($purchase_id) || !empty($product_id)){
+        if (! empty($purchase_id) || ! empty($product_id)) {
             $price_groups = SellingPriceGroup::where('business_id', $business_id)
                                     ->active()
                                     ->pluck('name', 'id');
@@ -81,15 +81,15 @@ class LabelsController extends Controller
             $product_id = $request->input('product_id');
             $variation_id = $request->input('variation_id');
             $business_id = $request->session()->get('user.business_id');
-            
-            if (!empty($product_id)) {
+
+            if (! empty($product_id)) {
                 $index = $request->input('row_count');
                 $products = $this->productUtil->getDetailsFromProduct($business_id, $product_id, $variation_id);
 
                 $price_groups = SellingPriceGroup::where('business_id', $business_id)
                                             ->active()
                                             ->pluck('name', 'id');
-                
+
                 return view('labels.partials.show_table_rows')
                         ->with(compact('products', 'index', 'price_groups'));
             }
@@ -112,7 +112,7 @@ class LabelsController extends Controller
             $barcode_details = Barcode::find($barcode_setting);
             $barcode_details->stickers_in_one_sheet = $barcode_details->is_continuous ? $barcode_details->stickers_in_one_row : $barcode_details->stickers_in_one_sheet;
             $barcode_details->paper_height = $barcode_details->is_continuous ? $barcode_details->height : $barcode_details->paper_height;
-            if($barcode_details->stickers_in_one_row == 1){
+            if ($barcode_details->stickers_in_one_row == 1) {
                 $barcode_details->col_distance = 0;
                 $barcode_details->row_distance = 0;
             }
@@ -127,18 +127,18 @@ class LabelsController extends Controller
             foreach ($products as $value) {
                 $details = $this->productUtil->getDetailsFromVariation($value['variation_id'], $business_id, null, false);
 
-                if (!empty($value['exp_date'])) {
+                if (! empty($value['exp_date'])) {
                     $details->exp_date = $value['exp_date'];
                 }
-                if (!empty($value['packing_date'])) {
+                if (! empty($value['packing_date'])) {
                     $details->packing_date = $value['packing_date'];
                 }
-                if (!empty($value['lot_number'])) {
+                if (! empty($value['lot_number'])) {
                     $details->lot_number = $value['lot_number'];
                 }
 
-                if (!empty($value['price_group_id'])) {
-                    $tax_id = $print['price_type'] == 'inclusive' ? : $details->tax_id;
+                if (! empty($value['price_group_id'])) {
+                    $tax_id = $print['price_type'] == 'inclusive' ?: $details->tax_id;
 
                     $group_prices = $this->productUtil->getVariationGroupPrice($value['variation_id'], $value['price_group_id'], $tax_id);
 
@@ -146,11 +146,10 @@ class LabelsController extends Controller
                     $details->default_sell_price = $group_prices['price_exc_tax'];
                 }
 
-                for ($i=0; $i < $value['quantity']; $i++) {
-
+                for ($i = 0; $i < $value['quantity']; $i++) {
                     $page = intdiv($total_qty, $barcode_details->stickers_in_one_sheet);
 
-                    if($total_qty % $barcode_details->stickers_in_one_sheet == 0){
+                    if ($total_qty % $barcode_details->stickers_in_one_sheet == 0) {
                         $product_details_page_wise[$page] = [];
                     }
 
@@ -159,16 +158,16 @@ class LabelsController extends Controller
                 }
             }
 
-            $margin_top = $barcode_details->is_continuous ? 0: $barcode_details->top_margin*1;
-            $margin_left = $barcode_details->is_continuous ? 0: $barcode_details->left_margin*1;
-            $paper_width = $barcode_details->paper_width*1;
-            $paper_height = $barcode_details->paper_height*1;
+            $margin_top = $barcode_details->is_continuous ? 0 : $barcode_details->top_margin * 1;
+            $margin_left = $barcode_details->is_continuous ? 0 : $barcode_details->left_margin * 1;
+            $paper_width = $barcode_details->paper_width * 1;
+            $paper_height = $barcode_details->paper_height * 1;
 
             // print_r($paper_height);
             // echo "==";
             // print_r($margin_left);exit;
 
-            // $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 
+            // $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8',
             //             'format' => [$paper_width, $paper_height],
             //             'margin_top' => $margin_top,
             //             'margin_bottom' => $margin_top,
@@ -192,12 +191,11 @@ class LabelsController extends Controller
             $factor = (($barcode_details->width / $barcode_details->height)) / ($barcode_details->is_continuous ? 2 : 4);
             $html = '';
             foreach ($product_details_page_wise as $page => $page_products) {
-
-                if($i == 0){
+                if ($i == 0) {
                     $is_first = true;
                 }
 
-                if($i == $len-1){
+                if ($i == $len - 1) {
                     $is_last = true;
                 }
 
@@ -234,7 +232,7 @@ class LabelsController extends Controller
             //                 'msg' => ''
             //             ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = __('lang_v1.barcode_label_error');
         }

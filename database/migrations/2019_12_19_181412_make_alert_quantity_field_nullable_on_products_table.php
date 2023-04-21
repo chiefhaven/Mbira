@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class MakeAlertQuantityFieldNullableOnProductsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class MakeAlertQuantityFieldNullableOnProductsTable extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE products MODIFY COLUMN alert_quantity DECIMAL(22, 4) DEFAULT NULL");
+        DB::statement('ALTER TABLE products MODIFY COLUMN alert_quantity DECIMAL(22, 4) DEFAULT NULL');
     }
 
     /**
@@ -24,4 +24,4 @@ class MakeAlertQuantityFieldNullableOnProductsTable extends Migration
     {
         //
     }
-}
+};

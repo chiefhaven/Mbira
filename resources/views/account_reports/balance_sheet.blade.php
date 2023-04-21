@@ -173,7 +173,7 @@
         var end_date = $('input#end_date').val();
         var location_id = $('#bal_sheet_location_id').val()
         $.ajax({
-            url: "{{action('AccountReportsController@balanceSheet')}}?end_date=" + end_date + '&location_id=' + location_id, 
+            url: "{{action([\App\Http\Controllers\AccountReportsController::class, 'balanceSheet'])}}?end_date=" + end_date + '&location_id=' + location_id, 
             dataType: "json",
             success: function(result){
                 $('span#supplier_due').text(__currency_trans_from_en(result.supplier_due, true));

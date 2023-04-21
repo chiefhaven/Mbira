@@ -12,7 +12,7 @@ class ProductVariation extends Model
      * @var array
      */
     protected $guarded = ['id'];
-    
+
     public function variations()
     {
         return $this->hasMany(\App\Variation::class);

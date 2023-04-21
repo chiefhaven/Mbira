@@ -11,7 +11,7 @@
       $type = 'lead';
       $customer_groups = [];
     } else {
-      $url = action('ContactController@store');
+      $url = action([\App\Http\Controllers\ContactController::class, 'store']);
       $type = isset($selected_type) ? $selected_type : '';
       $sources = [];
       $life_stages = [];
@@ -211,7 +211,7 @@
             </div>
 
             <!-- User in create customer & supplier -->
-            @if(config('constants.enable_contact_assign'))
+            @if(config('constants.enable_contact_assign') && $type !== 'lead')
                 <div class="col-md-6">
                       <div class="form-group">
                           {!! Form::label('assigned_to_users', __('lang_v1.assigned_to') . ':' ) !!}

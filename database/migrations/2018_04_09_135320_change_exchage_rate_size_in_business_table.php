@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class ChangeExchageRateSizeInBusinessTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +12,8 @@ class ChangeExchageRateSizeInBusinessTable extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE business MODIFY COLUMN p_exchange_rate DECIMAL(20, 3) NOT NULL DEFAULT 1");
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN exchange_rate DECIMAL(20,3) NOT NULL DEFAULT 1");
+        DB::statement('ALTER TABLE business MODIFY COLUMN p_exchange_rate DECIMAL(20, 3) NOT NULL DEFAULT 1');
+        DB::statement('ALTER TABLE transactions MODIFY COLUMN exchange_rate DECIMAL(20,3) NOT NULL DEFAULT 1');
 
         //Update 0 to 1
         DB::table('transactions')
@@ -32,4 +30,4 @@ class ChangeExchageRateSizeInBusinessTable extends Migration
     {
         //
     }
-}
+};

@@ -83,7 +83,7 @@
             serverSide: true,
             aaSorting: [[0, 'desc']],
             "ajax": {
-                "url": '{{action("ReportController@activityLog")}}',
+                "url": '{{action([\App\Http\Controllers\ReportController::class, 'activityLog'])}}',
                 "data": function ( d ) {
                     var start_date = '';
                     var end_date = '';

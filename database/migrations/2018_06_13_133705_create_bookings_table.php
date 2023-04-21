@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 
-class CreateBookingsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,12 +16,12 @@ class CreateBookingsTable extends Migration
     {
         //Create booking related permissions
         $insert_data = [['name' => 'crud_all_bookings',
-                                'guard_name' => 'web'
-                            ],
-                            ['name' => 'crud_own_bookings',
-                                'guard_name' => 'web'
-                            ],
-                        ];
+            'guard_name' => 'web',
+        ],
+            ['name' => 'crud_own_bookings',
+                'guard_name' => 'web',
+            ],
+        ];
         foreach ($insert_data as $data) {
             Permission::create($data);
         }
@@ -55,4 +55,4 @@ class CreateBookingsTable extends Migration
     {
         Schema::dropIfExists('bookings');
     }
-}
+};

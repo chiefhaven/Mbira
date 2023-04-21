@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 
-class AddShippingFieldsToTransactionsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -19,7 +19,7 @@ class AddShippingFieldsToTransactionsTable extends Migration
             $table->string('shipping_status')->nullable()->after('shipping_address');
             $table->string('delivered_to')->nullable()->after('shipping_status');
         });
-        
+
         Permission::create(['name' => 'access_shipping']);
     }
 
@@ -31,4 +31,4 @@ class AddShippingFieldsToTransactionsTable extends Migration
     public function down()
     {
     }
-}
+};

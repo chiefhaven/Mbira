@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePurchaseLinesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -24,7 +24,7 @@ class CreatePurchaseLinesTable extends Migration
             $table->decimal('quantity', 22, 4);
             $table->decimal('purchase_price', 22, 4);
             $table->decimal('purchase_price_inc_tax', 22, 4)->default(0);
-            $table->decimal('item_tax', 22, 4)->comment("Tax for one quantity");
+            $table->decimal('item_tax', 22, 4)->comment('Tax for one quantity');
             $table->integer('tax_id')->unsigned()->nullable();
             $table->foreign('tax_id')->references('id')->on('tax_rates')->onDelete('cascade');
             $table->timestamps();
@@ -40,4 +40,4 @@ class CreatePurchaseLinesTable extends Migration
     {
         Schema::dropIfExists('purchase_lines');
     }
-}
+};

@@ -1,12 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Utils\InstallUtil;
 use Illuminate\Database\Migrations\Migration;
 
-use App\Utils\InstallUtil;
-
-class ModifyVariableProductData extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -28,4 +25,4 @@ class ModifyVariableProductData extends Migration
     {
         //
     }
-}
+};

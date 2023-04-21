@@ -1,10 +1,9 @@
 <?php
 
 namespace App\Http\Middleware;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 
 use Closure;
+use Illuminate\Support\Facades\Cache;
 
 class IsInstalled
 {
@@ -18,11 +17,12 @@ class IsInstalled
     public function handle($request, Closure $next)
     {
         $envPath = base_path('.env');
-        if (!file_exists($envPath)) {
-            return redirect(url('/') . '/install');
+        if (! file_exists($envPath)) {
+            return redirect(url('/').'/install');
+        } else {
 		//bugs
         }
-        
+
         return $next($request);
     }
 }

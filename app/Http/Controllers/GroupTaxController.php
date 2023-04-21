@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\TaxRate;
-use App\GroupSubTax;
 use Datatables;
-
 use Illuminate\Http\Request;
 
 class GroupTaxController extends Controller
@@ -27,9 +25,9 @@ class GroupTaxController extends Controller
             return Datatables::of($tax_rates)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'GroupTaxController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".tax_group_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    '<button data-href="{{action(\'App\Http\Controllers\GroupTaxController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".tax_group_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
-                        <button data-href="{{action(\'GroupTaxController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_tax_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
+                        <button data-href="{{action(\'App\Http\Controllers\GroupTaxController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_tax_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
                 )
                 ->editColumn('amount', '{{@num_format($amount)}}')
                 ->editColumn('sub_taxes', function ($row) {
@@ -37,6 +35,7 @@ class GroupTaxController extends Controller
                     foreach ($row->sub_taxes as $sub_tax) {
                         $sub_taxes[] = $sub_tax->name;
                     }
+
                     return implode(' + ', $sub_taxes);
                 })
                 ->removeColumn('id')
@@ -54,6 +53,7 @@ class GroupTaxController extends Controller
     {
         $business_id = request()->session()->get('user.business_id');
         $taxes = TaxRate::where('business_id', $business_id)->where('is_tax_group', '0')->pluck('name', 'id');
+
         return view('tax_group.create')
                 ->with(compact('taxes'));
     }
@@ -75,7 +75,7 @@ class GroupTaxController extends Controller
             $sub_taxes = TaxRate::whereIn('id', $sub_tax_ids)->get();
             $amount = 0;
             foreach ($sub_taxes as $sub_tax) {
-                $amount += $sub_tax->amount ;
+                $amount += $sub_tax->amount;
             }
             $input['amount'] = $amount;
             $input['is_tax_group'] = 1;
@@ -84,14 +84,14 @@ class GroupTaxController extends Controller
             $tax_rate->sub_taxes()->sync($sub_tax_ids);
 
             $output = ['success' => true,
-                            'msg' => __("tax_rate.tax_group_added_success")
-                        ];
+                'msg' => __('tax_rate.tax_group_added_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -126,6 +126,7 @@ class GroupTaxController extends Controller
             foreach ($tax_rate->sub_taxes as $sub_tax) {
                 $sub_taxes[] = $sub_tax->id;
             }
+
             return view('tax_group.edit')
                 ->with(compact('taxes', 'sub_taxes', 'tax_rate'));
         }
@@ -148,9 +149,9 @@ class GroupTaxController extends Controller
                 $sub_taxes = TaxRate::whereIn('id', $sub_tax_ids)->get();
                 $amount = 0;
                 foreach ($sub_taxes as $sub_tax) {
-                    $amount += $sub_tax->amount ;
+                    $amount += $sub_tax->amount;
                 }
-           
+
                 $tax_rate = TaxRate::where('business_id', $business_id)->findOrFail($id);
                 $tax_rate->name = $request->input('name');
                 $tax_rate->amount = $amount;
@@ -158,14 +159,14 @@ class GroupTaxController extends Controller
                 $tax_rate->sub_taxes()->sync($sub_tax_ids);
 
                 $output = ['success' => true,
-                            'msg' => __("tax_rate.tax_group_updated_success")
-                            ];
+                    'msg' => __('tax_rate.tax_group_updated_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;
@@ -188,14 +189,14 @@ class GroupTaxController extends Controller
                 $tax_rate->delete();
 
                 $output = ['success' => true,
-                            'msg' => __("tax_rate.deleted_success")
-                            ];
+                    'msg' => __('tax_rate.deleted_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;

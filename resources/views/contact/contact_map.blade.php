@@ -14,7 +14,7 @@
 <!-- Main content -->
 <section class="content">
     @component('components.widget', ['class' => 'box-solid'])
-        {!! Form::open(['url' => action('ContactController@contactMap'), 'method' => 'get']) !!}
+        {!! Form::open(['url' => action([\App\Http\Controllers\ContactController::class, 'contactMap']), 'method' => 'get']) !!}
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="contacts">@lang('lang_v1.select_contacts')</label>

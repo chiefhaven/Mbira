@@ -38,7 +38,8 @@
 			'purchase_line_id' => null,
 			'lot_number' => null,
 			'transaction_date' => null,
-			'purchase_line_note' => null
+			'purchase_line_note' => null,
+			'secondary_unit_quantity' => 0
 			]
 		@endphp
 	@endif
@@ -75,6 +76,12 @@
 		    {{ $product->unit->short_name }}
 		  </span>
 		</div>
+		@if(!empty($product->second_unit))
+			<br>
+            <span>
+            @lang('lang_v1.quantity_in_second_unit', ['unit' => $product->second_unit->short_name])*:</span><br>
+            {!! Form::text('stocks[' . $key . '][' . $variation->id . '][' . $sub_key . '][secondary_unit_quantity]', @format_quantity($var['secondary_unit_quantity']) , ['class' => 'form-control input-sm input_number input_quantity', 'required']); !!}
+		@endif
 	</td>
 <td>
 	{!! Form::text('stocks[' . $key . '][' . $variation->id . '][' . $sub_key . '][purchase_price]', @num_format($purcahse_price) , ['class' => 'form-control input-sm input_number unit_price', 'required']); !!}

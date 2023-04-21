@@ -14,7 +14,6 @@ class DocumentAndNoteController extends Controller
 {
     /**
      * All Utils instance.
-     *
      */
     protected $moduleUtil;
 
@@ -58,45 +57,45 @@ class DocumentAndNoteController extends Controller
 
             $permissions = $this->__getPermission($business_id, $notable_id, $notable_type);
 
-            if (!empty($permissions) && in_array('view', $permissions)) {
+            if (! empty($permissions) && in_array('view', $permissions)) {
                 return Datatables::of($document_note)
                     ->addColumn('action', function ($row) use ($notable_type, $permissions) {
                         $html = '<div class="btn-group">
                                     <button class="btn btn-info dropdown-toggle btn-xs" type="button"  data-toggle="dropdown" aria-expanded="false">
-                                        '.__("messages.action").'
+                                        '.__('messages.action').'
                                         <span class="caret"></span>
                                         <span class="sr-only">
-                                            '.__("messages.action").'
+                                            '.__('messages.action').'
                                         </span>
                                     </button>
                                       <ul class="dropdown-menu dropdown-menu-left" role="menu">
                                         ';
 
                         if (in_array('view', $permissions)) {
-                            $html .='<li>
-                                        <a data-href="' . action('DocumentAndNoteController@show', ['id' => $row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]) . '" class="cursor-pointer view_a_docs_note">
+                            $html .= '<li>
+                                        <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'show'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'" class="cursor-pointer view_a_docs_note">
                                             <i class="fa fa-eye"></i>
-                                            '.__("messages.view").'
+                                            '.__('messages.view').'
                                         </a>
                                     </li>';
                         }
                         if (in_array('create', $permissions)) {
                             $html .= '<li>
-                                    <a data-href="' . action('DocumentAndNoteController@edit', ['id' => $row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]) . '"  class="cursor-pointer docs_and_notes_btn">
+                                    <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'edit'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'"  class="cursor-pointer docs_and_notes_btn">
                                         <i class="fa fa-edit"></i>
-                                        '.__("messages.edit").'
+                                        '.__('messages.edit').'
                                     </a>
                                 </li>';
                         }
                         if (in_array('delete', $permissions)) {
                             $html .= '<li>
-                                    <a data-href="' . action('DocumentAndNoteController@destroy', ['id' => $row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]) . '"  id="delete_docus_note" class="cursor-pointer">
+                                    <a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'destroy'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'"  id="delete_docus_note" class="cursor-pointer">
                                         <i class="fas fa-trash"></i>
-                                        '.__("messages.delete").'
+                                        '.__('messages.delete').'
                                     </a>
                                 </li>';
                         }
-                        
+
                         $html .= '</ul>
                                 </div>';
 
@@ -109,27 +108,27 @@ class DocumentAndNoteController extends Controller
                         {{@format_date($updated_at)}}
                     ')
                     ->editColumn('createdBy', function ($row) {
-                        return optional($row->createdBy)->user_full_name;
+                        return $row->createdBy?->user_full_name;
                     })
                     ->editColumn(
                         'heading',
                         function ($row) use ($notable_type) {
                             $is_private = '';
                             if ($row->is_private) {
-                                $private_tooltip = __("lang_v1.private_note");
+                                $private_tooltip = __('lang_v1.private_note');
                                 $is_private = '<i class="fas fa-lock text-danger"
                                 data-toggle="tooltip" title="'.$private_tooltip.'"></i>';
                             }
 
                             $icon = '';
                             if ($row->media->count() > 0) {
-                                $media_tooltip = __("lang_v1.contains_media");
+                                $media_tooltip = __('lang_v1.contains_media');
                                 $icon = '<i class="fas fa-file-image text-primary" data-toggle="tooltip" title="'.$media_tooltip.'"></i>';
                             }
 
-                            $html = '<a data-href="' . action('DocumentAndNoteController@show', ['id' => $row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]) . '" class="cursor-pointer view_a_docs_note text-black">
+                            $html = '<a data-href="'.action([\App\Http\Controllers\DocumentAndNoteController::class, 'show'], [$row->id, 'notable_id' => $row->notable_id, 'notable_type' => $notable_type]).'" class="cursor-pointer view_a_docs_note text-black">
                                 '.
-                                    $row->heading .
+                                    $row->heading.
                                     '&nbsp;'.
                                     $is_private.
                                     '&nbsp;'.
@@ -158,12 +157,12 @@ class DocumentAndNoteController extends Controller
 
         //Define all notable for main app.
         $app_notable = [
-            'App\User' => [
-                'permissions' => ['view', 'create', 'delete']
+            \App\User::class => [
+                'permissions' => ['view', 'create', 'delete'],
             ],
-            'App\Contact' => [
-                'permissions' => ['view', 'create', 'delete']
-            ]
+            \App\Contact::class => [
+                'permissions' => ['view', 'create', 'delete'],
+            ],
         ];
 
         if (isset($app_notable[$notable_type])) {
@@ -173,7 +172,7 @@ class DocumentAndNoteController extends Controller
             $module_parameters = [
                 'business_id' => $business_id,
                 'notable_id' => $notable_id,
-                'notable_type' => $notable_type
+                'notable_type' => $notable_type,
             ];
             $module_data = $this->moduleUtil->getModuleData('addDocumentAndNotes', $module_parameters);
 
@@ -196,6 +195,7 @@ class DocumentAndNoteController extends Controller
         $notable_id = request()->get('notable_id');
         //model name like App\User
         $notable_type = request()->get('notable_type');
+
         return view('documents_and_notes.create')
             ->with(compact('notable_id', 'notable_type'));
     }
@@ -209,7 +209,7 @@ class DocumentAndNoteController extends Controller
     public function store(Request $request)
     {
         try {
-            
+
             //model id like project_id, user_id
             $notable_id = request()->get('notable_id');
             //model name like App\User
@@ -221,7 +221,7 @@ class DocumentAndNoteController extends Controller
 
             DB::beginTransaction();
 
-            if (!empty($input['is_private'])) {
+            if (! empty($input['is_private'])) {
                 activity()->disableLogging();
             }
 
@@ -230,8 +230,8 @@ class DocumentAndNoteController extends Controller
                 ->findOrFail($notable_id);
 
             $model_note = $model->documentsAndnote()->create($input);
-            
-            if (!empty($request->get('file_name')[0])) {
+
+            if (! empty($request->get('file_name')[0])) {
                 $file_names = explode(',', $request->get('file_name')[0]);
                 $business_id = request()->session()->get('user.business_id');
                 Media::attachMediaToModel($model_note, $business_id, $file_names);
@@ -241,16 +241,16 @@ class DocumentAndNoteController extends Controller
 
             $output = [
                 'success' => true,
-                'msg' => __('lang_v1.success')
+                'msg' => __('lang_v1.success'),
             ];
         } catch (Exception $e) {
             DB::rollBack();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = [
                 'success' => false,
-                'msg' => __('messages.something_went_wrong')
+                'msg' => __('messages.something_went_wrong'),
             ];
         }
 
@@ -323,8 +323,8 @@ class DocumentAndNoteController extends Controller
             $business_id = request()->session()->get('user.business_id');
 
             $input = $request->only('heading', 'description');
-            $input['is_private'] = !empty($request->get('is_private')) ? 1 : 0;
-            
+            $input['is_private'] = ! empty($request->get('is_private')) ? 1 : 0;
+
             $document_note = DocumentAndNote::where('business_id', $business_id)
                 ->where('notable_id', $notable_id)
                 ->where('notable_type', $notable_type)
@@ -341,7 +341,7 @@ class DocumentAndNoteController extends Controller
             $document_note->is_private = $input['is_private'];
             $document_note->save();
 
-            if (!empty($request->get('file_name')[0])) {
+            if (! empty($request->get('file_name')[0])) {
                 $file_names = explode(',', $request->get('file_name')[0]);
                 $business_id = request()->session()->get('user.business_id');
                 Media::attachMediaToModel($document_note, $business_id, $file_names);
@@ -351,16 +351,16 @@ class DocumentAndNoteController extends Controller
 
             $output = [
                 'success' => true,
-                'msg' => __('lang_v1.success')
+                'msg' => __('lang_v1.success'),
             ];
         } catch (Exception $e) {
             DB::rollBack();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = [
                 'success' => false,
-                'msg' => __('messages.something_went_wrong')
+                'msg' => __('messages.something_went_wrong'),
             ];
         }
 
@@ -393,19 +393,19 @@ class DocumentAndNoteController extends Controller
             $document_note->media()->delete();
 
             DB::commit();
-            
+
             $output = [
                 'success' => true,
-                'msg' => __('lang_v1.success')
+                'msg' => __('lang_v1.success'),
             ];
         } catch (Exception $e) {
             DB::rollBack();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = [
                 'success' => false,
-                'msg' => __('messages.something_went_wrong')
+                'msg' => __('messages.something_went_wrong'),
             ];
         }
 
@@ -427,14 +427,14 @@ class DocumentAndNoteController extends Controller
             $output = [
                 'success' => true,
                 'file_name' => $file_name,
-                'msg' => __('lang_v1.success')
+                'msg' => __('lang_v1.success'),
             ];
         } catch (Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = [
                 'success' => false,
-                'msg' => __('messages.something_went_wrong')
+                'msg' => __('messages.something_went_wrong'),
             ];
         }
 
@@ -444,6 +444,7 @@ class DocumentAndNoteController extends Controller
     /**
      * get docus & note index page
      * through ajax
+     *
      * @return \Illuminate\Http\Response
      */
     public function getDocAndNoteIndexPage(Request $request)

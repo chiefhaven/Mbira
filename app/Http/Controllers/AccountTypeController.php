@@ -24,7 +24,7 @@ class AccountTypeController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('account.access')) {
+        if (! auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -46,7 +46,7 @@ class AccountTypeController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('account.access')) {
+        if (! auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -56,14 +56,14 @@ class AccountTypeController extends Controller
 
             AccountType::create($input);
             $output = ['success' => true,
-                            'msg' => __("lang_v1.added_success")
-                        ];
+                'msg' => __('lang_v1.added_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return redirect()->back()->with('status', $output);
@@ -88,7 +88,7 @@ class AccountTypeController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('account.access')) {
+        if (! auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -114,7 +114,7 @@ class AccountTypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('account.access')) {
+        if (! auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -126,23 +126,23 @@ class AccountTypeController extends Controller
                                      ->findOrFail($id);
 
             //Account type is changed to subtype update all its sub type's parent type
-            if (empty($account_type->parent_account_type_id) && !empty($input['parent_account_type_id'])) {
+            if (empty($account_type->parent_account_type_id) && ! empty($input['parent_account_type_id'])) {
                 AccountType::where('business_id', $business_id)
                         ->where('parent_account_type_id', $account_type->id)
                         ->update(['parent_account_type_id' => $input['parent_account_type_id']]);
             }
 
             $account_type->update($input);
-                                    
+
             $output = ['success' => true,
-                            'msg' => __("lang_v1.updated_success")
-                        ];
+                'msg' => __('lang_v1.updated_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return redirect()->back()->with('status', $output);
@@ -156,7 +156,7 @@ class AccountTypeController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('account.access')) {
+        if (! auth()->user()->can('account.access')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -172,8 +172,8 @@ class AccountTypeController extends Controller
                  ->update(['parent_account_type_id' => null]);
 
         $output = ['success' => true,
-                            'msg' => __("lang_v1.deleted_success")
-                        ];
+            'msg' => __('lang_v1.deleted_success'),
+        ];
 
         return redirect()->back()->with('status', $output);
     }

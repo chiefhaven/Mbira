@@ -23,6 +23,12 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
+                        {!! Form::label('tax_report_contact_id', __( 'report.contact' ) . ':') !!}
+                        {!! Form::select('tax_report_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'id' => 'tax_report_contact_id', 'placeholder' => __('lang_v1.all')]); !!}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
                         {!! Form::label('tax_report_date_range', __('report.date_range') . ':') !!}
                         {!! Form::text('tax_report_date_range', null, ['placeholder' => __('lang_v1.select_a_date_range'), 'class' => 'form-control', 'id' => 'tax_report_date_range', 'readonly']); !!}
                     </div>
@@ -257,6 +263,7 @@
                 data: function(d) {
                     d.type = 'purchase';
                     d.location_id = $('#tax_report_location_id').val();
+                    d.contact_id = $('#tax_report_contact_id').val();
                     var start = $('input#tax_report_date_range')
                         .data('daterangepicker')
                         .startDate.format('YYYY-MM-DD');
@@ -307,6 +314,7 @@
                             data: function(d) {
                                 d.type = 'sell';
                                 d.location_id = $('#tax_report_location_id').val();
+                                d.contact_id = $('#tax_report_contact_id').val();
                                 var start = $('input#tax_report_date_range')
                                     .data('daterangepicker')
                                     .startDate.format('YYYY-MM-DD');
@@ -355,6 +363,7 @@
                             data: function(d) {
                                 d.type = 'expense';
                                 d.location_id = $('#tax_report_location_id').val();
+                                d.contact_id = $('#tax_report_contact_id').val();
                                 var start = $('input#tax_report_date_range')
                                     .data('daterangepicker')
                                     .startDate.format('YYYY-MM-DD');
@@ -394,7 +403,7 @@
             }
         });
         
-        $('#tax_report_date_range, #tax_report_location_id').change( function(){
+        $('#tax_report_date_range, #tax_report_location_id, #tax_report_contact_id').change( function(){
             if ($("#input_tax_tab").hasClass('active')) {
                 input_tax_table.ajax.reload();
             }

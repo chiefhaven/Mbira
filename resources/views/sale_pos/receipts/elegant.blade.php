@@ -1,4 +1,4 @@
-<table style="width:100%;">
+<table style="width:100%; color: #000000 !important;">
 	<thead>
 		<tr>
 			<td>
@@ -16,6 +16,7 @@
 	</thead>
 
 	<tbody>
+		@if(empty($receipt_details->letter_head))
 		<tr>
 			<td class="text-center" style="line-height: 15px !important; padding-bottom: 10px !important">
 				@if(!empty($receipt_details->header_text))
@@ -35,6 +36,13 @@
 				@endif
 			</td>
 		</tr>
+		@else
+		<tr>
+			<td>
+				<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
+			</td>
+		</tr>
+		@endif
 
 		<tr>
 			<td>
@@ -154,7 +162,7 @@
 	</div>
 
 	<div class="col-md-6 invoice-col width-50 ">
-		
+		@if(empty($receipt_details->letter_head))
 		<!-- Logo -->
 		@if(!empty($receipt_details->logo))
 			<img style="max-height: 130px; width: auto;" src="{{$receipt_details->logo}}" class="img center-block">
@@ -193,8 +201,7 @@
 					<br/>{{ $receipt_details->location_custom_fields }}
 				@endif
 			</span>
-		
-				
+		@endif
 		<!-- Table information-->
         @if(!empty($receipt_details->table_label) || !empty($receipt_details->table))
         	<p>
@@ -399,6 +406,11 @@
                             {{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
                             @if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif
                             @if(!empty($line['product_custom_fields'])), {{$line['product_custom_fields']}} @endif
+                            @if(!empty($line['product_description']))
+                            	<small>
+                            		{!!$line['product_description']!!}
+                            	</small>
+                            @endif
                             @if(!empty($line['sell_line_note']))
                             <br>
                             <small>{!!$line['sell_line_note']!!}</small>
@@ -412,7 +424,7 @@
                             @if($receipt_details->show_base_unit_details && $line['quantity'] && $line['base_unit_multiplier'] !== 1)
                             <br><small>
                             	1 {{$line['units']}} = {{$line['base_unit_multiplier']}} {{$line['base_unit_name']}} <br>
-                            	{{$line['unit_price_inc_tax']}} x {{$line['quantity']}} = {{$line['line_total']}}
+                            	{{$line['base_unit_price']}} x {{$line['orig_quantity']}} = {{$line['line_total']}}
                             </small>
                             @endif
                         </td>
@@ -547,6 +559,16 @@
 						</td>
 						<td class="text-right">
 							{{$receipt_details->total_quantity}}
+						</td>
+					</tr>
+				@endif
+				@if(!empty($receipt_details->total_items_label))
+					<tr>
+						<td style="width:50%">
+							{!! $receipt_details->total_items_label !!}
+						</td>
+						<td class="text-right">
+							{{$receipt_details->total_items}}
 						</td>
 					</tr>
 				@endif
@@ -750,9 +772,3 @@
 		</tr>
 	</tbody>
 </table>
-
-<style type="text/css">
-	body {
-		color: #000000;
-	}
-</style>

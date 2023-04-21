@@ -2,27 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use \Notification;
-
 use App\Contact;
 use App\Notifications\CustomerNotification;
 use App\Notifications\SupplierNotification;
 use App\NotificationTemplate;
 use App\Restaurant\Booking;
-
 use App\Transaction;
 use App\Utils\NotificationUtil;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
+use Notification;
 
 class NotificationController extends Controller
 {
     protected $notificationUtil;
+
     protected $transactionUtil;
+
     /**
      * Constructor
      *
-     * @param NotificationUtil $notificationUtil, TransactionUtil $transactionUtil
+     * @param  NotificationUtil  $notificationUtil, TransactionUtil $transactionUtil
      * @return void
      */
     public function __construct(NotificationUtil $notificationUtil, TransactionUtil $transactionUtil)
@@ -100,7 +100,7 @@ class NotificationController extends Controller
         //     abort(403, 'Unauthorized action.');
         // }
         $notAllowed = $this->notificationUtil->notAllowedInDemo();
-        if (!empty($notAllowed)) {
+        if (! empty($notAllowed)) {
             return $notAllowed;
         }
 
@@ -115,15 +115,13 @@ class NotificationController extends Controller
             $transaction_id = $request->input('transaction_id');
             $business_id = request()->session()->get('business.id');
 
-            $transaction = !empty($transaction_id) ? Transaction::find($transaction_id) : null;
-
-            
+            $transaction = ! empty($transaction_id) ? Transaction::find($transaction_id) : null;
 
             $orig_data = [
                 'email_body' => $data['email_body'],
                 'sms_body' => $data['sms_body'],
                 'subject' => $data['subject'],
-                'whatsapp_text' => $data['whatsapp_text']
+                'whatsapp_text' => $data['whatsapp_text'],
             ];
 
             if ($request->input('template_for') == 'new_booking') {
@@ -141,7 +139,6 @@ class NotificationController extends Controller
                 $data['subject'] = $tag_replaced_data['subject'];
                 $data['whatsapp_text'] = $tag_replaced_data['whatsapp_text'];
             }
-            
 
             $data['email_settings'] = request()->session()->get('business.email_settings');
 
@@ -152,26 +149,25 @@ class NotificationController extends Controller
             $whatsapp_link = '';
             if (array_key_exists($request->input('template_for'), $customer_notifications)) {
                 if (in_array('email', $notification_type)) {
-
-                    if (!empty($request->input('attach_pdf'))) {
+                    if (! empty($request->input('attach_pdf'))) {
                         $data['pdf_name'] = 'INVOICE-'.$transaction->invoice_no.'.pdf';
                         $data['pdf'] = $this->transactionUtil->getEmailAttachmentForGivenTransaction($business_id, $transaction_id, true);
                     }
-                    
+
                     Notification::route('mail', $emails_array)
                                     ->notify(new CustomerNotification($data));
 
-                    if (!empty($transaction)) {
+                    if (! empty($transaction)) {
                         $this->notificationUtil->activityLog($transaction, 'email_notification_sent', null, [], false);
                     }
-                } 
+                }
                 if (in_array('sms', $notification_type)) {
                     $this->notificationUtil->sendSms($data);
 
-                    if (!empty($transaction)) {
+                    if (! empty($transaction)) {
                         $this->notificationUtil->activityLog($transaction, 'sms_notification_sent', null, [], false);
                     }
-                } 
+                }
                 if (in_array('whatsapp', $notification_type)) {
                     $whatsapp_link = $this->notificationUtil->getWhatsappNotificationLink($data);
                 }
@@ -180,37 +176,36 @@ class NotificationController extends Controller
                     if ($request->input('template_for') == 'purchase_order') {
                         $data['pdf_name'] = 'PO-'.$transaction->ref_no.'.pdf';
                         $data['pdf'] = $this->transactionUtil->getPurchaseOrderPdf($business_id, $transaction_id, true);
-
                     }
                     Notification::route('mail', $emails_array)
                                     ->notify(new SupplierNotification($data));
 
-                    if (!empty($transaction)) {
+                    if (! empty($transaction)) {
                         $this->notificationUtil->activityLog($transaction, 'email_notification_sent', null, [], false);
                     }
-                } 
+                }
                 if (in_array('sms', $notification_type)) {
                     $this->notificationUtil->sendSms($data);
 
-                    if (!empty($transaction)) {
+                    if (! empty($transaction)) {
                         $this->notificationUtil->activityLog($transaction, 'sms_notification_sent', null, [], false);
                     }
-                } 
+                }
                 if (in_array('whatsapp', $notification_type)) {
                     $whatsapp_link = $this->notificationUtil->getWhatsappNotificationLink($data);
                 }
             }
 
             $output = ['success' => 1, 'msg' => __('lang_v1.notification_sent_successfully')];
-            if (!empty($whatsapp_link)) {
+            if (! empty($whatsapp_link)) {
                 $output['whatsapp_link'] = $whatsapp_link;
             }
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => $e->getMessage()
-                        ];
+                'msg' => $e->getMessage(),
+            ];
         }
 
         return $output;

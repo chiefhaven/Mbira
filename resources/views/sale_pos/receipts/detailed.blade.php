@@ -17,23 +17,29 @@
 
 	<tbody>
 		<tr>
-			<td class="text-center" style="line-height: 15px !important; padding-bottom: 10px !important">
-				@if(!empty($receipt_details->header_text))
-					{!! $receipt_details->header_text !!}
-				@endif
+			@if(empty($receipt_details->letter_head))
+				<td class="text-center" style="line-height: 15px !important; padding-bottom: 10px !important">
+					@if(!empty($receipt_details->header_text))
+						{!! $receipt_details->header_text !!}
+					@endif
 
-				@php
-					$sub_headings = implode('<br/>', array_filter([$receipt_details->sub_heading_line1, $receipt_details->sub_heading_line2, $receipt_details->sub_heading_line3, $receipt_details->sub_heading_line4, $receipt_details->sub_heading_line5]));
-				@endphp
+					@php
+						$sub_headings = implode('<br/>', array_filter([$receipt_details->sub_heading_line1, $receipt_details->sub_heading_line2, $receipt_details->sub_heading_line3, $receipt_details->sub_heading_line4, $receipt_details->sub_heading_line5]));
+					@endphp
 
-				@if(!empty($sub_headings))
-					<span>{!! $sub_headings !!}</span>
-				@endif
+					@if(!empty($sub_headings))
+						<span>{!! $sub_headings !!}</span>
+					@endif
 
-				@if(!empty($receipt_details->invoice_heading))
-					<p  style="font-weight: bold; font-size: 35px !important">{!! $receipt_details->invoice_heading !!}</p>
-				@endif
-			</td>
+					@if(!empty($receipt_details->invoice_heading))
+						<p  style="font-weight: bold; font-size: 35px !important">{!! $receipt_details->invoice_heading !!}</p>
+					@endif
+				</td>
+			@else
+				<td>
+					<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
+				</td>
+			@endif
 		</tr>
 
 		<tr>
@@ -153,7 +159,7 @@
 	</div>
 
 	<div class="col-md-6 invoice-col width-50 ">
-		
+		@if(empty($receipt_details->letter_head))
 		<!-- Logo -->
 		@if(!empty($receipt_details->logo))
 			<img style="max-height: 120px; width: auto;" src="{{$receipt_details->logo}}" class="img center-block">
@@ -189,8 +195,8 @@
 				<br/>{{ $receipt_details->location_custom_fields }}
 			@endif
 		</p>
+		@endif
 		
-
 		<!-- Table information-->
         @if(!empty($receipt_details->table_label) || !empty($receipt_details->table))
         	<p>
@@ -385,6 +391,11 @@
                             {{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
                             @if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif
                             @if(!empty($line['product_custom_fields'])), {{$line['product_custom_fields']}} @endif
+                            @if(!empty($line['product_description']))
+                            	<small>
+                            		{!!$line['product_description']!!}
+                            	</small>
+                            @endif
                             @if(!empty($line['sell_line_note']))
                             	<br>
                              <small class="text-muted">{!!$line['sell_line_note']!!}</small>
@@ -398,7 +409,7 @@
                             @if($receipt_details->show_base_unit_details && $line['quantity'] && $line['base_unit_multiplier'] !== 1)
                             <br><small>
                             	1 {{$line['units']}} = {{$line['base_unit_multiplier']}} {{$line['base_unit_name']}} <br>
-                            	{{$line['unit_price_inc_tax']}} x {{$line['quantity']}} = {{$line['line_total']}}
+                            	{{$line['base_unit_price']}} x {{$line['orig_quantity']}} = {{$line['line_total']}}
                             </small>
                             @endif
                         </td>
@@ -541,6 +552,17 @@
 						</td>
 						<td class="text-right">
 							{{$receipt_details->total_quantity}}
+						</td>
+					</tr>
+				@endif
+
+				@if(!empty($receipt_details->total_items_label))
+					<tr >
+						<td style="width:50%">
+							{!! $receipt_details->total_items_label !!}
+						</td>
+						<td class="text-right">
+							{{$receipt_details->total_items}}
 						</td>
 					</tr>
 				@endif

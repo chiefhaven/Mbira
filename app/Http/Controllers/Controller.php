@@ -21,6 +21,7 @@ class Controller extends BaseController
     public function setStatusCode($statusCode)
     {
         $this->statusCode = $statusCode;
+
         return $this;
     }
 
@@ -52,7 +53,7 @@ class Controller extends BaseController
     public function respondWentWrong($exception = null)
     {
         //If debug is enabled then send exception message
-        $message = (config('app.debug') && is_object($exception)) ? "File:" . $exception->getFile(). "Line:" . $exception->getLine(). "Message:" . $exception->getMessage() : __('messages.something_went_wrong');
+        $message = (config('app.debug') && is_object($exception)) ? 'File:'.$exception->getFile().'Line:'.$exception->getLine().'Message:'.$exception->getMessage() : __('messages.something_went_wrong');
 
         //TODO: show exception error message when error is enabled.
         return $this->setStatusCode(200)
@@ -70,7 +71,7 @@ class Controller extends BaseController
         $message = is_null($message) ? __('lang_v.success') : $message;
         $data = ['success' => true, 'msg' => $message];
 
-        if (!empty($additional_data)) {
+        if (! empty($additional_data)) {
             $data = array_merge($data, $additional_data);
         }
 
@@ -90,16 +91,16 @@ class Controller extends BaseController
 
     /**
      * Returns new mpdf instance
-     *
      */
-    public function getMpdf() {
-        $mpdf = new \Mpdf\Mpdf(['tempDir' => public_path('uploads/temp'), 
-            'mode' => 'utf-8', 
+    public function getMpdf()
+    {
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => public_path('uploads/temp'),
+            'mode' => 'utf-8',
             'autoScriptToLang' => true,
             'autoLangToFont' => true,
             'autoVietnamese' => true,
             'autoArabic' => true,
-            'useSubstitutions' => true
+            'useSubstitutions' => true,
         ]);
 
         if (auth()->check() && in_array(auth()->user()->language, config('constants.langs_rtl'))) {

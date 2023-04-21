@@ -13,7 +13,7 @@
     <div class="row">
         <div class="col-md-12">
             @component('components.filters', ['title' => __('report.filters')])
-              {!! Form::open(['url' => action('ReportController@getStockReport'), 'method' => 'get', 'id' => 'product_sell_report_form' ]) !!}
+              {!! Form::open(['url' => action([\App\Http\Controllers\ReportController::class, 'getStockReport']), 'method' => 'get', 'id' => 'product_sell_report_form' ]) !!}
                 <div class="col-md-3">
                     <div class="form-group">
                     {!! Form::label('search_product', __('lang_v1.search_product') . ':') !!}

@@ -1,5 +1,5 @@
 <div class="modal-dialog modal-lg" role="document">
-    {!! Form::open(['action' => 'DocumentAndNoteController@store', 'id' => 'docus_notes_form', 'method' => 'post']) !!}
+    {!! Form::open(['action' => '\App\Http\Controllers\DocumentAndNoteController@store', 'id' => 'docus_notes_form', 'method' => 'post']) !!}
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">

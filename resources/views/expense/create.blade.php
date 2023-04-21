@@ -10,7 +10,7 @@
 
 <!-- Main content -->
 <section class="content">
-	{!! Form::open(['url' => action('ExpenseController@store'), 'method' => 'post', 'id' => 'add_expense_form', 'files' => true ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\ExpenseController::class, 'store']), 'method' => 'post', 'id' => 'add_expense_form', 'files' => true ]) !!}
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">

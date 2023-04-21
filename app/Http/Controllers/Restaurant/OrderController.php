@@ -2,31 +2,28 @@
 
 namespace App\Http\Controllers\Restaurant;
 
+use App\TransactionSellLine;
+use App\User;
+use App\Utils\RestaurantUtil;
+use App\Utils\Util;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-
-use App\Transaction;
-use App\User;
-use App\TransactionSellLine;
-
-use App\Utils\Util;
-use App\Utils\RestaurantUtil;
 
 class OrderController extends Controller
 {
     /**
      * All Utils instance.
-     *
      */
     protected $commonUtil;
+
     protected $restUtil;
 
     /**
      * Constructor
      *
-     * @param Util $commonUtil
-     * @param RestaurantUtil $restUtil
+     * @param  Util  $commonUtil
+     * @param  RestaurantUtil  $restUtil
      * @return void
      */
     public function __construct(Util $commonUtil, RestaurantUtil $restUtil)
@@ -37,6 +34,7 @@ class OrderController extends Controller
 
     /**
      * Display a listing of the resource.
+     *
      * @return Response
      */
     public function index()
@@ -56,13 +54,13 @@ class OrderController extends Controller
             $orders = $this->restUtil->getAllOrders($business_id, ['waiter_id' => $user_id]);
 
             $line_orders = $this->restUtil->getLineOrders($business_id, ['waiter_id' => $user_id]);
-        } elseif (!empty(request()->service_staff)) {
+        } elseif (! empty(request()->service_staff)) {
             $orders = $this->restUtil->getAllOrders($business_id, ['waiter_id' => request()->service_staff]);
 
             $line_orders = $this->restUtil->getLineOrders($business_id, ['waiter_id' => request()->service_staff]);
         }
 
-        if (!$is_service_staff) {
+        if (! $is_service_staff) {
             $service_staff = $this->restUtil->service_staff_dropdown($business_id);
         }
 
@@ -71,6 +69,7 @@ class OrderController extends Controller
 
     /**
      * Marks an order as served
+     *
      * @return json $output
      */
     public function markAsServed($id)
@@ -86,21 +85,21 @@ class OrderController extends Controller
                         ->where('t.business_id', $business_id)
                         ->where('transaction_id', $id);
 
-            if($this->restUtil->is_service_staff($user_id)){
+            if ($this->restUtil->is_service_staff($user_id)) {
                 $query->where('res_waiter_id', $user_id);
             }
 
             $query->update(['res_line_order_status' => 'served']);
 
             $output = ['success' => 1,
-                            'msg' => trans("restaurant.order_successfully_marked_served")
-                        ];
+                'msg' => trans('restaurant.order_successfully_marked_served'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => trans("messages.something_went_wrong")
-                        ];
+                'msg' => trans('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
@@ -108,6 +107,7 @@ class OrderController extends Controller
 
     /**
      * Marks an line order as served
+     *
      * @return json $output
      */
     public function markLineOrderAsServed($id)
@@ -118,40 +118,40 @@ class OrderController extends Controller
 
             $query = TransactionSellLine::where('id', $id);
 
-            if($this->restUtil->is_service_staff($user_id)){
+            if ($this->restUtil->is_service_staff($user_id)) {
                 $query->where('res_service_staff_id', $user_id);
             }
             $sell_line = $query->first();
 
-            if (!empty($sell_line)) {
+            if (! empty($sell_line)) {
                 $sell_line->res_line_order_status = 'served';
                 $sell_line->save();
                 $output = ['success' => 1,
-                            'msg' => trans("restaurant.order_successfully_marked_served")
-                        ];
+                    'msg' => trans('restaurant.order_successfully_marked_served'),
+                ];
             } else {
                 $output = ['success' => 0,
-                            'msg' => trans("messages.something_went_wrong")
-                        ];
+                    'msg' => trans('messages.something_went_wrong'),
+                ];
             }
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => trans("messages.something_went_wrong")
-                        ];
+                'msg' => trans('messages.something_went_wrong'),
+            ];
         }
 
         return $output;
     }
 
     public function printLineOrder(Request $request)
-    {   
+    {
         try {
             $business_id = request()->session()->get('user.business_id');
             $waiter_id = request()->session()->get('user.id');
             $line_id = $request->input('line_id');
-            if (!empty($request->input('service_staff_id'))) {
+            if (! empty($request->input('service_staff_id'))) {
                 $waiter_id = $request->input('service_staff_id');
             }
 
@@ -160,13 +160,13 @@ class OrderController extends Controller
             $html_content = view('restaurant.partials.print_line_order', compact('order'))->render();
             $output = [
                 'success' => 1,
-                'msg' => trans("lang_v1.success"),
-                'html_content' => $html_content
+                'msg' => trans('lang_v1.success'),
+                'html_content' => $html_content,
             ];
         } catch (Exception $e) {
             $output = [
                 'success' => 0,
-                'msg' => trans("messages.something_went_wrong")
+                'msg' => trans('messages.something_went_wrong'),
             ];
         }
 

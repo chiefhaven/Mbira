@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('WarrantyController@update', [$warranty->id]), 'method' => 'put', 'id' => 'warranty_form']) !!}
+    {!! Form::open(['url' => action([\App\Http\Controllers\WarrantyController::class, 'update'], [$warranty->id]), 'method' => 'put', 'id' => 'warranty_form']) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

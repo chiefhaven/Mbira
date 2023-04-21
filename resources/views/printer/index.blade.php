@@ -19,7 +19,7 @@
     @component('components.widget', ['class' => 'box-primary', 'title' => __('printer.all_your_printer')])
         @slot('tool')
             <div class="box-tools">
-                <a class="btn btn-block btn-primary" href="{{action('PrinterController@create')}}">
+                <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\PrinterController::class, 'create'])}}">
                 <i class="fa fa-plus"></i> @lang('printer.add_printer')</a>
             </div>
         @endslot

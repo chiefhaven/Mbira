@@ -19,7 +19,7 @@
 		</div>
 	</div>
 	<br>
-	{!! Form::open(['url' => action('ProductController@bulkUpdate'), 
+	{!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'bulkUpdate']), 
 			'method' => 'post', 'id' => 'bulk_edit_products_form' ]) !!}
 	<div class="row">
 		<div class="col-md-12">

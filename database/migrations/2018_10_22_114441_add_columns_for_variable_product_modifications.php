@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddColumnsForVariableProductModifications extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,7 +16,7 @@ class AddColumnsForVariableProductModifications extends Migration
         Schema::table('product_variations', function (Blueprint $table) {
             $table->integer('variation_template_id')->nullable()->after('id');
         });
-        
+
         Schema::table('variations', function (Blueprint $table) {
             $table->integer('variation_value_id')->nullable()->after('product_variation_id');
         });
@@ -31,4 +31,4 @@ class AddColumnsForVariableProductModifications extends Migration
     {
         //
     }
-}
+};

@@ -57,8 +57,13 @@
 		<tbody>
 			@foreach($ledger_details['ledger'] as $data)
 				@php
+					if(empty($data['total_due'])) {
+						continue;
+					}
 					if($data['payment_status'] != 'paid' && !empty($data['due_date'])) {
-
+						if (!empty($data['transaction_type']) && $data['transaction_type'] == 'ledger_discount') {
+							$data['total_due'] = -1 * $data['total_due'];
+						}
 						$amount_due += $data['total_due'];
 
 						$days_diff = $data['due_date']->diffInDays();

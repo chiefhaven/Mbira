@@ -33,13 +33,13 @@
 
 		            	<!-- pricing url -->
 			            @if(Route::has('pricing') && config('app.env') != 'demo' && $request->segment(1) != 'pricing')
-		                	<a href="{{ action('\Modules\Superadmin\Http\Controllers\PricingController@index') }}">@lang('superadmin::lang.pricing')</a>
+		                	<a href="{{ action([\Modules\Superadmin\Http\Controllers\PricingController::class, 'index']) }}">@lang('superadmin::lang.pricing')</a>
 		            	@endif
 		            @endif
 		        @endif
 
 		        @if(!($request->segment(1) == 'business' && $request->segment(2) == 'register') && $request->segment(1) != 'login')
-		        	{{ __('business.already_registered')}} <a href="{{ action('Auth\LoginController@login') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif">{{ __('business.sign_in') }}</a>
+		        	{{ __('business.already_registered')}} <a href="{{ action([\App\Http\Controllers\Auth\LoginController::class, 'login']) }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif">{{ __('business.sign_in') }}</a>
 		        @endif
 	        </div>
 		</div>

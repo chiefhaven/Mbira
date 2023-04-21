@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDocumentAndNotesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,7 +16,7 @@ class CreateDocumentAndNotesTable extends Migration
         Schema::create('document_and_notes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('business_id')->index();
-            
+
             $table->integer('notable_id')->index();
             $table->string('notable_type');
 
@@ -38,4 +38,4 @@ class CreateDocumentAndNotesTable extends Migration
     {
         Schema::dropIfExists('document_and_notes');
     }
-}
+};

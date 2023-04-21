@@ -17,7 +17,7 @@
                 <div class="alert alert-danger">
                     <ul>
                         @if(!empty($not_linked_payments))
-                            <li>{!! __('account.payments_not_linked_with_account', ['payments' => $not_linked_payments]) !!} <a href="{{action('AccountReportsController@paymentAccountReport')}}">@lang('account.view_details')</a></li>
+                            <li>{!! __('account.payments_not_linked_with_account', ['payments' => $not_linked_payments]) !!} <a href="{{action([\App\Http\Controllers\AccountReportsController::class, 'paymentAccountReport'])}}">@lang('account.view_details')</a></li>
                         @endif
                     </ul>
                 </div>
@@ -60,7 +60,7 @@
                                     <div class="col-md-8">
                                         <button type="button" class="btn btn-primary btn-modal pull-right" 
                                             data-container=".account_model"
-                                            data-href="{{action('AccountController@create')}}">
+                                            data-href="{{action([\App\Http\Controllers\AccountController::class, 'create'])}}">
                                             <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
                                     </div>
                                 @endcomponent
@@ -113,7 +113,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <button type="button" class="btn btn-primary btn-modal pull-right" 
-                                    data-href="{{action('AccountTypeController@create')}}"
+                                    data-href="{{action([\App\Http\Controllers\AccountTypeController::class, 'create'])}}"
                                     data-container="#account_type_modal">
                                     <i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
                             </div>
@@ -134,9 +134,9 @@
                                                 <th>{{$account_type->name}}</th>
                                                 <td>
                                                     
-                                                    {!! Form::open(['url' => action('AccountTypeController@destroy', $account_type->id), 'method' => 'delete' ]) !!}
+                                                    {!! Form::open(['url' => action([\App\Http\Controllers\AccountTypeController::class, 'destroy'], $account_type->id), 'method' => 'delete' ]) !!}
                                                     <button type="button" class="btn btn-primary btn-modal btn-xs" 
-                                                    data-href="{{action('AccountTypeController@edit', $account_type->id)}}"
+                                                    data-href="{{action([\App\Http\Controllers\AccountTypeController::class, 'edit'], $account_type->id)}}"
                                                     data-container="#account_type_modal">
                                                     <i class="fa fa-edit"></i> @lang( 'messages.edit' )</button>
 
@@ -151,9 +151,9 @@
                                                     <td>
                                                         
 
-                                                        {!! Form::open(['url' => action('AccountTypeController@destroy', $sub_type->id), 'method' => 'delete' ]) !!}
+                                                        {!! Form::open(['url' => action([\App\Http\Controllers\AccountTypeController::class, 'destroy'], $sub_type->id), 'method' => 'delete' ]) !!}
                                                             <button type="button" class="btn btn-primary btn-modal btn-xs" 
-                                                        data-href="{{action('AccountTypeController@edit', $sub_type->id)}}"
+                                                        data-href="{{action([\App\Http\Controllers\AccountTypeController::class, 'edit'], $sub_type->id)}}"
                                                         data-container="#account_type_modal">
                                                         <i class="fa fa-edit"></i> @lang( 'messages.edit' )</button>
                                                             <button type="button" class="btn btn-danger btn-xs delete_account_type" >

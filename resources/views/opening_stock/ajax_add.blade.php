@@ -1,6 +1,6 @@
 <div class="modal-dialog modal-xl" role="document">
 	<div class="modal-content">
-	{!! Form::open(['url' => action('OpeningStockController@save'), 'method' => 'post', 'id' => 'add_opening_stock_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\OpeningStockController::class, 'save']), 'method' => 'post', 'id' => 'add_opening_stock_form' ]) !!}
 	{!! Form::hidden('product_id', $product->id); !!}
 		<div class="modal-header">
 		    <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

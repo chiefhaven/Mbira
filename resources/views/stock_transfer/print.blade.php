@@ -74,7 +74,6 @@
           <th>#</th>
           <th>@lang('sale.product')</th>
           <th>@lang('sale.qty')</th>
-          <th>@lang('sale.unit_price')</th>
           <th>@lang('sale.subtotal')</th>
         </tr>
         @php 
@@ -89,6 +88,7 @@
                 - {{ $sell_lines->variations->product_variation->name}}
                 - {{ $sell_lines->variations->name}}
                @endif
+               - {{ $sell_lines->variations->sub_sku}}
                @if($lot_n_exp_enabled && !empty($sell_lines->lot_details))
                 <br>
                 <strong>@lang('lang_v1.lot_n_expiry'):</strong> 
@@ -101,9 +101,6 @@
                @endif
             </td>
             <td>{{ @format_quantity($sell_lines->quantity) }} {{$sell_lines->product->unit->short_name ?? ""}}</td>
-            <td>
-              <span class="display_currency" data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax}}</span>
-            </td>
             <td>
               <span class="display_currency" data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax * $sell_lines->quantity }}</span>
             </td>

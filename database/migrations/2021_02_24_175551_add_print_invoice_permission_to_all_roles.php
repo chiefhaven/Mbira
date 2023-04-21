@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
-class AddPrintInvoicePermissionToAllRoles extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,16 +16,16 @@ class AddPrintInvoicePermissionToAllRoles extends Migration
         //check if permission exists
         $permission_exists = Permission::where('name', 'print_invoice')
                                     ->exists();
-                                    
-        if (!$permission_exists) {
-           Permission::create([
+
+        if (! $permission_exists) {
+            Permission::create([
                 'name' => 'print_invoice',
-                'guard_name' => 'web'
+                'guard_name' => 'web',
             ]);
         }
         $roles = Role::all();
 
-        foreach($roles as $role) {
+        foreach ($roles as $role) {
             $role->givePermissionTo('print_invoice');
         }
     }
@@ -37,6 +37,5 @@ class AddPrintInvoicePermissionToAllRoles extends Migration
      */
     public function down()
     {
-
     }
-}
+};

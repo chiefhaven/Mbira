@@ -74,7 +74,7 @@
 @section('javascript')
   <script type="text/javascript">
     $(document).ready(function(){
-      $('select#MAIL_DRIVER').change(function(){
+      $('select#MAIL_MAILER').change(function(){
         var driver = $(this).val();
 
         if(driver == 'smtp'){

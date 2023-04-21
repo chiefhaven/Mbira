@@ -1,25 +1,22 @@
 <?php
+
 namespace App\Utils;
 
-use Illuminate\Support\Facades\DB;
-
-use Spatie\Permission\Models\Role;
-
-use App\Transaction;
-use App\BusinessLocation;
-use App\User;
-use App\TransactionSellLine;
 use App\Restaurant\Booking;
+use App\Transaction;
+use App\TransactionSellLine;
+use App\User;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class RestaurantUtil extends Util
 {
     /**
      * Retrieves all orders/sales
      *
-     * @param int $business_id
-     * @param array $filter
+     * @param  int  $business_id
+     * @param  array  $filter
      * *For new orders order_status is 'received'
-     *
      * @return obj $orders
      */
     public function getAllOrders($business_id, $filter = [])
@@ -50,32 +47,32 @@ class RestaurantUtil extends Util
         }
 
         //For new orders order_status is 'received'
-        if (!empty($filter['order_status']) && $filter['order_status'] == 'received') {
+        if (! empty($filter['order_status']) && $filter['order_status'] == 'received') {
             $query->whereNull('res_order_status');
         }
 
-        if ( !empty($filter['line_order_status'])) {
+        if (! empty($filter['line_order_status'])) {
             if ($filter['line_order_status'] == 'received') {
-                $query->whereHas('sell_lines', function($q) {
+                $query->whereHas('sell_lines', function ($q) {
                     $q->whereNull('res_line_order_status')
                       ->orWhere('res_line_order_status', 'received');
                 }, '>=', 1);
             }
 
             if ($filter['line_order_status'] == 'cooked') {
-                $query->whereHas('sell_lines', function($q) {
+                $query->whereHas('sell_lines', function ($q) {
                     $q->where('res_line_order_status', '!=', 'cooked');
                 }, '=', 0);
             }
 
             if ($filter['line_order_status'] == 'served') {
-                $query->whereHas('sell_lines', function($q) {
+                $query->whereHas('sell_lines', function ($q) {
                     $q->where('res_line_order_status', '!=', 'served');
                 }, '=', 0);
             }
         }
 
-        if (!empty($filter['waiter_id'])) {
+        if (! empty($filter['waiter_id'])) {
             $query->where('transactions.res_waiter_id', $filter['waiter_id']);
         }
 
@@ -83,8 +80,8 @@ class RestaurantUtil extends Util
         if ($permitted_locations != 'all') {
             $query->whereIn('transactions.location_id', $permitted_locations);
         }
-                
-        $orders =  $query->select(
+
+        $orders = $query->select(
             'transactions.*',
             'contacts.name as customer_name',
             'bl.name as business_location',
@@ -108,7 +105,7 @@ class RestaurantUtil extends Util
         $service_staff = [];
 
         //Get all users of service staff roles
-        if (!empty($service_staff_roles)) {
+        if (! empty($service_staff_roles)) {
             $service_staff = User::where('business_id', $business_id)->role($service_staff_roles)->get()->pluck('first_name', 'id');
         }
 
@@ -129,10 +126,9 @@ class RestaurantUtil extends Util
     /**
      * Retrieves line orders/sales
      *
-     * @param int $business_id
-     * @param array $filter
+     * @param  int  $business_id
+     * @param  array  $filter
      * *For new orders order_status is 'received'
-     *
      * @return obj $orders
      */
     public function getLineOrders($business_id, $filter = [])
@@ -168,11 +164,11 @@ class RestaurantUtil extends Util
             });
         }
 
-        if (!empty($filter['waiter_id'])) {
+        if (! empty($filter['waiter_id'])) {
             $query->where('transaction_sell_lines.res_service_staff_id', $filter['waiter_id']);
         }
-        
-        if (!empty($filter['line_id'])) {
+
+        if (! empty($filter['line_id'])) {
             $query->where('transaction_sell_lines.id', $filter['line_id']);
         }
 
@@ -180,8 +176,8 @@ class RestaurantUtil extends Util
         if ($permitted_locations != 'all') {
             $query->whereIn('t.location_id', $permitted_locations);
         }
-        
-        $orders =  $query->select(
+
+        $orders = $query->select(
             'p.name as product_name',
             'p.type as product_type',
             'v.name as variation_name',
@@ -208,8 +204,7 @@ class RestaurantUtil extends Util
     /**
      * Function to show booking events on a calendar
      *
-     * @param array $filters
-     *
+     * @param  array  $filters
      * @return array
      */
     public function getBookingsForCalendar($filters)
@@ -220,17 +215,17 @@ class RestaurantUtil extends Util
                         ->whereBetween(DB::raw('date(booking_start)'), [$filters['start_date'], $filters['end_date']])
                         ->with(['customer', 'table']);
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('created_by', $filters['user_id']);
 
-            $query->where( function($q) use ($filters){
+            $query->where(function ($q) use ($filters) {
                 $q->where('created_by', $filters['user_id'])
                     ->orWhere('correspondent_id', $filters['user_id'])
                     ->orWhere('waiter_id', $filters['user_id']);
             });
         }
 
-        if (!empty($filters['location_id'])) {
+        if (! empty($filters['location_id'])) {
             $query->where('bookings.location_id', $filters['location_id']);
         }
         $bookings = $query->get();
@@ -245,7 +240,7 @@ class RestaurantUtil extends Util
             }
 
             $customer_name = $booking->customer->name;
-            $table_name = optional($booking->table)->name;
+            $table_name = $booking->table?->name;
 
             $backgroundColor = '#3c8dbc';
             $borderColor = '#3c8dbc';
@@ -259,30 +254,30 @@ class RestaurantUtil extends Util
                 $backgroundColor = '#FFAD46';
                 $borderColor = '#FFAD46';
             }
-            if (!empty($filters['color'])) {
+            if (! empty($filters['color'])) {
                 $backgroundColor = $filters['color'];
                 $borderColor = $filters['color'];
             }
             $title = $customer_name;
-            if (!empty($table_name)) {
-                $title .= ' - ' . $table_name;
+            if (! empty($table_name)) {
+                $title .= ' - '.$table_name;
             }
             $events[] = [
-                    'title' => $title,
-                    'title_html' => $customer_name . '<br>' . $table_name,
-                    'start' => $booking->booking_start,
-                    'end' => $booking->booking_end,
-                    'customer_name' => $customer_name,
-                    'table' => $table_name,
-                    'url' => action('Restaurant\BookingController@show', [ $booking->id ]),
-                    'event_url' => action('Restaurant\BookingController@index'),
-                    // 'start_time' => $start_time,
-                    // 'end_time' =>  $end_time,
-                    'backgroundColor' => $backgroundColor,
-                    'borderColor'     => $borderColor,
-                    'allDay'          => false,
-                    'event_type' => 'bookings'
-                ];
+                'title' => $title,
+                'title_html' => $customer_name.'<br>'.$table_name,
+                'start' => $booking->booking_start,
+                'end' => $booking->booking_end,
+                'customer_name' => $customer_name,
+                'table' => $table_name,
+                'url' => action([\App\Http\Controllers\Restaurant\BookingController::class, 'show'], [$booking->id]),
+                'event_url' => action([\App\Http\Controllers\Restaurant\BookingController::class, 'index']),
+                // 'start_time' => $start_time,
+                // 'end_time' =>  $end_time,
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'allDay' => false,
+                'event_type' => 'bookings',
+            ];
         }
 
         return $events;

@@ -8,15 +8,6 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
-    protected $commands = [
-        //
-    ];
-
-    /**
      * Define the application's command schedule.
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
@@ -38,7 +29,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('pos:autoSendPaymentReminder')->dailyAt('8:00');
         }
 
-        if ($env === 'demo' && !empty($email)) {
+        if ($env === 'demo' && ! empty($email)) {
             //IMPORTANT NOTE: This command will delete all business details and create dummy business, run only in demo server.
             $schedule->command('pos:dummyBusiness')
                     ->cron('0 */3 * * *')

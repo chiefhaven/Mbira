@@ -3,36 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-
 use App\AccountTransaction;
 use App\BusinessLocation;
+use App\Contact;
 use App\ExpenseCategory;
 use App\TaxRate;
 use App\Transaction;
 use App\User;
+use App\Utils\CashRegisterUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\TransactionUtil;
 use DB;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
-use App\Contact;
-use App\Utils\CashRegisterUtil;
+use Yajra\DataTables\Facades\DataTables;
 
 class ExpenseController extends Controller
 {
     /**
-    * Constructor
-    *
-    * @param TransactionUtil $transactionUtil
-    * @return void
-    */
+     * Constructor
+     *
+     * @param  TransactionUtil  $transactionUtil
+     * @return void
+     */
     public function __construct(TransactionUtil $transactionUtil, ModuleUtil $moduleUtil, CashRegisterUtil $cashRegisterUtil)
     {
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
         $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-        'is_return' => 0, 'transaction_no' => ''];
+            'is_return' => 0, 'transaction_no' => '', ];
         $this->cashRegisterUtil = $cashRegisterUtil;
     }
 
@@ -43,7 +42,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('all_expense.access') && !auth()->user()->can('view_own_expense')) {
+        if (! auth()->user()->can('all_expense.access') && ! auth()->user()->can('view_own_expense')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -100,14 +99,14 @@ class ExpenseController extends Controller
             //Add condition for expense for,used in sales representative expense report & list of expense
             if (request()->has('expense_for')) {
                 $expense_for = request()->get('expense_for');
-                if (!empty($expense_for)) {
+                if (! empty($expense_for)) {
                     $expenses->where('transactions.expense_for', $expense_for);
                 }
             }
 
             if (request()->has('contact_id')) {
                 $contact_id = request()->get('contact_id');
-                if (!empty($contact_id)) {
+                if (! empty($contact_id)) {
                     $expenses->where('transactions.contact_id', $contact_id);
                 }
             }
@@ -115,7 +114,7 @@ class ExpenseController extends Controller
             //Add condition for location,used in sales representative expense report & list of expense
             if (request()->has('location_id')) {
                 $location_id = request()->get('location_id');
-                if (!empty($location_id)) {
+                if (! empty($location_id)) {
                     $expenses->where('transactions.location_id', $location_id);
                 }
             }
@@ -123,7 +122,7 @@ class ExpenseController extends Controller
             //Add condition for expense category, used in list of expense,
             if (request()->has('expense_category_id')) {
                 $expense_category_id = request()->get('expense_category_id');
-                if (!empty($expense_category_id)) {
+                if (! empty($expense_category_id)) {
                     $expenses->where('transactions.expense_category_id', $expense_category_id);
                 }
             }
@@ -131,15 +130,15 @@ class ExpenseController extends Controller
             //Add condition for expense sub category, used in list of expense,
             if (request()->has('expense_sub_category_id')) {
                 $expense_sub_category_id = request()->get('expense_sub_category_id');
-                if (!empty($expense_sub_category_id)) {
+                if (! empty($expense_sub_category_id)) {
                     $expenses->where('transactions.expense_sub_category_id', $expense_sub_category_id);
                 }
             }
 
             //Add condition for start and end date filter, uses in sales representative expense report & list of expense
-            if (!empty(request()->start_date) && !empty(request()->end_date)) {
+            if (! empty(request()->start_date) && ! empty(request()->end_date)) {
                 $start = request()->start_date;
-                $end =  request()->end_date;
+                $end = request()->end_date;
                 $expenses->whereDate('transaction_date', '>=', $start)
                         ->whereDate('transaction_date', '<=', $end);
             }
@@ -152,20 +151,20 @@ class ExpenseController extends Controller
             //Add condition for payment status for the list of expense
             if (request()->has('payment_status')) {
                 $payment_status = request()->get('payment_status');
-                if (!empty($payment_status)) {
+                if (! empty($payment_status)) {
                     $expenses->where('transactions.payment_status', $payment_status);
                 }
             }
 
             $is_admin = $this->moduleUtil->is_admin(auth()->user(), $business_id);
-            if (!$is_admin && !auth()->user()->can('all_expense.access')) {
+            if (! $is_admin && ! auth()->user()->can('all_expense.access')) {
                 $user_id = auth()->user()->id;
                 $expenses->where(function ($query) use ($user_id) {
-                        $query->where('transactions.created_by', $user_id)
+                    $query->where('transactions.created_by', $user_id)
                         ->orWhere('transactions.expense_for', $user_id);
-                    });
+                });
             }
-            
+
             return Datatables::of($expenses)
                 ->addColumn(
                     'action',
@@ -176,7 +175,7 @@ class ExpenseController extends Controller
                         </button>
                     <ul class="dropdown-menu dropdown-menu-left" role="menu">
                     @if(auth()->user()->can("expense.edit"))
-                        <li><a href="{{action(\'ExpenseController@edit\', [$id])}}"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
+                        <li><a href="{{action(\'App\Http\Controllers\ExpenseController@edit\', [$id])}}"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
                     @endif
                     @if($document)
                         <li><a href="{{ url(\'uploads/documents/\' . $document)}}" 
@@ -187,13 +186,13 @@ class ExpenseController extends Controller
                     @endif
                     @if(auth()->user()->can("expense.delete"))
                         <li>
-                        <a href="#" data-href="{{action(\'ExpenseController@destroy\', [$id])}}" class="delete_expense"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</a></li>
+                        <a href="#" data-href="{{action(\'App\Http\Controllers\ExpenseController@destroy\', [$id])}}" class="delete_expense"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</a></li>
                     @endif
                     <li class="divider"></li> 
                     @if($payment_status != "paid")
-                        <li><a href="{{action("TransactionPaymentController@addPayment", [$id])}}" class="add_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true"></i> @lang("purchase.add_payment")</a></li>
+                        <li><a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="add_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true"></i> @lang("purchase.add_payment")</a></li>
                     @endif
-                    <li><a href="{{action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true" ></i> @lang("purchase.view_payments")</a></li>
+                    <li><a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'show\'], [$id])}}" class="view_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true" ></i> @lang("purchase.view_payments")</a></li>
                     </ul></div>'
                 )
                 ->removeColumn('id')
@@ -204,7 +203,7 @@ class ExpenseController extends Controller
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->editColumn(
                     'payment_status',
-                    '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}
+                    '<a href="{{ action([\App\Http\Controllers\TransactionPaymentController::class, \'show\'], [$id])}}" class="view_payment_modal payment-status" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}
                         </span></a>'
                 )
                 ->addColumn('payment_due', function ($row) {
@@ -213,40 +212,42 @@ class ExpenseController extends Controller
                     if ($row->type == 'expense_refund') {
                         $due = -1 * $due;
                     }
-                    return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="' . $due . '">' . $this->transactionUtil->num_f($due, true) . '</span>';
+
+                    return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="'.$due.'">'.$this->transactionUtil->num_f($due, true).'</span>';
                 })
-                ->addColumn('recur_details', function($row){
+                ->addColumn('recur_details', function ($row) {
                     $details = '<small>';
                     if ($row->is_recurring == 1) {
-                        $type = $row->recur_interval == 1 ? Str::singular(__('lang_v1.' . $row->recur_interval_type)) : __('lang_v1.' . $row->recur_interval_type);
-                        $recur_interval = $row->recur_interval . $type;
-                        
-                        $details .= __('lang_v1.recur_interval') . ': ' . $recur_interval; 
-                        if (!empty($row->recur_repetitions)) {
-                            $details .= ', ' .__('lang_v1.no_of_repetitions') . ': ' . $row->recur_repetitions; 
+                        $type = $row->recur_interval == 1 ? Str::singular(__('lang_v1.'.$row->recur_interval_type)) : __('lang_v1.'.$row->recur_interval_type);
+                        $recur_interval = $row->recur_interval.$type;
+
+                        $details .= __('lang_v1.recur_interval').': '.$recur_interval;
+                        if (! empty($row->recur_repetitions)) {
+                            $details .= ', '.__('lang_v1.no_of_repetitions').': '.$row->recur_repetitions;
                         }
-                        if ($row->recur_interval_type == 'months' && !empty($row->subscription_repeat_on)) {
-                            $details .= '<br><small class="text-muted">' . 
-                            __('lang_v1.repeat_on') . ': ' . str_ordinal($row->subscription_repeat_on) ;
+                        if ($row->recur_interval_type == 'months' && ! empty($row->subscription_repeat_on)) {
+                            $details .= '<br><small class="text-muted">'.
+                            __('lang_v1.repeat_on').': '.str_ordinal($row->subscription_repeat_on);
                         }
-                    } elseif (!empty($row->recur_parent_id)) {
-                        $details .= __('lang_v1.recurred_from') . ': ' . $row->recurring_parent->ref_no;
+                    } elseif (! empty($row->recur_parent_id)) {
+                        $details .= __('lang_v1.recurred_from').': '.$row->recurring_parent->ref_no;
                     }
                     $details .= '</small>';
+
                     return $details;
                 })
-                ->editColumn('ref_no', function($row){
+                ->editColumn('ref_no', function ($row) {
                     $ref_no = $row->ref_no;
-                    if (!empty($row->is_recurring)) {
-                        $ref_no .= ' &nbsp;<small class="label bg-red label-round no-print" title="' . __('lang_v1.recurring_expense') .'"><i class="fas fa-recycle"></i></small>';
+                    if (! empty($row->is_recurring)) {
+                        $ref_no .= ' &nbsp;<small class="label bg-red label-round no-print" title="'.__('lang_v1.recurring_expense').'"><i class="fas fa-recycle"></i></small>';
                     }
 
-                    if (!empty($row->recur_parent_id)) {
-                        $ref_no .= ' &nbsp;<small class="label bg-info label-round no-print" title="' . __('lang_v1.generated_recurring_expense') .'"><i class="fas fa-recycle"></i></small>';
+                    if (! empty($row->recur_parent_id)) {
+                        $ref_no .= ' &nbsp;<small class="label bg-info label-round no-print" title="'.__('lang_v1.generated_recurring_expense').'"><i class="fas fa-recycle"></i></small>';
                     }
 
                     if ($row->type == 'expense_refund') {
-                        $ref_no .= ' &nbsp;<small class="label bg-gray">' . __('lang_v1.refund') . '</small>';
+                        $ref_no .= ' &nbsp;<small class="label bg-gray">'.__('lang_v1.refund').'</small>';
                     }
 
                     return $ref_no;
@@ -283,15 +284,15 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('expense.add')) {
+        if (! auth()->user()->can('expense.add')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
-        
+
         //Check if subscribed or not
-        if (!$this->moduleUtil->isSubscribed($business_id)) {
-            return $this->moduleUtil->expiredResponse(action('ExpenseController@index'));
+        if (! $this->moduleUtil->isSubscribed($business_id)) {
+            return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
         }
 
         $business_locations = BusinessLocation::forDropdown($business_id, false, true);
@@ -305,7 +306,7 @@ class ExpenseController extends Controller
         $users = User::forDropdown($business_id, true, true);
 
         $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
-        
+
         $payment_line = $this->dummyPaymentLine;
 
         $payment_types = $this->transactionUtil->payment_types(null, false, $business_id);
@@ -335,7 +336,7 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('expense.add')) {
+        if (! auth()->user()->can('expense.add')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -343,23 +344,23 @@ class ExpenseController extends Controller
             $business_id = $request->session()->get('user.business_id');
 
             //Check if subscribed or not
-            if (!$this->moduleUtil->isSubscribed($business_id)) {
-                return $this->moduleUtil->expiredResponse(action('ExpenseController@index'));
+            if (! $this->moduleUtil->isSubscribed($business_id)) {
+                return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
             }
 
             //Validate document size
             $request->validate([
-                'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
+                'document' => 'file|max:'.(config('constants.document_size_limit') / 1000),
             ]);
 
             $user_id = $request->session()->get('user.id');
 
             DB::beginTransaction();
-            
+
             $expense = $this->transactionUtil->createExpense($request, $business_id, $user_id);
 
             if (request()->ajax()) {
-                $payments = !empty($request->input('payment')) ? $request->input('payment') : [];
+                $payments = ! empty($request->input('payment')) ? $request->input('payment') : [];
                 $this->cashRegisterUtil->addSellPayments($expense, $payments);
             }
 
@@ -368,16 +369,16 @@ class ExpenseController extends Controller
             DB::commit();
 
             $output = ['success' => 1,
-                            'msg' => __('expense.expense_add_success')
-                        ];
+                'msg' => __('expense.expense_add_success'),
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         if (request()->ajax()) {
@@ -406,15 +407,15 @@ class ExpenseController extends Controller
      */
     public function edit($id)
     {
-        if (!auth()->user()->can('expense.edit')) {
+        if (! auth()->user()->can('expense.edit')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
 
         //Check if subscribed or not
-        if (!$this->moduleUtil->isSubscribed($business_id)) {
-            return $this->moduleUtil->expiredResponse(action('ExpenseController@index'));
+        if (! $this->moduleUtil->isSubscribed($business_id)) {
+            return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
         }
 
         $business_locations = BusinessLocation::forDropdown($business_id);
@@ -435,13 +436,13 @@ class ExpenseController extends Controller
         //Sub-category
         $sub_categories = [];
 
-        if (!empty($expense->expense_category_id)) {
+        if (! empty($expense->expense_category_id)) {
             $sub_categories = ExpenseCategory::where('business_id', $business_id)
                         ->where('parent_id', $expense->expense_category_id)
                         ->pluck('name', 'id')
                         ->toArray();
         }
-        
+
         return view('expense.edit')
             ->with(compact('expense', 'expense_categories', 'business_locations', 'users', 'taxes', 'contacts', 'sub_categories'));
     }
@@ -455,21 +456,21 @@ class ExpenseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('expense.edit')) {
+        if (! auth()->user()->can('expense.edit')) {
             abort(403, 'Unauthorized action.');
         }
 
         try {
             //Validate document size
             $request->validate([
-                'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
+                'document' => 'file|max:'.(config('constants.document_size_limit') / 1000),
             ]);
-            
+
             $business_id = $request->session()->get('user.business_id');
-            
+
             //Check if subscribed or not
-            if (!$this->moduleUtil->isSubscribed($business_id)) {
-                return $this->moduleUtil->expiredResponse(action('ExpenseController@index'));
+            if (! $this->moduleUtil->isSubscribed($business_id)) {
+                return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\ExpenseController::class, 'index']));
             }
 
             $expense = $this->transactionUtil->updateExpense($request, $id, $business_id);
@@ -477,14 +478,14 @@ class ExpenseController extends Controller
             $this->transactionUtil->activityLog($expense, 'edited');
 
             $output = ['success' => 1,
-                            'msg' => __('expense.expense_update_success')
-                        ];
+                'msg' => __('expense.expense_update_success'),
+            ];
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
             $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
+                'msg' => __('messages.something_went_wrong'),
+            ];
         }
 
         return redirect('expenses')->with('status', $output);
@@ -498,7 +499,7 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('expense.delete')) {
+        if (! auth()->user()->can('expense.delete')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -507,26 +508,32 @@ class ExpenseController extends Controller
                 $business_id = request()->session()->get('user.business_id');
 
                 $expense = Transaction::where('business_id', $business_id)
-                                        ->where(function($q) {
+                                        ->where(function ($q) {
                                             $q->where('type', 'expense')
                                                 ->orWhere('type', 'expense_refund');
                                         })
                                         ->where('id', $id)
                                         ->first();
+
+                //Delete Cash register transactions
+                $expense->cash_register_payments()->delete();
+
                 $expense->delete();
 
                 //Delete account transactions
                 AccountTransaction::where('transaction_id', $expense->id)->delete();
 
+                
+
                 $output = ['success' => true,
-                            'msg' => __("expense.expense_delete_success")
-                            ];
+                    'msg' => __('expense.expense_delete_success'),
+                ];
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                 $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+                    'msg' => __('messages.something_went_wrong'),
+                ];
             }
 
             return $output;

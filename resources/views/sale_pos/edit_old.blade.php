@@ -38,12 +38,12 @@
 					<span class="text-success">#{{$transaction->invoice_no}}</span> <i class="fa fa-keyboard-o hover-q text-muted" aria-hidden="true" data-container="body" data-toggle="popover" data-placement="bottom" data-content="@include('sale_pos.partials.keyboard_shortcuts_details')" data-html="true" data-trigger="hover" data-original-title="" title=""></i></h3>
 					<p><strong>@lang('sale.location'):</strong> {{$transaction->location->name}}</p>
 					<div class="pull-right box-tools">
-                <a class="btn btn-success btn-sm" href="{{action('SellPosController@create')}}">
+                <a class="btn btn-success btn-sm" href="{{action([\App\Http\Controllers\SellPosController::class, 'create'])}}">
                   <strong><i class="fa fa-plus"></i> POS</strong></a>
               </div>
 				</div>
 				<input type="hidden" id="item_addition_method" value="{{$business_details->item_addition_method}}">
-				{!! Form::open(['url' => action('SellPosController@update', [$transaction->id]), 'method' => 'post', 'id' => 'edit_pos_sell_form' ]) !!}
+				{!! Form::open(['url' => action([\App\Http\Controllers\SellPosController::class, 'update'], [$transaction->id]), 'method' => 'post', 'id' => 'edit_pos_sell_form' ]) !!}
 
 				{{ method_field('PUT') }}
 
@@ -168,7 +168,7 @@
 									</div>
 									{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'), 'autofocus']); !!}
 									<span class="input-group-btn">
-										<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action('ProductController@quickAdd')}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+										<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
 									</span>
 								</div>
 							</div>

@@ -11,7 +11,7 @@
 
 <!-- Main content -->
 <section class="content">
-{!! Form::open(['url' => action('ManageUserController@store'), 'method' => 'post', 'id' => 'user_add_form' ]) !!}
+{!! Form::open(['url' => action([\App\Http\Controllers\ManageUserController::class, 'store']), 'method' => 'post', 'id' => 'user_add_form' ]) !!}
   <div class="row">
     <div class="col-md-12">
   @component('components.widget')

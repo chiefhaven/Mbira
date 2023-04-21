@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Install;
 
-use \Module;
 use App\Http\Controllers\Controller;
 use App\Utils\ModuleUtil;
 use Illuminate\Http\Request;
+use Module;
 use ZipArchive;
 
 class ModulesController extends Controller
@@ -15,7 +15,7 @@ class ModulesController extends Controller
     /**
      * Constructor
      *
-     * @param ModuleUtil $moduleUtil
+     * @param  ModuleUtil  $moduleUtil
      * @return void
      */
     public function __construct(ModuleUtil $moduleUtil)
@@ -30,8 +30,13 @@ class ModulesController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('manage_modules')) {
+        if (! auth()->user()->can('manage_modules')) {
             abort(403, 'Unauthorized action.');
+        }
+
+        $notAllowed = $this->moduleUtil->notAllowedInDemo();
+        if (! empty($notAllowed)) {
+            return $notAllowed;
         }
 
         //Get list of all modules.
@@ -47,23 +52,23 @@ class ModulesController extends Controller
 
             //Install Link.
             try {
-                $modules[$module]['install_link'] = action('\Modules\\' . $details['name'] . '\Http\Controllers\InstallController@index');
+                $modules[$module]['install_link'] = action('\Modules\\'.$details['name'].'\Http\Controllers\InstallController@index');
             } catch (\Exception $e) {
-                $modules[$module]['install_link'] = "#";
+                $modules[$module]['install_link'] = '#';
             }
 
             //Update Link.
             try {
-                $modules[$module]['update_link'] = action('\Modules\\' . $details['name'] . '\Http\Controllers\InstallController@update');
+                $modules[$module]['update_link'] = action('\Modules\\'.$details['name'].'\Http\Controllers\InstallController@update');
             } catch (\Exception $e) {
-                $modules[$module]['update_link'] = "#";
+                $modules[$module]['update_link'] = '#';
             }
 
             //Uninstall Link.
             try {
-                $modules[$module]['uninstall_link'] = action('\Modules\\' . $details['name'] . '\Http\Controllers\InstallController@uninstall');
+                $modules[$module]['uninstall_link'] = action('\Modules\\'.$details['name'].'\Http\Controllers\InstallController@uninstall');
             } catch (\Exception $e) {
-                $modules[$module]['uninstall_link'] = "#";
+                $modules[$module]['uninstall_link'] = '#';
             }
         }
 
@@ -72,7 +77,6 @@ class ModulesController extends Controller
 
         return view('install.modules.index')
             ->with(compact('modules', 'is_demo', 'mods'));
-
 
         //Option to uninstall
 
@@ -133,12 +137,12 @@ class ModulesController extends Controller
      */
     public function update(Request $request, $module_name)
     {
-        if (!auth()->user()->can('manage_modules')) {
+        if (! auth()->user()->can('manage_modules')) {
             abort(403, 'Unauthorized action.');
         }
-        
+
         $notAllowed = $this->moduleUtil->notAllowedInDemo();
-        if (!empty($notAllowed)) {
+        if (! empty($notAllowed)) {
             return $notAllowed;
         }
 
@@ -153,12 +157,12 @@ class ModulesController extends Controller
             }
 
             $output = ['success' => true,
-                            'msg' => __("lang_v1.success")
-                        ];
+                'msg' => __('lang_v1.success'),
+            ];
         } catch (\Exception $e) {
             $output = ['success' => false,
-                        'msg' => $e->getMessage()
-                    ];
+                'msg' => $e->getMessage(),
+            ];
         }
 
         return redirect()->back()->with(['status' => $output]);
@@ -172,12 +176,12 @@ class ModulesController extends Controller
      */
     public function destroy($module_name)
     {
-        if (!auth()->user()->can('manage_modules')) {
+        if (! auth()->user()->can('manage_modules')) {
             abort(403, 'Unauthorized action.');
         }
 
         $notAllowed = $this->moduleUtil->notAllowedInDemo();
-        if (!empty($notAllowed)) {
+        if (! empty($notAllowed)) {
             return $notAllowed;
         }
 
@@ -186,12 +190,12 @@ class ModulesController extends Controller
             $module->delete();
 
             $output = ['success' => true,
-                            'msg' => __("lang_v1.success")
-                        ];
+                'msg' => __('lang_v1.success'),
+            ];
         } catch (\Exception $e) {
             $output = ['success' => false,
-                        'msg' => $e->getMessage()
-                    ];
+                'msg' => $e->getMessage(),
+            ];
         }
 
         return redirect()->back()->with(['status' => $output]);
@@ -199,12 +203,11 @@ class ModulesController extends Controller
 
     /**
      * Upload the module.
-     *
      */
     public function uploadModule(Request $request)
     {
         $notAllowed = $this->moduleUtil->notAllowedInDemo();
-        if (!empty($notAllowed)) {
+        if (! empty($notAllowed)) {
             return $notAllowed;
         }
 
@@ -213,12 +216,12 @@ class ModulesController extends Controller
             //get zipped file
             $module = $request->file('module');
             $module_name = $module->getClientOriginalName();
-            $module_name = str_replace(".zip", "", $module_name);
+            $module_name = str_replace('.zip', '', $module_name);
 
             //check if uploaded file is valid or not and and if not redirect back
             if ($module->getMimeType() != 'application/zip') {
                 $output = ['success' => false,
-                    'msg' => __('lang_v1.pls_upload_valid_zip_file')
+                    'msg' => __('lang_v1.pls_upload_valid_zip_file'),
                 ];
 
                 return redirect()->back()->with(['status' => $output]);
@@ -226,19 +229,19 @@ class ModulesController extends Controller
 
             //check if 'Modules' folder exist or not, if not exist create
             $path = '../Modules';
-            if (!is_dir($path)) {
+            if (! is_dir($path)) {
                 mkdir($path, 0777, true);
             }
 
             //extract the zipped file in given path
             $zip = new ZipArchive();
             if ($zip->open($module) === true) {
-                $zip->extractTo($path .'/');
+                $zip->extractTo($path.'/');
                 $zip->close();
 
                 //Needs improvement
-                
-                // if(!(file_exists($path . '/' . $module_name . '/composer.json') 
+
+                // if(!(file_exists($path . '/' . $module_name . '/composer.json')
                 //     && file_exists($path . '/' . $module_name . '/module.json')
                 //     && file_exists($path . '/' . $module_name . '/Config/config.php'))){
                 //         \File::deleteDirectory($path . '/' . $module_name);
@@ -246,11 +249,11 @@ class ModulesController extends Controller
             }
 
             $output = ['success' => true,
-                    'msg' => __("lang_v1.success")
-                ];
+                'msg' => __('lang_v1.success'),
+            ];
         } catch (Exception $e) {
             $output = ['success' => false,
-                'msg' => __('messages.something_went_wrong')
+                'msg' => __('messages.something_went_wrong'),
             ];
         }
 

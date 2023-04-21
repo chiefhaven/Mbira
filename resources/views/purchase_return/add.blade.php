@@ -10,7 +10,7 @@
 
 <!-- Main content -->
 <section class="content">
-	{!! Form::open(['url' => action('PurchaseReturnController@store'), 'method' => 'post', 'id' => 'purchase_return_form' ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\PurchaseReturnController::class, 'store']), 'method' => 'post', 'id' => 'purchase_return_form' ]) !!}
 	{!! Form::hidden('transaction_id', $purchase->id); !!}
 
 	@component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.parent_purchase')])

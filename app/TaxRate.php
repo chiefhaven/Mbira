@@ -13,8 +13,7 @@ class TaxRate extends Model
      *
      * @var array
      */
-    
-    
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -28,7 +27,6 @@ class TaxRate extends Model
      * @param $business_id int
      * @param $prepend_none = true (boolean)
      * @param $include_attributes = false (boolean)
-     *
      * @return array['tax_rates', 'attributes']
      */
     public static function forBusinessDropdown(
@@ -59,6 +57,7 @@ class TaxRate extends Model
         }
 
         $output = ['tax_rates' => $tax_rates, 'attributes' => $tax_attributes];
+
         return $output;
     }
 

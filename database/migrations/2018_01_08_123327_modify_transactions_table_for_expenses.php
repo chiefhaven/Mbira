@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class ModifyTransactionsTableForExpenses extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,7 @@ class ModifyTransactionsTableForExpenses extends Migration
     public function up()
     {
         DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM('purchase','sell', 'expense')");
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN contact_id INT(11) UNSIGNED DEFAULT NULL");
+        DB::statement('ALTER TABLE transactions MODIFY COLUMN contact_id INT(11) UNSIGNED DEFAULT NULL');
 
         Schema::table('transactions', function (Blueprint $table) {
             $table->integer('expense_category_id')->nullable()->unsigned()->after('final_total');
@@ -38,4 +38,4 @@ class ModifyTransactionsTableForExpenses extends Migration
             //
         });
     }
-}
+};

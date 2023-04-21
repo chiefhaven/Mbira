@@ -62,10 +62,10 @@
                             </td>
                             <td>
                               <a class="btn btn-xs btn-success"
-                                   href="{{action('BackUpController@download', [$backup['file_name']])}}"><i
+                                   href="{{action([\App\Http\Controllers\BackUpController::class, 'download'], [$backup['file_name']])}}"><i
                                         class="fa fa-cloud-download"></i> @lang('lang_v1.download')</a>
                                 <a class="btn btn-xs btn-danger link_confirmation" data-button-type="delete"
-                                   href="{{action('BackUpController@delete', [$backup['file_name']])}}"><i class="fa fa-trash-o"></i>
+                                   href="{{action([\App\Http\Controllers\BackUpController::class, 'delete'], [$backup['file_name']])}}"><i class="fa fa-trash-o"></i>
                                     @lang('messages.delete')</a>
                             </td>
                         </tr>

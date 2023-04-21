@@ -2,16 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Contact;
+use App\Transaction;
+use App\User;
+use App\Utils\NotificationUtil;
+use App\Utils\ProductUtil;
+use App\Utils\TransactionUtil;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-
-use App\Transaction;
-use App\Contact;
-use App\User;
-
-use App\Utils\TransactionUtil;
-use App\Utils\ProductUtil;
-use App\Utils\NotificationUtil;
 
 class RecurringInvoice extends Command
 {
@@ -61,30 +59,30 @@ class RecurringInvoice extends Command
                                 ->whereNotNull('recur_interval_type')
                                 ->with(['recurring_invoices',
                                     'sell_lines', 'business',
-                                    'sell_lines.product'])
+                                    'sell_lines.product', ])
                                 ->get();
 
             foreach ($transactions as $transaction) {
                 date_default_timezone_set($transaction->business->time_zone);
                 //inner try-catch block open
-                try { 
+                try {
                     //Check if recurring invoice is enabled
-                    if (!empty($transaction->business->enabled_modules)
-                        && !in_array('subscription', $transaction->business->enabled_modules)) {
+                    if (! empty($transaction->business->enabled_modules)
+                        && ! in_array('subscription', $transaction->business->enabled_modules)) {
                         continue;
                     }
 
                     //Check if no. of generated invoices exceed limit
                     $no_of_recurring_invoice_generated = count($transaction->recurring_invoices);
 
-                    if (!empty($transaction->recur_repetitions) && $no_of_recurring_invoice_generated >= $transaction->recur_repetitions) {
+                    if (! empty($transaction->recur_repetitions) && $no_of_recurring_invoice_generated >= $transaction->recur_repetitions) {
                         continue;
                     }
 
                     //Check if generate interval is today
                     $last_generated = $no_of_recurring_invoice_generated > 0 ? $transaction->recurring_invoices->max('transaction_date') : $transaction->transaction_date;
 
-                    if (!empty($last_generated)) {
+                    if (! empty($last_generated)) {
                         $last_generated_string = \Carbon::parse($last_generated)->format('Y-m-d');
                         $last_generated = \Carbon::parse($last_generated_string);
                         $today = \Carbon::parse(\Carbon::now()->format('Y-m-d'));
@@ -94,15 +92,15 @@ class RecurringInvoice extends Command
                         } elseif ($transaction->recur_interval_type == 'months') {
 
                             //check repeat on date and set last generated date part to reapeat on date
-                            if (!empty($transaction->subscription_repeat_on)) {
+                            if (! empty($transaction->subscription_repeat_on)) {
                                 $last_generated_string = $last_generated->format('Y-m');
-                                $last_generated = \Carbon::parse($last_generated_string . '-' . $transaction->subscription_repeat_on);
+                                $last_generated = \Carbon::parse($last_generated_string.'-'.$transaction->subscription_repeat_on);
                             }
                             $diff_from_today = $last_generated->diffInMonths($today);
                         } elseif ($transaction->recur_interval_type == 'years') {
                             $diff_from_today = $last_generated->diffInYears($today);
                         }
-                        
+
                         //if last generated is today or less than today then continue
                         if ($diff_from_today == 0) {
                             continue;
@@ -122,13 +120,13 @@ class RecurringInvoice extends Command
                             $current_stock = $this->productUtil->getCurrentStock($sell_line->variation_id, $transaction->location_id);
 
                             if ($current_stock < $sell_line->quantity) {
-                                $out_of_stock_product = $sell_line->product->name . ' (' . $sell_line->product->sku . ')';
+                                $out_of_stock_product = $sell_line->product->name.' ('.$sell_line->product->sku.')';
                                 $save_as_draft = true;
                                 break;
                             }
                         }
                     }
-                    
+
                     DB::beginTransaction();
                     //Create new recurring invoice
                     $recurring_invoice = $this->transactionUtil->createRecurringInvoice($transaction, $save_as_draft);
@@ -145,9 +143,9 @@ class RecurringInvoice extends Command
                         }
 
                         $business = ['id' => $transaction->business_id,
-                                        'accounting_method' => $transaction->business->accounting_method,
-                                        'location_id' => $transaction->location_id
-                                    ];
+                            'accounting_method' => $transaction->business->accounting_method,
+                            'location_id' => $transaction->location_id,
+                        ];
 
                         $this->transactionUtil->mapPurchaseSell($business, $recurring_invoice->sell_lines, 'purchase');
 
@@ -172,14 +170,13 @@ class RecurringInvoice extends Command
                     DB::commit();
                 } catch (\Exception $e) {
                     DB::rollBack();
-                    \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                    \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
                 }
                 //inner try-catch block close
             }
-
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            die($e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+            exit($e->getMessage());
         }
     }
 }

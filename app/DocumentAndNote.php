@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class DocumentAndNote extends Model
 {
@@ -17,17 +18,17 @@ class DocumentAndNote extends Model
     protected $guarded = ['id'];
 
     protected static $logUnguarded = true;
+
     protected static $logOnlyDirty = true;
 
-
     /**
-    * Get all of the owning notable models.
-    */
+     * Get all of the owning notable models.
+     */
     public function notable()
     {
         return $this->morphTo();
     }
-    
+
     public function media()
     {
         return $this->morphMany(\App\Media::class, 'model');
@@ -38,6 +39,11 @@ class DocumentAndNote extends Model
      */
     public function createdBy()
     {
-        return $this->belongsTo('App\User', 'created_by');
+        return $this->belongsTo(\App\User::class, 'created_by');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults();
     }
 }

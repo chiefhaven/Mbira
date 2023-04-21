@@ -80,6 +80,15 @@
         </div>
     @endif
 
+    @if(config('constants.enable_contact_assign') === true)
+    <div class="col-md-3">
+        <div class="form-group">
+            {!! Form::label('assigned_to',  __('lang_v1.assigned_to') . ':') !!}
+            {!! Form::select('assigned_to', $users, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+        </div>
+    </div>
+    @endif
+
     <div class="col-md-3">
         <div class="form-group">
             <label for="status_filter">@lang('sale.status'):</label>
@@ -93,7 +102,7 @@
             @slot('tool')
                 <div class="box-tools">
                     <button type="button" class="btn btn-block btn-primary btn-modal" 
-                    data-href="{{action('ContactController@create', ['type' => $type])}}" 
+                    data-href="{{action([\App\Http\Controllers\ContactController::class, 'create'], ['type' => $type])}}" 
                     data-container=".contact_modal">
                     <i class="fa fa-plus"></i> @lang('messages.add')</button>
                 </div>

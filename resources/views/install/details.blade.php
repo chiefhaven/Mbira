@@ -129,8 +129,8 @@
                   <hr/>
                   <div class="col-md-6">
                     <div class="form-group">
-                        <label for="MAIL_DRIVER">Send mails using:*</label>
-                        <select class="form-control" name="MAIL_DRIVER" id="MAIL_DRIVER">
+                        <label for="MAIL_MAILER">Send mails using:*</label>
+                        <select class="form-control" name="MAIL_MAILER" id="MAIL_MAILER">
                           <option value="sendmail">PHP Mail</option>
                           <option value="smtp">SMTP</option>
                         </select>
@@ -211,7 +211,7 @@
 @section('javascript')
   <script type="text/javascript">
     $(document).ready(function(){
-      $('select#MAIL_DRIVER').change(function(){
+      $('select#MAIL_MAILER').change(function(){
         var driver = $(this).val();
 
         if(driver == 'smtp'){

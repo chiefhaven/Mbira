@@ -56,7 +56,7 @@
 							data-default="{{$business_details->default_sales_tax}}">
 
 						<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
-							value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format(optional($transaction->tax)->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
+							value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format($transaction->tax?->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
 
 					</span>
 				</td>
