@@ -1,2 +1,2 @@
 # Mbira
- Retail & SME Information System
+ Retail & SME information management system
