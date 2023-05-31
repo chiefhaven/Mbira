@@ -59,6 +59,7 @@ return [
     'show_logo' => 'Show invoice Logo',
     'show_barcode' => 'Show Barcode',
     'total_due_label' => 'Total Due Label',
+    'show_letter_head' => 'Show Letter Head',
     'invoice_heading_not_paid' => 'Heading Suffix for not paid',
     'invoice_heading_paid' => 'Heading Suffix for paid',
     'show_payments' => 'Show Payment information',

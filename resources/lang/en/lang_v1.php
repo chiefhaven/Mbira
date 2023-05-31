@@ -146,6 +146,7 @@ return [
     'paid' => 'Paid',
     'due' => 'Due',
     'partial' => 'Partial',
+    'show_letter_head' => 'Show Letter Head',
     'no_of_products' => 'Number of products',
     'select_a_date_range' => 'Select a date range',
     'shortcut_help' => "Shortcut should be the names of the keys separated by '+'",
