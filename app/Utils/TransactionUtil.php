@@ -1232,7 +1232,7 @@ class TransactionUtil extends Util
         } else {
             $output['invoice_heading'] = $il->invoice_heading;
             if ($transaction->payment_status == 'paid' && ! empty($il->invoice_heading_paid)) {
-                $output['invoice_heading'] .= ' '.$il->invoice_heading_paid;
+                $il->invoice_heading_paid;
             } elseif (in_array($transaction->payment_status, ['due', 'partial']) && ! empty($il->invoice_heading_not_paid)) {
                 $output['invoice_heading'] .= ' '.$il->invoice_heading_not_paid;
             }
