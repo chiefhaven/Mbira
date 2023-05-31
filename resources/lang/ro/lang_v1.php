@@ -229,7 +229,8 @@ return [
     'variation_values_ins' => 'Required if product type is variable',
     'variation_values_ins2' => "Values for the variation separated with '|' <br>
                             (Ex: Red|Blue|Green)",
-                            'show_letter_head' => 'Show Letter Head',
+    'net' => 'Net',
+    'show_letter_head' => 'Show Letter Head',
     'purchase_price_inc_tax' => 'Pret achizitie (Cu TVA)',
     'purchase_price_inc_tax_ins1' => 'Required if Purchase Price Excluding Tax is not given',
     'purchase_price_inc_tax_ins2' => "Purchase Price (Including Tax) (Only in numbers)<br><br>For variable products '|' separated values with <br>the same order as Variation Values <br>(Ex: 84|85|88)",
