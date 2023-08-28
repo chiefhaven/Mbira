@@ -813,14 +813,8 @@ return [
     'account_sub_type' => 'Subtipo de conta',
     'enable_updating_product_price_tooltip' => 'Se o preço de compra do produto ativado e o preço de venda forem atualizados após a adição ou atualização de uma compra',
     'default_datatable_page_entries' => 'Entradas de página de dados padrão',
-    'import_export_selling_price_group_prices' => 'Preços do grupo de preço de venda de importação / exportação',
-    'export_selling_price_group_prices' => 'Preços do grupo de preços de venda de exportação',
     'product_not_found_exception' => 'Produto com SKU :sku não encontrado na linha :row',
     'price_group_not_found_exception' => 'Grupo de preços com nome :pg não encontrado na linha :row',
-    'product_grp_prices_imported_successfully' => 'Preços do grupo de produtos importados com sucesso',
-    'price_group_import_istruction' => 'Preços do grupo de preços de venda de exportação',
-    'price_group_import_istruction1' => 'Atualize o arquivo exportado e importe o mesmo arquivo.',
-    'price_group_import_istruction2' => 'Apenas os preços do grupo de preços de venda do produto serão atualizados. Qualquer preço em branco será ignorado.',
     'price_group_non_numeric_exception' => 'Preço não numérico encontrado na linha :row',
     'total_stock_price' => 'Valor atual das ações',
     'test_email_configuration' => 'Enviar e-mail de teste',
@@ -1372,4 +1366,5 @@ return [
     'zatca_qr_help' => 'Para o país da Arábia Saudita',
     'customer_irrespective_of_sell' => 'Veja os clientes independentemente de suas vendas',
     'img_url_help_text' => 'Ou URL da imagem',
+    'delivery_person' => 'Entregador'
 ];

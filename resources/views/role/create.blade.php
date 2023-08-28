@@ -1596,8 +1596,8 @@
         
         @include('role.partials.module_permissions')
         <div class="row">
-        <div class="col-md-12">
-           <button type="submit" class="btn btn-primary pull-right">@lang( 'messages.save' )</button>
+        <div class="col-md-12 text-center">
+           <button type="submit" class="btn btn-primary btn-big">@lang( 'messages.save' )</button>
         </div>
         </div>
 

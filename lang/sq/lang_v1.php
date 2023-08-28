@@ -785,14 +785,8 @@ return [
     'account_sub_type' => 'Lloji i llogarisë',
     'enable_updating_product_price_tooltip' => 'Nëse aktivizohet çmimi i blerjes së produktit dhe çmimi i shitjes do të azhurnohet pasi një blerje të shtohet ose azhurnohet',
     'default_datatable_page_entries' => 'Regjistrimet e paracaktuara të faqeve të databazës',
-    'import_export_selling_price_group_prices' => 'Importmimet e Grupit të Importmimeve të Import / eksportit të Shitjes',
-    'export_selling_price_group_prices' => 'Exportmimet e Grupit të Pricemimeve të Shitjes së Eksportit',
     'product_not_found_exception' => 'Produkti me SKU :sku nuk gjendet në rresht :row',
     'price_group_not_found_exception' => 'Grupi i Pricemimeve me emrin :pg nuk u gjet në rresht :row',
-    'product_grp_prices_imported_successfully' => 'Pricesmimet e grupit të produkteve të importuara me sukses',
-    'price_group_import_istruction' => 'Eksporti i shitjes së çmimeve të grupeve të çmimeve.',
-    'price_group_import_istruction1' => 'Përditësoni skedarin e eksportuar dhe importoni të njëjtin skedar.',
-    'price_group_import_istruction2' => 'Vetëm çmimet e grupit të çmimeve të shitjes së produktit do të azhurnohen. Pricedo çmim i zbrazët do të anashkalohet.',
     'price_group_non_numeric_exception' => 'Pricemimi jo numerik i gjetur në rresht :row',
     'total_stock_price' => 'Vlera aktuale e aksioneve',
     'test_email_configuration' => 'Dërgoni email provë',
@@ -1331,4 +1325,5 @@ return [
     'add_sell_payment' => 'Shto pagesën e shitjes',
     'edit_sell_payment' => 'Ndrysho pagesën e shitjes',
     'delete_sell_payment' => 'Fshi pagesën e shitjes',
+    'delivery_person' => 'Personi i dorëzimit'
 ];

@@ -291,12 +291,12 @@
 
 <div class="col-md-6">
     <div class="form-group">
-        {!! Form::label('email', __('business.email') . ':') !!}
+        {!! Form::label('email', __('business.email') . ':*') !!}
         <div class="input-group">
             <span class="input-group-addon">
                 <i class="fa fa-envelope"></i>
             </span>
-            {!! Form::text('email', null, ['class' => 'form-control','placeholder' => __('business.email')]); !!}
+            {!! Form::text('email', null, ['class' => 'form-control','placeholder' => __('business.email'), 'required']); !!}
         </div>
     </div>
 </div>

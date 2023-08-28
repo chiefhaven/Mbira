@@ -1,4 +1,5 @@
 <?php
+
 return [
     'connector_module' => 'Connector Module',
     'connector' => 'Connector',
@@ -6,5 +7,5 @@ return [
     'client_secret' => 'Client secret',
     'clients' => 'Clients',
     'documentation' => 'Documentation',
-    'regenerate_doc' => 'Regenerate'
+    'regenerate_doc' => 'Regenerate',
 ];

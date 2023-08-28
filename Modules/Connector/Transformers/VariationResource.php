@@ -2,10 +2,10 @@
 
 namespace Modules\Connector\Transformers;
 
-use Illuminate\Http\Resources\Json\Resource;
 use App\Utils\ProductUtil;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class VariationResource extends Resource
+class VariationResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -29,13 +29,13 @@ class VariationResource extends Resource
         unset($array['product']);
 
         $productUtil = new ProductUtil;
-        
+
         //get discounts for each location
         $discounts = [];
-        foreach($array['product_locations'] as $pl){
+        foreach ($array['product_locations'] as $pl) {
             $selling_price_group = $pl['selling_price_group_id'];
             $location_discount = $productUtil->getProductDiscount($this, $product['business_id'], $pl['id'], false, $selling_price_group, $this->id);
-            if (!empty($location_discount)) {
+            if (! empty($location_discount)) {
                 $discounts[] = $location_discount;
             }
         }
@@ -48,6 +48,7 @@ class VariationResource extends Resource
         }
 
         $array = $array1 + $array;
+
         return $array;
     }
 }

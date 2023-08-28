@@ -2,16 +2,14 @@
 
 namespace Modules\Connector\Http\Controllers\Api\Crm;
 
+use App\Utils\ModuleUtil;
+use App\Utils\Util;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
-use Modules\Connector\Http\Controllers\Api\ApiController;
 use Illuminate\Support\Facades\Auth;
-use Modules\Connector\Transformers\CommonResource;
-use App\Utils\ModuleUtil;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Utils\Util;
+use Modules\Connector\Http\Controllers\Api\ApiController;
+use Modules\Connector\Transformers\CommonResource;
 use Modules\Crm\Utils\CrmUtil;
 
 /**
@@ -21,13 +19,14 @@ use Modules\Crm\Utils\CrmUtil;
  * APIs for managing follow up
  */
 class FollowUpController extends ApiController
-{   
+{
     /**
      * All Utils instance.
-     *
      */
     protected $moduleUtil;
+
     protected $commonUtil;
+
     protected $crmUtil;
 
     /**
@@ -49,6 +48,7 @@ class FollowUpController extends ApiController
      * @queryParam end_date format: Y-m-d (Ex: 2020-12-16) Example: 2020-12-16
      * @queryParam status filter the result through status, get status from getFollowUpResources->statuses
      * @queryParam follow_up_type filter the result through follow_up_type, get follow_up_type from getFollowUpResources->follow_up_types
+     * @queryParam followup_category_id filter the result through followup_category_id
      * @queryParam order_by Column name to sort the result, Column: start_datetime Example:start_datetime
      * @queryParam direction Direction to sort the result, Required if using 'order_by', direction: desc, asc Example:desc
      * @queryParam per_page Total records per page. default: 10, Set -1 for no pagination Example:10
@@ -225,9 +225,9 @@ class FollowUpController extends ApiController
         }
      */
     public function index()
-    {      
+    {
         $user = Auth::user();
-        if (!($this->moduleUtil->isModuleInstalled('Crm') && ($user->can('crm.access_all_schedule') || $user->can('crm.access_own_schedule')))) {
+        if (! ($this->moduleUtil->isModuleInstalled('Crm') && ($user->can('crm.access_all_schedule') || $user->can('crm.access_own_schedule')))) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -236,26 +236,26 @@ class FollowUpController extends ApiController
 
         $query = $this->crmUtil->getFollowUpForGivenDate($user, $start_date, $end_date);
 
-        if (!empty(request()->input('status'))) {
+        if (! empty(request()->input('status'))) {
             $query->where('status', request()->input('status'));
         }
 
-        if (!empty(request()->input('follow_up_type'))) {
+        if (! empty(request()->input('follow_up_type'))) {
             $query->where('schedule_type', request()->input('follow_up_type'));
         }
 
         $order_by = request()->input('order_by');
         $order_by_dir = request()->input('direction');
-        if (!empty($order_by) && !empty($order_by_dir)) {
+        if (! empty($order_by) && ! empty($order_by_dir)) {
             $query->orderBy($order_by, $order_by_dir);
         }
 
-        $per_page = !empty(request()->input('per_page')) ? request()->input('per_page') : $this->perPage;
+        $per_page = ! empty(request()->input('per_page')) ? request()->input('per_page') : $this->perPage;
 
         if ($per_page != -1) {
             $follow_ups = $query->paginate($per_page);
             $follow_ups->appends(request()->query());
-        } else{
+        } else {
             $follow_ups = $query->get();
         }
 
@@ -292,8 +292,8 @@ class FollowUpController extends ApiController
         }
      */
     public function getFollowUpResources()
-    {   
-        if (!$this->moduleUtil->isModuleInstalled('Crm')) {
+    {
+        if (! $this->moduleUtil->isModuleInstalled('Crm')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -303,32 +303,32 @@ class FollowUpController extends ApiController
         $params['notify_via'] = \Modules\Crm\Entities\Schedule::followUpNotifyViaDropdown();
 
         return new CommonResource($params);
-        
     }
 
     /**
-    * Add follow up
-    *
-    * @bodyParam title string required Follow up title Example: Meeting with client
-    * @bodyParam contact_id integer required Contact to be followed up Example: 2
-    * @bodyParam description text Follow up description
-    * @bodyParam schedule_type string required Follow up type default get from getFollowUpResources->follow_up_types
-    * @bodyParam user_id array required Integer ID; Follow up to be assigned Ex: [2,3,8] Example:[2,3,5]
-    * @bodyParam notify_before integer Integer value will be used to send auto notification before follow up starts. Example:5
-    * @bodyParam notify_type string Notify type Ex: 'minute', 'hour', 'day'. default is hour Example: minute
-    * @bodyParam status string Follow up status Example: open
-    * @bodyParam notify_via array Will be used to send notification Ex: ['sms' => 0 ,'mail' => 1] Example: ['sms' => 0 ,'mail' => 1]
-    * @bodyParam start_datetime datetime required Follow up start datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
-    * @bodyParam end_datetime datetime required Follow up end datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
-    * @bodyParam followup_additional_info array Follow up additional info Ex: ['call duration' => '1 hour'] Example:['call duration' => '1 hour']
-    * @bodyParam allow_notification boolean 0/1 : If notification will be send before follow up starts. default is 1(true) Example:1
-    *
-    * @response {
+     * Add follow up
+     *
+     * @bodyParam title string required Follow up title Example: Meeting with client
+     * @bodyParam contact_id integer required Contact to be followed up Example: 2
+     * @bodyParam description text Follow up description
+     * @bodyParam schedule_type string required Follow up type default get from getFollowUpResources->follow_up_types
+     * @bodyParam user_id array required Integer ID; Follow up to be assigned Ex: [2,3,8] Example:[2,3,5]
+     * @bodyParam notify_before integer Integer value will be used to send auto notification before follow up starts. Example:5
+     * @bodyParam notify_type string Notify type Ex: 'minute', 'hour', 'day'. default is hour Example: minute
+     * @bodyParam status string Follow up status Example: open
+     * @bodyParam notify_via array Will be used to send notification Ex: ['sms' => 0 ,'mail' => 1] Example: ['sms' => 0 ,'mail' => 1]
+     * @bodyParam start_datetime datetime required Follow up start datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
+     * @bodyParam end_datetime datetime required Follow up end datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
+     * @bodyParam followup_additional_info array Follow up additional info Ex: ['call duration' => '1 hour'] Example:['call duration' => '1 hour']
+     * @bodyParam allow_notification boolean 0/1 : If notification will be send before follow up starts. default is 1(true) Example:1
+     *
+     * @response {
         "data": {
             "title": "test",
             "contact_id": "1",
             "description": null,
             "schedule_type": "call",
+            "followup_category_id": "1",
             "notify_before": null,
             "status": null,
             "start_datetime": "2021-01-06 15:27:00",
@@ -346,10 +346,10 @@ class FollowUpController extends ApiController
             "id": 20
         }
     }
-    */
+     */
     public function store(Request $request)
-    { 
-        if (!$this->moduleUtil->isModuleInstalled('Crm')) {
+    {
+        if (! $this->moduleUtil->isModuleInstalled('Crm')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -364,12 +364,12 @@ class FollowUpController extends ApiController
             ]);
 
             $params = $request->only(['title', 'contact_id', 'description', 'notify_before',
-                        'status','start_datetime', 'end_datetime', 'allow_notification','notify_via',
-                        'notify_type', 'schedule_type', 'user_id', 'followup_additional_info'
-                    ]);
+                'status', 'start_datetime', 'end_datetime', 'allow_notification', 'notify_via',
+                'notify_type', 'schedule_type', 'user_id', 'followup_additional_info', 'followup_category_id',
+            ]);
 
             DB::beginTransaction();
-            
+
             $schedule = $this->crmUtil->addFollowUp($params, Auth::user());
 
             DB::commit();
@@ -377,6 +377,7 @@ class FollowUpController extends ApiController
             return new CommonResource($schedule);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return $this->otherExceptions($e);
         }
     }
@@ -516,22 +517,22 @@ class FollowUpController extends ApiController
         }
      */
     public function show($follow_up_ids)
-    {   
+    {
         $user = Auth::user();
-        if (!($this->moduleUtil->isModuleInstalled('Crm') && ($user->can('crm.access_all_schedule') || $user->can('crm.access_own_schedule')))) {
+        if (! ($this->moduleUtil->isModuleInstalled('Crm') && ($user->can('crm.access_all_schedule') || $user->can('crm.access_own_schedule')))) {
             abort(403, 'Unauthorized action.');
         }
 
         $follow_up_ids = explode(',', $follow_up_ids);
 
-        $query = \Modules\Crm\Entities\Schedule::with(['customer', 'users'])
+        $query = \Modules\Crm\Entities\Schedule::with(['customer', 'users', 'followupCategory'])
                         ->where('business_id', $user->business_id)
                         ->whereIn('id', $follow_up_ids);
 
-        if (!$user->can('crm.access_all_schedule') && $user->can('crm.access_own_schedule')) {
-            $query->where(function($qry) use ($user) {
-                $qry->whereHas('users', function($q){
-                    $q->where('user_id', $user->id);
+        if (! $user->can('crm.access_all_schedule') && $user->can('crm.access_own_schedule')) {
+            $query->where(function ($qry) use ($user) {
+                $qry->whereHas('users', function ($q) {
+                    //$q->where('user_id', $user->id);
                 })->orWhere('created_by', $user->id);
             });
         }
@@ -542,24 +543,24 @@ class FollowUpController extends ApiController
     }
 
     /**
-    * Update follow up
-    *
-    * @urlParam follow_up required id of the follow up to be updated Example: 20
-    * @bodyParam title string required Follow up title Example: Meeting with client
-    * @bodyParam contact_id integer required Contact to be followed up Example: 2
-    * @bodyParam description text Follow up description
-    * @bodyParam schedule_type string required Follow up type default get from getFollowUpResources->follow_up_types
-    * @bodyParam user_id array required Integer ID; Follow up to be assigned Ex: [2,3,8] Example:[2,3,5]
-    * @bodyParam notify_before integer Integer value will be used to send auto notification before follow up starts. Example:5
-    * @bodyParam notify_type string Notify type Ex: 'minute', 'hour', 'day'. default is hour Example: minute
-    * @bodyParam status string Follow up status Example: open
-    * @bodyParam notify_via array Will be used to send notification Ex: ['sms' => 0 ,'mail' => 1] Example: ['sms' => 0 ,'mail' => 1]
-    * @bodyParam followup_additional_info array Follow up additional info Ex: ['call duration' => '1 hour'] Example:['call duration' => '1 hour']
-    * @bodyParam start_datetime datetime required Follow up start datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
-    * @bodyParam end_datetime datetime required Follow up end datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
-    * @bodyParam allow_notification boolean 0/1 : If notification will be send before follow up starts. default is 1(true) Example:1
-    *
-    * @response {
+     * Update follow up
+     *
+     * @urlParam follow_up required id of the follow up to be updated Example: 20
+     * @bodyParam title string required Follow up title Example: Meeting with client
+     * @bodyParam contact_id integer required Contact to be followed up Example: 2
+     * @bodyParam description text Follow up description
+     * @bodyParam schedule_type string required Follow up type default get from getFollowUpResources->follow_up_types
+     * @bodyParam user_id array required Integer ID; Follow up to be assigned Ex: [2,3,8] Example:[2,3,5]
+     * @bodyParam notify_before integer Integer value will be used to send auto notification before follow up starts. Example:5
+     * @bodyParam notify_type string Notify type Ex: 'minute', 'hour', 'day'. default is hour Example: minute
+     * @bodyParam status string Follow up status Example: open
+     * @bodyParam notify_via array Will be used to send notification Ex: ['sms' => 0 ,'mail' => 1] Example: ['sms' => 0 ,'mail' => 1]
+     * @bodyParam followup_additional_info array Follow up additional info Ex: ['call duration' => '1 hour'] Example:['call duration' => '1 hour']
+     * @bodyParam start_datetime datetime required Follow up start datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
+     * @bodyParam end_datetime datetime required Follow up end datetime format: Y-m-d H:i:s Ex: 2020-12-16 03:15:23 Example: 2021-01-06 13:05:00
+     * @bodyParam allow_notification boolean 0/1 : If notification will be send before follow up starts. default is 1(true) Example:1
+     *
+     * @response {
         "data": {
         "id": 20,
         "business_id": 1,
@@ -582,11 +583,11 @@ class FollowUpController extends ApiController
         "updated_at": "2021-01-06 18:22:21"
     }
     }
-    */
+     */
     public function update(Request $request, $follow_up_id)
     {
         $user = Auth::user();
-        if (!($this->moduleUtil->isModuleInstalled('Crm') && ($user->can('crm.access_all_schedule') || $user->can('crm.access_own_schedule')))) {
+        if (! ($this->moduleUtil->isModuleInstalled('Crm') && ($user->can('crm.access_all_schedule') || $user->can('crm.access_own_schedule')))) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -599,27 +600,29 @@ class FollowUpController extends ApiController
                 'schedule_type' => 'required',
                 'user_id' => 'required',
             ]);
-            
+
             $params = $request->only(['title', 'contact_id', 'description', 'notify_before',
-                        'status','start_datetime', 'end_datetime', 'allow_notification','notify_via',
-                        'notify_type', 'schedule_type', 'user_id', 'followup_additional_info'
-                    ]);
-            
+                'status', 'start_datetime', 'end_datetime', 'allow_notification', 'notify_via',
+                'notify_type', 'schedule_type', 'user_id', 'followup_additional_info', 'followup_category_id',
+            ]);
 
             DB::beginTransaction();
 
             $schedule = $this->crmUtil->updateFollowUp($follow_up_id, $params, Auth::user());
 
             DB::commit();
+
             return new CommonResource($schedule);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return $this->otherExceptions($e);
         }
     }
 
     /**
      * List lead
+     *
      * @queryParam assigned_to comma separated ids of users to whom lead is assigned (Ex: 1,2,3) Example: 1,2,3
      * @queryParam name Search term for lead name
      * @queryParam biz_name Search term for lead's business name
@@ -979,70 +982,68 @@ class FollowUpController extends ApiController
                 "total": 3
             }
         }
-    */
+     */
     public function getLeads()
-    {   
+    {
         $user = Auth::user();
         $query = $this->crmUtil->getLeadsListQuery($user->business_id);
 
         $can_access_all_leads = $user->can('crm.access_all_leads');
         $can_access_own_leads = $user->can('crm.access_own_leads');
 
-        if (!empty(request()->input('assigned_to'))) {
+        if (! empty(request()->input('assigned_to'))) {
             $assigned_to = explode(',', request()->input('assigned_to'));
-            $query->where( function($query) use($assigned_to) {
-                $query->whereHas('leadUsers', function($q) use($assigned_to) {
+            $query->where(function ($query) use ($assigned_to) {
+                $query->whereHas('leadUsers', function ($q) use ($assigned_to) {
                     $q->whereIn('user_id', $assigned_to);
                 });
             });
         }
 
         //If can access only own leads
-        if (!$can_access_all_leads && $can_access_own_leads) {
-            $query->where( function($q) use ($user) {
-                $q->whereHas('leadUsers', function($qu) use ($user){
+        if (! $can_access_all_leads && $can_access_own_leads) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('leadUsers', function ($qu) use ($user) {
                     $qu->where('user_id', $user->id);
                 });
             });
         }
 
         $search = request()->only(['name', 'biz_name', 'mobile_num', 'contact_id']);
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($query) use ($search) {
-
-                if (!empty($search['name'])) {
-                    $query->where('contacts.name', 'like', '%' . $search['name'] .'%');
-                }
-                
-                if (!empty($search['biz_name'])) {
-                    $query->orWhere('contacts.supplier_business_name', 'like', '%' . $search['biz_name'] .'%');
+                if (! empty($search['name'])) {
+                    $query->where('contacts.name', 'like', '%'.$search['name'].'%');
                 }
 
-                if (!empty($search['mobile_num'])) {
-                    $query->orWhere('contacts.mobile', 'like', '%' . $search['mobile_num'] .'%')
-                        ->orWhere('contacts.landline', 'like', '%' . $search['mobile_num'] .'%')
-                        ->orWhere('contacts.alternate_number', 'like', '%' . $search['mobile_num'] .'%');
+                if (! empty($search['biz_name'])) {
+                    $query->orWhere('contacts.supplier_business_name', 'like', '%'.$search['biz_name'].'%');
                 }
 
-                if (!empty($search['contact_id'])) {
-                    $query->orWhere('contacts.contact_id', 'like', '%' . $search['contact_id'] .'%');
+                if (! empty($search['mobile_num'])) {
+                    $query->orWhere('contacts.mobile', 'like', '%'.$search['mobile_num'].'%')
+                        ->orWhere('contacts.landline', 'like', '%'.$search['mobile_num'].'%')
+                        ->orWhere('contacts.alternate_number', 'like', '%'.$search['mobile_num'].'%');
                 }
 
+                if (! empty($search['contact_id'])) {
+                    $query->orWhere('contacts.contact_id', 'like', '%'.$search['contact_id'].'%');
+                }
             });
         }
 
         $order_by = request()->input('order_by');
-        $order_by_dir = request()->input('direction'); 
-        if (!empty($order_by) && !empty($order_by_dir)) {
+        $order_by_dir = request()->input('direction');
+        if (! empty($order_by) && ! empty($order_by_dir)) {
             $query->orderBy($order_by, $order_by_dir);
         }
 
-        $per_page = !empty(request()->input('per_page')) ? request()->input('per_page') : $this->perPage;
-        
+        $per_page = ! empty(request()->input('per_page')) ? request()->input('per_page') : $this->perPage;
+
         if ($per_page != -1) {
             $leads = $query->paginate($per_page);
             $leads->appends(request()->query());
-        } else{
+        } else {
             $leads = $query->get();
         }
 

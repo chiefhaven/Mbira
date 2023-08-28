@@ -521,7 +521,7 @@
   
     <div class="row">
         <div class="col-sm-12 text-center">
-          <button type="button" id="submit_purchase_form" class="btn btn-primary btn-big">@lang('messages.update')</button>
+          <button type="button" id="submit_purchase_form" class="btn btn-primary btn-big btn-flat">@lang('messages.update')</button>
         </div>
     </div>
 {!! Form::close() !!}

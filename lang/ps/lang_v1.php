@@ -794,14 +794,8 @@ return [
     'account_sub_type' => 'د حساب فرعي ډول',
     'enable_updating_product_price_tooltip' => 'که چیرې د پیرود شوي محصول پیرود نرخ او پلور نرخ د پیرود اضافه کولو یا تازه کیدو وروسته تازه شي',
     'default_datatable_page_entries' => 'د ډیټا ډیټا وړ پا pageې ننوتل',
-    'import_export_selling_price_group_prices' => 'د وارداتو / صادراتو د پلور نرخ ډلې نرخونه',
-    'export_selling_price_group_prices' => 'د صادراتو د پلور ګروپ نرخونه صادر کړئ',
     'product_not_found_exception' => 'محصول د SKU :sku سکو په قطار کې ونه موندل شو :row',
     'price_group_not_found_exception' => 'د نرخ ګروپ د نوم سره :pg په قطار کې ونه موندل شو :row',
-    'product_grp_prices_imported_successfully' => 'د محصول ډلې قیمتونه په بریالیتوب سره وارد شوي',
-    'price_group_import_istruction' => 'د صادراتو د پلور نرخ ګروپ نرخونه صادر کړئ.',
-    'price_group_import_istruction1' => 'صادر شوې فایل تازه کړئ او ورته دوتنه وارد کړئ.',
-    'price_group_import_istruction2' => 'یوازې د محصول د پلور نرخ ګروپ نرخونه به نوي شي. هر خالي قیمت به پریښودل شي.',
     'price_group_non_numeric_exception' => 'د شمېرنې غیر عددي بیه په قطار کې موندل شوې :row',
     'total_stock_price' => 'د اوسني سټاک ارزښت',
     'test_email_configuration' => 'د ازمونې بریښنالیک واستوئ',
@@ -1354,4 +1348,5 @@ return [
     'zatca_qr_help' => 'د سعودي عربستان لپاره',
     'customer_irrespective_of_sell' => 'پیرودونکي وګورئ پرته لدې چې د دوی پلور وي',
     'img_url_help_text' => 'یا د انځور URL',
+    'delivery_person' => 'دلیوری ګټ'
 ];

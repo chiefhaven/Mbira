@@ -2,13 +2,10 @@
 
 namespace Modules\Connector\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+use App\Unit;
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Modules\Connector\Transformers\CommonResource;
-
-use App\Unit;
 
 /**
  * @group Unit management
@@ -20,6 +17,7 @@ class UnitController extends ApiController
 {
     /**
      * List units
+     *
      * @response {
         "data": [
             {
@@ -84,7 +82,7 @@ class UnitController extends ApiController
         $user = Auth::user();
 
         $business_id = $user->business_id;
-        
+
         $units = Unit::where('business_id', $business_id)
                     ->with(['base_unit'])
                     ->get();

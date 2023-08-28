@@ -65,4 +65,10 @@ return [
     'show_customer' => 'Show Customer information',
     'paid_label' => 'Amount Paid Label',
     'customer_label' => 'Customer Label',
+    'invoice_scheme_for_pos' => 'Invoice scheme for POS',
+    'invoice_scheme_for_sale' => 'Invoice scheme for sale',
+    'number_type' => 'Numbering Type',
+    'sequential' => 'Sequential',
+    'random' => 'Aleatory/Random',
+    'number_type_tooltip' => 'Sequential will generate number serially like 1,2,3,4 <br/> Aleatory will generate number randomly'
 ];

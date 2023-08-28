@@ -80,4 +80,5 @@ mix.js('resources/js/app.js', 'public/js/init.js').vue()
     .copy('resources/plugins/bootstrap/fonts/glyphicons-halflings-regular.ttf', 'public/fonts/')
     .copy('resources/plugins/ionicons/fonts/ionicons.ttf', 'public/fonts/ionicons.ttf')
     .copyDirectory('node_modules/tinymce/skins/', 'public/js/skins/')
+    .copyDirectory('node_modules/tinymce/icons/', 'public/js/icons/')
     .setResourceRoot('../');

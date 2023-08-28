@@ -784,14 +784,8 @@ return [
     'account_sub_type' => 'Konto-Untertyp',
     'enable_updating_product_price_tooltip' => 'Wenn der Kaufpreis und der Verkaufspreis des aktivierten Produkts aktualisiert werden, nachdem ein Kauf hinzugefügt oder aktualisiert wurde',
     'default_datatable_page_entries' => 'Standardmäßig datierbare Seiteneinträge',
-    'import_export_selling_price_group_prices' => 'Verkaufspreisgruppenpreise importieren / exportieren',
-    'export_selling_price_group_prices' => 'Verkaufspreisgruppenpreise exportieren',
     'product_not_found_exception' => 'Produkt mit Artikelnummer :sku nicht in Zeile :sku gefunden',
     'price_group_not_found_exception' => 'Preisgruppe mit Name :pg in Zeile :row nicht gefunden',
-    'product_grp_prices_imported_successfully' => 'Produktgruppenpreise erfolgreich importiert',
-    'price_group_import_istruction' => 'Export Verkaufspreisgruppenpreise.',
-    'price_group_import_istruction1' => 'Aktualisieren Sie die exportierte Datei und importieren Sie dieselbe Datei.',
-    'price_group_import_istruction2' => 'Es werden nur Verkaufspreise für das Produkt aktualisiert. Ein leerer Preis wird übersprungen.',
     'price_group_non_numeric_exception' => 'Nicht numerischer Preis in Zeile :row gefunden',
     'total_stock_price' => 'Aktueller Aktienwert',
     'test_email_configuration' => 'Test-E-Mail senden',
@@ -1343,4 +1337,5 @@ return [
     'zatca_qr_help' => 'Für Saudi-Arabien Land',
     'customer_irrespective_of_sell' => 'Kunden unabhängig von ihrem Verkauf anzeigen',
     'img_url_help_text' => 'Oder URL des Bildes',
+    'delivery_person' => 'Lieferperson'
 ];

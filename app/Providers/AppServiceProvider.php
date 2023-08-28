@@ -16,6 +16,10 @@ use League\Flysystem\Filesystem;
 use Spatie\Dropbox\Client as DropboxClient;
 use Spatie\FlysystemDropbox\DropboxAdapter;
 
+use Laravel\Passport\Console\ClientCommand;
+use Laravel\Passport\Console\InstallCommand;
+use Laravel\Passport\Console\KeysCommand;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -250,5 +254,10 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
+        $this->commands([
+            InstallCommand::class,
+            ClientCommand::class,
+            KeysCommand::class,
+        ]);
     }
 }

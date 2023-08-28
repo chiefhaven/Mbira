@@ -2,17 +2,15 @@
 
 namespace Modules\Connector\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Console\ClientCommand;
 use Laravel\Passport\Console\InstallCommand;
 use Laravel\Passport\Console\KeysCommand;
-use Mpociot\ApiDoc\Commands\GenerateDocumentation;
 
 class ConnectorServiceProvider extends ServiceProvider
 {
-
     /**
      * The filters base class name.
      *
@@ -25,24 +23,17 @@ class ConnectorServiceProvider extends ServiceProvider
     ];
 
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
-
-    /**
      * Boot the application events.
      *
      * @return void
      */
-    public function boot(Router $router)
+    public function boot()
     {
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         $this->registerMiddleware($this->app['router']);
 
@@ -51,14 +42,13 @@ class ConnectorServiceProvider extends ServiceProvider
             InstallCommand::class,
             ClientCommand::class,
             KeysCommand::class,
-            GenerateDocumentation::class
         ]);
     }
 
     /**
      * Register the filters.
      *
-     * @param  Router $router
+     * @param  Router  $router
      * @return void
      */
     public function registerMiddleware(Router $router)
@@ -79,7 +69,7 @@ class ConnectorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->register(RouteServiceProvider::class);
     }
 
     /**
@@ -109,12 +99,12 @@ class ConnectorServiceProvider extends ServiceProvider
         $sourcePath = __DIR__.'/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path . '/modules/connector';
-        }, \Config::get('view.paths')), [$sourcePath]), 'connector');
+            return $path.'/modules/connector';
+        }, config('view.paths')), [$sourcePath]), 'connector');
     }
 
     /**
@@ -129,19 +119,19 @@ class ConnectorServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'connector');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'connector');
+            $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'connector');
         }
     }
 
     /**
      * Register an additional directory of factories.
-     * 
+     *
      * @return void
      */
     public function registerFactories()
     {
-        if (! app()->environment('production')) {
-            app(Factory::class)->load(__DIR__ . '/../Database/factories');
+        if (! app()->environment('production') && $this->app->runningInConsole()) {
+            app(Factory::class)->load(__DIR__.'/../Database/factories');
         }
     }
 

@@ -98,6 +98,7 @@
 				{{$receipt_details->invoice_date}}
 			</div>
 		@endif
+
 		@if(!empty($receipt_details->due_date_label))
 			<div class="text-right font-23 ">
 				<span class="pull-left">
@@ -105,6 +106,43 @@
 				</span>
 
 				{{$receipt_details->due_date ?? ''}}
+			</div>
+		@endif
+
+		@if(!empty($receipt_details->sell_custom_field_1_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_1_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_1_value}}
+			</div>
+		@endif
+		@if(!empty($receipt_details->sell_custom_field_2_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_2_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_2_value}}
+			</div>
+		@endif
+		@if(!empty($receipt_details->sell_custom_field_3_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_3_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_3_value}}
+			</div>
+		@endif
+		@if(!empty($receipt_details->sell_custom_field_4_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_4_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_4_value}}
 			</div>
 		@endif
 

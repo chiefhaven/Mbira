@@ -778,14 +778,8 @@ return [
     'account_sub_type' => 'Jenis Sub Akun',
     'enable_updating_product_price_tooltip' => 'Jika harga pembelian produk yang diaktifkan dan harga jual akan diperbarui setelah pembelian ditambahkan atau diperbarui',
     'default_datatable_page_entries' => 'Entri halaman yang dapat datatable default',
-    'import_export_selling_price_group_prices' => 'Harga Grup Harga Impor / Ekspor Jual',
-    'export_selling_price_group_prices' => 'Harga Grup Harga Jual Ekspor',
     'product_not_found_exception' => 'Produk dengan SKU :sku tidak ditemukan di baris :row',
     'price_group_not_found_exception' => 'Grup Harga dengan nama :pg tidak ditemukan di baris :row',
-    'product_grp_prices_imported_successfully' => 'Harga grup produk berhasil diimpor',
-    'price_group_import_istruction' => 'Harga kelompok harga Jual Ekspor.',
-    'price_group_import_istruction1' => 'Perbarui file yang diekspor dan impor file yang sama.',
-    'price_group_import_istruction2' => 'Hanya harga kelompok harga jual produk yang akan diperbarui. Setiap harga kosong akan dilewati.',
     'price_group_non_numeric_exception' => 'Harga non numerik ditemukan di baris :row',
     'total_stock_price' => 'Nilai Stok Saat Ini',
     'test_email_configuration' => 'Kirim email uji',
@@ -1346,4 +1340,5 @@ return [
     'zatca_qr_help' => 'Untuk negara Arab Saudi',
     'customer_irrespective_of_sell' => 'Lihat pelanggan terlepas dari penjualan mereka',
     'img_url_help_text' => 'Atau URL gambar',
+    'delivery_person' => 'Pengantar Pesanan'
 ];

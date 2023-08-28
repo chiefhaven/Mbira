@@ -116,6 +116,8 @@
                                     <tr>
                                         <th>@lang('sale.product')</th>
                                         <th>@lang('product.sku')</th>
+                                        <th id="psr_product_custom_field1">{{$product_custom_field1}}</th>
+                                        <th id="psr_product_custom_field2">{{$product_custom_field2}}</th>
                                         <th>@lang('sale.customer_name')</th>
                                         <th>@lang('lang_v1.contact_id')</th>
                                         <th>@lang('sale.invoice_no')</th>
@@ -126,17 +128,19 @@
                                         <th>@lang('sale.tax')</th>
                                         <th>@lang('sale.price_inc_tax')</th>
                                         <th>@lang('sale.total')</th>
+                                        <th>@lang('lang_v1.payment_method')</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td colspan="6"><strong>@lang('sale.total'):</strong></td>
+                                        <td colspan="8"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_sold"></td>
                                         <td></td>
                                         <td></td>
                                         <td id="footer_tax"></td>
                                         <td></td>
                                         <td><span class="display_currency" id="footer_subtotal" data-currency_symbol ="true"></span></td>
+                                        <td></td>
                                     </tr>
                                 </tfoot>
                             </table>

@@ -281,41 +281,36 @@
           </div>
         </div>
         <div class="clearfix"></div>
+        
         @php
-          $custom_labels = json_decode(session('business.custom_labels'), true);
-          $product_custom_field1 = !empty($custom_labels['product']['custom_field_1']) ? $custom_labels['product']['custom_field_1'] : __('lang_v1.product_custom_field1');
-          $product_custom_field2 = !empty($custom_labels['product']['custom_field_2']) ? $custom_labels['product']['custom_field_2'] : __('lang_v1.product_custom_field2');
-          $product_custom_field3 = !empty($custom_labels['product']['custom_field_3']) ? $custom_labels['product']['custom_field_3'] : __('lang_v1.product_custom_field3');
-          $product_custom_field4 = !empty($custom_labels['product']['custom_field_4']) ? $custom_labels['product']['custom_field_4'] : __('lang_v1.product_custom_field4');
+            $custom_labels = json_decode(session('business.custom_labels'), true);
+            $product_custom_fields = !empty($custom_labels['product']) ? $custom_labels['product'] : [];
+            $product_cf_details = !empty($custom_labels['product_cf_details']) ? $custom_labels['product_cf_details'] : [];
         @endphp
         <!--custom fields-->
-        <div class="col-sm-3">
-          <div class="form-group">
-            {!! Form::label('product_custom_field1',  $product_custom_field1 . ':') !!}
-            {!! Form::text('product_custom_field1', $product->product_custom_field1, ['class' => 'form-control', 'placeholder' => $product_custom_field1]); !!}
-          </div>
-        </div>
 
-        <div class="col-sm-3">
-          <div class="form-group">
-            {!! Form::label('product_custom_field2',  $product_custom_field2 . ':') !!}
-            {!! Form::text('product_custom_field2', $product->product_custom_field2, ['class' => 'form-control', 'placeholder' => $product_custom_field2]); !!}
-          </div>
-        </div>
+        @foreach($product_custom_fields as $index => $cf)
+            @if(!empty($cf))
+                @php
+                    $db_field_name = 'product_custom_field' . $loop->iteration;
+                    $cf_type = !empty($product_cf_details[$loop->iteration]['type']) ? $product_cf_details[$loop->iteration]['type'] : 'text';
+                    $dropdown = !empty($product_cf_details[$loop->iteration]['dropdown_options']) ? explode(PHP_EOL, $product_cf_details[$loop->iteration]['dropdown_options']) : [];
+                @endphp
 
-        <div class="col-sm-3">
-          <div class="form-group">
-            {!! Form::label('product_custom_field3',  $product_custom_field3 . ':') !!}
-            {!! Form::text('product_custom_field3', $product->product_custom_field3, ['class' => 'form-control', 'placeholder' => $product_custom_field3]); !!}
-          </div>
-        </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        {!! Form::label($db_field_name, $cf . ':') !!}
+                        @if(in_array($cf_type, ['text', 'date']))
+                            <input type="{{$cf_type}}" name="{{$db_field_name}}" id="{{$db_field_name}}" 
+                            value="{{$product->$db_field_name}}" class="form-control" placeholder="{{$cf}}">
+                        @elseif($cf_type == 'dropdown')
+                            {!! Form::select($db_field_name, $dropdown, $product->$db_field_name, ['placeholder' => $cf, 'class' => 'form-control select2']); !!}
+                        @endif
+                    </div>
+                </div>
+            @endif
+        @endforeach
 
-        <div class="col-sm-3">
-          <div class="form-group">
-            {!! Form::label('product_custom_field4',  $product_custom_field4 . ':') !!}
-            {!! Form::text('product_custom_field4', $product->product_custom_field4, ['class' => 'form-control', 'placeholder' => $product_custom_field4]); !!}
-          </div>
-        </div>
         <div class="col-sm-3">
           <div class="form-group">
             {!! Form::label('preparation_time_in_minutes',  __('lang_v1.preparation_time_in_minutes') . ':') !!}
@@ -365,16 +360,16 @@
           <div class="text-center">
             <div class="btn-group">
               @if($selling_price_group_count)
-                <button type="submit" value="submit_n_add_selling_prices" class="btn btn-warning submit_product_form">@lang('lang_v1.save_n_add_selling_price_group_prices')</button>
+                <button type="submit" value="submit_n_add_selling_prices" class="btn btn-warning btn-big submit_product_form">@lang('lang_v1.save_n_add_selling_price_group_prices')</button>
               @endif
 
               @can('product.opening_stock')
-              <button type="submit" @if(empty($product->enable_stock)) disabled="true" @endif id="opening_stock_button"  value="update_n_edit_opening_stock" class="btn bg-purple submit_product_form">@lang('lang_v1.update_n_edit_opening_stock')</button>
+              <button type="submit" @if(empty($product->enable_stock)) disabled="true" @endif id="opening_stock_button"  value="update_n_edit_opening_stock" class="btn bg-purple submit_product_form btn-big">@lang('lang_v1.update_n_edit_opening_stock')</button>
               @endif
 
-              <button type="submit" value="save_n_add_another" class="btn bg-maroon submit_product_form">@lang('lang_v1.update_n_add_another')</button>
+              <button type="submit" value="save_n_add_another" class="btn bg-maroon submit_product_form btn-big">@lang('lang_v1.update_n_add_another')</button>
 
-              <button type="submit" value="submit" class="btn btn-primary submit_product_form">@lang('messages.update')</button>
+              <button type="submit" value="submit" class="btn btn-primary submit_product_form btn-big">@lang('messages.update')</button>
             </div>
           </div>
         </div>

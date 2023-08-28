@@ -88,6 +88,7 @@ class TransactionUtil extends Util
             'shipping_address' => isset($input['shipping_address']) ? $input['shipping_address'] : null,
             'shipping_status' => isset($input['shipping_status']) ? $input['shipping_status'] : null,
             'delivered_to' => isset($input['delivered_to']) ? $input['delivered_to'] : null,
+            'delivery_person' => isset($input['delivery_person']) ? $input['delivery_person'] : null,
             'shipping_charges' => isset($input['shipping_charges']) ? $uf_data ? $this->num_uf($input['shipping_charges']) : $input['shipping_charges'] : 0,
             'shipping_custom_field_1' => ! empty($input['shipping_custom_field_1']) ? $input['shipping_custom_field_1'] : null,
             'shipping_custom_field_2' => ! empty($input['shipping_custom_field_2']) ? $input['shipping_custom_field_2'] : null,
@@ -210,6 +211,7 @@ class TransactionUtil extends Util
             'shipping_address' => isset($input['shipping_address']) ? $input['shipping_address'] : null,
             'shipping_status' => isset($input['shipping_status']) ? $input['shipping_status'] : null,
             'delivered_to' => isset($input['delivered_to']) ? $input['delivered_to'] : null,
+            'delivery_person' => isset($input['delivery_person']) ? $input['delivery_person'] : null,
             'shipping_custom_field_1' => ! empty($input['shipping_custom_field_1']) ? $input['shipping_custom_field_1'] : null,
             'shipping_custom_field_2' => ! empty($input['shipping_custom_field_2']) ? $input['shipping_custom_field_2'] : null,
             'shipping_custom_field_3' => ! empty($input['shipping_custom_field_3']) ? $input['shipping_custom_field_3'] : null,
@@ -1232,7 +1234,7 @@ class TransactionUtil extends Util
         } else {
             $output['invoice_heading'] = $il->invoice_heading;
             if ($transaction->payment_status == 'paid' && ! empty($il->invoice_heading_paid)) {
-                $output['invoice_heading'] = $il->invoice_heading_paid;
+                $output['invoice_heading'] .= ' '.$il->invoice_heading_paid;
             } elseif (in_array($transaction->payment_status, ['due', 'partial']) && ! empty($il->invoice_heading_not_paid)) {
                 $output['invoice_heading'] .= ' '.$il->invoice_heading_not_paid;
             }
@@ -1817,25 +1819,32 @@ class TransactionUtil extends Util
             $output['shipping_custom_field_5_value'] = $transaction['shipping_custom_field_5'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_1)) {
+
+        $is_show_sell_custom_fields1 = ! empty($il->common_settings['sell_custom_fields1']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_1) && $is_show_sell_custom_fields1) {
             $output['sell_custom_field_1_label'] = $custom_labels->sell->custom_field_1;
             $output['sell_custom_field_1_value'] = $transaction['custom_field_1'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_2)) {
+        $is_show_sell_custom_fields2 = ! empty($il->common_settings['sell_custom_fields2']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_2) && $is_show_sell_custom_fields2) {
             $output['sell_custom_field_2_label'] = $custom_labels->sell->custom_field_2;
             $output['sell_custom_field_2_value'] = $transaction['custom_field_2'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_3)) {
+        $is_show_sell_custom_fields3 = ! empty($il->common_settings['sell_custom_fields3']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_3) && $is_show_sell_custom_fields3) {
             $output['sell_custom_field_3_label'] = $custom_labels->sell->custom_field_3;
             $output['sell_custom_field_3_value'] = $transaction['custom_field_3'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_4)) {
+        $is_show_sell_custom_fields4 = ! empty($il->common_settings['sell_custom_fields4']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_4) && $is_show_sell_custom_fields4) {
             $output['sell_custom_field_4_label'] = $custom_labels->sell->custom_field_4;
             $output['sell_custom_field_4_value'] = $transaction['custom_field_4'];
         }
+
+        
 
         // location custom fields
         if (in_array('custom_field1', $location_custom_field_settings) && ! empty($location_details->custom_field1) && ! empty($custom_labels->location->custom_field_1)) {
@@ -2298,7 +2307,12 @@ class TransactionUtil extends Util
             }
 
             //Count
-            $count = $scheme->start_number + $scheme->invoice_count;
+            if($scheme->number_type == 'sequential'){
+                $count = $scheme->start_number + $scheme->invoice_count;
+            } elseif($scheme->number_type == 'random'){
+                $max = (int)str_pad(1, $scheme->total_digits, '1');
+                $count = rand(1000, 9*$max);
+            }
             $count = str_pad($count, $scheme->total_digits, '0', STR_PAD_LEFT);
 
             //Prefix + count
@@ -4901,6 +4915,63 @@ class TransactionUtil extends Util
         return $purchases;
     }
 
+        /**
+     * common function to get
+     * list expenses
+     *
+     * @param  int  $business_id
+     * @return object
+     */
+    public function getListExpenses($business_id)
+    {
+        $expenses = Transaction::leftJoin('expense_categories AS ec', 'transactions.expense_category_id', '=', 'ec.id')
+            ->leftJoin('expense_categories AS esc', 'transactions.expense_sub_category_id', '=', 'esc.id')
+            ->join(
+                'business_locations AS bl',
+                'transactions.location_id',
+                '=',
+                'bl.id'
+            )
+            ->leftJoin('tax_rates as tr', 'transactions.tax_id', '=', 'tr.id')
+            ->leftJoin('users AS U', 'transactions.expense_for', '=', 'U.id')
+            ->leftJoin('users AS usr', 'transactions.created_by', '=', 'usr.id')
+            ->leftJoin('contacts AS c', 'transactions.contact_id', '=', 'c.id')
+            ->leftJoin(
+                'transaction_payments AS TP',
+                'transactions.id',
+                '=',
+                'TP.transaction_id'
+            )
+            ->where('transactions.business_id', $business_id)
+            ->whereIn('transactions.type', ['expense', 'expense_refund'])
+            ->select(
+                'transactions.id',
+                'transactions.document',
+                'transaction_date',
+                'ref_no',
+                'ec.name as category',
+                'esc.name as sub_category',
+                'payment_status',
+                'additional_notes',
+                'final_total',
+                'transactions.is_recurring',
+                'transactions.recur_interval',
+                'transactions.recur_interval_type',
+                'transactions.recur_repetitions',
+                'transactions.subscription_repeat_on',
+                'bl.name as location_name',
+                DB::raw("CONCAT(COALESCE(U.surname, ''),' ',COALESCE(U.first_name, ''),' ',COALESCE(U.last_name,'')) as expense_for"),
+                DB::raw("CONCAT(tr.name ,' (', tr.amount ,' )') as tax"),
+                DB::raw('SUM(TP.amount) as amount_paid'),
+                DB::raw("CONCAT(COALESCE(usr.surname, ''),' ',COALESCE(usr.first_name, ''),' ',COALESCE(usr.last_name,'')) as added_by"),
+                'transactions.recur_parent_id',
+                'c.name as contact_name',
+                'transactions.type'
+            )
+            ->with(['recurring_parent'])
+            ->groupBy('transactions.id');
+        return $expenses;
+    }
     /**
      * common function to get
      * list sell
@@ -4918,6 +4989,7 @@ class TransactionUtil extends Util
                 })
                 ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
                 ->leftJoin('users as ss', 'transactions.res_waiter_id', '=', 'ss.id')
+                ->leftJoin('users as dp', 'transactions.delivery_person', '=', 'dp.id')
                 ->leftJoin('res_tables as tables', 'transactions.res_table_id', '=', 'tables.id')
                 ->join(
                     'business_locations AS bl',
@@ -4993,7 +5065,8 @@ class TransactionUtil extends Util
                     DB::raw("CONCAT(COALESCE(ss.surname, ''),' ',COALESCE(ss.first_name, ''),' ',COALESCE(ss.last_name,'')) as waiter"),
                     'tables.name as table_name',
                     DB::raw('SUM(tsl.quantity - tsl.so_quantity_invoiced) as so_qty_remaining'),
-                    'transactions.is_export'
+                    'transactions.is_export',
+                    DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person")
                 );
 
         if ($sale_type == 'sell') {

@@ -221,6 +221,19 @@ class SellingPriceGroupController extends Controller
     }
 
     /**
+     * Show interface to download product price excel file.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateProductPrice(){
+        if (! auth()->user()->can('product.update')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('selling_price_group.update_product_price');
+    }
+
+    /**
      * Exports selling price group prices for all the products in xls format
      *
      * @return \Illuminate\Http\Response
@@ -242,7 +255,7 @@ class SellingPriceGroupController extends Controller
             $temp = [];
             $temp['product'] = $variation->type == 'single' ? $variation->product_name : $variation->product_name.' - '.$variation->product_variation_name.' - '.$variation->variation_name;
             $temp['sku'] = $variation->sub_sku;
-            $temp['Base Selling Price'] = $variation->sell_price_inc_tax;
+            $temp['Selling Price Including Tax'] = $variation->sell_price_inc_tax;
 
             foreach ($price_groups as $price_group) {
                 $price_group_id = $price_group->id;
@@ -261,7 +274,7 @@ class SellingPriceGroupController extends Controller
         ob_start();
 
         return collect($export_data)->downloadExcel(
-            'product_group_prices.xlsx',
+            'product_prices.xlsx',
             null,
             true
         );
@@ -308,6 +321,7 @@ class SellingPriceGroupController extends Controller
 
                 $error_msg = '';
                 DB::beginTransaction();
+
                 foreach ($imported_data as $key => $value) {
                     $variation = Variation::where('sub_sku', $value[1])
                                         ->first();
@@ -318,6 +332,19 @@ class SellingPriceGroupController extends Controller
                         throw new \Exception($error_msg);
                     }
 
+                    //Check if product base price is changed
+                    if($variation->sell_price_inc_tax != $value[2]){
+                        //update price for base selling price, adjust default_sell_price, profit %
+                        $variation->sell_price_inc_tax = $value[2];
+                        $tax = $variation->product->product_tax()->get();
+                        $tax_percent = !empty($tax) ? $tax->first()->amount : 0;
+                        $variation->default_sell_price = $this->commonUtil->calc_percentage_base($value[2], $tax_percent);
+                        $variation->profit_percent = $this->commonUtil
+                                        ->get_percent($variation->default_purchase_price, $variation->default_sell_price);
+                        $variation->update();
+                    }
+
+                    //update selling price
                     foreach ($imported_pgs as $k => $v) {
                         $price_group = $price_groups->filter(function ($item) use ($v) {
                             return strtolower($item->name) == strtolower($v);
@@ -352,7 +379,7 @@ class SellingPriceGroupController extends Controller
                 DB::commit();
             }
             $output = ['success' => 1,
-                'msg' => __('lang_v1.product_grp_prices_imported_successfully'),
+                'msg' => __('lang_v1.product_prices_imported_successfully'),
             ];
         } catch (\Exception $e) {
             DB::rollBack();
@@ -362,10 +389,10 @@ class SellingPriceGroupController extends Controller
                 'msg' => $e->getMessage(),
             ];
 
-            return redirect('selling-price-group')->with('notification', $output);
+            return redirect('update-product-price')->with('notification', $output);
         }
 
-        return redirect('selling-price-group')->with('status', $output);
+        return redirect('update-product-price')->with('status', $output);
     }
 
     /**

@@ -1733,7 +1733,14 @@ class ReportController extends Controller
         }
 
         $business_id = $request->session()->get('user.business_id');
+        $custom_labels = json_decode(session('business.custom_labels'), true);
+
+        $product_custom_field1 = !empty($custom_labels['product']['custom_field_1']) ? $custom_labels['product']['custom_field_1'] : '';
+        $product_custom_field2 = !empty($custom_labels['product']['custom_field_2']) ? $custom_labels['product']['custom_field_2'] : '';
+
         if ($request->ajax()) {
+            $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+
             $variation_id = $request->get('variation_id', null);
             $query = TransactionSellLine::join(
                 'transactions as t',
@@ -1755,9 +1762,12 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
+                ->with('transaction.payment_lines')
                 ->select(
                     'p.name as product_name',
                     'p.type as product_type',
+                    'p.product_custom_field1 as product_custom_field1',
+                    'p.product_custom_field2 as product_custom_field2',
                     'pv.name as product_variation',
                     'v.name as variation_name',
                     'v.sub_sku',
@@ -1870,8 +1880,22 @@ class ReportController extends Controller
                      .'<br>'.'<span data-orig-value="'.$row->item_tax.'" 
                      class="tax" data-unit="'.$row->tax.'"><small>('.$row->tax.')</small></span>';
                 })
+                ->addColumn('payment_methods', function ($row) use ($payment_types) {
+                    $methods = array_unique($row->transaction->payment_lines->pluck('method')->toArray());
+                    $count = count($methods);
+                    $payment_method = '';
+                    if ($count == 1) {
+                        $payment_method = $payment_types[$methods[0]] ?? '';
+                    } elseif ($count > 1) {
+                        $payment_method = __('lang_v1.checkout_multi_pay');
+                    }
+
+                    $html = ! empty($payment_method) ? '<span class="payment-method" data-orig-value="'.$payment_method.'" data-status-name="'.$payment_method.'">'.$payment_method.'</span>' : '';
+
+                    return $html;
+                })
                 ->editColumn('customer', '@if(!empty($supplier_business_name)) {{$supplier_business_name}},<br>@endif {{$customer}}')
-                ->rawColumns(['invoice_no', 'unit_sale_price', 'subtotal', 'sell_qty', 'discount_amount', 'unit_price', 'tax', 'customer'])
+                ->rawColumns(['invoice_no', 'unit_sale_price', 'subtotal', 'sell_qty', 'discount_amount', 'unit_price', 'tax', 'customer', 'payment_methods'])
                 ->make(true);
         }
 
@@ -1883,7 +1907,7 @@ class ReportController extends Controller
 
         return view('report.product_sell_report')
             ->with(compact('business_locations', 'customers', 'categories', 'brands',
-                'customer_group'));
+                'customer_group', 'product_custom_field1', 'product_custom_field2'));
     }
 
     /**

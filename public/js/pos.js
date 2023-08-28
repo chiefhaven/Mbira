@@ -33,7 +33,13 @@ $(document).ready(function() {
 
         //Set default invoice scheme for location
         if ($('#invoice_scheme_id').length) {
-            let invoice_scheme_id = $(this).find(':selected').data('default_invoice_scheme_id');
+            if($('input[name="is_direct_sale"]').length > 0){
+                //default scheme for sale screen
+                var invoice_scheme_id = $(this).find(':selected').data('default_sale_invoice_scheme_id');
+            } else {
+                var invoice_scheme_id =  $(this).find(':selected').data('default_invoice_scheme_id');
+            }
+            
             $("#invoice_scheme_id").val(invoice_scheme_id).change();
         }
 

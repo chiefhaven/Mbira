@@ -789,14 +789,8 @@ return [
     'account_sub_type' => 'Hesap Alt Türü',
     'enable_updating_product_price_tooltip' => 'Eğer bir ürün eklendikten veya güncellendikten sonra etkin ürün alış fiyatı ve satış fiyatı güncellenirse',
     'default_datatable_page_entries' => 'Varsayılan veri sayfası girişleri',
-    'import_export_selling_price_group_prices' => 'İthalat / İhracat Satış Fiyatı Grup Fiyatları',
-    'export_selling_price_group_prices' => 'İhracat Satış Fiyatı Grup Fiyatları',
     'product_not_found_exception' => "SKU'lu ürün :sku satırda bulunamadı :row",
     'price_group_not_found_exception' => 'İsimli Fiyat Grubu :pg sırada bulunamadı :row',
-    'product_grp_prices_imported_successfully' => 'Ürün grubu fiyatları başarıyla ithal edildi',
-    'price_group_import_istruction' => 'İhracat Satış fiyatı grup fiyatları.',
-    'price_group_import_istruction1' => 'Dışa aktarılan dosyayı güncelleyin ve aynı dosyayı alın.',
-    'price_group_import_istruction2' => 'Yalnızca ürünün satış fiyatı grup fiyatları güncellenecektir. Herhangi bir boş fiyat atlanacaktır.',
     'price_group_non_numeric_exception' => 'Satırda sayısal olmayan fiyat bulundu :row',
     'total_stock_price' => 'Mevcut Stok Değeri',
     'test_email_configuration' => 'Test e-postası gönder',
@@ -1348,4 +1342,5 @@ return [
     'zatca_qr_help' => 'Suudi Arabistan ülkesi için',
     'customer_irrespective_of_sell' => 'Satışlarından bağımsız olarak müşterileri görüntüleyin',
     'img_url_help_text' => "Veya resmin URL'si",
+    'delivery_person' => 'Teslimat Personeli'
 ];

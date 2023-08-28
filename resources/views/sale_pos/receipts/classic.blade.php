@@ -239,6 +239,27 @@
 					<br>
 					<strong>@lang('lang_v1.order_dates'):</strong> {!!$receipt_details->sale_orders_invoice_date ?? ''!!}
 				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_1_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_1_label }}:</strong> {!!$receipt_details->sell_custom_field_1_value ?? ''!!}
+				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_2_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_2_label }}:</strong> {!!$receipt_details->sell_custom_field_2_value ?? ''!!}
+				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_3_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_3_label }}:</strong> {!!$receipt_details->sell_custom_field_3_value ?? ''!!}
+				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_4_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_4_label }}:</strong> {!!$receipt_details->sell_custom_field_4_value ?? ''!!}
+				@endif
+
 			</span>
 		</p>
 	</div>

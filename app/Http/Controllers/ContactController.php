@@ -21,6 +21,7 @@ use Excel;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
+use App\Events\ContactCreatedOrModified;
 
 class ContactController extends Controller
 {
@@ -628,6 +629,8 @@ class ContactController extends Controller
             DB::beginTransaction();
             $output = $this->contactUtil->createNewContact($input);
 
+            event(new ContactCreatedOrModified($input, 'added'));
+
             $this->moduleUtil->getModuleData('after_contact_saved', ['contact' => $output['data'], 'input' => $request->input()]);
 
             $this->contactUtil->activityLog($output['data'], 'added');
@@ -813,6 +816,8 @@ class ContactController extends Controller
 
                 $output = $this->contactUtil->updateContact($input, $id, $business_id);
 
+                event(new ContactCreatedOrModified($output['data'], 'updated'));
+
                 $this->contactUtil->activityLog($output['data'], 'edited');
             } catch (\Exception $e) {
                 \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
@@ -861,6 +866,8 @@ class ContactController extends Controller
                             ->update(['allow_login' => 0]);
 
                         $contact->delete();
+
+                        event(new ContactCreatedOrModified($contact, 'deleted'));
                     }
                     $output = ['success' => true,
                         'msg' => __('contact.deleted_success'),

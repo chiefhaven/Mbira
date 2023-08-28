@@ -21,17 +21,23 @@
 			        </div>
 			    </div>
 
-			    <div class="col-md-6">
+			    <div class="col-md-4">
 			        <div class="form-group">
 			            {!! Form::label('shipping_status', __('lang_v1.shipping_status') . ':' ) !!}
 			            {!! Form::select('shipping_status',$shipping_statuses, !empty($transaction->shipping_status) ? $transaction->shipping_status : null, ['class' => 'form-control','placeholder' => __('messages.please_select')]); !!}
 			        </div>
 			    </div>
 
-			    <div class="col-md-6">
+			    <div class="col-md-4">
 			        <div class="form-group">
 			            {!! Form::label('delivered_to', __('lang_v1.delivered_to') . ':' ) !!}
 			            {!! Form::text('delivered_to', !empty($transaction->delivered_to) ? $transaction->delivered_to : null, ['class' => 'form-control','placeholder' => __('lang_v1.delivered_to')]); !!}
+			        </div>
+			    </div>
+				<div class="col-md-4">
+			        <div class="form-group">
+						{!! Form::label('delivery_person', __('lang_v1.delivery_person') . ':' ) !!}
+						{!! Form::select('delivery_person',$users, !empty($transaction->delivery_person) ? $transaction->delivery_person : null, ['class' => 'form-control select2','placeholder' => __('messages.please_select')]); !!}
 			        </div>
 			    </div>
 			    @php

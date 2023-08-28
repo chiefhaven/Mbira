@@ -14,8 +14,8 @@
 	{!! Form::hidden('product_id', $product->id); !!}
 	@include('opening_stock.form-part')
 	<div class="row">
-		<div class="col-sm-12">
-			<button type="submit" class="btn btn-primary pull-right">@lang('messages.save')</button>
+		<div class="col-sm-12 text-center">
+			<button type="submit" class="btn btn-primary btn-big">@lang('messages.save')</button>
 		</div>
 	</div>
 

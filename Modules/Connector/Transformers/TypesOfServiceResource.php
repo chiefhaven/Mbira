@@ -2,9 +2,9 @@
 
 namespace Modules\Connector\Transformers;
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class TypesOfServiceResource extends Resource
+class TypesOfServiceResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,6 +17,7 @@ class TypesOfServiceResource extends Resource
         $array = parent::toArray($request);
 
         $array['location_price_group'] = (object) $this->location_price_group;
+
         return $array;
     }
 }

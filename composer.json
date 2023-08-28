@@ -16,6 +16,7 @@
     "require": {
         "php": "^8.0",
         "aloha/twilio": "^4.0",
+        "arcanedev/log-viewer": "9.x",
         "automattic/woocommerce": "^3.0",
         "barryvdh/laravel-dompdf": "^2.0",
         "composer/semver": "^3.0",
@@ -35,7 +36,7 @@
         "mpdf/mpdf": "^8.1",
         "nwidart/laravel-menus": "6.0.x-dev",
         "nwidart/laravel-modules": "^9.0",
-        "openai-php/laravel": "^0.3.1",
+        "openai-php/laravel": "^0.4.1",
         "pusher/pusher-php-server": "^5.0",
         "razorpay/razorpay": "2.*",
         "spatie/flysystem-dropbox": "^2.0",
@@ -100,7 +101,8 @@
         "sort-packages": true,
         "optimize-autoloader": true,
         "allow-plugins": {
-            "ocramius/package-versions": true
+            "ocramius/package-versions": true,
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "dev",

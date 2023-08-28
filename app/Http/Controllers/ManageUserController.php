@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
+use App\Events\UserCreatedOrModified;
 
 class ManageUserController extends Controller
 {
@@ -138,6 +139,8 @@ class ManageUserController extends Controller
 
             $user = $this->moduleUtil->createUser($request);
 
+            event(new UserCreatedOrModified($user, 'added'));
+
             $output = ['success' => 1,
                 'msg' => __('user.user_added'),
             ];
@@ -232,6 +235,12 @@ class ManageUserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        //Disable in demo
+        $notAllowed = $this->moduleUtil->notAllowedInDemo();
+        if (! empty($notAllowed)) {
+            return $notAllowed;
+        }
+        
         if (! auth()->user()->can('user.update')) {
             abort(403, 'Unauthorized action.');
         }
@@ -327,7 +336,9 @@ class ManageUserController extends Controller
             $this->moduleUtil->getModuleData('afterModelSaved', ['event' => 'user_saved', 'model_instance' => $user]);
 
             $this->moduleUtil->activityLog($user, 'edited', null, ['name' => $user->user_full_name]);
-
+           
+            event(new UserCreatedOrModified($user, 'updated'));
+            
             $output = ['success' => 1,
                 'msg' => __('user.user_update_success'),
             ];
@@ -362,6 +373,12 @@ class ManageUserController extends Controller
      */
     public function destroy($id)
     {
+        //Disable in demo
+        $notAllowed = $this->moduleUtil->notAllowedInDemo();
+        if (! empty($notAllowed)) {
+            return $notAllowed;
+        }
+
         if (! auth()->user()->can('user.delete')) {
             abort(403, 'Unauthorized action.');
         }
@@ -376,6 +393,8 @@ class ManageUserController extends Controller
                 $this->moduleUtil->activityLog($user, 'deleted', null, ['name' => $user->user_full_name, 'id' => $user->id]);
 
                 $user->delete();
+                event(new UserCreatedOrModified($user, 'deleted'));
+
                 $output = ['success' => true,
                     'msg' => __('user.user_delete_success'),
                 ];

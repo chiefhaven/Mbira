@@ -374,8 +374,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('backup', BackUpController::class)->only('index', 'create', 'store');
 
     Route::get('selling-price-group/activate-deactivate/{id}', [SellingPriceGroupController::class, 'activateDeactivate']);
-    Route::get('export-selling-price-group', [SellingPriceGroupController::class, 'export']);
-    Route::post('import-selling-price-group', [SellingPriceGroupController::class, 'import']);
+    Route::get('update-product-price', [SellingPriceGroupController::class, 'updateProductPrice'])->name('update-product-price');
+    Route::get('export-product-price', [SellingPriceGroupController::class, 'export']);
+    Route::post('import-product-price', [SellingPriceGroupController::class, 'import']);
 
     Route::resource('selling-price-group', SellingPriceGroupController::class);
 
@@ -453,6 +454,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::delete('manage-modules/destroy/{module_name}', [Install\ModulesController::class, 'destroy']);
     Route::resource('manage-modules', Install\ModulesController::class)
         ->only(['index', 'update']);
+    Route::get('regenerate', [Install\ModulesController::class, 'regenerate']);
+
     Route::resource('warranties', WarrantyController::class);
 
     Route::resource('dashboard-configurator', DashboardConfiguratorController::class)

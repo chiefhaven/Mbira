@@ -1,12 +1,16 @@
 <?php
 
 namespace Modules\Connector\Http\Controllers\Api;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
 
+use App\Business;
+use App\BusinessLocation;
+use App\Contact;
+use App\Product;
+use App\TaxRate;
+use App\Transaction;
+use App\TransactionPayment;
+use App\TransactionSellLine;
+use App\Unit;
 use App\Utils\BusinessUtil;
 use App\Utils\CashRegisterUtil;
 use App\Utils\ContactUtil;
@@ -14,17 +18,11 @@ use App\Utils\NotificationUtil;
 use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
 use App\Variation;
-use Modules\Connector\Transformers\SellTransactionResource;
-use App\BusinessLocation;
-use App\Product;
-use App\TaxRate;
-use App\Unit;
-use App\Contact;
-use App\Business;
-use App\Transaction;
-use App\TransactionSellLine;
-use App\TransactionPayment;
 use DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Modules\Connector\Transformers\SellResource;
 
 /**
@@ -37,20 +35,25 @@ class SellController extends ApiController
 {
     /**
      * All Utils instance.
-     *
      */
     protected $contactUtil;
+
     protected $productUtil;
+
     protected $businessUtil;
+
     protected $transactionUtil;
+
     protected $cashRegisterUtil;
+
     protected $moduleUtil;
+
     protected $notificationUtil;
 
     /**
      * Constructor
      *
-     * @param ProductUtils $product
+     * @param  ProductUtils  $product
      * @return void
      */
     public function __construct(
@@ -69,21 +72,25 @@ class SellController extends ApiController
         $this->notificationUtil = $notificationUtil;
 
         $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-        'is_return' => 0, 'transaction_no' => ''];
+            'is_return' => 0, 'transaction_no' => '', ];
         parent::__construct();
     }
 
     /**
      * List sells
-     * @queryParam location_id id of the location        
+     *
+     * @queryParam location_id id of the location Example: 1
      * @queryParam contact_id id of the customer
-     * @queryParam payment_status payment status Example: paid
+     * @queryParam status Sell status. Available values final, draft, quotation, proforma Example: final
+     * @queryParam payment_status Comma separated values of payment statuses. Available values due, partial, paid, overdue Example: due,partial
      * @queryParam start_date format:Y-m-d Example: 2018-06-25
      * @queryParam end_date format:Y-m-d Example: 2018-06-25
      * @queryParam user_id id of the user who created the sale
      * @queryParam service_staff_id id of the service staff assigned with the sale
      * @queryParam shipping_status Shipping Status of the sale ('ordered', 'packed', 'shipped', 'delivered', 'cancelled') Example: ordered
+     * @queryParam source Source of the sale
      * @queryParam only_subscriptions Filter only subcription invoices (1, 0)
+     * @queryParam send_purchase_details Get purchase details of each sell line (1, 0)
      * @queryParam order_by_date Sort sell list by date ('asc', 'desc') Example: desc
      * @queryParam per_page Total records per page. default: 10, Set -1 for no pagination Example:10
      *
@@ -106,6 +113,7 @@ class SellController extends ApiController
                 "customer_group_id": null,
                 "invoice_no": "AS0001",
                 "ref_no": "",
+                "source": null,
                 "subscription_no": null,
                 "subscription_repeat_on": null,
                 "transaction_date": "2018-04-10 13:23:21",
@@ -264,73 +272,170 @@ class SellController extends ApiController
             "to": 10
         }
     }
-     * 
      */
     public function index()
     {
         //TODO::order by
         $user = Auth::user();
         $business_id = $user->business_id;
+        $is_admin = $this->businessUtil->is_admin($user, $business_id);
 
-        $filters = request()->only(['location_id', 'contact_id', 'payment_status', 'start_date', 'end_date', 'user_id', 'service_staff_id', 'only_subscriptions', 'synced_from_woocommerce', 'per_page', 'shipping_status', 'order_by_date']);
+        if (! $is_admin && ! auth()->user()->hasAnyPermission(['sell.view', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $filters = request()->only(['location_id', 'contact_id', 'payment_status', 'start_date', 'end_date', 'user_id', 'service_staff_id', 'only_subscriptions', 'per_page', 'shipping_status', 'order_by_date', 'source', 'status']);
+
+        $with = ['sell_lines', 'payment_lines', 'contact'];
         $query = Transaction::where('business_id', $business_id)
-                            ->where('type', 'sell')
-                            ->with(['sell_lines', 'payment_lines']);
+                            ->where('type', 'sell');
+
+        if (! empty(request()->input('send_purchase_details')) && request()->input('send_purchase_details') == 1) {
+            $with[] = 'sell_lines.sell_line_purchase_lines';
+            $with[] = 'sell_lines.sell_line_purchase_lines.purchase_line';
+        }
+
+        $query->with($with);
 
         $permitted_locations = $user->permitted_locations($business_id);
         if ($permitted_locations != 'all') {
             $query->whereIn('transactions.location_id', $permitted_locations);
         }
 
-        if (!empty($filters['location_id'])) {
+        if (! $user->can('direct_sell.view')) {
+            $query->where(function ($q) use ($user) {
+                if ($user->hasAnyPermission(['view_own_sell_only', 'access_own_shipping'])) {
+                    $q->where('transactions.created_by', $user->id);
+                }
+
+                //if user is commission agent display only assigned sells
+                if ($user->hasAnyPermission(['view_commission_agent_sell', 'access_commission_agent_shipping'])) {
+                    $q->orWhere('transactions.commission_agent', $user->id);
+                }
+            });
+        }
+
+        if (! empty($filters['status'])) {
+            if ($filters['status'] == 'final' || $filters['status'] == 'draft') {
+                $query->where('transactions.status', $filters['status']);
+            } elseif ($filters['status'] == 'quotation') {
+                $query->where('transactions.sub_status', 'quotation');
+            } elseif ($filters['status'] == 'proforma') {
+                $query->where('transactions.sub_status', 'proforma');
+            }
+        }
+
+        if (! empty($filters['location_id'])) {
             $query->where('transactions.location_id', $filters['location_id']);
         }
 
-        if (!empty($filters['contact_id'])) {
+        if (! empty($filters['contact_id'])) {
             $query->where('transactions.contact_id', $filters['contact_id']);
         }
 
-        if (!empty($filters['payment_status'])) {
-            $query->where('transactions.payment_status', $filters['payment_status']);
+        $payment_status = [];
+        if (! empty($filters['payment_status'])) {
+            $payment_status = explode(',', $filters['payment_status']);
         }
 
-        if (!empty($filters['start_date'])) {
+        if (! $is_admin) {
+            $payment_status_arr = [];
+            if (auth()->user()->can('view_paid_sells_only')) {
+                $payment_status_arr[] = 'paid';
+            }
+
+            if (auth()->user()->can('view_due_sells_only')) {
+                $payment_status_arr[] = 'due';
+            }
+
+            if (auth()->user()->can('view_partial_sells_only')) {
+                $payment_status_arr[] = 'partial';
+            }
+
+            if (empty($payment_status_arr)) {
+                if (auth()->user()->can('view_overdue_sells_only')) {
+                    $query->OverDue();
+                }
+            } else {
+                if (auth()->user()->can('view_overdue_sells_only')) {
+                    $query->where(function ($q) use ($payment_status_arr) {
+                        $q->whereIn('transactions.payment_status', $payment_status_arr)
+                        ->orWhere(function ($qr) {
+                            $qr->OverDue();
+                        });
+                    });
+                } else {
+                    $query->whereIn('transactions.payment_status', $payment_status_arr);
+                }
+            }
+        }
+
+        if (! empty($payment_status)) {
+            $query->where(function ($q) use ($payment_status) {
+                $is_overdue = false;
+                if (in_array('overdue', $payment_status)) {
+                    $is_overdue = true;
+                    $key = array_search('overdue', $payment_status);
+                    unset($payment_status[$key]);
+                }
+
+                if (! empty($payment_status)) {
+                    $q->whereIn('transactions.payment_status', $payment_status);
+                }
+
+                if ($is_overdue) {
+                    $q->orWhere(function ($qr) {
+                        $qr->whereIn('transactions.payment_status', ['due', 'partial'])
+                            ->whereNotNull('transactions.pay_term_number')
+                            ->whereNotNull('transactions.pay_term_type')
+                            ->whereRaw("IF(transactions.pay_term_type='days', DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number DAY) < CURDATE(), DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number MONTH) < CURDATE())");
+                    });
+                }
+            });
+        }
+
+        if (! empty($filters['start_date'])) {
             $query->whereDate('transactions.transaction_date', '>=', $filters['start_date']);
         }
 
-        if (!empty($filters['end_date'])) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('transactions.transaction_date', '<=', $filters['end_date']);
         }
 
-        if (!empty($filters['order_by_date'])) {
+        if (! empty($filters['order_by_date'])) {
             $order_by_date = in_array($filters['order_by_date'], ['asc', 'desc']) ? $filters['order_by_date'] : 'desc';
             $query->orderBy('transactions.transaction_date', $order_by_date);
         }
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('transactions.created_by', $filters['user_id']);
         }
-        
-        if (!empty($filters['service_staff_id'])) {
+
+        if (! empty($filters['service_staff_id'])) {
             $query->where('transactions.res_waiter_id', $filters['service_staff_id']);
         }
 
-        if (!empty($filters['shipping_status'])) {
+        if (! empty($filters['shipping_status'])) {
             $query->where('transactions.shipping_status', $filters['shipping_status']);
         }
 
-        if (!empty($filters['only_subscriptions']) && $filters['only_subscriptions'] == 1) {
+        if (! empty($filters['only_subscriptions']) && $filters['only_subscriptions'] == 1) {
             $query->where(function ($q) {
                 $q->whereNotNull('transactions.recur_parent_id')
                     ->orWhere('transactions.is_recurring', 1);
             });
         }
 
-        if (!empty($filters['synced_from_woocommerce']) && $filters['synced_from_woocommerce'] == 1) {
-            $query->whereNotNull('transactions.woocommerce_order_id');
+        if (! empty($filters['source'])) {
+            //only exception for woocommerce
+            if ($filters['source'] == 'woocommerce') {
+                $query->whereNotNull('transactions.woocommerce_order_id');
+            } else {
+                $query->where('transactions.source', $filters['source']);
+            }
         }
 
-        $perPage = !empty($filters['per_page']) ? $filters['per_page'] : $this->perPage;
+        $perPage = ! empty($filters['per_page']) ? $filters['per_page'] : $this->perPage;
         if ($perPage == -1) {
             $sells = $query->get();
         } else {
@@ -339,12 +444,13 @@ class SellController extends ApiController
         }
 
         return SellResource::collection($sells);
-
     }
 
     /**
      * Get the specified sell
+     *
      * @urlParam sell required comma separated ids of the sells Example: 55
+     * @queryParam send_purchase_details Get purchase details of each sell line (1, 0)
      *
      * @response {
         "data": [
@@ -365,6 +471,7 @@ class SellController extends ApiController
                 "customer_group_id": null,
                 "invoice_no": "AS0007",
                 "ref_no": "",
+                "source": null,
                 "subscription_no": null,
                 "subscription_repeat_on": null,
                 "transaction_date": "2020-06-04 23:29:36",
@@ -519,93 +626,102 @@ class SellController extends ApiController
         $business_id = $user->business_id;
         $sell_ids = explode(',', $sell_ids);
 
-        $sells = Transaction::where('business_id', $business_id)
-                        ->whereIn('id', $sell_ids)
-                        ->with(['sell_lines', 'payment_lines'])
-                        ->get();
+        $query = Transaction::where('business_id', $business_id)
+                        ->whereIn('id', $sell_ids);
+
+        $with = ['sell_lines', 'payment_lines'];
+
+        if (! empty(request()->input('send_purchase_details')) && request()->input('send_purchase_details') == 1) {
+            $with[] = 'sell_lines.sell_line_purchase_lines';
+            $with[] = 'sell_lines.sell_line_purchase_lines.purchase_line';
+        }
+
+        $sells = $query->with($with)
+                    ->get();
 
         return SellResource::collection($sells);
     }
 
     /**
-    * Create sell
-    *
-    * @bodyParam sells.*.location_id int required id of the business location
-    * @bodyParam sells.*.contact_id int required id of the customer
-    * @bodyParam sells.*.transaction_date string transaction date format:Y-m-d H:i:s, Example: 2020-07-22 15:48:29
-    * @bodyParam sells.*.invoice_no string Invoice number
-    * @bodyParam sells.*.status string sale status (final, draft) Example: final
-    * @bodyParam sells.*.sub_status string sale sub status ("quotation" for quotation and "proforma" for proforma invoice) Example:null
-    * @bodyParam sells.*.is_quotation boolean Is sell quotation (0, 1), If 1 status should be draft Example: 1
-    * @bodyParam sells.*.tax_rate_id int id of the tax rate applicable to the sale 
-    * @bodyParam sells.*.discount_amount float discount amount applicable to the sale Example:10.00
-    * @bodyParam sells.*.discount_type string  type of the discount amount (fixed, percentage) Example: fixed
-    * @bodyParam sells.*.sale_note string
-    * @bodyParam sells.*.staff_note string
-    * @bodyParam sells.*.commission_agent int commission agent id
-    * @bodyParam sells.*.shipping_details string shipping details Example: Express Delivery
-    * @bodyParam sells.*.shipping_address string shipping address
-    * @bodyParam sells.*.shipping_status string ('ordered', 'packed', 'shipped', 'delivered', 'cancelled') Example: ordered
-    * @bodyParam sells.*.delivered_to string Name of the person recieved the consignment Example:'Mr robin'
-    * @bodyParam sells.*.shipping_charges float shipping amount Example:10.0000
-    * @bodyParam sells.*.packing_charge float packing charge Example:10
-    * @bodyParam sells.*.exchange_rate float exchange rate for the currency used Example: 1
-    * @bodyParam sells.*.selling_price_group_id int id of the selling price group
-    * @bodyParam sells.*.pay_term_number int pay term value Example:3
-    * @bodyParam sells.*.pay_term_type string type of the pay term value ('days', 'months') Example: months
-    * @bodyParam sells.*.is_suspend boolean Is suspended sale (0, 1) Example: 0
-    * @bodyParam sells.*.is_recurring int whether the invoice is recurring (0, 1) Example: 0
-    * @bodyParam sells.*.recur_interval int value of the interval invoice will be regenerated
-    * @bodyParam sells.*.recur_interval_type string type of the recur interval ('days', 'months', 'years') Example: months
-    * @bodyParam sells.*.subscription_repeat_on int day of the month on which invoice will be generated if recur interval type is months (1-30) Example: 15
-    * @bodyParam sells.*.subscription_no string subscription number
-    * @bodyParam sells.*.recur_repetitions int total number of invoices to be generated
-    * @bodyParam sells.*.rp_redeemed int reward points redeemed
-    * @bodyParam sells.*.rp_redeemed_amount float reward point redeemed amount after conversion Example: 13.5000
-    * @bodyParam sells.*.types_of_service_id int types of service id
-    * @bodyParam sells.*.service_custom_field_1 string types of service custom field 1
-    * @bodyParam sells.*.service_custom_field_2 string types of service custom field 2
-    * @bodyParam sells.*.service_custom_field_3 string types of service custom field 3
-    * @bodyParam sells.*.service_custom_field_4 string types of service custom field 4
-    * @bodyParam sells.*.service_custom_field_5 string types of service custom field 5
-    * @bodyParam sells.*.service_custom_field_6 string types of service custom field 6
-    * @bodyParam sells.*.round_off_amount float round off amount on total payable 
-    * @bodyParam sells.*.table_id int id of the table
-    * @bodyParam sells.*.service_staff_id int id of the service staff assigned to the sale
-    * @bodyParam sells.*.change_return float Excess paid amount Example:0.0000
-    * @bodyParam sells.*.products array required array of the products for the sale
-    * @bodyParam sells.*.payments array payment lines for the sale
-    *
-    *
-    * @bodyParam sells.*.products.*.product_id int required product id Example:17
-    * @bodyParam sells.*.products.*.variation_id int required variation id Example:58
-    * @bodyParam sells.*.products.*.quantity float required quantity Example: 1
-    * @bodyParam sells.*.products.*.unit_price float unit selling price Example:437.5000
-    * @bodyParam sells.*.products.*.tax_rate_id int tax rate id applicable on the product Example:null
-    * @bodyParam sells.*.products.*.discount_amount float discount amount applicable on the product Example:0.0000
-    * @bodyParam sells.*.products.*.discount_type string type of discount amount ('fixed', 'percentage') Example: percentage
-    * @bodyParam sells.*.products.*.sub_unit_id int sub unit id
-    * @bodyParam sells.*.products.*.note string note for the product
-    *
-    *
-    * @bodyParam sells.*.payments.*.amount float required amount of the payment Example: 453.1300
-    * @bodyParam sells.*.payments.*.method string payment methods ('cash', 'card', 'cheque', 'bank_transfer', 'other', 'custom_pay_1', 'custom_pay_2', 'custom_pay_3') Example: cash
-    * @bodyParam sells.*.payments.*.account_id int account id 
-    * @bodyParam sells.*.payments.*.card_number string 
-    * @bodyParam sells.*.payments.*.card_holder_name string 
-    * @bodyParam sells.*.payments.*.card_transaction_number string 
-    * @bodyParam sells.*.payments.*.card_type string 
-    * @bodyParam sells.*.payments.*.card_month string 
-    * @bodyParam sells.*.payments.*.card_year string 
-    * @bodyParam sells.*.payments.*.card_security string 
-    * @bodyParam sells.*.payments.*.transaction_no_1 string 
-    * @bodyParam sells.*.payments.*.transaction_no_2 string 
-    * @bodyParam sells.*.payments.*.transaction_no_3 string 
-    * @bodyParam sells.*.payments.*.bank_account_number string
-    * @bodyParam sells.*.payments.*.note string payment note
-    * @bodyParam sells.*.payments.*.cheque_number string 
-    * 
-    * @response {
+     * Create sell
+     *
+     * @bodyParam sells.*.location_id int required id of the business location Example: 1
+     * @bodyParam sells.*.contact_id int required id of the customer
+     * @bodyParam sells.*.transaction_date string transaction date format:Y-m-d H:i:s, Example: 2020-07-22 15:48:29
+     * @bodyParam sells.*.invoice_no string Invoice number
+     * @bodyParam sells.*.source string Source of the invoice Example: api, phone, woocommerce
+     * @bodyParam sells.*.status string sale status (final, draft) Example: final
+     * @bodyParam sells.*.sub_status string sale sub status ("quotation" for quotation and "proforma" for proforma invoice) Example:null
+     * @bodyParam sells.*.is_quotation boolean Is sell quotation (0, 1), If 1 status should be draft Example: 1
+     * @bodyParam sells.*.tax_rate_id int id of the tax rate applicable to the sale
+     * @bodyParam sells.*.discount_amount float discount amount applicable to the sale Example:10.00
+     * @bodyParam sells.*.discount_type string  type of the discount amount (fixed, percentage) Example: fixed
+     * @bodyParam sells.*.sale_note string
+     * @bodyParam sells.*.staff_note string
+     * @bodyParam sells.*.commission_agent int commission agent id
+     * @bodyParam sells.*.shipping_details string shipping details Example: Express Delivery
+     * @bodyParam sells.*.shipping_address string shipping address
+     * @bodyParam sells.*.shipping_status string ('ordered', 'packed', 'shipped', 'delivered', 'cancelled') Example: ordered
+     * @bodyParam sells.*.delivered_to string Name of the person recieved the consignment Example:'Mr robin'
+     * @bodyParam sells.*.shipping_charges float shipping amount Example:10.0000
+     * @bodyParam sells.*.packing_charge float packing charge Example:10
+     * @bodyParam sells.*.exchange_rate float exchange rate for the currency used Example: 1
+     * @bodyParam sells.*.selling_price_group_id int id of the selling price group
+     * @bodyParam sells.*.pay_term_number int pay term value Example:3
+     * @bodyParam sells.*.pay_term_type string type of the pay term value ('days', 'months') Example: months
+     * @bodyParam sells.*.is_suspend boolean Is suspended sale (0, 1) Example: 0
+     * @bodyParam sells.*.is_recurring int whether the invoice is recurring (0, 1) Example: 0
+     * @bodyParam sells.*.recur_interval int value of the interval invoice will be regenerated
+     * @bodyParam sells.*.recur_interval_type string type of the recur interval ('days', 'months', 'years') Example: months
+     * @bodyParam sells.*.subscription_repeat_on int day of the month on which invoice will be generated if recur interval type is months (1-30) Example: 15
+     * @bodyParam sells.*.subscription_no string subscription number
+     * @bodyParam sells.*.recur_repetitions int total number of invoices to be generated
+     * @bodyParam sells.*.rp_redeemed int reward points redeemed
+     * @bodyParam sells.*.rp_redeemed_amount float reward point redeemed amount after conversion Example: 13.5000
+     * @bodyParam sells.*.types_of_service_id int types of service id
+     * @bodyParam sells.*.service_custom_field_1 string types of service custom field 1
+     * @bodyParam sells.*.service_custom_field_2 string types of service custom field 2
+     * @bodyParam sells.*.service_custom_field_3 string types of service custom field 3
+     * @bodyParam sells.*.service_custom_field_4 string types of service custom field 4
+     * @bodyParam sells.*.service_custom_field_5 string types of service custom field 5
+     * @bodyParam sells.*.service_custom_field_6 string types of service custom field 6
+     * @bodyParam sells.*.round_off_amount float round off amount on total payable
+     * @bodyParam sells.*.table_id int id of the table
+     * @bodyParam sells.*.service_staff_id int id of the service staff assigned to the sale
+     * @bodyParam sells.*.change_return float Excess paid amount Example:0.0000
+     * @bodyParam sells.*.products array required array of the products for the sale
+     * @bodyParam sells.*.payments array payment lines for the sale
+     *
+     *
+     * @bodyParam sells.*.products.*.product_id int required product id Example:17
+     * @bodyParam sells.*.products.*.variation_id int required variation id Example:58
+     * @bodyParam sells.*.products.*.quantity float required quantity Example: 1
+     * @bodyParam sells.*.products.*.unit_price float unit selling price Example:437.5000
+     * @bodyParam sells.*.products.*.tax_rate_id int tax rate id applicable on the product Example:null
+     * @bodyParam sells.*.products.*.discount_amount float discount amount applicable on the product Example:0.0000
+     * @bodyParam sells.*.products.*.discount_type string type of discount amount ('fixed', 'percentage') Example: percentage
+     * @bodyParam sells.*.products.*.sub_unit_id int sub unit id
+     * @bodyParam sells.*.products.*.note string note for the product
+     *
+     *
+     * @bodyParam sells.*.payments.*.amount float required amount of the payment Example: 453.1300
+     * @bodyParam sells.*.payments.*.method string payment methods ('cash', 'card', 'cheque', 'bank_transfer', 'other', 'custom_pay_1', 'custom_pay_2', 'custom_pay_3') Example: cash
+     * @bodyParam sells.*.payments.*.account_id int account id
+     * @bodyParam sells.*.payments.*.card_number string
+     * @bodyParam sells.*.payments.*.card_holder_name string
+     * @bodyParam sells.*.payments.*.card_transaction_number string
+     * @bodyParam sells.*.payments.*.card_type string
+     * @bodyParam sells.*.payments.*.card_month string
+     * @bodyParam sells.*.payments.*.card_year string
+     * @bodyParam sells.*.payments.*.card_security string
+     * @bodyParam sells.*.payments.*.transaction_no_1 string
+     * @bodyParam sells.*.payments.*.transaction_no_2 string
+     * @bodyParam sells.*.payments.*.transaction_no_3 string
+     * @bodyParam sells.*.payments.*.bank_account_number string
+     * @bodyParam sells.*.payments.*.note string payment note
+     * @bodyParam sells.*.payments.*.cheque_number string
+     *
+     * @response {
         "data": [
             {
                 "id": 6,
@@ -624,6 +740,7 @@ class SellController extends ApiController
                 "customer_group_id": null,
                 "invoice_no": "AS0001",
                 "ref_no": "",
+                "source": null,
                 "subscription_no": null,
                 "subscription_repeat_on": null,
                 "transaction_date": "2018-04-10 13:23:21",
@@ -769,42 +886,42 @@ class SellController extends ApiController
             }
         ]
     }
-    */
+     */
     public function store(Request $request)
     {
         //TODO::Check customer credit limit
         try {
             $sells = $request->input('sells');
-            $user = Auth::user(); 
+            $user = Auth::user();
 
             $business_id = $user->business_id;
             $business = Business::find($business_id);
             $commsn_agnt_setting = $business->sales_cmsn_agnt;
             $output = [];
 
-            if (empty($sells) || !is_array($sells)) {
-                throw new \Exception("Invalid form data");
+            if (empty($sells) || ! is_array($sells)) {
+                throw new \Exception('Invalid form data');
             }
 
             foreach ($sells as $sell_data) {
                 try {
-                    DB::beginTransaction(); 
+                    DB::beginTransaction();
                     $sell_data['business_id'] = $user->business_id;
                     $input = $this->__formatSellData($sell_data);
 
                     //TODO: temporarily used false to bypass the check, bcz of session issue in can_access_this_location function
                     //Check if location allowed
-                    if (false && !$user->can_access_this_location($input['location_id'])) {
-                        throw new \Exception("User not allowed to access location with id " . $input['location_id']);
+                    if (false && ! $user->can_access_this_location($input['location_id'])) {
+                        throw new \Exception('User not allowed to access location with id '.$input['location_id']);
                     }
 
                     if (empty($input['products'])) {
-                        throw new \Exception("No products added");
+                        throw new \Exception('No products added');
                     }
 
                     $discount = ['discount_type' => $input['discount_type'],
-                            'discount_amount' => $input['discount_amount']
-                        ];
+                        'discount_amount' => $input['discount_amount'],
+                    ];
                     $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount, false);
 
                     if ($commsn_agnt_setting == 'logged_in_user') {
@@ -819,8 +936,8 @@ class SellController extends ApiController
                     $change_return['amount'] = $input['change_return'];
                     $change_return['is_return'] = 1;
                     $input['payment'][] = $change_return;
-                    
-                    if (!empty($input['payment']) && $transaction->is_suspend == 0) {
+
+                    if (! empty($input['payment']) && $transaction->is_suspend == 0) {
                         $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment'], $business_id, $user->id, false);
                     }
 
@@ -829,7 +946,7 @@ class SellController extends ApiController
                         //update product stock
                         foreach ($input['products'] as $product) {
                             $decrease_qty = $product['quantity'];
-                            if (!empty($product['base_unit_multiplier'])) {
+                            if (! empty($product['base_unit_multiplier'])) {
                                 $decrease_qty = $decrease_qty * $product['base_unit_multiplier'];
                             }
 
@@ -856,7 +973,7 @@ class SellController extends ApiController
                         $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
 
                         if ($business->enable_rp == 1) {
-                            $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
+                            $redeemed = ! empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
                             $this->transactionUtil->updateCustomerRewardPoints($transaction->contact_id, $transaction->rp_earned, 0, $redeemed);
                         }
 
@@ -867,10 +984,10 @@ class SellController extends ApiController
                         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
                         $business_info = ['id' => $business_id,
-                                        'accounting_method' => $business->accounting_method,
-                                        'location_id' => $input['location_id'],
-                                        'pos_settings' => $pos_settings
-                                    ];
+                            'accounting_method' => $business->accounting_method,
+                            'location_id' => $input['location_id'],
+                            'pos_settings' => $pos_settings,
+                        ];
                         $this->transactionUtil->mapPurchaseSell($business_info, $transaction->sell_lines, 'purchase');
 
                         //Auto send notification
@@ -886,28 +1003,24 @@ class SellController extends ApiController
 
                     DB::commit();
                     $output[] = $transaction;
-
-                } 
-                catch(ModelNotFoundException $e){
+                } catch (ModelNotFoundException $e) {
                     DB::rollback();
 
-                    \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                    \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
                     $output[] = $this->modelNotFoundExceptionResult($e);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     DB::rollback();
 
-                    \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-                    
+                    \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
                     $output[] = $this->otherExceptions($e);
                 }
             }
-
         } catch (\Exception $e) {
             DB::rollback();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output[] = $this->otherExceptions($e);
         }
@@ -916,86 +1029,87 @@ class SellController extends ApiController
     }
 
     /**
-    * Update sell
-    *
-    * @urlParam sell required id of sell to update Example: 6
-    * @bodyParam contact_id int id of the customer
-    * @bodyParam transaction_date string transaction date format:Y-m-d H:i:s, Example: 2020-5-7 15:20:22
-    * @bodyParam status string sale status (final, draft) Example:final
-    * @bodyParam sub_status string sale sub status ("quotation" for quotation and "proforma" for proforma invoice) Example:null
-    * @bodyParam is_quotation boolean Is sell quotation (0, 1), If 1 status should be draft Example: 1
-    * @bodyParam tax_rate_id int id of the tax rate applicable to the sale 
-    * @bodyParam discount_amount float discount amount applicable to the sale Example: 10.0000
-    * @bodyParam discount_type string type of the discount amount (fixed, percentage) Example: fixed
-    * @bodyParam sale_note string
-    * @bodyParam staff_note string
-    * @bodyParam sells.*.is_suspend boolean Is suspended sale (0, 1) Example: 0
-    * @bodyParam commission_agent int commission agent id
-    * @bodyParam shipping_details string shipping details Example: Express Delivery
-    * @bodyParam shipping_address string shipping address
-    * @bodyParam shipping_status string ('ordered', 'packed', 'shipped', 'delivered', 'cancelled') Example:ordered
-    * @bodyParam delivered_to string Name of the person recieved the consignment Example: Mr Robin
-    * @bodyParam shipping_charges float shipping amount Example: 10.0000
-    * @bodyParam packing_charge float packing charge Example: 10.0000
-    * @bodyParam exchange_rate float exchange rate for the currency used Example:1
-    * @bodyParam selling_price_group_id int id of the selling price group
-    * @bodyParam pay_term_number int pay term value 
-    * @bodyParam pay_term_type string type of the pay term value ('days', 'months') Example: months
-    * @bodyParam is_recurring int whether the invoice is recurring (0, 1) Example:0
-    * @bodyParam recur_interval int value of the interval invoice will be regenerated
-    * @bodyParam recur_interval_type string type of the recur interval ('days', 'months', 'years') Example:days
-    * @bodyParam subscription_repeat_on int day of the month on which invoice will be generated if recur interval type is months (1-30) Example:7
-    * @bodyParam subscription_no string subscription number
-    * @bodyParam recur_repetitions int total number of invoices to be generated
-    * @bodyParam rp_redeemed int reward points redeemed
-    * @bodyParam rp_redeemed_amount float reward point redeemed amount after conversion Example: 13.5000
-    * @bodyParam types_of_service_id int types of service id
-    * @bodyParam service_custom_field_1 string types of service custom field 1
-    * @bodyParam service_custom_field_2 string types of service custom field 2
-    * @bodyParam service_custom_field_3 string types of service custom field 3
-    * @bodyParam service_custom_field_4 string types of service custom field 4
-    * @bodyParam service_custom_field_5 string types of service custom field 5
-    * @bodyParam service_custom_field_6 string types of service custom field 6
-    * @bodyParam round_off_amount float round off amount on total payable 
-    * @bodyParam table_id int id of the table
-    * @bodyParam service_staff_id int id of the service staff assigned to the sale
-    * @bodyParam change_return float Excess paid amount Example:0.0000
-    * @bodyParam change_return_id int id of the change return payment if exists
-    * @bodyParam products array required array of the products for the sale
-    * @bodyParam payments array payment lines for the sale
-    *
-    *
-    * @bodyParam products.*.sell_line_id int sell line id for existing item only
-    * @bodyParam products.*.product_id int product id Example: 17
-    * @bodyParam products.*.variation_id int variation id Example: 58
-    * @bodyParam products.*.quantity float quantity Example: 1
-    * @bodyParam products.*.unit_price float unit selling price Example: 437.5000
-    * @bodyParam products.*.tax_rate_id int tax rate id applicable on the product 
-    * @bodyParam products.*.discount_amount float discount amount applicable on the product  Example:0.0000
-    * @bodyParam products.*.discount_type string type of discount amount ('fixed', 'percentage') Example: percentage
-    * @bodyParam products.*.sub_unit_id int sub unit id
-    * @bodyParam products.*.note string note for the product
-    *
-    *
-    * @bodyParam payments.*.payment_id int payment id for existing payment line 
-    * @bodyParam payments.*.amount float amount of the payment Example:453.1300
-    * @bodyParam payments.*.method string payment methods ('cash', 'card', 'cheque', 'bank_transfer', 'other', 'custom_pay_1', 'custom_pay_2', 'custom_pay_3') Example:cash
-    * @bodyParam payments.*.account_id int account id 
-    * @bodyParam payments.*.card_number string 
-    * @bodyParam payments.*.card_holder_name string 
-    * @bodyParam payments.*.card_transaction_number string 
-    * @bodyParam payments.*.card_type string 
-    * @bodyParam payments.*.card_month string 
-    * @bodyParam payments.*.card_year string 
-    * @bodyParam payments.*.card_security string 
-    * @bodyParam payments.*.transaction_no_1 string 
-    * @bodyParam payments.*.transaction_no_2 string 
-    * @bodyParam payments.*.transaction_no_3 string 
-    * @bodyParam payments.*.note string payment note
-    * @bodyParam payments.*.cheque_number string 
-    * @bodyParam payments.*.bank_account_number string
-    * 
-    * @response {
+     * Update sell
+     *
+     * @urlParam sell required id of sell to update Example: 6
+     * @bodyParam contact_id int id of the customer
+     * @bodyParam transaction_date string transaction date format:Y-m-d H:i:s, Example: 2020-5-7 15:20:22
+     * @bodyParam status string sale status (final, draft) Example:final
+     * @bodyParam sub_status string sale sub status ("quotation" for quotation and "proforma" for proforma invoice) Example:null
+     * @bodyParam is_quotation boolean Is sell quotation (0, 1), If 1 status should be draft Example: 1
+     * @bodyParam tax_rate_id int id of the tax rate applicable to the sale
+     * @bodyParam discount_amount float discount amount applicable to the sale Example: 10.0000
+     * @bodyParam discount_type string type of the discount amount (fixed, percentage) Example: fixed
+     * @bodyParam sale_note string
+     * @bodyParam source string Source of the invoice
+     * @bodyParam staff_note string
+     * @bodyParam is_suspend boolean Is suspended sale (0, 1) Example: 0
+     * @bodyParam commission_agent int commission agent id
+     * @bodyParam shipping_details string shipping details Example: Express Delivery
+     * @bodyParam shipping_address string shipping address
+     * @bodyParam shipping_status string ('ordered', 'packed', 'shipped', 'delivered', 'cancelled') Example:ordered
+     * @bodyParam delivered_to string Name of the person recieved the consignment Example: Mr Robin
+     * @bodyParam shipping_charges float shipping amount Example: 10.0000
+     * @bodyParam packing_charge float packing charge Example: 10.0000
+     * @bodyParam exchange_rate float exchange rate for the currency used Example:1
+     * @bodyParam selling_price_group_id int id of the selling price group
+     * @bodyParam pay_term_number int pay term value
+     * @bodyParam pay_term_type string type of the pay term value ('days', 'months') Example: months
+     * @bodyParam is_recurring int whether the invoice is recurring (0, 1) Example:0
+     * @bodyParam recur_interval int value of the interval invoice will be regenerated
+     * @bodyParam recur_interval_type string type of the recur interval ('days', 'months', 'years') Example:days
+     * @bodyParam subscription_repeat_on int day of the month on which invoice will be generated if recur interval type is months (1-30) Example:7
+     * @bodyParam subscription_no string subscription number
+     * @bodyParam recur_repetitions int total number of invoices to be generated
+     * @bodyParam rp_redeemed int reward points redeemed
+     * @bodyParam rp_redeemed_amount float reward point redeemed amount after conversion Example: 13.5000
+     * @bodyParam types_of_service_id int types of service id
+     * @bodyParam service_custom_field_1 string types of service custom field 1
+     * @bodyParam service_custom_field_2 string types of service custom field 2
+     * @bodyParam service_custom_field_3 string types of service custom field 3
+     * @bodyParam service_custom_field_4 string types of service custom field 4
+     * @bodyParam service_custom_field_5 string types of service custom field 5
+     * @bodyParam service_custom_field_6 string types of service custom field 6
+     * @bodyParam round_off_amount float round off amount on total payable
+     * @bodyParam table_id int id of the table
+     * @bodyParam service_staff_id int id of the service staff assigned to the sale
+     * @bodyParam change_return float Excess paid amount Example:0.0000
+     * @bodyParam change_return_id int id of the change return payment if exists
+     * @bodyParam products array required array of the products for the sale
+     * @bodyParam payments array payment lines for the sale
+     *
+     *
+     * @bodyParam products.*.sell_line_id int sell line id for existing item only
+     * @bodyParam products.*.product_id int product id Example: 17
+     * @bodyParam products.*.variation_id int variation id Example: 58
+     * @bodyParam products.*.quantity float quantity Example: 1
+     * @bodyParam products.*.unit_price float unit selling price Example: 437.5000
+     * @bodyParam products.*.tax_rate_id int tax rate id applicable on the product
+     * @bodyParam products.*.discount_amount float discount amount applicable on the product  Example:0.0000
+     * @bodyParam products.*.discount_type string type of discount amount ('fixed', 'percentage') Example: percentage
+     * @bodyParam products.*.sub_unit_id int sub unit id
+     * @bodyParam products.*.note string note for the product
+     *
+     *
+     * @bodyParam payments.*.payment_id int payment id for existing payment line
+     * @bodyParam payments.*.amount float amount of the payment Example:453.1300
+     * @bodyParam payments.*.method string payment methods ('cash', 'card', 'cheque', 'bank_transfer', 'other', 'custom_pay_1', 'custom_pay_2', 'custom_pay_3') Example:cash
+     * @bodyParam payments.*.account_id int account id
+     * @bodyParam payments.*.card_number string
+     * @bodyParam payments.*.card_holder_name string
+     * @bodyParam payments.*.card_transaction_number string
+     * @bodyParam payments.*.card_type string
+     * @bodyParam payments.*.card_month string
+     * @bodyParam payments.*.card_year string
+     * @bodyParam payments.*.card_security string
+     * @bodyParam payments.*.transaction_no_1 string
+     * @bodyParam payments.*.transaction_no_2 string
+     * @bodyParam payments.*.transaction_no_3 string
+     * @bodyParam payments.*.note string payment note
+     * @bodyParam payments.*.cheque_number string
+     * @bodyParam payments.*.bank_account_number string
+     *
+     * @response {
         "id": 91,
         "business_id": 1,
         "location_id": 1,
@@ -1012,6 +1126,7 @@ class SellController extends ApiController
         "customer_group_id": 1,
         "invoice_no": "AS0020",
         "ref_no": "",
+        "source": null,
         "subscription_no": null,
         "subscription_repeat_on": null,
         "transaction_date": "25-09-2020 15:22",
@@ -1128,11 +1243,11 @@ class SellController extends ApiController
         "invoice_url": "http://local.pos.com/invoice/6dfd77eb80f4976b456128e7f1311c9f",
         "payment_link": "http://local.pos.com/pay/6dfd77eb80f4976b456128e7f1311c9f"
     }
-    */
+     */
     public function update(Request $request, $id)
     {
         try {
-            $user = Auth::user(); 
+            $user = Auth::user();
 
             $business_id = $user->business_id;
             $business = Business::find($business_id);
@@ -1144,19 +1259,19 @@ class SellController extends ApiController
                                     ->findOrFail($id);
 
             //Check if location allowed
-            if (!$user->can_access_this_location($transaction_before->location_id)) {
-                throw new \Exception("User not allowed to access location with id " . $input['location_id']);
+            if (! $user->can_access_this_location($transaction_before->location_id)) {
+                throw new \Exception('User not allowed to access location with id '.$input['location_id']);
             }
 
-            $status_before =  $transaction_before->status;
+            $status_before = $transaction_before->status;
             $rp_earned_before = $transaction_before->rp_earned;
             $rp_redeemed_before = $transaction_before->rp_redeemed;
 
             $sell_data['location_id'] = $transaction_before->location_id;
             $input = $this->__formatSellData($sell_data, $transaction_before);
             $discount = ['discount_type' => $input['discount_type'],
-                                'discount_amount' => $input['discount_amount']
-                            ];
+                'discount_amount' => $input['discount_amount'],
+            ];
             $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
 
             //Begin transaction
@@ -1166,19 +1281,18 @@ class SellController extends ApiController
 
             //Update Sell lines
             $deleted_lines = $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], true, $status_before, [], false);
-            if (!empty($input['payment']) && $transaction->is_suspend == 0) {
-
+            if (! empty($input['payment']) && $transaction->is_suspend == 0) {
                 $change_return = $this->dummyPaymentLine;
                 $change_return['amount'] = $input['change_return'];
                 $change_return['is_return'] = 1;
-                if (!empty($input['change_return_id'])) {
+                if (! empty($input['change_return_id'])) {
                     $change_return['id'] = $input['change_return_id'];
                 }
                 $input['payment'][] = $change_return;
 
-               $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment'], $business_id, $user->id, false);
+                $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment'], $business_id, $user->id, false);
             }
-            
+
             if ($business->enable_rp == 1) {
                 $this->transactionUtil->updateCustomerRewardPoints($transaction->contact_id, $transaction->rp_earned, $rp_earned_before, $transaction->rp_redeemed, $rp_redeemed_before);
             }
@@ -1196,10 +1310,10 @@ class SellController extends ApiController
             $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
             $business = ['id' => $business_id,
-                            'accounting_method' => $business->accounting_method,
-                            'location_id' => $input['location_id'],
-                            'pos_settings' => $pos_settings
-                        ];
+                'accounting_method' => $business->accounting_method,
+                'location_id' => $input['location_id'],
+                'pos_settings' => $pos_settings,
+            ];
             $this->transactionUtil->adjustMappingPurchaseSell($status_before, $transaction, $business, $deleted_lines);
 
             $updated_transaction = Transaction::where('business_id', $user->business_id)->with(['payment_lines'])
@@ -1214,14 +1328,13 @@ class SellController extends ApiController
 
             $this->transactionUtil->activityLog($updated_transaction, 'edited', $transaction_before, ['from_api' => $client->name]);
             DB::commit();
-        } catch(ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             DB::rollback();
             $output = $this->modelNotFoundExceptionResult($e);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollback();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = $this->otherExceptions($e);
         }
@@ -1235,8 +1348,8 @@ class SellController extends ApiController
 
         if (isset($data[$key])) {
             $value = $data[$key];
-        } else if (!empty($obj)) {
-            $key = !empty($db_key) ? $db_key : $key;
+        } elseif (! empty($obj)) {
+            $key = ! empty($db_key) ? $db_key : $key;
             $value = $obj->$key;
         }
 
@@ -1245,12 +1358,12 @@ class SellController extends ApiController
 
     /**
      * Formats input form data to sell data
-     * @param  array $data
+     *
+     * @param  array  $data
      * @return array
      */
     private function __formatSellData($data, $transaction = null)
     {
-
         $business_id = $data['business_id'];
         $location = BusinessLocation::where('business_id', $business_id)
                                     ->findOrFail($data['location_id']);
@@ -1267,22 +1380,23 @@ class SellController extends ApiController
             'location_id' => $location->id,
             'contact_id' => $contact->id,
             'customer_group_id' => $customer_group_id,
-            'transaction_date' => $this->__getValue('transaction_date', $data, 
-                                $transaction,  \Carbon::now()->toDateTimeString()),
+            'transaction_date' => $this->__getValue('transaction_date', $data,
+                                $transaction, \Carbon::now()->toDateTimeString()),
             'invoice_no' => $this->__getValue('invoice_no', $data, $transaction, null, 'invoice_no'),
+            'source' => $this->__getValue('source', $data, $transaction, null, 'source'),
             'status' => $this->__getValue('status', $data, $transaction, 'final'),
             'sub_status' => $this->__getValue('sub_status', $data, $transaction, null),
             'sale_note' => $this->__getValue('sale_note', $data, $transaction),
             'staff_note' => $this->__getValue('staff_note', $data, $transaction),
-            'commission_agent' => $this->__getValue('commission_agent', 
+            'commission_agent' => $this->__getValue('commission_agent',
                                     $data, $transaction),
-            'shipping_details' => $this->__getValue('shipping_details', 
+            'shipping_details' => $this->__getValue('shipping_details',
                                     $data, $transaction),
-            'shipping_address' => $this->__getValue('shipping_address', 
+            'shipping_address' => $this->__getValue('shipping_address',
                                 $data, $transaction),
             'shipping_status' => $this->__getValue('shipping_status', $data, $transaction),
             'delivered_to' => $this->__getValue('delivered_to', $data, $transaction),
-            'shipping_charges' => $this->__getValue('shipping_charges', $data, 
+            'shipping_charges' => $this->__getValue('shipping_charges', $data,
                 $transaction, 0),
             'exchange_rate' => $this->__getValue('exchange_rate', $data, $transaction, 1),
             'selling_price_group_id' => $this->__getValue('selling_price_group_id', $data, $transaction),
@@ -1313,11 +1427,11 @@ class SellController extends ApiController
             'change_return' => $this->__getValue('change_return', $data, $transaction, 0),
             'change_return_id' => $this->__getValue('change_return_id', $data, $transaction, null),
             'is_quotation' => $this->__getValue('is_quotation', $data, $transaction, 0),
-            'is_suspend' => $this->__getValue('is_suspend', $data, $transaction, 0)
+            'is_suspend' => $this->__getValue('is_suspend', $data, $transaction, 0),
         ];
 
         //Generate reference number
-        if (!empty($formated_data['is_recurring'])) {
+        if (! empty($formated_data['is_recurring'])) {
             //Update reference count
             $ref_count = $this->transactionUtil->setAndGetReferenceCount('subscription', $business_id);
             $formated_data['subscription_no'] = $this->transactionUtil->generateReferenceNumber('subscription', $ref_count, $business_id);
@@ -1326,11 +1440,10 @@ class SellController extends ApiController
         $sell_lines = [];
         $subtotal = 0;
 
-        if (!empty($data['products'])) {
+        if (! empty($data['products'])) {
             foreach ($data['products'] as $product_data) {
-
                 $sell_line = null;
-                if (!empty($product_data['sell_line_id'])) {
+                if (! empty($product_data['sell_line_id'])) {
                     $sell_line = TransactionSellLine::findOrFail($product_data['sell_line_id']);
                 }
 
@@ -1343,8 +1456,8 @@ class SellController extends ApiController
                 $variation = $product->variations->where('id', $variation_id)->first();
 
                 //Calculate line discount
-                $unit_price =  $this->__getValue('unit_price', $product_data, $sell_line, $variation->sell_price_inc_tax, 'unit_price_before_discount');
-                
+                $unit_price = $this->__getValue('unit_price', $product_data, $sell_line, $variation->sell_price_inc_tax, 'unit_price_before_discount');
+
                 $discount_amount = $this->__getValue('discount_amount', $product_data, $sell_line, 0, 'line_discount_amount');
 
                 $line_discount = $discount_amount;
@@ -1359,7 +1472,7 @@ class SellController extends ApiController
                 $item_tax = 0;
                 $unit_price_inc_tax = $discounted_price;
                 $tax_id = $this->__getValue('tax_rate_id', $product_data, $sell_line, null, 'tax_id');
-                if (!empty($tax_id)) {
+                if (! empty($tax_id)) {
                     $tax = TaxRate::where('business_id', $business_id)
                                 ->findOrFail($tax_id);
 
@@ -1378,18 +1491,18 @@ class SellController extends ApiController
                     'item_tax' => $item_tax,
                     'sell_line_note' => $this->__getValue('note', $product_data, $sell_line, null, 'sell_line_note'),
                     'enable_stock' => $product->enable_stock,
-                    'quantity' => $this->__getValue('quantity', $product_data, 
+                    'quantity' => $this->__getValue('quantity', $product_data,
                                         $sell_line, 0),
                     'product_unit_id' => $product->unit_id,
-                    'sub_unit_id' => $this->__getValue('sub_unit_id', $product_data, 
+                    'sub_unit_id' => $this->__getValue('sub_unit_id', $product_data,
                                         $sell_line),
-                    'unit_price_inc_tax' => $unit_price_inc_tax
+                    'unit_price_inc_tax' => $unit_price_inc_tax,
                 ];
-                if (!empty($sell_line)) {
+                if (! empty($sell_line)) {
                     $formated_sell_line['transaction_sell_lines_id'] = $sell_line->id;
                 }
 
-                if (($formated_sell_line['product_unit_id'] != $formated_sell_line['sub_unit_id']) && !empty($formated_sell_line['sub_unit_id']) ) {
+                if (($formated_sell_line['product_unit_id'] != $formated_sell_line['sub_unit_id']) && ! empty($formated_sell_line['sub_unit_id'])) {
                     $sub_unit = Unit::where('business_id', $business_id)
                                     ->findOrFail($formated_sell_line['sub_unit_id']);
                     $formated_sell_line['base_unit_multiplier'] = $sub_unit->base_unit_multiplier;
@@ -1403,7 +1516,7 @@ class SellController extends ApiController
                     foreach ($combo_variations as $key => $value) {
                         $combo_variations[$key]['quantity'] = $combo_variations[$key]['qty_required'] * $formated_sell_line['quantity'] * $formated_sell_line['base_unit_multiplier'];
                     }
-                    
+
                     $formated_sell_line['combo'] = $combo_variations;
                 }
 
@@ -1430,7 +1543,7 @@ class SellController extends ApiController
         $order_tax = 0;
         $final_total = $discounted_total;
         $order_tax_id = $this->__getValue('tax_rate_id', $data, $transaction);
-        if (!empty($order_tax_id)) {
+        if (! empty($order_tax_id)) {
             $tax = TaxRate::where('business_id', $business_id)
                         ->findOrFail($order_tax_id);
 
@@ -1445,17 +1558,17 @@ class SellController extends ApiController
 
         $final_total += $formated_data['shipping_charges'];
 
-        if (!empty($formated_data['packing_charge']) && !empty($formated_data['types_of_service_id'])) {
+        if (! empty($formated_data['packing_charge']) && ! empty($formated_data['types_of_service_id'])) {
             $final_total += $formated_data['packing_charge'];
         }
 
         $formated_data['final_total'] = $final_total;
 
         $payments = [];
-        if (!empty($data['payments'])) {
+        if (! empty($data['payments'])) {
             foreach ($data['payments'] as $payment_data) {
-                $transaction_payment =  null;
-                if (!empty($payment_data['payment_id'])) {
+                $transaction_payment = null;
+                if (! empty($payment_data['payment_id'])) {
                     $transaction_payment = TransactionPayment::findOrFail($payment_data['payment_id']);
                 }
                 $payment = [
@@ -1476,7 +1589,7 @@ class SellController extends ApiController
                     'transaction_no_3' => $this->__getValue('transaction_no_3', $payment_data, $transaction_payment),
                     'note' => $this->__getValue('note', $payment_data, $transaction_payment),
                 ];
-                if (!empty($transaction_payment)) {
+                if (! empty($transaction_payment)) {
                     $payment['payment_id'] = $transaction_payment->id;
                 }
 
@@ -1485,6 +1598,7 @@ class SellController extends ApiController
 
             $formated_data['payment'] = $payments;
         }
+
         return $formated_data;
     }
 
@@ -1492,41 +1606,40 @@ class SellController extends ApiController
      * Delete Sell
      *
      * @urlParam sell required id of the sell to be deleted
-     * 
      */
     public function destroy($id)
     {
         try {
-            $user = Auth::user(); 
+            $user = Auth::user();
             $business_id = $user->business_id;
             //Begin transaction
             DB::beginTransaction();
 
             $output = $this->transactionUtil->deleteSale($business_id, $id);
-            
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output['success'] = false;
-            $output['msg'] = trans("messages.something_went_wrong");
+            $output['msg'] = trans('messages.something_went_wrong');
         }
 
         return $output;
     }
 
     /**
-    * Update shipping status
-    *
-    * @bodyParam id int required id of the sale
-    * @bodyParam shipping_status string ('ordered', 'packed', 'shipped', 'delivered', 'cancelled') Example:ordered
-    * @bodyParam delivered_to string Name of the consignee 
-    */
+     * Update shipping status
+     *
+     * @bodyParam id int required id of the sale
+     * @bodyParam shipping_status string ('ordered', 'packed', 'shipped', 'delivered', 'cancelled') Example:ordered
+     * @bodyParam delivered_to string Name of the consignee
+     */
     public function updateSellShippingStatus(Request $request)
     {
         try {
-            $user = Auth::user(); 
+            $user = Auth::user();
             $business_id = $user->business_id;
 
             $sell_id = $request->input('id');
@@ -1541,35 +1654,33 @@ class SellController extends ApiController
             } else {
                 return $this->otherExceptions('Invalid shipping status');
             }
-            
-            return $this->respond(['success' => 1,
-                    'msg' => trans("lang_v1.updated_success")
-                ]);
-            
-        } catch (\Exception $e) {
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            return $this->respond(['success' => 1,
+                'msg' => trans('lang_v1.updated_success'),
+            ]);
+        } catch (\Exception $e) {
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             return $this->otherExceptions($e);
         }
     }
 
     /**
-    * Add Sell Return
-    *
-    * @bodyParam transaction_id integer required Id of the sell
-    * @bodyParam transaction_date string transaction date format:Y-m-d H:i:s, Example: 2020-5-7 15:20:22
-    * @bodyParam invoice_no string Invoice number of the return
-    * @bodyParam discount_amount float discount amount applicable to the sale Example: 10.0000
-    * @bodyParam discount_type string type of the discount amount (fixed, percentage) Example: fixed
-    
-    * @bodyParam products array required array of the products for the sale
-    *
-    * @bodyParam products.*.sell_line_id int required sell line id
-    * @bodyParam products.*.quantity float required quantity to be returned from the sell line Example: 1
-    * @bodyParam products.*.unit_price_inc_tax float required unit selling price of the returning item Example: 437.5000
-    *
-    * @response {
+     * Add Sell Return
+     *
+     * @bodyParam transaction_id integer required Id of the sell
+     * @bodyParam transaction_date string transaction date format:Y-m-d H:i:s, Example: 2020-5-7 15:20:22
+     * @bodyParam invoice_no string Invoice number of the return
+     * @bodyParam discount_amount float discount amount applicable to the sale Example: 10.0000
+     * @bodyParam discount_type string type of the discount amount (fixed, percentage) Example: fixed
+
+     * @bodyParam products array required array of the products for the sale
+     *
+     * @bodyParam products.*.sell_line_id int required sell line id
+     * @bodyParam products.*.quantity float required quantity to be returned from the sell line Example: 1
+     * @bodyParam products.*.unit_price_inc_tax float required unit selling price of the returning item Example: 437.5000
+     *
+     * @response {
         "id": 159,
         "business_id": 1,
         "location_id": 1,
@@ -1669,30 +1780,30 @@ class SellController extends ApiController
         "created_at": "2020-11-17 12:05:11",
         "updated_at": "2020-11-17 13:22:09"
     }
-    */
+     */
     public function addSellReturn(Request $request)
     {
         try {
             $input = $request->except('_token');
 
-            if (!empty($input['products'])) {
-                $user = Auth::user(); 
+            if (! empty($input['products'])) {
+                $user = Auth::user();
 
                 $business_id = $user->business_id;
-        
+
                 DB::beginTransaction();
 
-                $output =  $this->transactionUtil->addSellReturn($input, $business_id, $user->id);
-                
+                $output = $this->transactionUtil->addSellReturn($input, $business_id, $user->id);
+
                 DB::commit();
             }
-        } catch(ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             DB::rollback();
             $output = $this->modelNotFoundExceptionResult($e);
         } catch (\Exception $e) {
             DB::rollback();
 
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = $this->otherExceptions($e);
         }
@@ -1701,11 +1812,11 @@ class SellController extends ApiController
     }
 
     /**
-    * List Sell Return
-    *
-    * @urlParam sell_id Id of the sell for which return is added
-    *
-    * @response {
+     * List Sell Return
+     *
+     * @urlParam sell_id Id of the sell for which return is added
+     *
+     * @response {
         "data": [
             {
                 "id": 159,
@@ -1982,7 +2093,7 @@ class SellController extends ApiController
             "to": 1
         }
     }
-    */
+     */
     public function listSellReturn()
     {
         $filters = request()->input();
@@ -2001,11 +2112,11 @@ class SellController extends ApiController
             $query->whereIn('transactions.location_id', $permitted_locations);
         }
 
-        if (!empty($sell_id)) {
+        if (! empty($sell_id)) {
             $query->where('return_parent_id', $sell_id);
         }
 
-        $perPage = !empty($filters['per_page']) ? $filters['per_page'] : $this->perPage;
+        $perPage = ! empty($filters['per_page']) ? $filters['per_page'] : $this->perPage;
         if ($perPage == -1) {
             $sell_returns = $query->get();
         } else {

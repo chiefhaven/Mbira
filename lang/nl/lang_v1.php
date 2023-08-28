@@ -783,14 +783,8 @@ return [
     'account_sub_type' => 'Account Sub Type',
     'enable_updating_product_price_tooltip' => 'Indien ingeschakeld, worden de aankoopprijs en verkoopprijs van het product bijgewerkt nadat een aankoop is toegevoegd of bijgewerkt',
     'default_datatable_page_entries' => 'Standaard datatabel pagina-items',
-    'import_export_selling_price_group_prices' => 'Import / export verkoopprijs groepsprijzen',
-    'export_selling_price_group_prices' => 'Exportprijs verkoopprijs groepsprijzen',
     'product_not_found_exception' => 'Product met SKU :sku niet gevonden op rij :row',
     'price_group_not_found_exception' => 'Prijsgroep met naam :pg niet gevonden op rij :row',
-    'product_grp_prices_imported_successfully' => 'Productgroepprijzen met succes geïmporteerd',
-    'price_group_import_istruction' => 'Export Verkoopprijs groepsprijzen.',
-    'price_group_import_istruction1' => 'Werk het geëxporteerde bestand bij en importeer hetzelfde bestand.',
-    'price_group_import_istruction2' => 'Alleen verkoopprijsgroepsprijzen van het product worden bijgewerkt. Elke blanco prijs wordt overgeslagen.',
     'price_group_non_numeric_exception' => 'Niet-numerieke prijs gevonden op rij :row',
     'total_stock_price' => 'Huidige voorraadwaarde',
     'test_email_configuration' => 'Stuur test e-mail',
@@ -1342,4 +1336,5 @@ return [
     'zatca_qr_help' => 'Voor het land van Saoedi-Arabië',
     'customer_irrespective_of_sell' => 'Bekijk klanten ongeacht hun verkoop',
     'img_url_help_text' => 'Of URL van de afbeelding',
+    'delivery_person' => 'Bezorger'
 ];

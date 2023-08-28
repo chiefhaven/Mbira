@@ -102,7 +102,7 @@ class Product extends Model
     }
 
     /**
-     * Get the brand associated with the product.
+     * Get the tax associated with the product.
      */
     public function product_tax()
     {

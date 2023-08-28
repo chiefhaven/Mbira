@@ -1,0 +1,14 @@
+{
+    "name": "Spreadsheet",
+    "alias": "spreadsheet",
+    "description": "Allows you to create spreadsheet and share with employees, roles & todos",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Spreadsheet\\Providers\\SpreadsheetServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

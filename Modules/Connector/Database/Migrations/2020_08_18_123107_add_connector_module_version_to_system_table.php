@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddConnectorModuleVersionToSystemTable extends Migration
@@ -14,8 +12,8 @@ class AddConnectorModuleVersionToSystemTable extends Migration
     public function up()
     {
         DB::table('system')->insert([
-            'key'=>'connector_version',
-            'value' => config('connector.module_version', 0.1)
+            'key' => 'connector_version',
+            'value' => config('connector.module_version', 0.1),
         ]);
     }
 

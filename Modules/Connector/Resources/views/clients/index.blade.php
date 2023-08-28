@@ -13,7 +13,7 @@
         @slot('tool')
             <div class="box-tools">
                 @can('superadmin')
-                    <a href="{{action('\Modules\Connector\Http\Controllers\ClientController@regenerate')}}" class="btn btn-block btn-default" >
+                    <a href="{{action([\Modules\Connector\Http\Controllers\ClientController::class, 'regenerate'])}}" class="btn btn-block btn-default" >
                     <i class="fas fa-plus"></i> @lang( 'connector::lang.regenerate_doc' )</a>
                 @endcan
                 
@@ -39,7 +39,7 @@
                 			<td>{{$client->id}}</td>
                 			<td>{{$client->name}}</td>
                 			<td>{{$client->secret}}</td>
-                			<td>{!! Form::open(['url' => action('\Modules\Connector\Http\Controllers\ClientController@destroy', [$client->id]), 'method' => 'delete', 'id' => 'create_client_form' ]) !!}<button type="submit" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i> @lang( 'messages.delete' )</button>{!! Form::close() !!}</td>
+                			<td>{!! Form::open(['url' => action([\Modules\Connector\Http\Controllers\ClientController::class, 'destroy'], [$client->id]), 'method' => 'delete', 'id' => 'create_client_form' ]) !!}<button type="submit" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i> @lang( 'messages.delete' )</button>{!! Form::close() !!}</td>
                 		</tr>
                 	@endforeach
                 </tbody>
@@ -63,7 +63,7 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
 
-    {!! Form::open(['url' => action('\Modules\Connector\Http\Controllers\ClientController@store'), 'method' => 'post', 'id' => 'create_client_form' ]) !!}
+    {!! Form::open(['url' => action([\Modules\Connector\Http\Controllers\ClientController::class, 'store']), 'method' => 'post', 'id' => 'create_client_form' ]) !!}
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

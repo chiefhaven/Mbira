@@ -56,8 +56,14 @@
 					@if(!empty($allowed_group_prices))
 			        	<td class="td-full-width">
 			        		@foreach($allowed_group_prices as $key => $value)
-			        			<strong>{{$value}}</strong> - @if(!empty($group_price_details[$variation->id][$key]))
-			        				<span class="display_currency" data-currency_symbol="true">{{ $group_price_details[$variation->id][$key] }}</span>
+			        			<strong>{{$value}}</strong> - 
+                                
+                                @if(!empty($group_price_details[$variation->id][$key]))
+                                    @if($group_price_details[$variation->id][$key]['price_type'] == 'fixed')
+			        				    <span class="display_currency" data-currency_symbol="true">{{ $group_price_details[$variation->id][$key]['price'] }}</span>
+                                    @elseif($group_price_details[$variation->id][$key]['price_type'] == 'percentage')
+                                        {{ $group_price_details[$variation->id][$key]['price'] }} %
+                                    @endif
 			        			@else
 			        				0
 			        			@endif

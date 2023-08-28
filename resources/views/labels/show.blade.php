@@ -187,7 +187,43 @@
 										value="12">
 								</div>
 							@endif
-						</td>
+						</td>						
+					</tr>
+					<tr>
+						
+						@php
+							$c = 0;
+							$custom_labels = json_decode(session('business.custom_labels'), true);
+        					$product_custom_fields = !empty($custom_labels['product']) ? $custom_labels['product'] : [];
+							 $product_cf_details = !empty($custom_labels['product_cf_details']) ? $custom_labels['product_cf_details'] : [];
+						@endphp
+						@foreach($product_custom_fields as $index => $cf)
+							@if(!empty($cf))
+								@php
+									$field_name = 'product_custom_field' . $loop->iteration;
+									$cf_type = !empty($product_cf_details[$loop->iteration]['type']) ? $product_cf_details[$loop->iteration]['type'] : 'text';
+									$dropdown = !empty($product_cf_details[$loop->iteration]['dropdown_options']) ? explode(PHP_EOL, $product_cf_details[$loop->iteration]['dropdown_options']) : [];
+									$c++;
+								@endphp
+								<td>
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" name="print[{{ $field_name }}]" value="1"> <b>{{ $cf }}</b>
+										</label>
+									</div>
+
+									<div class="input-group">
+									<div class="input-group-addon"><b>@lang( 'lang_v1.size' )</b></div>
+										<input type="text" class="form-control" 
+											name="print[{{ $field_name }}_size]" 
+											value="12">
+									</div>
+								</td>
+								@if ($c % 4 == 0)
+									</tr>
+								@endif
+							@endif
+						@endforeach
 					</tr>
 				</table>
 			</div>
@@ -214,8 +250,8 @@
 
 			<div class="clearfix"></div>
 			
-			<div class="col-sm-4 col-sm-offset-8">
-				<button type="button" id="labels_preview" class="btn btn-primary pull-right btn-flat btn-block">@lang( 'barcode.preview' )</button>
+			<div class="col-sm-12 text-center">
+				<button type="button" id="labels_preview" class="btn btn-primary btn-big">@lang( 'barcode.preview' )</button>
 			</div>
 		</div>
 	@endcomponent

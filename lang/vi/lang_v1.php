@@ -814,14 +814,8 @@ return [
     'account_sub_type' => 'Loại phụ tài khoản',
     'enable_updating_product_price_tooltip' => 'Nếu giá mua sản phẩm được kích hoạt và giá bán sẽ được cập nhật sau khi mua hoặc thêm cập nhật',
     'default_datatable_page_entries' => 'Các mục trang có thể truy cập mặc định',
-    'import_export_selling_price_group_prices' => 'Xuất nhập khẩu giá bán nhóm giá',
-    'export_selling_price_group_prices' => 'Giá bán nhóm giá xuất khẩu',
     'product_not_found_exception' => 'Sản phẩm có SKU :sku không tìm thấy trên hàng :row',
     'price_group_not_found_exception' => 'Nhóm giá có tên :pg không tìm thấy trên hàng :row',
-    'product_grp_prices_imported_successfully' => 'Giá nhóm sản phẩm nhập khẩu thành công',
-    'price_group_import_istruction' => 'Xuất khẩu giá bán nhóm giá.',
-    'price_group_import_istruction1' => 'Cập nhật tệp đã xuất và nhập cùng một tệp.',
-    'price_group_import_istruction2' => 'Chỉ có giá bán nhóm giá của sản phẩm sẽ được cập nhật. Mọi giá trống sẽ bị bỏ qua.',
     'price_group_non_numeric_exception' => 'Giá không tìm thấy trên hàng :row',
     'total_stock_price' => 'Giá trị cổ phiếu hiện tại',
     'test_email_configuration' => 'Gửi email kiểm tra',
@@ -1357,4 +1351,5 @@ return [
     'zatca_qr_help' => 'Đối với đất nước Ả Rập Xê-út',
     'customer_irrespective_of_sell' => 'Xem khách hàng bất kể họ bán hàng',
     'img_url_help_text' => 'Hoặc URL của hình ảnh',
+    'delivery_person' => 'Nhân viên giao hàng'
 ];

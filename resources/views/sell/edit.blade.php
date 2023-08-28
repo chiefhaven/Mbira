@@ -515,6 +515,12 @@
 		            {!! Form::text('delivered_to', $transaction->delivered_to, ['class' => 'form-control','placeholder' => __('lang_v1.delivered_to')]); !!}
 		        </div>
 		    </div>
+			<div class="col-md-4">
+				<div class="form-group">
+					{!! Form::label('delivery_person', __('lang_v1.delivery_person') . ':' ) !!}
+					{!! Form::select('delivery_person', $users, $transaction->delivery_person, ['class' => 'form-control select2','placeholder' => __('messages.please_select')]); !!}
+				</div>
+			</div>
 		    @php
 		        $shipping_custom_label_1 = !empty($custom_labels['shipping']['custom_field_1']) ? $custom_labels['shipping']['custom_field_1'] : '';
 

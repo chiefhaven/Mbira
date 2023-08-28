@@ -17,6 +17,11 @@
         <i class="fas fa-upload"></i>
         @lang('lang_v1.upload_module')
     </button>
+
+    <a class="btn btn-sm btn-primary pull-right mt-5" href="{{action([\App\Http\Controllers\Install\ModulesController::class, 'regenerate'])}}">
+        <i class="fas fa-tools"></i>
+        Regenerate @show_tooltip("<br/>1. Regenerate/publish modules css/js to fix not found issue. <br/> 2. Publish api module oauth files")
+    </a>
 </section>
 
 <!-- Main content -->

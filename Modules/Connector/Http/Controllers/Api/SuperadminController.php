@@ -2,14 +2,12 @@
 
 namespace Modules\Connector\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
-use Modules\Connector\Transformers\CommonResource;
 use App\Utils\ModuleUtil;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
-use \Module;
+use Illuminate\Support\Facades\Auth;
+use Module;
+use Modules\Connector\Transformers\CommonResource;
 
 /**
  * @group Superadmin
@@ -19,10 +17,8 @@ use \Module;
  */
 class SuperadminController extends ApiController
 {
-
     /**
      * All Utils instance.
-     *
      */
     protected $moduleUtil;
 
@@ -33,6 +29,7 @@ class SuperadminController extends ApiController
 
     /**
      * If SaaS installed get active subscription details, else return the enabled modules details in package_details
+     *
      * @response {
         "data": {
             "id": 1,
@@ -75,22 +72,21 @@ class SuperadminController extends ApiController
         if ($this->moduleUtil->isSuperadminInstalled()) {
             $subscription = \Modules\Superadmin\Entities\Subscription::active_subscription($business_id);
 
-            if (!empty($subscription)) {
+            if (! empty($subscription)) {
                 $resource_count = $this->moduleUtil->getResourceCount($business_id, $subscription);
                 $output = array_merge($subscription->toArray(), $resource_count);
             }
-
         } else {
 
             //If not installed return the installed modules details.
             $modules = Arr::pluck(Module::toCollection()->toArray(), 'name');
             $output = [
-                'package_details' => []
+                'package_details' => [],
             ];
 
             foreach ($modules as $module) {
-                if($this->moduleUtil->isModuleInstalled($module)){
-                    $output['package_details'][strtolower($module) . '_module'] = 1;
+                if ($this->moduleUtil->isModuleInstalled($module)) {
+                    $output['package_details'][strtolower($module).'_module'] = 1;
                 }
             }
         }
@@ -98,9 +94,9 @@ class SuperadminController extends ApiController
         return new CommonResource($output);
     }
 
-
     /**
      * Get Superadmin Package List
+     *
      * @response {
         "data": [
             {
@@ -217,13 +213,12 @@ class SuperadminController extends ApiController
      */
     public function getPackages()
     {
-        if (!$this->moduleUtil->isSuperadminInstalled()) {
+        if (! $this->moduleUtil->isSuperadminInstalled()) {
             abort(403, 'Unauthorized action.');
         }
 
-        $packages = \Modules\Superadmin\Entities\Package::
-                        orderby('sort_order', 'asc')->get();
-        
+        $packages = \Modules\Superadmin\Entities\Package::orderby('sort_order', 'asc')->get();
+
         return new CommonResource($packages);
     }
 }

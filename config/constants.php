@@ -23,9 +23,9 @@ return [
         'ps' => ['full_name' => 'Pashto', 'short_name' => 'Pashto'],
         'pt' => ['full_name' => 'Portuguese', 'short_name' => 'Portuguese'],
         'vi' => ['full_name' => 'Vietnamese', 'short_name' => 'Vietnamese'],
-        'ce' => ['full_name' => 'Chinese', 'short_name' => ''],
-        'ro' => ['full_name' => 'Romanian', 'short_name' => ''],
-        'lo' => ['full_name' => 'Lao', 'short_name' => ''],
+        'ce' => ['full_name' => 'Chinese', 'short_name' => 'Chinese'],
+        'ro' => ['full_name' => 'Romanian', 'short_name' => 'Romanian'],
+        'lo' => ['full_name' => 'Lao', 'short_name' => 'Lao'],
     ],
     'langs_rtl' => ['ar'],
     'non_utf8_languages' => ['ar', 'hi', 'ps'],
@@ -33,7 +33,7 @@ return [
     'document_size_limit' => '5000000', //in Bytes,
     'image_size_limit' => '5000000', //in Bytes
 
-    'asset_version' => 50,
+    'asset_version' => 511,
 
     'disable_purchase_in_other_currency' => true,
 

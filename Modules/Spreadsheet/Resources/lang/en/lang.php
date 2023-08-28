@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'spreadsheet' => 'Spreadsheet',
+    'spreadsheet_module' => 'Spreadsheet Module',
+    'sheets' => 'Sheets',
+    'my_spreadsheets' => 'My Spreadsheets',
+    'create_spreadsheet' => 'Create Spreadsheet',
+    'no_spreadsheet_found' => 'No spreadsheet found!',
+    'view_spreadsheet' => 'View Spreadsheet',
+    'share' => 'Share',
+    'share_excel' => 'Share spreadsheet',
+    'todos' => 'Todos',
+    'access_spreadsheet' => 'Access spreadsheet',
+    'create_spreadsheet' => 'Create spreadsheet',
+    'spreadsheet_shared_notif_text' => ':shared_by shared a spreadsheet - :name',
+    'shared_by' => 'Shared by : :name',
+    'created_by' => 'Created by : :name',
+    'untitled' => 'Untitled',
+    'add_folder' => 'Add Folder',
+    'edit_folder' => 'Edit Folder',
+    'shared_with' => 'Shared with',
+    'move_to_another_folder' => 'Move to another folder',
+    'move_to' => 'Move to',
+    'folder' => 'Folder',
+    'move' => 'Move',
+];

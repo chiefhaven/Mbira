@@ -821,14 +821,8 @@ return [
     'third_party_order_id' => 'ID ສັ່ງຊື້ຂອງບຸກຄົນທີ 3',
     'payment_option_help' => 'ເປີດໃຊ້ງານ ຫຼື ປິດໃຊ້ງານວິທີການຊຳລະເວິນສຳຫຼັບສະຖານທີ່',
     'default_account_help' => 'ເລືອກບັນຊີເລີ່ມຕົ້ນທີ່ຈະເລືອກໄວ້ລ່ວງໜ້າສຳຫຼັບວິທີການຊໍາລະເງິນ ທ່ານສາມາດປ່ຽນໄດ້ໃນຂະນະທີ່ເພີ່ມການຊຳລະເງິນ',
-    'import_export_selling_price_group_prices' => 'ນຳເຂົ້າ/ສົ່ງອອກ ກຸ່ມລາຄາຂາຍ',
-    'export_selling_price_group_prices' => 'ສົ່ງອອກລາຄາເປັນກຸ່ມ',
     'product_not_found_exception' => 'ຜະລິດຕະພັນກັບ SKU :sku ບໍ່ພົບໃນແຖວ :row',
     'price_group_not_found_exception' => 'ກຸ່ມລາຄາພ້ອມຊື່ :pg ບໍ່ພົບໃນແຖວ :row',
-    'product_grp_prices_imported_successfully' => 'ນຳເຂົ້າລາຄາກຸ່ມສິນຄ້າຮຽບຮ້ອຍແລ້ວ',
-    'price_group_import_istruction' => 'ກຸ່ມລາຄາຂາຍສົ່ງອອກ.',
-    'price_group_import_istruction1' => 'ປັບປຸງເອກະສານທີ່ສົ່ງອອກແລະ ນຳເຂົ້າໄຟລດຽວກັນ.',
-    'price_group_import_istruction2' => 'ຈະມີການປັບປຸງກຸ່ມລາຄາຂາຍຂອງຜະລິດຕະພັນເທົ່ານັ້ນ. ລາຄາໃດໆທີ່ຫວ່າງກໍ່ຈະຖືກຂ້າມ.',
     'price_group_non_numeric_exception' => 'ພົບລາຄາທີ່ບໍ່ແມ່ນຕົວເລກໃນແຖວ :row',
     'update_status' => 'ປັບປຸງສະຖານະ',
     'types_of_service_details' => 'ປະເພດຂອງລາຍລະອຽດການບໍລິການ',
@@ -1414,4 +1408,5 @@ return [
     'zatca_qr_help' => 'ສໍາລັບປະເທດ Saudi Arabia',
     'customer_irrespective_of_sell' => 'ເບິ່ງລູກຄ້າໂດຍບໍ່ຄໍານຶງເຖິງການຂາຍຂອງເຂົາເຈົ້າ',
     'img_url_help_text' => 'ຫຼື URL ຂອງຮູບພາບ',
+    'delivery_person' => 'ຄົນສົ່ງສາຍ'
 ];

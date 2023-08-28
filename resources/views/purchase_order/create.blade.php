@@ -490,8 +490,8 @@
 		</div>
 	@endcomponent
 	<div class="row">
-			<div class="col-sm-12">
-				<button type="button" id="submit_purchase_form" class="btn btn-primary pull-right btn-flat">@lang('messages.save')</button>
+			<div class="col-sm-12 text-center">
+				<button type="button" id="submit_purchase_form" class="btn btn-primary btn-big btn-flat">@lang('messages.save')</button>
 			</div>
 		</div>
 

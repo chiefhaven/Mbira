@@ -17,6 +17,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
+use App\Events\ExpenseCreatedOrModified;
 
 class ExpenseController extends Controller
 {
@@ -366,6 +367,8 @@ class ExpenseController extends Controller
 
             $this->transactionUtil->activityLog($expense, 'added');
 
+            event(new ExpenseCreatedOrModified($expense));
+
             DB::commit();
 
             $output = ['success' => 1,
@@ -477,6 +480,8 @@ class ExpenseController extends Controller
 
             $this->transactionUtil->activityLog($expense, 'edited');
 
+            event(new ExpenseCreatedOrModified($expense));
+
             $output = ['success' => 1,
                 'msg' => __('expense.expense_update_success'),
             ];
@@ -523,7 +528,7 @@ class ExpenseController extends Controller
                 //Delete account transactions
                 AccountTransaction::where('transaction_id', $expense->id)->delete();
 
-                
+                event(new ExpenseCreatedOrModified($expense, true));
 
                 $output = ['success' => true,
                     'msg' => __('expense.expense_delete_success'),

@@ -51,6 +51,13 @@
                 {!! Form::select('shipping_status', $shipping_statuses, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                {!! Form::label('delivery_person',  __('lang_v1.delivery_person') . ':') !!}
+
+                {!! Form::select('delivery_person', $delevery_person, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+            </div>
+        </div>
         @if(!empty($service_staffs))
             <div class="col-md-3">
                 <div class="form-group">
@@ -77,6 +84,7 @@
                             <th>@lang('sale.customer_name')</th>
                             <th>@lang('lang_v1.contact_no')</th>
                             <th>@lang('sale.location')</th>
+                            <th>@lang('lang_v1.delivery_person')</th>
                             <th>@lang('lang_v1.shipping_status')</th>
                             @if(!empty($custom_labels['shipping']['custom_field_1']))
                                 <th>
@@ -175,6 +183,7 @@ $(document).ready( function(){
                 }
                 d.only_shipments = true;
                 d.shipping_status = $('#shipping_status').val();
+                d.delivery_person = $('#delivery_person').val();
             }
         },
         columns: [
@@ -184,6 +193,7 @@ $(document).ready( function(){
             { data: 'conatct_name', name: 'conatct_name'},
             { data: 'mobile', name: 'contacts.mobile'},
             { data: 'business_location', name: 'bl.name'},
+            { data: 'delivery_person', name: 'delivery_person'},
             { data: 'shipping_status', name: 'shipping_status'},
             @if(!empty($custom_labels['shipping']['custom_field_1']))
                 { data: 'shipping_custom_field_1', name: 'shipping_custom_field_1'},
@@ -211,7 +221,7 @@ $(document).ready( function(){
         }
     });
 
-    $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #shipping_status, #service_staffs',  function() {
+    $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #shipping_status, #service_staffs, #delivery_person',  function() {
         sell_table.ajax.reload();
     });
 });

@@ -19,29 +19,20 @@
 						@php 
     						$custom_labels = json_decode(session('business.custom_labels'), true);
 						@endphp
-						@if(!empty($product->product_custom_field1))
-							<br/>
-							<b>{{ $custom_labels['product']['custom_field_1'] ?? __('lang_v1.product_custom_field1') }}: </b>
-							{{$product->product_custom_field1 }}
-						@endif
 
-						@if(!empty($product->product_custom_field2))
-							<br/>
-							<b>{{ $custom_labels['product']['custom_field_2'] ?? __('lang_v1.product_custom_field2') }}: </b>
-							{{$product->product_custom_field2 }}
-						@endif
+                        @for($i = 1; $i <= 20; $i++)
+                            @php
+                                $db_field = 'product_custom_field' . $i;
+                                $label = 'custom_field_' .$i;
+                            @endphp
 
-						@if(!empty($product->product_custom_field3))
-							<br/>
-							<b>{{ $custom_labels['product']['custom_field_3'] ?? __('lang_v1.product_custom_field3') }}: </b>
-							{{$product->product_custom_field3 }}
-						@endif
-
-						@if(!empty($product->product_custom_field4))
-							<br/>
-							<b>{{ $custom_labels['product']['custom_field_4'] ?? __('lang_v1.product_custom_field4') }}: </b>
-							{{$product->product_custom_field4 }}
-						@endif
+                            @if(!empty($product->$db_field))
+                                <br/>
+                                <b>{{ $custom_labels['product'][$label] ?? '' }}: </b>
+                                {{$product->$db_field }}
+                            @endif
+                        @endfor
+						
 						<br>
 						<strong>@lang('lang_v1.available_in_locations'):</strong>
 						@if(count($product->product_locations) > 0)

@@ -3,7 +3,13 @@
 @section('title', __('lang_v1.reset_password'))
 
 @section('content')
+
 <div class="login-form col-md-12 col-xs-12 right-col-content">
+
+    @if(session('status') && is_string(session('status')))
+        <div class="alert alert-info" role="alert">{{ session('status') }}</div>
+    @endif
+
     <form  method="POST" action="{{ route('password.email') }}">
         {{ csrf_field() }}
          <div class="form-group has-feedback {{ $errors->has('email') ? ' has-error' : '' }}">
