@@ -89,7 +89,7 @@ class BusinessUtil extends Util
             'is_default' => 1,
             'business_id' => $business_id,
             'invoice_heading_not_paid' => '',
-            'invoice_heading_paid' => '',
+            'invoice_heading_paid' => 'Reciept',
             'total_due_label' => 'Total Due',
             'paid_label' => 'Total Paid',
             'show_payments' => 1,
