@@ -497,26 +497,6 @@ class ProductUtil extends Util
             'p.type as product_type',
             'p.name as product_actual_name',
             'p.warranty_id',
-            'p.product_custom_field1',
-            'p.product_custom_field2',
-            'p.product_custom_field3',
-            'p.product_custom_field4',
-            'p.product_custom_field5',
-            'p.product_custom_field6',
-            'p.product_custom_field7',
-            'p.product_custom_field8',
-            'p.product_custom_field9',
-            'p.product_custom_field10',
-            'p.product_custom_field11',
-            'p.product_custom_field12',
-            'p.product_custom_field13',
-            'p.product_custom_field14',
-            'p.product_custom_field15',
-            'p.product_custom_field16',
-            'p.product_custom_field17',
-            'p.product_custom_field18',
-            'p.product_custom_field19',
-            'p.product_custom_field20',
             'pv.name as product_variation_name',
             'pv.is_dummy as is_dummy',
             'variations.name as variation_name',
@@ -1026,18 +1006,10 @@ class ProductUtil extends Util
      */
     public function getVariationGroupPrice($variation_id, $price_group_id, $tax_id)
     {
-        $price_group = VariationGroupPrice::where('variation_id', $variation_id)
+        $price_inc_tax =
+        VariationGroupPrice::where('variation_id', $variation_id)
                         ->where('price_group_id', $price_group_id)
-                        ->select(['price_inc_tax', 'price_type'])
-                        ->first();
-
-        if(isset($price_group->price_type) && $price_group->price_type == 'percentage'){
-            //calculate the price
-            $variation = Variation::find($variation_id);
-            $price_inc_tax = $this->calc_percentage($variation->sell_price_inc_tax, $price_group->price_inc_tax);
-        } else {
-            $price_inc_tax = $price_group->price_inc_tax;
-        }
+                        ->value('price_inc_tax');
 
         $price_exc_tax = $price_inc_tax;
         if (! empty($price_inc_tax) && ! empty($tax_id)) {
@@ -1696,7 +1668,7 @@ class ProductUtil extends Util
             );
 
         if (! empty($price_group_id)) {
-            $query->addSelect(DB::raw('IF (VGP.price_type = "fixed", VGP.price_inc_tax, VGP.price_inc_tax * variations.sell_price_inc_tax / 100) as variation_group_price'));
+            $query->addSelect('VGP.price_inc_tax as variation_group_price');
         }
 
         if (in_array('lot', $search_fields)) {
@@ -2256,7 +2228,7 @@ class ProductUtil extends Util
 
     public function fixVariationStockMisMatch($business_id, $variation_id, $location_id, $stock)
     {
-        $vld = VariationLocationDetails::join(
+        $vld = VariationLocationDetails::leftjoin(
             'business_locations as bl',
             'bl.id',
             '=',

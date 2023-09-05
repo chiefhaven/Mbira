@@ -12,7 +12,6 @@ use Datatables;
 use DB;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
-use App\Events\StockAdjustmentCreatedOrModified;
 
 class StockAdjustmentController extends Controller
 {
@@ -222,8 +221,6 @@ class StockAdjustmentController extends Controller
                 ];
                 $this->transactionUtil->mapPurchaseSell($business, $stock_adjustment->stock_adjustment_lines, 'stock_adjustment');
 
-                event(new StockAdjustmentCreatedOrModified($stock_adjustment, 'added'));
-
                 $this->transactionUtil->activityLog($stock_adjustment, 'added', null, [], false);
             }
 
@@ -342,9 +339,6 @@ class StockAdjustmentController extends Controller
                     $this->transactionUtil->mapPurchaseQuantityForDeleteStockAdjustment($line_ids);
                 }
                 $stock_adjustment->delete();
-
-                event( new StockAdjustmentCreatedOrModified($stock_adjustment, 'deleted'));
-
 
                 //Remove Mapping between stock adjustment & purchase.
 

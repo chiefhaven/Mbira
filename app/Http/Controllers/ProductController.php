@@ -26,7 +26,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
-use App\Events\ProductsCreatedOrModified;
 
 class ProductController extends Controller
 {
@@ -122,12 +121,10 @@ class ProductController extends Controller
                 'products.enable_stock',
                 'products.is_inactive',
                 'products.not_for_selling',
-                'products.product_custom_field1', 'products.product_custom_field2', 'products.product_custom_field3', 'products.product_custom_field4', 'products.product_custom_field5', 'products.product_custom_field6',
-                'products.product_custom_field7', 'products.product_custom_field8', 'products.product_custom_field9',
-                'products.product_custom_field10', 'products.product_custom_field11', 'products.product_custom_field12',
-                'products.product_custom_field13', 'products.product_custom_field14', 'products.product_custom_field15',
-                'products.product_custom_field16', 'products.product_custom_field17', 'products.product_custom_field18', 
-                'products.product_custom_field19', 'products.product_custom_field20',
+                'products.product_custom_field1',
+                'products.product_custom_field2',
+                'products.product_custom_field3',
+                'products.product_custom_field4',
                 'products.alert_quantity',
                 DB::raw('SUM(vld.qty_available) as current_stock'),
                 DB::raw('MAX(v.sell_price_inc_tax) as max_price'),
@@ -445,7 +442,7 @@ class ProductController extends Controller
         }
         try {
             $business_id = $request->session()->get('user.business_id');
-            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',];
+            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids', 'preparation_time_in_minutes'];
 
             $module_form_fields = $this->moduleUtil->getModuleFormField('product_form_fields');
             if (! empty($module_form_fields)) {
@@ -494,8 +491,6 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             $product = Product::create($product_details);
-
-            event(new ProductsCreatedOrModified($product_details, 'added'));
 
             if (empty(trim($request->input('sku')))) {
                 $sku = $this->productUtil->generateProductSku($product->id);
@@ -676,7 +671,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',]);
+            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids', 'preparation_time_in_minutes']);
 
             DB::beginTransaction();
 
@@ -702,27 +697,10 @@ class ProductController extends Controller
             $product->alert_quantity = ! empty($product_details['alert_quantity']) ? $this->productUtil->num_uf($product_details['alert_quantity']) : $product_details['alert_quantity'];
             $product->tax_type = $product_details['tax_type'];
             $product->weight = $product_details['weight'];
-            $product->product_custom_field1 = $product_details['product_custom_field1'] ?? '';
-            $product->product_custom_field2 = $product_details['product_custom_field2'] ?? '';
-            $product->product_custom_field3 = $product_details['product_custom_field3'] ?? '';
-            $product->product_custom_field4 = $product_details['product_custom_field4'] ?? '';
-            $product->product_custom_field5 = $product_details['product_custom_field5'] ?? '';
-            $product->product_custom_field6 = $product_details['product_custom_field6'] ?? '';
-            $product->product_custom_field7 = $product_details['product_custom_field7'] ?? '';
-            $product->product_custom_field8 = $product_details['product_custom_field8'] ?? '';
-            $product->product_custom_field9 = $product_details['product_custom_field9'] ?? '';
-            $product->product_custom_field10 = $product_details['product_custom_field10'] ?? '';
-            $product->product_custom_field11 = $product_details['product_custom_field11'] ?? '';
-            $product->product_custom_field12 = $product_details['product_custom_field12'] ?? '';
-            $product->product_custom_field13 = $product_details['product_custom_field13'] ?? '';
-            $product->product_custom_field14 = $product_details['product_custom_field14'] ?? '';
-            $product->product_custom_field15 = $product_details['product_custom_field15'] ?? '';
-            $product->product_custom_field16 = $product_details['product_custom_field16'] ?? '';
-            $product->product_custom_field17 = $product_details['product_custom_field17'] ?? '';
-            $product->product_custom_field18 = $product_details['product_custom_field18'] ?? '';
-            $product->product_custom_field19 = $product_details['product_custom_field19'] ?? '';
-            $product->product_custom_field20 = $product_details['product_custom_field20'] ?? '';
-
+            $product->product_custom_field1 = $product_details['product_custom_field1'];
+            $product->product_custom_field2 = $product_details['product_custom_field2'];
+            $product->product_custom_field3 = $product_details['product_custom_field3'];
+            $product->product_custom_field4 = $product_details['product_custom_field4'];
             $product->product_description = $product_details['product_description'];
             $product->sub_unit_ids = ! empty($product_details['sub_unit_ids']) ? $product_details['sub_unit_ids'] : null;
             $product->preparation_time_in_minutes = $product_details['preparation_time_in_minutes'];
@@ -778,8 +756,6 @@ class ProductController extends Controller
 
             $product->save();
             $product->touch();
-
-            event(new ProductsCreatedOrModified($product, 'updated'));
 
             //Add product locations
             $product_locations = ! empty($request->input('product_locations')) ?
@@ -992,7 +968,7 @@ class ProductController extends Controller
                         VariationLocationDetails::where('product_id', $id)
                                                 ->delete();
                         $product->delete();
-                        event(new ProductsCreatedOrModified($product, 'deleted'));
+
                         DB::commit();
                     }
 
@@ -1438,7 +1414,7 @@ class ProductController extends Controller
         try {
             $business_id = $request->session()->get('user.business_id');
             $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'tax_type', 'sku',
-                'alert_quantity', 'type', 'sub_unit_ids', 'sub_category_id', 'weight', 'product_description', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20'];
+                'alert_quantity', 'type', 'sub_unit_ids', 'sub_category_id', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', ];
 
             $module_form_fields = $this->moduleUtil->getModuleData('product_form_fields');
             if (! empty($module_form_fields)) {
@@ -1484,7 +1460,6 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             $product = Product::create($product_details);
-            event(new ProductsCreatedOrModified($product_details, 'added'));
 
             if (empty(trim($request->input('sku')))) {
                 $sku = $this->productUtil->generateProductSku($product->id);
@@ -1569,7 +1544,7 @@ class ProductController extends Controller
 
             foreach ($product->variations as $variation) {
                 foreach ($variation->group_prices as $group_price) {
-                    $group_price_details[$variation->id][$group_price->price_group_id] = ['price' => $group_price->price_inc_tax, 'price_type' => $group_price->price_type, 'calculated_price' => $group_price->calculated_price];
+                    $group_price_details[$variation->id][$group_price->price_group_id] = $group_price->price_inc_tax;
                 }
             }
 
@@ -1638,7 +1613,6 @@ class ProductController extends Controller
                         VariationLocationDetails::where('product_id', $product->id)
                                                     ->delete();
                         $product->delete();
-                        event(new ProductsCreatedOrModified($product, 'Deleted'));
                     } else {
                         $purchase_exist = true;
                     }
@@ -1691,7 +1665,7 @@ class ProductController extends Controller
         $variation_prices = [];
         foreach ($product->variations as $variation) {
             foreach ($variation->group_prices as $group_price) {
-                $variation_prices[$variation->id][$group_price->price_group_id] = ['price' => $group_price->price_inc_tax, 'price_type' => $group_price->price_type];
+                $variation_prices[$variation->id][$group_price->price_group_id] = $group_price->price_inc_tax;
             }
         }
 
@@ -1731,8 +1705,7 @@ class ProductController extends Controller
                             ]);
                         }
 
-                        $variation_group_price->price_inc_tax = $this->productUtil->num_uf($value[$variation->id]['price']);
-                        $variation_group_price->price_type = $value[$variation->id]['price_type'];
+                        $variation_group_price->price_inc_tax = $this->productUtil->num_uf($value[$variation->id]);
                         $variation_group_prices[] = $variation_group_price;
                     }
                 }

@@ -22,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
-use App\Events\PurchaseCreatedOrModified;
 
 class PurchaseController extends Controller
 {
@@ -416,8 +415,6 @@ class PurchaseController extends Controller
 
             $this->transactionUtil->activityLog($transaction, 'added');
 
-            PurchaseCreatedOrModified::dispatch($transaction);
-
             DB::commit();
 
             $output = ['success' => 1,
@@ -749,8 +746,6 @@ class PurchaseController extends Controller
 
             $this->transactionUtil->activityLog($transaction, 'edited', $transaction_before);
 
-            PurchaseCreatedOrModified::dispatch($transaction);
-
             DB::commit();
 
             $output = ['success' => 1,
@@ -848,8 +843,6 @@ class PurchaseController extends Controller
 
                 //Delete account transactions
                 AccountTransaction::where('transaction_id', $id)->delete();
-
-                PurchaseCreatedOrModified::dispatch($transaction, true);
 
                 DB::commit();
 

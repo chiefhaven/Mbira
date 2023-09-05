@@ -116,9 +116,8 @@ class User extends Authenticatable
 
             $permitted_locations = [];
             $all_locations = BusinessLocation::where('business_id', $business_id)->get();
-            $permissions = $user->permissions->pluck('name')->all();
             foreach ($all_locations as $location) {
-                if (in_array('location.'.$location->id, $permissions)) {
+                if ($user->can('location.'.$location->id)) {
                     $permitted_locations[] = $location->id;
                 }
             }

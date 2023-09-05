@@ -331,7 +331,6 @@ class InstallController extends Controller
                     DB::statement('SET default_storage_engine=INNODB;');
                     Artisan::call('migrate', ['--force' => true]);
                     Artisan::call('module:publish');
-                    Artisan::call('passport:install', ['--force' => true]);
 
                     $installUtil->setSystemInfo('db_version', $this->appVersion);
                 } else {
