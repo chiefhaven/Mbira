@@ -522,7 +522,7 @@ class Util
         } else {
             $options['form_params'] = $request_data;
 
-            $response = $client->post($sms_settings['url'], $headers, $options);
+            $response = $client->post($sms_settings['url'],  $options);
         }
 
 
