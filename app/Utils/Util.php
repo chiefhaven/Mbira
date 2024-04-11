@@ -517,12 +517,14 @@ class Util
             return false;
         }
 
+        //SMS sending specifically tailored for Tiara APIs, parameters are sent through body Json
         if ($sms_settings['request_method'] == 'get') {
             $response = $client->get($sms_settings['url'].'?'.http_build_query($request_data), $options);
         } else {
             $options['form_params'] = $request_data;
 
-            $response = $client->post($sms_settings['url'], $headers, $options);
+            $response = $client->post($sms_settings['url'], [
+                'headers' => $headers, 'body' => json_encode($request_data, JSON_FORCE_OBJECT)]);
         }
 
 
