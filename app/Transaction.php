@@ -51,6 +51,11 @@ class Transaction extends Model
         return $this->belongsTo(\App\Contact::class, 'contact_id');
     }
 
+    public function delivery_person_user()
+    {
+        return $this->belongsTo(\App\User::class, 'delivery_person');
+    }
+
     public function payment_lines()
     {
         return $this->hasMany(\App\TransactionPayment::class, 'transaction_id');
@@ -401,4 +406,6 @@ class Transaction extends Model
 
         return $sales_orders;
     }
+
+   
 }

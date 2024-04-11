@@ -26,4 +26,11 @@ return [
     'notify_url' => '', // Change this accordingly for your application.
     'locale' => '', // force gateway language  i.e. it_IT, es_ES, en_US ... (for express checkout only)
     'validate_ssl' => false, // Validate SSL when creating api client.
+
+    'baseURL' => [
+        'sandbox' => 'https://api-m.sandbox.paypal.com',
+        'production' => 'https://api-m.paypal.com',
+    ],
+    'client_id' => env('PAYPAL_CLIENT_ID'),
+    'app_secret' => env('PAYPAL_APP_SECRET'),
 ];

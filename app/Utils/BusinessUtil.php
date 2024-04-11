@@ -15,6 +15,8 @@ use App\Unit;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use App\VariationLocationDetails;
+
 
 class BusinessUtil extends Util
 {
@@ -436,4 +438,5 @@ class BusinessUtil extends Util
     {
         return ['url' => '', 'send_to_param_name' => 'to', 'msg_param_name' => 'text', 'request_method' => 'post', 'param_1' => '', 'param_val_1' => '', 'param_2' => '', 'param_val_2' => '', 'param_3' => '', 'param_val_3' => '', 'param_4' => '', 'param_val_4' => '', 'param_5' => '', 'param_val_5' => ''];
     }
+
 }

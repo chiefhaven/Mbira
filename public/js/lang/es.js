@@ -111,4 +111,9 @@ LANG = {
 "last_year": "El año pasado", 
 "last_financial_year": "Último ejercicio financiero", 
 "this_month_last_year": "Este mes el año pasado",  
+'enter_pin_here': 'Ingrese el PIN aquí',
+'authentication_failed': '¡Autenticación fallida!',
+'authentication_successfull': 'Autenticación exitosa',
+'please_enter' : 'Por favor, ingrese',
+'or_more_characters' : 'o más caracteres',
 };

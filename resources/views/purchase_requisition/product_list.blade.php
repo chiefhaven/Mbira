@@ -26,8 +26,13 @@
                 value="0"
                 class="form-control input-sm input_number mousetrap"
                 required
-                data-rule-abs_digit={{$check_decimal}}
-                data-msg-abs_digit="{{__('lang_v1.decimal_value_not_allowed')}}">
+				@if($check_decimal) 
+					data-decimal=1 
+				@else 
+					data-decimal=0 
+					data-rule-abs_digit="true" 
+					data-msg-abs_digit="@lang('lang_v1.decimal_value_not_allowed')" 
+				@endif>
             	<div class="input-group-addon">
             		{{$product->unit}}
             	</div>

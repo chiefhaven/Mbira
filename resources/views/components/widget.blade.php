@@ -5,6 +5,11 @@
             {!!$icon ?? '' !!}
             <h3 class="box-title">{{ $title ?? '' }}</h3>
             {!!$tool ?? ''!!}
+
+            @if(isset($help_text))
+                <br/>
+                <small>{!!$help_text!!}</small>
+            @endif
         </div>
         @endif
     @else

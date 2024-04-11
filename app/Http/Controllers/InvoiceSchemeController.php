@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class InvoiceSchemeController extends Controller
 {
+    protected $number_types;
+
+    public function __construct()
+    {
+        $this->number_types = ['sequential' => __('invoice.sequential'), 'random'=> __('invoice.random')];
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -23,7 +30,7 @@ class InvoiceSchemeController extends Controller
         $business_id = request()->session()->get('user.business_id');
         if (request()->ajax()) {
             $schemes = InvoiceScheme::where('business_id', $business_id)
-                            ->select(['id', 'name', 'scheme_type', 'prefix', 'start_number', 'invoice_count', 'total_digits', 'is_default']);
+                            ->select(['id', 'name', 'scheme_type', 'prefix', 'number_type', 'start_number', 'invoice_count', 'total_digits', 'is_default']);
 
             return Datatables::of($schemes)
                 ->addColumn(
@@ -38,6 +45,9 @@ class InvoiceSchemeController extends Controller
                         @endif
                         '
                 )
+                ->editColumn('number_type', function ($row) {
+                    return $this->number_types[$row->number_type];
+                })
                 ->editColumn('prefix', function ($row) {
                     if ($row->scheme_type == 'year') {
                         return $row->prefix.date('Y').config('constants.invoice_scheme_separator');
@@ -55,7 +65,7 @@ class InvoiceSchemeController extends Controller
                 ->removeColumn('id')
                 ->removeColumn('is_default')
                 ->removeColumn('scheme_type')
-                ->rawColumns([5, 0])
+                ->rawColumns([6, 0])
                 ->make(false);
         }
 
@@ -78,7 +88,8 @@ class InvoiceSchemeController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('invoice_scheme.create');
+        $number_types = $this->number_types;
+        return view('invoice_scheme.create')->with(compact('number_types'));
     }
 
     /**
@@ -94,10 +105,12 @@ class InvoiceSchemeController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits']);
+            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits', 'number_type']);
             $business_id = $request->session()->get('user.business_id');
             $input['business_id'] = $business_id;
 
+            $input['start_number'] = ($input['number_type'] == 'aleatory') ? '' : $input['start_number'];
+            
             if (! empty($request->input('is_default'))) {
                 //get_default
                 $default = InvoiceScheme::where('business_id', $business_id)
@@ -150,8 +163,10 @@ class InvoiceSchemeController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $invoice = InvoiceScheme::where('business_id', $business_id)->find($id);
 
+        $number_types = $this->number_types;
+
         return view('invoice_scheme.edit')
-            ->with(compact('invoice'));
+            ->with(compact('invoice', 'number_types'));
     }
 
     /**
@@ -168,7 +183,9 @@ class InvoiceSchemeController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits']);
+            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits', 'number_type']);
+
+            $input['start_number'] = ($input['number_type'] == 'aleatory') ? '' : $input['start_number'];
 
             $invoice = InvoiceScheme::where('id', $id)->update($input);
 

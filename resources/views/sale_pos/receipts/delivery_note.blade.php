@@ -234,19 +234,19 @@
 
 <div class="row invoice-info color-555" style="page-break-inside: avoid !important">
 	<div class="col-md-6 invoice-col width-50">
-		<b class="pull-left">Above mentioned items received in good condition</b>
+		<b class="pull-left">@lang('lang_v1.above_mentioned_items_received_in_good_condition')</b>
 	</div>
 </div>
 </br>
 <div class="row invoice-info color-555" style="page-break-inside: avoid !important">
 	<div class="col-md-6 invoice-col width-80">
-		<b class="pull-left">Recieved by : </b>
+		<b class="pull-left">@lang('lang_v1.received_by') : </b>
 	</div>
 </div>
 </br>
 <div class="row invoice-info color-555" style="page-break-inside: avoid !important">
 	<div class="col-md-6 invoice-col width-50">
-		<b class="pull-left">Date:</b>
+		<b class="pull-left">@lang('lang_v1.date'):</b>
 	</div>
 </div>
 </br>

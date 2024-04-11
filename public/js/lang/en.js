@@ -132,5 +132,10 @@ LANG = {
     'advance_payment_cannot_be_more_than_once': 'Advance payment cannot be selected more than once',
     'not_connected_to_a_network': "You're not connected to a Network",
     'skus_already_exists': 'sku :sku already exists',
-    'copied_to_clipboard': 'Copied to clipboard'
+    'copied_to_clipboard': 'Copied to clipboard',
+    'enter_pin_here': 'Enter Pin Here',
+    'authentication_failed': 'Authentication failed !',
+    'authentication_successfull': 'Authentication successfull',
+    'please_enter' : 'Please enter ',
+    'or_more_characters' : 'or more characters',
 };

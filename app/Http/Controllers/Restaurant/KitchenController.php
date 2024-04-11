@@ -43,7 +43,8 @@ class KitchenController extends Controller
         // }
 
         $business_id = request()->session()->get('user.business_id');
-        $orders = $this->restUtil->getAllOrders($business_id, ['line_order_status' => 'received']);
+        
+        $orders = $this->restUtil->getAllOrders($business_id, ['line_order_status' => 'received', 'is_kitchen_order' => 1]);
 
         return view('restaurant.kitchen.index', compact('orders'));
     }
@@ -105,6 +106,7 @@ class KitchenController extends Controller
 
         if ($orders_for == 'kitchen') {
             $filter['line_order_status'] = 'received';
+            $filter['is_kitchen_order'] = 1;
         } elseif ($orders_for == 'waiter') {
             $filter['waiter_id'] = $service_staff_id;
         }

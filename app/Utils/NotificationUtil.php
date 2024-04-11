@@ -12,6 +12,8 @@ use App\Restaurant\Booking;
 use App\System;
 use Config;
 use Notification;
+use App\Contact;
+
 
 class NotificationUtil extends Util
 {
@@ -293,13 +295,13 @@ class NotificationUtil extends Util
 
         //Check if prefered email setting is superadmin email settings
         if (! empty($is_superadmin_settings_allowed) && ! empty($email_settings['use_superadmin_settings']) && $check_superadmin) {
-            $email_settings['mail_driver'] = config('mail.driver');
-            $email_settings['mail_host'] = config('mail.host');
-            $email_settings['mail_port'] = config('mail.port');
-            $email_settings['mail_username'] = config('mail.username');
-            $email_settings['mail_password'] = config('mail.password');
-            $email_settings['mail_encryption'] = config('mail.encryption');
-            $email_settings['mail_from_address'] = config('mail.from.address');
+            $email_settings['mail_driver'] = config('mail.mailers.smtp.transport');
+            $email_settings['mail_host'] = config('mail.mailers.smtp.host');
+            $email_settings['mail_port'] = config('mail.mailers.smtp.port');
+            $email_settings['mail_username'] = config('mail.mailers.smtp.username');
+            $email_settings['mail_password'] = config('mail.mailers.smtp.password');
+            $email_settings['mail_encryption'] = config('mail.mailers.smtp.encryption');
+            $email_settings['mail_from_address'] = config('mail.mailers.smtp.address');
         }
 
         $mail_driver = ! empty($email_settings['mail_driver']) ? $email_settings['mail_driver'] : 'smtp';
@@ -313,4 +315,69 @@ class NotificationUtil extends Util
         Config::set('mail.from.address', $email_settings['mail_from_address']);
         Config::set('mail.from.name', $email_settings['mail_from_name']);
     }
+
+    public function replaceHmsBookingTags($data, $transaction, $adults, $childrens, $customer){
+        
+        $business = Business::findOrFail($transaction->business_id);
+
+        foreach ($data as $key => $value) {
+            //Replace contact name
+            if (strpos($value, '{customer_name}') !== false) {
+                $data[$key] = str_replace('{customer_name}',$customer->name , $data[$key]);
+            }
+
+            //Replace business name
+             if (strpos($value, '{business_name}') !== false) {
+                $data[$key] = str_replace('{business_name}',$business->name, $data[$key]);
+            }
+            //Replace business name
+            if (strpos($value, '{business_name}') !== false) {
+                $data[$key] = str_replace('{business_name}',$business->name, $data[$key]);
+            }
+             //Replace business_logo
+             if (strpos($value, '{business_logo}') !== false) {
+                $logo_name = $business->logo;
+                $business_logo = ! empty($logo_name) ? '<img src="'.url('storage/business_logos/'.$logo_name).'" alt="Business Logo" >' : '';
+                $data[$key] = str_replace('{business_logo}', $business_logo, $data[$key]);
+            }
+
+            //Replace business id
+             if (strpos($value, '{booking_id}') !== false) {
+                $data[$key] = str_replace('{booking_id}',$transaction->ref_no, $data[$key]);
+            }
+
+            //Replace business status
+            if (strpos($value, '{booking_status}') !== false) {
+                $data[$key] = str_replace('{booking_status}',$transaction->status, $data[$key]);
+            }
+
+            //Replace arrival date
+            if (strpos($value, '{arrival_date}') !== false) {
+
+                $start_date = $this->format_date($transaction->hms_booking_arrival_date_time, true);
+                
+                $data[$key] = str_replace('{arrival_date}',$start_date, $data[$key]);
+            }
+
+            //Replace arrival date
+            if (strpos($value, '{departure_date}') !== false) {
+                $end_time = $this->format_date($transaction->hms_booking_departure_date_time, true);
+                $data[$key] = str_replace('{departure_date}',$end_time, $data[$key]);
+            }
+
+            //Replace adults
+            if (strpos($value, '{adults}') !== false) {
+            $data[$key] = str_replace('{adults}',$adults, $data[$key]);
+            }
+            //Replace childrens
+            if (strpos($value, '{childrens}') !== false) {
+                $data[$key] = str_replace('{childrens}',$childrens, $data[$key]);
+            }
+
+        }
+
+        return $data;
+    }
+
 }
+

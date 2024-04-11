@@ -36,6 +36,24 @@
 							{{$page_product->product_variation_name}}:<b>{{$page_product->variation_name}}</b>
 						</span>
 					@endif
+					{{-- product_custom_fields --}}
+					@php
+						$custom_labels = json_decode(session('business.custom_labels'), true);
+						$product_custom_fields = !empty($custom_labels['product']) ? $custom_labels['product'] : [];
+					@endphp
+
+					@foreach($product_custom_fields as $index => $cf)
+						@php
+							$field_name = 'product_custom_field' . $loop->iteration;
+						@endphp
+						@if(!empty($cf) && !empty($page_product->$field_name ) && !empty($print[$field_name]))
+							<span style="font-size: {{ $print[$field_name . '_size'] }}px">
+								<b>{{ $cf }}:</b>
+								{{ $page_product->$field_name }}
+							</span>
+						@endif
+					@endforeach
+					<br>
 
 					{{-- Price --}}
 					@if(!empty($print['price']))
@@ -68,8 +86,6 @@
 							{{$page_product->packing_date}}
 						</span>
 					@endif
-					<br>
-
 					{{-- Barcode --}}
 					<img style="max-width:90% !important;height: {{$barcode_details->height*0.24}}in !important; display: block;" src="data:image/png;base64,{{DNS1D::getBarcodePNG($page_product->sub_sku, $page_product->barcode_type, 1,30, array(0, 0, 0), false)}}">
 					

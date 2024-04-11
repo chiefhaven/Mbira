@@ -247,6 +247,55 @@
               <p class="help-block">{!! __('lang_v1.date_time_format_help') !!}</p>
           </div>
         </div>
+        @php
+        $sell_custom_field_1_label = !empty($custom_labels['sell']['custom_field_1']) ? $custom_labels['sell']['custom_field_1'] : '';
+
+        $sell_custom_field_2_label = !empty($custom_labels['sell']['custom_field_2']) ? $custom_labels['sell']['custom_field_2'] : '';
+
+        $sell_custom_field_3_label = !empty($custom_labels['sell']['custom_field_3']) ? $custom_labels['sell']['custom_field_3'] : '';
+
+        $sell_custom_field_4_label = !empty($custom_labels['sell']['custom_field_4']) ? $custom_labels['sell']['custom_field_4'] : '';
+      @endphp
+        @if (!empty($sell_custom_field_1_label))
+        <div class="col-sm-3">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('common_settings[sell_custom_fields1]', 1, !empty($invoice_layout->common_settings['sell_custom_fields1']), ['class' => 'input-icheck']); !!} {{ $custom_labels['sell']['custom_field_1'] ?? __('lang_v1.product_custom_field1') }}</label>
+            </div>
+          </div>
+        </div>
+        @endif
+        @if (!empty($sell_custom_field_2_label))
+        <div class="col-sm-3">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('common_settings[sell_custom_fields2]', 1, !empty($invoice_layout->common_settings['sell_custom_fields2']), ['class' => 'input-icheck']); !!} {{ $custom_labels['sell']['custom_field_2'] ?? __('lang_v1.product_custom_field2') }}</label>
+            </div>
+          </div>
+        </div>
+        @endif
+        @if (!empty($sell_custom_field_3_label))
+        <div class="col-sm-3">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('common_settings[sell_custom_fields3]', 1, !empty($invoice_layout->common_settings['sell_custom_fields3']), ['class' => 'input-icheck']); !!} {{ $custom_labels['sell']['custom_field_3'] ?? __('lang_v1.product_custom_field3') }}</label>
+            </div>
+          </div>
+        </div>
+        @endif
+        @if (!empty($sell_custom_field_4_label))
+        <div class="col-sm-3">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('common_settings[sell_custom_fields4]', 1, !empty($invoice_layout->common_settings['sell_custom_fields4']), ['class' => 'input-icheck']); !!} {{ $custom_labels['sell']['custom_field_4'] ?? __('lang_v1.product_custom_field4') }}</label>
+            </div>
+          </div>
+        </div>
+        @endif
         <div class="col-sm-3">
           <div class="form-group">
             {!! Form::label('sales_person_label', __('lang_v1.sales_person_label') . ':' ) !!}

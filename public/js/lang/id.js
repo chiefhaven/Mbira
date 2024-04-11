@@ -110,5 +110,10 @@ LANG = {
     "this_year": "Tahun ini", 
     "last_year": "Tahun lalu", 
     "last_financial_year": "Tahun keuangan terakhir", 
-    "this_month_last_year": "Bulan ini tahun lalu",  
+    "this_month_last_year": "Bulan ini tahun lalu", 
+    'enter_pin_here': 'Masukkan PIN Di Sini',
+    'authentication_failed': 'Autentikasi gagal!',
+    'authentication_successfull': 'Autentikasi berhasil',
+    'please_enter' : 'Silakan masukkan',
+    'or_more_characters' : 'atau lebih karakter',
 };

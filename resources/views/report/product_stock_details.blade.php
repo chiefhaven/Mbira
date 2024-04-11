@@ -43,7 +43,7 @@
                                     <span class="input-group-addon">
                                         <i class="fa fa-map-marker"></i>
                                     </span>
-                                    {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+                                    {!! Form::select('location_id', $business_locations, (!empty($location) ? $location->id: null), ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
                                 </div>
                             </div>
                         </div>

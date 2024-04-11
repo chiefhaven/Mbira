@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Illuminate\Support\Facades\Abort;
 
 //use Illuminate\Support\Facades\Storage;
 
@@ -297,7 +298,8 @@ class InstallController extends Controller
         if (Comparator::greaterThan($this->appVersion, $db_version)) {
             return view('install.update_confirmation');
         } else {
-            abort(404);
+            // abort(404);
+            exit("<b> Update already done to Version <code>".$db_version."</code></b>");
         }
     }
 
@@ -331,6 +333,7 @@ class InstallController extends Controller
                     DB::statement('SET default_storage_engine=INNODB;');
                     Artisan::call('migrate', ['--force' => true]);
                     Artisan::call('module:publish');
+                    Artisan::call('passport:install', ['--force' => true]);
 
                     $installUtil->setSystemInfo('db_version', $this->appVersion);
                 } else {

@@ -522,8 +522,9 @@ class Util
         } else {
             $options['form_params'] = $request_data;
 
-            $response = $client->post($sms_settings['url'], $options);
+            $response = $client->post($sms_settings['url'], $headers, $options);
         }
+
 
         return $response;
     }
@@ -1033,7 +1034,11 @@ class Util
 
     public function getCronJobCommand()
     {
-        $php_binary_path = empty(PHP_BINARY) ? 'php' : PHP_BINARY;
+        $php_binary_path = exec('which php');
+        if (empty($php_binary_path)) {
+            // Use a default fallback or handle the case where 'which php' doesn't return a valid path
+            $php_binary_path = 'php';
+        }
 
         $command = '* * * * * '.$php_binary_path.' '.base_path('artisan').' schedule:run >> /dev/null 2>&1';
 
@@ -1559,11 +1564,13 @@ class Util
             'user_type', 'crm_contact_id', 'allow_login', 'username', 'password',
             'cmmsn_percent', 'max_sales_discount_percent', 'dob', 'gender', 'marital_status', 'blood_group', 'contact_number', 'alt_number', 'family_number', 'fb_link',
             'twitter_link', 'social_media_1', 'social_media_2', 'custom_field_1',
-            'custom_field_2', 'custom_field_3', 'custom_field_4', 'guardian_name', 'id_proof_name', 'id_proof_number', 'permanent_address', 'current_address', 'bank_details', 'selected_contacts',
+            'custom_field_2', 'custom_field_3', 'custom_field_4', 'guardian_name', 'id_proof_name', 'id_proof_number', 'permanent_address', 'current_address', 'bank_details', 'selected_contacts', 'is_enable_service_staff_pin', 'service_staff_pin',
         ]);
 
         $user_details['status'] = ! empty($request->input('is_active')) ? $request->input('is_active') : 'inactive';
         $user_details['user_type'] = ! empty($user_details['user_type']) ? $user_details['user_type'] : 'user';
+
+        $user_details['is_enable_service_staff_pin'] = ! empty($request->input('is_enable_service_staff_pin')) ? true : false;
 
         $business_id = Auth::user()->business_id;
         $user_details['business_id'] = $business_id;

@@ -113,4 +113,9 @@ LANG = {
     "last_year": "العام الماضي", 
     "last_financial_year": "السنة المالية الماضية", 
     "this_month_last_year": "هذا الشهر من العام الماضي", 
+    'enter_pin_here': 'أدخل الرقم السري هنا',
+    'authentication_failed': 'فشل التوثيق!',
+    'authentication_successfull': 'نجاح التوثيق',
+    'please_enter' : 'الرجاء إدخال',
+    'or_more_characters' : 'أو أكثر من الأحرف',
 };

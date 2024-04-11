@@ -76,6 +76,11 @@ class RestaurantUtil extends Util
             $query->where('transactions.res_waiter_id', $filter['waiter_id']);
         }
 
+        //  for kitchen order
+        if (! empty($filter['is_kitchen_order']) && $filter['is_kitchen_order'] == 1) {
+            $query->where('is_kitchen_order', 1);
+        }
+
         $permitted_locations = auth()->user()->permitted_locations();
         if ($permitted_locations != 'all') {
             $query->whereIn('transactions.location_id', $permitted_locations);

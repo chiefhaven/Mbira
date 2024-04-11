@@ -654,7 +654,71 @@
                   </label>
                 </div>
               </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_pay_checkout', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_pay_checkout') }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_draft', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_draft') }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_express_checkout', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_express_checkout') }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_discount', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_discount') }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_suspend_sale', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_suspend_sale') }}
+                  </label>
+                </div>
+              </div>
 
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_credit_sale', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_credit_sale_button') }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_quotation', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_quotation') }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'disable_card', false, ['class' => 'input-icheck']); !!}
+                    {{ __('lang_v1.disable_card') }}
+                  </label>
+                </div>
+              </div>
             </div>
         </div>
         <hr>
@@ -1596,8 +1660,8 @@
         
         @include('role.partials.module_permissions')
         <div class="row">
-        <div class="col-md-12">
-           <button type="submit" class="btn btn-primary pull-right">@lang( 'messages.save' )</button>
+        <div class="col-md-12 text-center">
+           <button type="submit" class="btn btn-primary btn-big">@lang( 'messages.save' )</button>
         </div>
         </div>
 

@@ -10,34 +10,36 @@
 				</td>
 			</tr>
 			<tr>
-				<td>
-					<b>
-						@if($is_discount_enabled)
-							@lang('sale.discount')
-							@show_tooltip(__('tooltip.sale_discount'))
-						@endif
-						@if($is_rp_enabled)
-							{{session('business.rp_name')}}
-						@endif
-						@if($is_discount_enabled)
-							(-):
-							@if($edit_discount)
-							<i class="fas fa-edit cursor-pointer" id="pos-edit-discount" title="@lang('sale.edit_discount')" aria-hidden="true" data-toggle="modal" data-target="#posEditDiscountModal"></i>
+				@if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+					<td>
+						<b>
+							@if($is_discount_enabled)
+								@lang('sale.discount')
+								@show_tooltip(__('tooltip.sale_discount'))
 							@endif
-						
-							<span id="total_discount">0</span>
-						@endif
-							<input type="hidden" name="discount_type" id="discount_type" value="@if(empty($edit)){{'percentage'}}@else{{$transaction->discount_type}}@endif" data-default="percentage">
+							@if($is_rp_enabled)
+								{{session('business.rp_name')}}
+							@endif
+							@if($is_discount_enabled)
+								(-):
+								@if($edit_discount)
+								<i class="fas fa-edit cursor-pointer" id="pos-edit-discount" title="@lang('sale.edit_discount')" aria-hidden="true" data-toggle="modal" data-target="#posEditDiscountModal"></i>
+								@endif
+							
+								<span id="total_discount">0</span>
+							@endif
+								<input type="hidden" name="discount_type" id="discount_type" value="@if(empty($edit)){{'percentage'}}@else{{$transaction->discount_type}}@endif" data-default="percentage">
 
-							<input type="hidden" name="discount_amount" id="discount_amount" value="@if(empty($edit)) {{@num_format($business_details->default_sales_discount)}} @else {{@num_format($transaction->discount_amount)}} @endif" data-default="{{$business_details->default_sales_discount}}">
+								<input type="hidden" name="discount_amount" id="discount_amount" value="@if(empty($edit)) {{@num_format($business_details->default_sales_discount)}} @else {{@num_format($transaction->discount_amount)}} @endif" data-default="{{$business_details->default_sales_discount}}">
 
-							<input type="hidden" name="rp_redeemed" id="rp_redeemed" value="@if(empty($edit)){{'0'}}@else{{$transaction->rp_redeemed}}@endif">
+								<input type="hidden" name="rp_redeemed" id="rp_redeemed" value="@if(empty($edit)){{'0'}}@else{{$transaction->rp_redeemed}}@endif">
 
-							<input type="hidden" name="rp_redeemed_amount" id="rp_redeemed_amount" value="@if(empty($edit)){{'0'}}@else {{$transaction->rp_redeemed_amount}} @endif">
+								<input type="hidden" name="rp_redeemed_amount" id="rp_redeemed_amount" value="@if(empty($edit)){{'0'}}@else {{$transaction->rp_redeemed_amount}} @endif">
 
-							</span>
-					</b> 
-				</td>
+								</span>
+						</b> 
+					</td>
+				@endif
 				<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
 					<span>
 						<b>@lang('sale.order_tax')(+): @show_tooltip(__('tooltip.sale_tax'))</b>
@@ -73,6 +75,8 @@
 						<input type="hidden" name="shipping_status" id="shipping_status" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_status}}@endif">
 
 						<input type="hidden" name="delivered_to" id="delivered_to" value="@if(empty($edit)){{''}}@else{{$transaction->delivered_to}}@endif">
+
+						<input type="hidden" name="delivery_person" id="delivery_person" value="@if(empty($edit)){{''}}@else{{$transaction->delivery_person}}@endif">
 
 						<input type="hidden" name="shipping_charges" id="shipping_charges" value="@if(empty($edit)){{@num_format(0.00)}} @else{{@num_format($transaction->shipping_charges)}} @endif" data-default="0.00">
 					</span>

@@ -16,9 +16,9 @@
 	</thead>
 
 	<tbody>
-		@if(empty($receipt_details->letter_head))
 		<tr>
 			<td class="text-center" style="line-height: 15px !important; padding-bottom: 10px !important">
+			@if(empty($receipt_details->letter_head))
 				@if(!empty($receipt_details->header_text))
 					{!! $receipt_details->header_text !!}
 				@endif
@@ -30,20 +30,19 @@
 				@if(!empty($sub_headings))
 					<span>{!! $sub_headings !!}</span>
 				@endif
-
+			@endif
 				@if(!empty($receipt_details->invoice_heading))
 					<h2 style="font-weight: bold; font-size: 35px !important; margin-top: 10px;">{!! $receipt_details->invoice_heading !!}</h2>
 				@endif
 			</td>
 		</tr>
-		@else
-		<tr>
-			<td>
-				<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
-			</td>
-		</tr>
-		@endif
-
+			@if(!empty($receipt_details->letter_head))
+				<tr>
+					<td>
+						<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
+					</td>
+				</tr>
+			@endif
 		<tr>
 			<td>
 
@@ -98,6 +97,7 @@
 				{{$receipt_details->invoice_date}}
 			</div>
 		@endif
+
 		@if(!empty($receipt_details->due_date_label))
 			<div class="text-right font-23 ">
 				<span class="pull-left">
@@ -105,6 +105,43 @@
 				</span>
 
 				{{$receipt_details->due_date ?? ''}}
+			</div>
+		@endif
+
+		@if(!empty($receipt_details->sell_custom_field_1_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_1_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_1_value}}
+			</div>
+		@endif
+		@if(!empty($receipt_details->sell_custom_field_2_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_2_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_2_value}}
+			</div>
+		@endif
+		@if(!empty($receipt_details->sell_custom_field_3_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_3_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_3_value}}
+			</div>
+		@endif
+		@if(!empty($receipt_details->sell_custom_field_4_value))
+			<div class="text-right font-23 ">
+				<span class="pull-left">
+					{{$receipt_details->sell_custom_field_4_label}}
+				</span>
+
+				{{$receipt_details->sell_custom_field_4_value}}
 			</div>
 		@endif
 

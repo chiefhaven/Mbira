@@ -41,6 +41,7 @@ class AccountTransaction extends Model
             'sell_return' => 'debit',
             'payroll' => 'debit',
             'expense_refund' => 'credit',
+            'hms_booking' => 'credit',
         ];
 
         return $account_transaction_types[$tansaction_type];

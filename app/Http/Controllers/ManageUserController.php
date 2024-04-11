@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
+use App\Events\UserCreatedOrModified;
 
 class ManageUserController extends Controller
 {
@@ -138,6 +139,8 @@ class ManageUserController extends Controller
 
             $user = $this->moduleUtil->createUser($request);
 
+            event(new UserCreatedOrModified($user, 'added'));
+
             $output = ['success' => 1,
                 'msg' => __('user.user_added'),
             ];
@@ -232,6 +235,12 @@ class ManageUserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        //Disable in demo
+        $notAllowed = $this->moduleUtil->notAllowedInDemo();
+        if (! empty($notAllowed)) {
+            return $notAllowed;
+        }
+        
         if (! auth()->user()->can('user.update')) {
             abort(403, 'Unauthorized action.');
         }
@@ -241,9 +250,12 @@ class ManageUserController extends Controller
                 'blood_group', 'contact_number', 'fb_link', 'twitter_link', 'social_media_1',
                 'social_media_2', 'permanent_address', 'current_address',
                 'guardian_name', 'custom_field_1', 'custom_field_2',
-                'custom_field_3', 'custom_field_4', 'id_proof_name', 'id_proof_number', 'cmmsn_percent', 'gender', 'max_sales_discount_percent', 'family_number', 'alt_number', ]);
+                'custom_field_3', 'custom_field_4', 'id_proof_name', 'id_proof_number', 'cmmsn_percent', 'gender', 'max_sales_discount_percent', 'family_number', 'alt_number', 'is_enable_service_staff_pin']);
 
             $user_data['status'] = ! empty($request->input('is_active')) ? 'active' : 'inactive';
+
+            $user_data['is_enable_service_staff_pin'] = ! empty($request->input('is_enable_service_staff_pin')) ? true : false;
+
             $business_id = request()->session()->get('user.business_id');
 
             if (! isset($user_data['selected_contacts'])) {
@@ -261,6 +273,12 @@ class ManageUserController extends Controller
             if (! empty($request->input('password'))) {
                 $user_data['password'] = $user_data['allow_login'] == 1 ? Hash::make($request->input('password')) : null;
             }
+
+
+            if (! empty($request->input('service_staff_pin'))) {
+                $user_data['service_staff_pin'] = $request->input('service_staff_pin');
+            }
+            
 
             //Sales commission percentage
             $user_data['cmmsn_percent'] = ! empty($user_data['cmmsn_percent']) ? $this->moduleUtil->num_uf($user_data['cmmsn_percent']) : 0;
@@ -327,7 +345,9 @@ class ManageUserController extends Controller
             $this->moduleUtil->getModuleData('afterModelSaved', ['event' => 'user_saved', 'model_instance' => $user]);
 
             $this->moduleUtil->activityLog($user, 'edited', null, ['name' => $user->user_full_name]);
-
+           
+            event(new UserCreatedOrModified($user, 'updated'));
+            
             $output = ['success' => 1,
                 'msg' => __('user.user_update_success'),
             ];
@@ -362,6 +382,12 @@ class ManageUserController extends Controller
      */
     public function destroy($id)
     {
+        //Disable in demo
+        $notAllowed = $this->moduleUtil->notAllowedInDemo();
+        if (! empty($notAllowed)) {
+            return $notAllowed;
+        }
+
         if (! auth()->user()->can('user.delete')) {
             abort(403, 'Unauthorized action.');
         }
@@ -376,6 +402,8 @@ class ManageUserController extends Controller
                 $this->moduleUtil->activityLog($user, 'deleted', null, ['name' => $user->user_full_name, 'id' => $user->id]);
 
                 $user->delete();
+                event(new UserCreatedOrModified($user, 'deleted'));
+
                 $output = ['success' => true,
                     'msg' => __('user.user_delete_success'),
                 ];

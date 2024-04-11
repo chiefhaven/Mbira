@@ -29,7 +29,8 @@
 				<div class="input-group-btn">
 					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fas fa-search-plus"></i></button>
 				</div>
-				{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
+                {{-- Removed mousetrap class as it was causing issue with barcode scanning --}}
+				{!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
 				'autofocus' => true,
 				]); !!}
 				<span class="input-group-btn">
@@ -146,6 +147,17 @@
     		data-transaction_id="{{$transaction->id}}">
       		<div class="col-md-3"></div>
     	</span>
+    @endif
+	@if(in_array('kitchen' ,$enabled_modules))
+		<div class="col-md-3">
+			<div class="form-group">
+				<div class="checkbox">
+				<label>
+						{!! Form::checkbox('is_kitchen_order', 1, $transaction->is_kitchen_order, ['class' => 'input-icheck status', 'id' => 'is_kitchen_order']); !!} {{ __('lang_v1.kitchen_order') }}
+				</label>
+				</div>
+			</div>
+		</div>
     @endif
     @if(in_array('subscription', $enabled_modules))
 		<div class="col-md-4 col-sm-6">

@@ -32,7 +32,7 @@
 										@endif
 										<th>@lang('lang_v1.default_selling_price_inc_tax')</th>
 										@foreach($price_groups as $price_group)
-											<th>{{$price_group->name}}</th>
+											<th>{{$price_group->name}} @show_tooltip(__('lang_v1.price_group_price_type_tooltip'))</th>
 										@endforeach
 									</tr>
 								</thead>
@@ -47,7 +47,18 @@
 										<td><span class="display_currency" data-currency_symbol="true">{{$variation->sell_price_inc_tax}}</span></td>
 											@foreach($price_groups as $price_group)
 												<td>
-													{!! Form::text('group_prices[' . $price_group->id . '][' . $variation->id . ']', !empty($variation_prices[$variation->id][$price_group->id]) ? @num_format($variation_prices[$variation->id][$price_group->id]) : 0, ['class' => 'form-control input_number input-sm'] ); !!}
+													{!! Form::text('group_prices[' . $price_group->id . '][' . $variation->id . '][price]', !empty($variation_prices[$variation->id][$price_group->id]['price']) ? @num_format($variation_prices[$variation->id][$price_group->id]['price']) : 0, ['class' => 'form-control input_number input-sm'] ); !!}
+                                                    
+                                                    @php
+                                                        $price_type = !empty($variation_prices[$variation->id][$price_group->id]['price_type']) ? $variation_prices[$variation->id][$price_group->id]['price_type'] : 'fixed';
+
+                                                        $name = 'group_prices[' . $price_group->id . '][' . $variation->id . '][price_type]';
+                                                    @endphp
+
+                                                    <select name={{$name}} class="form-control">
+                                                        <option value="fixed" @if($price_type == 'fixed') selected @endif>@lang('lang_v1.fixed')</option>
+                                                        <option value="percentage" @if($price_type == 'percentage') selected @endif>@lang('lang_v1.percentage')</option>
+                                                    </select>
 												</td>
 											@endforeach
 										</tr>
@@ -66,9 +77,9 @@
 			{!! Form::hidden('submit_type', 'save', ['id' => 'submit_type']); !!}
 			<div class="text-center">
       			<div class="btn-group">
-					<button id="opening_stock_button" @if($product->enable_stock == 0) disabled @endif type="submit" value="submit_n_add_opening_stock" class="btn bg-purple submit_form">@lang('lang_v1.save_n_add_opening_stock')</button>
-					<button type="submit" value="save_n_add_another" class="btn bg-maroon submit_form">@lang('lang_v1.save_n_add_another')</button>
-          			<button type="submit" value="submit" class="btn btn-primary submit_form">@lang('messages.save')</button>
+					<button id="opening_stock_button" @if($product->enable_stock == 0) disabled @endif type="submit" value="submit_n_add_opening_stock" class="btn bg-purple submit_form btn-big">@lang('lang_v1.save_n_add_opening_stock')</button>
+					<button type="submit" value="save_n_add_another" class="btn bg-maroon submit_form btn-big">@lang('lang_v1.save_n_add_another')</button>
+          			<button type="submit" value="submit" class="btn btn-primary submit_form btn-big">@lang('messages.save')</button>
           		</div>
           	</div>
 		</div>

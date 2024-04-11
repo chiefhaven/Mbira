@@ -13,6 +13,7 @@ use Datatables;
 use DB;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
+use App\Events\StockTransferCreatedOrModified;
 
 class StockTransferController extends Controller
 {
@@ -339,6 +340,8 @@ class StockTransferController extends Controller
 
             $this->transactionUtil->activityLog($sell_transfer, 'added');
 
+            event( new StockTransferCreatedOrModified($sell_transfer, 'added'));
+
             $output = ['success' => 1,
                 'msg' => __('lang_v1.stock_transfer_added_successfully'),
             ];
@@ -460,6 +463,8 @@ class StockTransferController extends Controller
                     }
                 }
 
+                event( new StockTransferCreatedOrModified($sell_transfer, 'deleted'));
+
                 DB::beginTransaction();
                 //Get purchase lines from transaction_sell_lines_purchase_lines and decrease quantity_sold
                 $sell_lines = $sell_transfer->sell_lines;
@@ -517,7 +522,7 @@ class StockTransferController extends Controller
                 //Delete both transactions
                 $sell_transfer->delete();
                 $purchase_transfer->delete();
-
+                event( new StockTransferCreatedOrModified($sell_transfer, 'deleted'));
                 $output = ['success' => 1,
                     'msg' => __('lang_v1.stock_transfer_delete_success'),
                 ];
@@ -771,6 +776,8 @@ class StockTransferController extends Controller
             //Create Sell Transfer transaction
             $sell_transfer->update($input_data);
             $sell_transfer->save();
+
+            event( new StockTransferCreatedOrModified($sell_transfer, 'updated'));
 
             //Create Purchase Transfer at transfer location
             $input_data['status'] = $status == 'completed' ? 'received' : $status;

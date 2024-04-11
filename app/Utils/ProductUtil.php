@@ -497,6 +497,26 @@ class ProductUtil extends Util
             'p.type as product_type',
             'p.name as product_actual_name',
             'p.warranty_id',
+            'p.product_custom_field1',
+            'p.product_custom_field2',
+            'p.product_custom_field3',
+            'p.product_custom_field4',
+            'p.product_custom_field5',
+            'p.product_custom_field6',
+            'p.product_custom_field7',
+            'p.product_custom_field8',
+            'p.product_custom_field9',
+            'p.product_custom_field10',
+            'p.product_custom_field11',
+            'p.product_custom_field12',
+            'p.product_custom_field13',
+            'p.product_custom_field14',
+            'p.product_custom_field15',
+            'p.product_custom_field16',
+            'p.product_custom_field17',
+            'p.product_custom_field18',
+            'p.product_custom_field19',
+            'p.product_custom_field20',
             'pv.name as product_variation_name',
             'pv.is_dummy as is_dummy',
             'variations.name as variation_name',
@@ -1006,10 +1026,18 @@ class ProductUtil extends Util
      */
     public function getVariationGroupPrice($variation_id, $price_group_id, $tax_id)
     {
-        $price_inc_tax =
-        VariationGroupPrice::where('variation_id', $variation_id)
+        $price_group = VariationGroupPrice::where('variation_id', $variation_id)
                         ->where('price_group_id', $price_group_id)
-                        ->value('price_inc_tax');
+                        ->select(['price_inc_tax', 'price_type'])
+                        ->first();
+
+        if(isset($price_group->price_type) && $price_group->price_type == 'percentage'){
+            //calculate the price
+            $variation = Variation::find($variation_id);
+            $price_inc_tax = $this->calc_percentage($variation->sell_price_inc_tax, $price_group->price_inc_tax);
+        } else {
+            $price_inc_tax = $price_group->price_inc_tax;
+        }
 
         $price_exc_tax = $price_inc_tax;
         if (! empty($price_inc_tax) && ! empty($tax_id)) {
@@ -1668,7 +1696,7 @@ class ProductUtil extends Util
             );
 
         if (! empty($price_group_id)) {
-            $query->addSelect('VGP.price_inc_tax as variation_group_price');
+            $query->addSelect(DB::raw('IF (VGP.price_type = "fixed", VGP.price_inc_tax, VGP.price_inc_tax * variations.sell_price_inc_tax / 100) as variation_group_price'));
         }
 
         if (in_array('lot', $search_fields)) {
@@ -2228,7 +2256,7 @@ class ProductUtil extends Util
 
     public function fixVariationStockMisMatch($business_id, $variation_id, $location_id, $stock)
     {
-        $vld = VariationLocationDetails::leftjoin(
+        $vld = VariationLocationDetails::join(
             'business_locations as bl',
             'bl.id',
             '=',
@@ -2244,5 +2272,88 @@ class ProductUtil extends Util
             $vld->qty_available = $stock;
             $vld->save();
         }
+
+        //check if there are more such rows then delete it because one location can have only one variation_location_details
+        $vld_duplicate = VariationLocationDetails::join(
+            'business_locations as bl',
+            'bl.id',
+            '=',
+            'variation_location_details.location_id'
+        )
+                ->where('variation_location_details.location_id', $location_id)
+                ->where('variation_id', $variation_id)
+                ->where('bl.business_id', $business_id)
+                ->where('variation_location_details.id', '!=', $vld->id)
+                ->delete();
     }
+
+    /**
+     * Return the products less than alert quntity.
+     *
+     * @return array
+     */
+    public function getProductAlert($business_id, $permitted_locations = null)
+    {
+        $query = VariationLocationDetails::join(
+            'product_variations as pv',
+            'variation_location_details.product_variation_id',
+            '=',
+            'pv.id'
+        )
+                ->join(
+                    'variations as v',
+                    'variation_location_details.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join(
+                    'products as p',
+                    'variation_location_details.product_id',
+                    '=',
+                    'p.id'
+                )
+                ->leftjoin(
+                    'business_locations as l',
+                    'variation_location_details.location_id',
+                    '=',
+                    'l.id'
+                )
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('p.business_id', $business_id)
+                ->where('p.enable_stock', 1)
+                ->where('p.is_inactive', 0)
+                ->whereNull('v.deleted_at')
+                ->whereNotNull('p.alert_quantity')
+                ->whereRaw('variation_location_details.qty_available <= p.alert_quantity');
+
+             //Check for permitted locations of a user
+             if(!empty($permitted_locations)){
+                if ($permitted_locations != 'all') {
+                    $query->whereIn('variation_location_details.location_id', $permitted_locations);
+                }
+            }
+        
+
+        if (! empty(request()->input('location_id'))) {
+            $query->where('variation_location_details.location_id', request()->input('location_id'));
+        }
+
+        $products = $query->select(
+            'p.name as product',
+            'p.type',
+            'p.sku',
+            'pv.name as product_variation',
+            'v.name as variation',
+            'v.sub_sku',
+            'l.name as location',
+            'variation_location_details.qty_available as stock',
+            'u.short_name as unit'
+        )
+                ->groupBy('variation_location_details.id')
+                ->orderBy('stock', 'asc');
+
+        return $products;
+    }
+
+  
 }

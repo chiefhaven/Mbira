@@ -290,6 +290,10 @@ class SellController extends Controller
                 }
             }
 
+            if (! empty(request()->input('delivery_person'))) {
+                $sells->where('transactions.delivery_person', request()->input('delivery_person'));
+            }
+
             $sells->groupBy('transactions.id');
 
             if (! empty(request()->suspended)) {
@@ -687,9 +691,9 @@ class SellController extends Controller
 
         $invoice_schemes = InvoiceScheme::forDropdown($business_id);
         $default_invoice_schemes = InvoiceScheme::getDefault($business_id);
-        if (! empty($default_location)) {
+        if (! empty($default_location) && !empty($default_location->sale_invoice_scheme_id)) {
             $default_invoice_schemes = InvoiceScheme::where('business_id', $business_id)
-                                        ->findorfail($default_location->invoice_scheme_id);
+                                        ->findorfail($default_location->sale_invoice_scheme_id);
         }
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
@@ -789,7 +793,7 @@ class SellController extends Controller
                             ->pluck('name', 'id');
         $query = Transaction::where('business_id', $business_id)
                     ->where('id', $id)
-                    ->with(['contact', 'sell_lines' => function ($q) {
+                    ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
                         $q->whereNull('parent_sell_line_id');
                     }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
 
@@ -1381,10 +1385,6 @@ class SellController extends Controller
 
                             $html .= '<li>
                                         <a href="'.action("\App\Http\Controllers\SellPosController@showInvoiceUrl", [$row->id]).'" class="view_invoice_url"><i class="fas fa-eye"></i>'.__("lang_v1.view_quote_url").'</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_quotation']).'" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>'.__('lang_v1.new_quotation_notification').'
-                                        </a>
                                     </li>';
                         }
 
@@ -1532,6 +1532,9 @@ class SellController extends Controller
         $transaction = Transaction::where('business_id', $business_id)
                                 ->with(['media', 'media.uploaded_by_user'])
                                 ->findorfail($id);
+
+        $users = User::forDropdown($business_id, false, false, false);
+
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
 
         $activities = Activity::forSubject($transaction)
@@ -1541,7 +1544,7 @@ class SellController extends Controller
            ->get();
 
         return view('sell.partials.edit_shipping')
-               ->with(compact('transaction', 'shipping_statuses', 'activities'));
+               ->with(compact('transaction', 'shipping_statuses', 'activities', 'users'));
     }
 
     /**
@@ -1561,8 +1564,10 @@ class SellController extends Controller
         try {
             $input = $request->only([
                 'shipping_details', 'shipping_address',
-                'shipping_status', 'delivered_to', 'shipping_custom_field_1', 'shipping_custom_field_2', 'shipping_custom_field_3', 'shipping_custom_field_4', 'shipping_custom_field_5',
+                'shipping_status', 'delivered_to', 'delivery_person', 'shipping_custom_field_1', 'shipping_custom_field_2', 'shipping_custom_field_3', 'shipping_custom_field_4', 'shipping_custom_field_5',
             ]);
+
+
             $business_id = $request->session()->get('user.business_id');
 
             $transaction = Transaction::where('business_id', $business_id)
@@ -1619,8 +1624,10 @@ class SellController extends Controller
             $service_staffs = $this->productUtil->serviceStaffDropdown($business_id);
         }
 
+        $delevery_person = User::forDropdown($business_id, false, false, true);
+
         return view('sell.shipments')->with(compact('shipping_statuses'))
-                ->with(compact('business_locations', 'customers', 'sales_representative', 'is_service_staff_enabled', 'service_staffs'));
+                ->with(compact('business_locations', 'customers', 'sales_representative', 'is_service_staff_enabled', 'service_staffs', 'delevery_person'));
     }
 
     public function viewMedia($model_id)

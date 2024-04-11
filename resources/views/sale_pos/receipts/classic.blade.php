@@ -1,74 +1,76 @@
 <!-- business information here -->
 
 <div class="row" style="color: #000000 !important;">
-	@if(empty($receipt_details->letter_head))
 		<!-- Logo -->
-		@if(!empty($receipt_details->logo))
-			<img style="max-height: 120px; width: auto;" src="{{$receipt_details->logo}}" class="img img-responsive center-block">
-		@endif
+		@if(empty($receipt_details->letter_head))
+			@if(!empty($receipt_details->logo))
+				<img style="max-height: 120px; width: auto;" src="{{$receipt_details->logo}}" class="img img-responsive center-block">
+			@endif
 
-		<!-- Header text -->
-		@if(!empty($receipt_details->header_text))
-			<div class="col-xs-12">
-				{!! $receipt_details->header_text !!}
-			</div>
-		@endif
+			<!-- Header text -->
+			@if(!empty($receipt_details->header_text))
+				<div class="col-xs-12">
+					{!! $receipt_details->header_text !!}
+				</div>
+			@endif
 
-		<!-- business information here -->
-		<div class="col-xs-12 text-center">
-			<h2 class="text-center">
-				<!-- Shop & Location Name  -->
-				@if(!empty($receipt_details->display_name))
-					{{$receipt_details->display_name}}
+			<!-- business information here -->
+			<div class="col-xs-12 text-center">
+				<h2 class="text-center">
+					<!-- Shop & Location Name  -->
+					@if(!empty($receipt_details->display_name))
+						{{$receipt_details->display_name}}
+					@endif
+				</h2>
+
+				<!-- Address -->
+				<p>
+				@if(!empty($receipt_details->address))
+						<small class="text-center">
+						{!! $receipt_details->address !!}
+						</small>
 				@endif
-			</h2>
+				@if(!empty($receipt_details->contact))
+					<br/>{!! $receipt_details->contact !!}
+				@endif	
+				@if(!empty($receipt_details->contact) && !empty($receipt_details->website))
+					, 
+				@endif
+				@if(!empty($receipt_details->website))
+					{{ $receipt_details->website }}
+				@endif
+				@if(!empty($receipt_details->location_custom_fields))
+					<br>{{ $receipt_details->location_custom_fields }}
+				@endif
+				</p>
+				<p>
+				@if(!empty($receipt_details->sub_heading_line1))
+					{{ $receipt_details->sub_heading_line1 }}
+				@endif
+				@if(!empty($receipt_details->sub_heading_line2))
+					<br>{{ $receipt_details->sub_heading_line2 }}
+				@endif
+				@if(!empty($receipt_details->sub_heading_line3))
+					<br>{{ $receipt_details->sub_heading_line3 }}
+				@endif
+				@if(!empty($receipt_details->sub_heading_line4))
+					<br>{{ $receipt_details->sub_heading_line4 }}
+				@endif		
+				@if(!empty($receipt_details->sub_heading_line5))
+					<br>{{ $receipt_details->sub_heading_line5 }}
+				@endif
+				</p>
+				<p>
+				@if(!empty($receipt_details->tax_info1))
+					<b>{{ $receipt_details->tax_label1 }}</b> {{ $receipt_details->tax_info1 }}
+				@endif
 
-			<!-- Address -->
-			<p>
-			@if(!empty($receipt_details->address))
-					<small class="text-center">
-					{!! $receipt_details->address !!}
-					</small>
-			@endif
-			@if(!empty($receipt_details->contact))
-				<br/>{!! $receipt_details->contact !!}
-			@endif	
-			@if(!empty($receipt_details->contact) && !empty($receipt_details->website))
-				, 
-			@endif
-			@if(!empty($receipt_details->website))
-				{{ $receipt_details->website }}
-			@endif
-			@if(!empty($receipt_details->location_custom_fields))
-				<br>{{ $receipt_details->location_custom_fields }}
-			@endif
-			</p>
-			<p>
-			@if(!empty($receipt_details->sub_heading_line1))
-				{{ $receipt_details->sub_heading_line1 }}
-			@endif
-			@if(!empty($receipt_details->sub_heading_line2))
-				<br>{{ $receipt_details->sub_heading_line2 }}
-			@endif
-			@if(!empty($receipt_details->sub_heading_line3))
-				<br>{{ $receipt_details->sub_heading_line3 }}
-			@endif
-			@if(!empty($receipt_details->sub_heading_line4))
-				<br>{{ $receipt_details->sub_heading_line4 }}
-			@endif		
-			@if(!empty($receipt_details->sub_heading_line5))
-				<br>{{ $receipt_details->sub_heading_line5 }}
-			@endif
-			</p>
-			<p>
-			@if(!empty($receipt_details->tax_info1))
-				<b>{{ $receipt_details->tax_label1 }}</b> {{ $receipt_details->tax_info1 }}
+				@if(!empty($receipt_details->tax_info2))
+					<b>{{ $receipt_details->tax_label2 }}</b> {{ $receipt_details->tax_info2 }}
+				@endif
+				</p>
 			@endif
 
-			@if(!empty($receipt_details->tax_info2))
-				<b>{{ $receipt_details->tax_label2 }}</b> {{ $receipt_details->tax_info2 }}
-			@endif
-			</p>
 
 			<!-- Title of receipt -->
 			@if(!empty($receipt_details->invoice_heading))
@@ -77,11 +79,11 @@
 				</h3>
 			@endif
 		</div>
-	@else
-		<div class="col-xs-12 text-center">
-			<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
-		</div>
-	@endif
+		@if(!empty($receipt_details->letter_head))
+			<div class="col-xs-12 text-center">
+				<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
+			</div>
+		@endif
 	<div class="col-xs-12 text-center">
 		<!-- Invoice  number, Date  -->
 		<p style="width: 100% !important" class="word-wrap">
@@ -239,6 +241,27 @@
 					<br>
 					<strong>@lang('lang_v1.order_dates'):</strong> {!!$receipt_details->sale_orders_invoice_date ?? ''!!}
 				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_1_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_1_label }}:</strong> {!!$receipt_details->sell_custom_field_1_value ?? ''!!}
+				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_2_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_2_label }}:</strong> {!!$receipt_details->sell_custom_field_2_value ?? ''!!}
+				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_3_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_3_label }}:</strong> {!!$receipt_details->sell_custom_field_3_value ?? ''!!}
+				@endif
+
+				@if(!empty($receipt_details->sell_custom_field_4_value))
+					<br>
+					<strong>{{ $receipt_details->sell_custom_field_4_label }}:</strong> {!!$receipt_details->sell_custom_field_4_value ?? ''!!}
+				@endif
+
 			</span>
 		</p>
 	</div>

@@ -28,10 +28,13 @@
             <th>@lang('product.brand')</th>
             <th>@lang('product.tax')</th>
             <th>@lang('product.sku')</th>
-            <th>{{ $custom_labels['product']['custom_field_1'] ?? __('lang_v1.product_custom_field1') }}</th>
-            <th>{{ $custom_labels['product']['custom_field_2'] ?? __('lang_v1.product_custom_field2') }}</th>
-            <th>{{ $custom_labels['product']['custom_field_3'] ?? __('lang_v1.product_custom_field3') }}</th>
-            <th>{{ $custom_labels['product']['custom_field_4'] ?? __('lang_v1.product_custom_field4') }}</th>
+            <th id="cf_1">{{ $custom_labels['product']['custom_field_1'] ?? '' }}</th>
+            <th id="cf_2">{{ $custom_labels['product']['custom_field_2'] ?? '' }}</th>
+            <th id="cf_3">{{ $custom_labels['product']['custom_field_3'] ?? '' }}</th>
+            <th id="cf_4">{{ $custom_labels['product']['custom_field_4'] ?? '' }}</th>
+            <th id="cf_5">{{ $custom_labels['product']['custom_field_5'] ?? '' }}</th>
+            <th id="cf_6">{{ $custom_labels['product']['custom_field_6'] ?? '' }}</th>
+            <th id="cf_7">{{ $custom_labels['product']['custom_field_7'] ?? '' }}</th>
         </tr>
     </thead>
     <tfoot>

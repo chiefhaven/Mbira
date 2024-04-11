@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Restaurant;
 
 use App\Restaurant\ResTable;
 use App\Transaction;
+use App\User;
 use App\Utils\Util;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -47,7 +48,7 @@ class DataController extends Controller
                 $tables = null;
                 if ($this->commonUtil->isModuleEnabled('service_staff')) {
                     $waiters_enabled = true;
-                    $waiters = $this->commonUtil->serviceStaffDropdown($business_id, $location_id);
+                    $waiters = $this->commonUtil->getServiceStaff($business_id, $location_id, false);
                 }
                 if ($this->commonUtil->isModuleEnabled('tables')) {
                     $tables_enabled = true;
@@ -87,5 +88,22 @@ class DataController extends Controller
             ->where('business_id', $input['business_id'])
             ->update(['res_table_id' => $table_id,
                 'res_waiter_id' => $res_waiter_id, ]);
+    }
+
+    public function checkStaffPin(Request $request){
+        $service_staff_pin = $request->get('service_staff_pin');
+        $user_id = $request->get('user_id');
+
+        $business_id = $request->session()->get('user.business_id');
+        $query = User::where('service_staff_pin', $service_staff_pin)->where('id', $user_id)->where('business_id', $business_id);
+
+        $exists = $query->exists();
+        if ($exists) {
+            echo 'true';
+            exit;
+        } else {
+            echo 'false';
+            exit;
+        }
     }
 }

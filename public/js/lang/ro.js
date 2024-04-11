@@ -131,4 +131,9 @@ LANG = {
 'settings': 'Setări',
 'advance_payment_cannot_be_more_than_once': 'Plata în avans nu poate fi selectată de mai multe ori',
 'not_connected_to_a_network': 'Nu sunteți conectat la o rețea',
+'enter_pin_here': 'Introduceți PIN-ul aici',
+'authentication_failed': 'Autentificare eșuată!',
+'authentication_successfull': 'Autentificare reușită',
+'please_enter' : 'Vă rugăm să introduceți',
+'or_more_characters' : 'sau mai multe caractere',
 };

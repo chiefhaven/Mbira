@@ -27,9 +27,10 @@ class Kernel extends ConsoleKernel
             $schedule->command('pos:updateRewardPoints')->dailyAt('23:45');
 
             $schedule->command('pos:autoSendPaymentReminder')->dailyAt('8:00');
+
         }
 
-        if ($env === 'demo' && ! empty($email)) {
+        if ($env === 'demo') {
             //IMPORTANT NOTE: This command will delete all business details and create dummy business, run only in demo server.
             $schedule->command('pos:dummyBusiness')
                     ->cron('0 */3 * * *')

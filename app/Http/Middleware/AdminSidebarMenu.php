@@ -121,11 +121,20 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'products' && request()->segment(2) == '']
                             );
                         }
+                        
+
                         if (auth()->user()->can('product.create')) {
                             $sub->url(
                                 action([\App\Http\Controllers\ProductController::class, 'create']),
                                 __('product.add_product'),
                                 ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'create']
+                            );
+                        }
+                        if (auth()->user()->can('product.create')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\SellingPriceGroupController::class, 'updateProductPrice']),
+                                __('lang_v1.update_product_price'),
+                                ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'update-product-price']
                             );
                         }
                         if (auth()->user()->can('product.view')) {

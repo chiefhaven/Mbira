@@ -199,7 +199,7 @@ class ImportOpeningStockController extends Controller
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = ['success' => 0,
-                'msg' => 'File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage(),
+                'msg' => 'Message:'.$e->getMessage(),
             ];
 
             return redirect('import-opening-stock')->with('notification', $output);

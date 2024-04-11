@@ -1077,8 +1077,15 @@ $(document).ready(function() {
             .change();
     });
 
-    $(document).on('change', 'input[type=radio][name=scheme_type]', function() {
+    $(document).on('change', 'input[type=radio][name=scheme_type], select#invoice_number_type', function() {
         $('#invoice_format_settings').removeClass('hide');
+
+        if($('select#invoice_number_type').val() == 'sequential'){
+            $('.sequential_field').removeClass('hide');
+        } else{
+            $('.sequential_field').addClass('hide');
+        }
+        
         show_invoice_preview();
     });
     $(document).on('change', '#prefix', function() {

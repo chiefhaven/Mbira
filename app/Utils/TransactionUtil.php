@@ -26,6 +26,8 @@ use App\Variation;
 use App\VariationLocationDetails;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\CashRegister;
+
 
 class TransactionUtil extends Util
 {
@@ -88,6 +90,7 @@ class TransactionUtil extends Util
             'shipping_address' => isset($input['shipping_address']) ? $input['shipping_address'] : null,
             'shipping_status' => isset($input['shipping_status']) ? $input['shipping_status'] : null,
             'delivered_to' => isset($input['delivered_to']) ? $input['delivered_to'] : null,
+            'delivery_person' => isset($input['delivery_person']) ? $input['delivery_person'] : null,
             'shipping_charges' => isset($input['shipping_charges']) ? $uf_data ? $this->num_uf($input['shipping_charges']) : $input['shipping_charges'] : 0,
             'shipping_custom_field_1' => ! empty($input['shipping_custom_field_1']) ? $input['shipping_custom_field_1'] : null,
             'shipping_custom_field_2' => ! empty($input['shipping_custom_field_2']) ? $input['shipping_custom_field_2'] : null,
@@ -139,6 +142,7 @@ class TransactionUtil extends Util
             'additional_expense_key_2' => ! empty($input['additional_expense_key_2']) ? $input['additional_expense_key_2'] : null,
             'additional_expense_key_3' => ! empty($input['additional_expense_key_3']) ? $input['additional_expense_key_3'] : null,
             'additional_expense_key_4' => ! empty($input['additional_expense_key_4']) ? $input['additional_expense_key_4'] : null,
+            'is_kitchen_order' => ! empty($input['is_kitchen_order']) ? 1 : 0,
 
         ]);
 
@@ -210,6 +214,7 @@ class TransactionUtil extends Util
             'shipping_address' => isset($input['shipping_address']) ? $input['shipping_address'] : null,
             'shipping_status' => isset($input['shipping_status']) ? $input['shipping_status'] : null,
             'delivered_to' => isset($input['delivered_to']) ? $input['delivered_to'] : null,
+            'delivery_person' => isset($input['delivery_person']) ? $input['delivery_person'] : null,
             'shipping_custom_field_1' => ! empty($input['shipping_custom_field_1']) ? $input['shipping_custom_field_1'] : null,
             'shipping_custom_field_2' => ! empty($input['shipping_custom_field_2']) ? $input['shipping_custom_field_2'] : null,
             'shipping_custom_field_3' => ! empty($input['shipping_custom_field_3']) ? $input['shipping_custom_field_3'] : null,
@@ -255,6 +260,7 @@ class TransactionUtil extends Util
             'additional_expense_key_2' => ! empty($input['additional_expense_key_2']) ? $input['additional_expense_key_2'] : null,
             'additional_expense_key_3' => ! empty($input['additional_expense_key_3']) ? $input['additional_expense_key_3'] : null,
             'additional_expense_key_4' => ! empty($input['additional_expense_key_4']) ? $input['additional_expense_key_4'] : null,
+            'is_kitchen_order' => ! empty($input['is_kitchen_order']) ? 1 : 0,
         ];
 
         if (! empty($input['transaction_date'])) {
@@ -1817,25 +1823,32 @@ class TransactionUtil extends Util
             $output['shipping_custom_field_5_value'] = $transaction['shipping_custom_field_5'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_1)) {
+
+        $is_show_sell_custom_fields1 = ! empty($il->common_settings['sell_custom_fields1']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_1) && $is_show_sell_custom_fields1) {
             $output['sell_custom_field_1_label'] = $custom_labels->sell->custom_field_1;
             $output['sell_custom_field_1_value'] = $transaction['custom_field_1'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_2)) {
+        $is_show_sell_custom_fields2 = ! empty($il->common_settings['sell_custom_fields2']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_2) && $is_show_sell_custom_fields2) {
             $output['sell_custom_field_2_label'] = $custom_labels->sell->custom_field_2;
             $output['sell_custom_field_2_value'] = $transaction['custom_field_2'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_3)) {
+        $is_show_sell_custom_fields3 = ! empty($il->common_settings['sell_custom_fields3']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_3) && $is_show_sell_custom_fields3) {
             $output['sell_custom_field_3_label'] = $custom_labels->sell->custom_field_3;
             $output['sell_custom_field_3_value'] = $transaction['custom_field_3'];
         }
 
-        if (! empty($custom_labels->sell->custom_field_4)) {
+        $is_show_sell_custom_fields4 = ! empty($il->common_settings['sell_custom_fields4']) ? true : false;
+        if (! empty($custom_labels->sell->custom_field_4) && $is_show_sell_custom_fields4) {
             $output['sell_custom_field_4_label'] = $custom_labels->sell->custom_field_4;
             $output['sell_custom_field_4_value'] = $transaction['custom_field_4'];
         }
+
+        
 
         // location custom fields
         if (in_array('custom_field1', $location_custom_field_settings) && ! empty($location_details->custom_field1) && ! empty($custom_labels->location->custom_field_1)) {
@@ -2298,7 +2311,12 @@ class TransactionUtil extends Util
             }
 
             //Count
-            $count = $scheme->start_number + $scheme->invoice_count;
+            if($scheme->number_type == 'sequential'){
+                $count = $scheme->start_number + $scheme->invoice_count;
+            } elseif($scheme->number_type == 'random'){
+                $max = (int)str_pad(1, $scheme->total_digits, '1');
+                $count = rand(1000, 9*$max);
+            }
             $count = str_pad($count, $scheme->total_digits, '0', STR_PAD_LEFT);
 
             //Prefix + count
@@ -2372,7 +2390,7 @@ class TransactionUtil extends Util
      * @param  int  $transaction_id
      * @return array
      */
-    public function getPurchaseTotals($business_id, $start_date = null, $end_date = null, $location_id = null, $user_id = null)
+    public function getPurchaseTotals($business_id, $start_date = null, $end_date = null, $location_id = null, $user_id = null, $permitted_locations = null)
     {
         $query = Transaction::where('business_id', $business_id)
                         ->where('type', 'purchase')
@@ -2386,9 +2404,10 @@ class TransactionUtil extends Util
                         );
 
         //Check for permitted locations of a user
-        $permitted_locations = auth()->user()->permitted_locations();
-        if ($permitted_locations != 'all') {
-            $query->whereIn('transactions.location_id', $permitted_locations);
+        if(!empty($permitted_locations)) {
+                       if ($permitted_locations != 'all') {
+                $query->whereIn('transactions.location_id', $permitted_locations);
+            }
         }
 
         if (! empty($start_date) && ! empty($end_date)) {
@@ -2503,7 +2522,7 @@ class TransactionUtil extends Util
      * @param  int  $transaction_id
      * @return array
      */
-    public function getSellTotals($business_id, $start_date = null, $end_date = null, $location_id = null, $created_by = null)
+    public function getSellTotals($business_id, $start_date = null, $end_date = null, $location_id = null, $created_by = null, $permitted_locations = null)
     {
         $query = Transaction::where('transactions.business_id', $business_id)
                     ->where('transactions.type', 'sell')
@@ -2518,9 +2537,10 @@ class TransactionUtil extends Util
                     );
 
         //Check for permitted locations of a user
-        $permitted_locations = auth()->user()->permitted_locations();
-        if ($permitted_locations != 'all') {
-            $query->whereIn('transactions.location_id', $permitted_locations);
+        if(!empty($permitted_locations)) {
+            if ($permitted_locations != 'all') {
+                $query->whereIn('transactions.location_id', $permitted_locations);
+            }
         }
 
         if (! empty($start_date) && ! empty($end_date)) {
@@ -2905,10 +2925,13 @@ class TransactionUtil extends Util
                             ->whereIn('type', ['expense', 'expense_refund']);
         // ->where('payment_status', 'paid');
 
-        $permitted_locations = auth()->user()->permitted_locations();
-        if ($permitted_locations != 'all') {
-            $query->whereIn('transactions.location_id', $permitted_locations);
+
+        if(!empty($permitted_locations)){
+            if ($permitted_locations != 'all') {
+                $query->whereIn('transactions.location_id', $permitted_locations);
+            }
         }
+       
 
         if (! empty($filters['location_id'])) {
             $query->where('transactions.location_id', $filters['location_id']);
@@ -3763,7 +3786,7 @@ class TransactionUtil extends Util
      * @param  bool  $is_opening = false
      * @return float
      */
-    public function getOpeningClosingStock($business_id, $date, $location_id, $is_opening = false, $by_sale_price = false, $filters = [])
+    public function getOpeningClosingStock($business_id, $date, $location_id, $is_opening = false, $by_sale_price = false, $filters = [], $permitted_locations = null)
     {
         $query = PurchaseLine::join(
             'transactions as purchase',
@@ -3826,9 +3849,10 @@ class TransactionUtil extends Util
         );
 
         //Check for permitted locations of a user
-        $permitted_locations = auth()->user()->permitted_locations();
-        if ($permitted_locations != 'all') {
-            $query->whereIn('purchase.location_id', $permitted_locations);
+        if(!empty($permitted_locations)) {
+            if ($permitted_locations != 'all') {
+                $query->whereIn('purchase.location_id', $permitted_locations);
+            }
         }
 
         if (! empty($location_id)) {
@@ -4077,8 +4101,8 @@ class TransactionUtil extends Util
         }
 
         $credit_details = $query->select(
-            DB::raw("SUM(IF(t.type = 'sell', final_total, 0)) as total_invoice"),
-            DB::raw("SUM(IF(t.type = 'sell', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_paid")
+            DB::raw("SUM(IF(t.status = 'final' AND t.type = 'sell', final_total, 0)) as total_invoice"),
+            DB::raw("SUM(IF(t.status = 'final' AND t.type = 'sell', (SELECT SUM(IF(is_return = 1,-1*amount,amount)) FROM transaction_payments WHERE transaction_payments.transaction_id=t.id), 0)) as invoice_paid")
         )->first();
 
         $total_invoice = ! empty($credit_details->total_invoice) ? $credit_details->total_invoice : 0;
@@ -4380,19 +4404,21 @@ class TransactionUtil extends Util
         $start_date = null,
         $end_date = null,
         $location_id = null,
-        $created_by = null
+        $created_by = null,
+        $permitted_locations = null
         ) {
         $query = Transaction::where('transactions.business_id', $business_id);
 
         //Check for permitted locations of a user
-        $permitted_locations = auth()->user()->permitted_locations();
-        if ($permitted_locations != 'all') {
-            //if payroll check employees's work location
-            if (in_array('payroll', $transaction_types)) {
-                $query->leftjoin('users as u1', 'u1.id', '=', 'transactions.expense_for')
-                    ->whereIn('u1.location_id', $permitted_locations);
-            } else {
-                $query->whereIn('transactions.location_id', $permitted_locations);
+        if(!empty($permitted_locations)) {
+            if ($permitted_locations != 'all') {
+                //if payroll check employees's work location
+                if (in_array('payroll', $transaction_types)) {
+                    $query->leftjoin('users as u1', 'u1.id', '=', 'transactions.expense_for')
+                        ->whereIn('u1.location_id', $permitted_locations);
+                } else {
+                    $query->whereIn('transactions.location_id', $permitted_locations);
+                }
             }
         }
 
@@ -4559,7 +4585,7 @@ class TransactionUtil extends Util
         return $output;
     }
 
-    public function getGrossProfit($business_id, $start_date = null, $end_date = null, $location_id = null, $user_id = null)
+    public function getGrossProfit($business_id, $start_date = null, $end_date = null, $location_id = null, $user_id = null, $permitted_locations)
     {
         $query = TransactionSellLine::join('transactions as sale', 'transaction_sell_lines.transaction_id', '=', 'sale.id')
             ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
@@ -4594,9 +4620,10 @@ class TransactionUtil extends Util
             $query->whereDate('sale.transaction_date', $end_date);
         }
 
-        $permitted_locations = auth()->user()->permitted_locations();
-        if ($permitted_locations != 'all') {
-            $query->whereIn('sale.location_id', $permitted_locations);
+        if(!empty($permitted_locations)) {
+            if ($permitted_locations != 'all') {
+                $query->whereIn('sale.location_id', $permitted_locations);
+            }
         }
 
         //Filter by the location
@@ -4901,6 +4928,63 @@ class TransactionUtil extends Util
         return $purchases;
     }
 
+        /**
+     * common function to get
+     * list expenses
+     *
+     * @param  int  $business_id
+     * @return object
+     */
+    public function getListExpenses($business_id)
+    {
+        $expenses = Transaction::leftJoin('expense_categories AS ec', 'transactions.expense_category_id', '=', 'ec.id')
+            ->leftJoin('expense_categories AS esc', 'transactions.expense_sub_category_id', '=', 'esc.id')
+            ->join(
+                'business_locations AS bl',
+                'transactions.location_id',
+                '=',
+                'bl.id'
+            )
+            ->leftJoin('tax_rates as tr', 'transactions.tax_id', '=', 'tr.id')
+            ->leftJoin('users AS U', 'transactions.expense_for', '=', 'U.id')
+            ->leftJoin('users AS usr', 'transactions.created_by', '=', 'usr.id')
+            ->leftJoin('contacts AS c', 'transactions.contact_id', '=', 'c.id')
+            ->leftJoin(
+                'transaction_payments AS TP',
+                'transactions.id',
+                '=',
+                'TP.transaction_id'
+            )
+            ->where('transactions.business_id', $business_id)
+            ->whereIn('transactions.type', ['expense', 'expense_refund'])
+            ->select(
+                'transactions.id',
+                'transactions.document',
+                'transaction_date',
+                'ref_no',
+                'ec.name as category',
+                'esc.name as sub_category',
+                'payment_status',
+                'additional_notes',
+                'final_total',
+                'transactions.is_recurring',
+                'transactions.recur_interval',
+                'transactions.recur_interval_type',
+                'transactions.recur_repetitions',
+                'transactions.subscription_repeat_on',
+                'bl.name as location_name',
+                DB::raw("CONCAT(COALESCE(U.surname, ''),' ',COALESCE(U.first_name, ''),' ',COALESCE(U.last_name,'')) as expense_for"),
+                DB::raw("CONCAT(tr.name ,' (', tr.amount ,' )') as tax"),
+                DB::raw('SUM(TP.amount) as amount_paid'),
+                DB::raw("CONCAT(COALESCE(usr.surname, ''),' ',COALESCE(usr.first_name, ''),' ',COALESCE(usr.last_name,'')) as added_by"),
+                'transactions.recur_parent_id',
+                'c.name as contact_name',
+                'transactions.type'
+            )
+            ->with(['recurring_parent'])
+            ->groupBy('transactions.id');
+        return $expenses;
+    }
     /**
      * common function to get
      * list sell
@@ -4918,6 +5002,7 @@ class TransactionUtil extends Util
                 })
                 ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
                 ->leftJoin('users as ss', 'transactions.res_waiter_id', '=', 'ss.id')
+                ->leftJoin('users as dp', 'transactions.delivery_person', '=', 'dp.id')
                 ->leftJoin('res_tables as tables', 'transactions.res_table_id', '=', 'tables.id')
                 ->join(
                     'business_locations AS bl',
@@ -4993,7 +5078,8 @@ class TransactionUtil extends Util
                     DB::raw("CONCAT(COALESCE(ss.surname, ''),' ',COALESCE(ss.first_name, ''),' ',COALESCE(ss.last_name,'')) as waiter"),
                     'tables.name as table_name',
                     DB::raw('SUM(tsl.quantity - tsl.so_quantity_invoiced) as so_qty_remaining'),
-                    'transactions.is_export'
+                    'transactions.is_export',
+                    DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person")
                 );
 
         if ($sale_type == 'sell') {
@@ -5378,14 +5464,15 @@ class TransactionUtil extends Util
         return $query;
     }
 
-    public function getProfitLossDetails($business_id, $location_id, $start_date, $end_date, $user_id = null)
+    //
+    public function getProfitLossDetails($business_id, $location_id, $start_date, $end_date, $user_id = null, $permitted_locations = null)
     {
         //For Opening stock date should be 1 day before
         $day_before_start_date = \Carbon::createFromFormat('Y-m-d', $start_date)->subDay()->format('Y-m-d');
 
         $filters = ['user_id' => $user_id];
         //Get Opening stock
-        $opening_stock = $this->getOpeningClosingStock($business_id, $day_before_start_date, $location_id, true, false, $filters);
+        $opening_stock = $this->getOpeningClosingStock($business_id, $day_before_start_date, $location_id, true, false, $filters, $permitted_locations);
 
         //Get Closing stock
         $closing_stock = $this->getOpeningClosingStock(
@@ -5394,7 +5481,8 @@ class TransactionUtil extends Util
             $location_id,
             false,
             false,
-            $filters
+            $filters,
+            $permitted_locations
         );
 
         //Get Purchase details
@@ -5403,7 +5491,8 @@ class TransactionUtil extends Util
             $start_date,
             $end_date,
             $location_id,
-            $user_id
+            $user_id,
+            $permitted_locations
         );
 
         //Get Sell details
@@ -5412,7 +5501,8 @@ class TransactionUtil extends Util
             $start_date,
             $end_date,
             $location_id,
-            $user_id
+            $user_id,
+            $permitted_locations
         );
 
         $transaction_types = [
@@ -5425,7 +5515,8 @@ class TransactionUtil extends Util
             $start_date,
             $end_date,
             $location_id,
-            $user_id
+            $user_id,
+            $permitted_locations
         );
 
         $gross_profit = $this->getGrossProfit(
@@ -5433,7 +5524,8 @@ class TransactionUtil extends Util
             $start_date,
             $end_date,
             $location_id,
-            $user_id
+            $user_id,
+            $permitted_locations
         );
 
         $data['total_purchase_shipping_charge'] = ! empty($purchase_details['total_shipping_charges']) ? $purchase_details['total_shipping_charges'] : 0;
@@ -5486,9 +5578,12 @@ class TransactionUtil extends Util
             'end_date' => $end_date,
             'location_id' => $location_id,
             'user_id' => $user_id,
+            'permitted_locations' => $permitted_locations
         ];
+        
         $modules_data = $moduleUtil->getModuleData('profitLossReportData', $module_parameters);
 
+      
         $data['left_side_module_data'] = [];
         $data['right_side_module_data'] = [];
         $module_total = 0;
@@ -5540,11 +5635,19 @@ class TransactionUtil extends Util
             'end_date' => $end_date,
             'location_id' => $location_id,
         ];
-        $project_module_data = $moduleUtil->getModuleData('grossProfit', $module_parameters);
+        $grossProfitData = $moduleUtil->getModuleData('grossProfit', $module_parameters);
 
-        if (! empty($project_module_data['Project']['gross_profit'])) {
-            $gross_profit = $gross_profit + $project_module_data['Project']['gross_profit'];
-            $data['gross_profit_label'] = __('project::lang.project_invoice');
+        // if (! empty($project_module_data['Project']['gross_profit'])) {
+        //     $gross_profit = $gross_profit + $project_module_data['Project']['gross_profit'];
+        //     $data['gross_profit_label'] = __('project::lang.project_invoice');
+        // }
+
+        $data['gross_profit_label'] = [];
+        if(! empty($grossProfitData)){
+            foreach($grossProfitData as $value){
+                $data['gross_profit_label'][] = $value['label'];
+                $gross_profit = $gross_profit + $value['value'];
+            }
         }
 
         $data['gross_profit'] = $gross_profit;
@@ -6199,5 +6302,71 @@ class TransactionUtil extends Util
         $mpdf->WriteHTML($body);
 
         return $mpdf;
+    }
+
+    /**
+     * Return the registerReport .
+     *
+     * @return array
+     */
+    public function registerReport($business_id, $permitted_locations, $start_date = null, $end_date = null)
+    {
+        $registers = CashRegister::leftjoin(
+            'cash_register_transactions as ct',
+            'ct.cash_register_id',
+            '=',
+            'cash_registers.id'
+        )->join(
+            'users as u',
+            'u.id',
+            '=',
+            'cash_registers.user_id'
+            )
+            ->leftJoin(
+                'business_locations as bl',
+                'bl.id',
+                '=',
+                'cash_registers.location_id'
+            )
+            ->where('cash_registers.business_id', $business_id)
+            ->select(
+                'cash_registers.*',
+                DB::raw(
+                    "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
+                ),
+                'bl.name as location_name',
+                DB::raw("SUM(IF(pay_method='cash', IF(transaction_type='sell', amount, 0), 0)) as total_cash_payment"),
+                DB::raw("SUM(IF(pay_method='cheque', IF(transaction_type='sell', amount, 0), 0)) as total_cheque_payment"),
+                DB::raw("SUM(IF(pay_method='card', IF(transaction_type='sell', amount, 0), 0)) as total_card_payment"),
+                DB::raw("SUM(IF(pay_method='bank_transfer', IF(transaction_type='sell', amount, 0), 0)) as total_bank_transfer_payment"),
+                DB::raw("SUM(IF(pay_method='other', IF(transaction_type='sell', amount, 0), 0)) as total_other_payment"),
+                DB::raw("SUM(IF(pay_method='advance', IF(transaction_type='sell', amount, 0), 0)) as total_advance_payment"),
+                DB::raw("SUM(IF(pay_method='custom_pay_1', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_1"),
+                DB::raw("SUM(IF(pay_method='custom_pay_2', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_2"),
+                DB::raw("SUM(IF(pay_method='custom_pay_3', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_3"),
+                DB::raw("SUM(IF(pay_method='custom_pay_4', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_4"),
+                DB::raw("SUM(IF(pay_method='custom_pay_5', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_5"),
+                DB::raw("SUM(IF(pay_method='custom_pay_6', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_6"),
+                DB::raw("SUM(IF(pay_method='custom_pay_7', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_7")
+            )->groupBy('cash_registers.id');
+
+        if(!empty($permitted_locations)){
+            if ($permitted_locations != 'all') {
+                $registers->whereIn('cash_registers.location_id', $permitted_locations);
+            }
+        }
+
+        if (! empty(request()->input('user_id'))) {
+            $registers->where('cash_registers.user_id', request()->input('user_id'));
+        }
+        if (! empty(request()->input('status'))) {
+            $registers->where('cash_registers.status', request()->input('status'));
+        }
+        if (! empty($start_date) && ! empty($end_date)) {
+            $registers->whereDate('cash_registers.created_at', '>=', $start_date)
+                    ->whereDate('cash_registers.created_at', '<=', $end_date);
+        }
+
+        return $registers;
     }
 }

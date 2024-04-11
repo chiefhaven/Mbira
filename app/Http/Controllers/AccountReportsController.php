@@ -71,10 +71,13 @@ class AccountReportsController extends Controller
             // $capital_account_details = $this->getAccountBalance($business_id, $end_date, 'capital');
 
             //Get Closing stock
+            $permitted_locations = auth()->user()->permitted_locations();
+            
             $closing_stock = $this->transactionUtil->getOpeningClosingStock(
                 $business_id,
                 $end_date,
-                $location_id
+                $location_id,
+                $permitted_locations
             );
 
             $output = [

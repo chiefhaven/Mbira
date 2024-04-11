@@ -66,9 +66,11 @@ class ReportController extends Controller
 
         $day_before_start_date = \Carbon::createFromFormat('Y-m-d', $start_date)->subDay()->format('Y-m-d');
 
-        $opening_stock_by_sp = $this->transactionUtil->getOpeningClosingStock($business_id, $day_before_start_date, $location_id, true, true);
+        $permitted_locations = auth()->user()->permitted_locations();
 
-        $closing_stock_by_sp = $this->transactionUtil->getOpeningClosingStock($business_id, $end_date, $location_id, false, true);
+        $opening_stock_by_sp = $this->transactionUtil->getOpeningClosingStock($business_id, $day_before_start_date, $location_id, true, true, $permitted_locations);
+
+        $closing_stock_by_sp = $this->transactionUtil->getOpeningClosingStock($business_id, $end_date, $location_id, false, true, $permitted_locations);
 
         return [
             'opening_stock_by_sp' => $opening_stock_by_sp,
@@ -95,8 +97,17 @@ class ReportController extends Controller
             $end_date = $request->get('end_date');
             $location_id = $request->get('location_id');
 
-            $data = $this->transactionUtil->getProfitLossDetails($business_id, $location_id, $start_date, $end_date);
+            $fy = $this->businessUtil->getCurrentFinancialYear($business_id);
 
+            $location_id = ! empty(request()->input('location_id')) ? request()->input('location_id') : null;
+            $start_date = ! empty(request()->input('start_date')) ? request()->input('start_date') : $fy['start'];
+            $end_date = ! empty(request()->input('end_date')) ? request()->input('end_date') : $fy['end'];
+    
+            $user_id = request()->input('user_id') ?? null;
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            $data = $this->transactionUtil->getProfitLossDetails($business_id, $location_id, $start_date, $end_date, $user_id, $permitted_locations);
+    
             // $data['closing_stock'] = $data['closing_stock'] - $data['total_sell_return'];
 
             return view('report.partials.profit_loss_details', compact('data'))->render();
@@ -983,63 +994,13 @@ class ReportController extends Controller
 
         //Return the details in ajax call
         if ($request->ajax()) {
-            $registers = CashRegister::leftjoin(
-                'cash_register_transactions as ct',
-                'ct.cash_register_id',
-                '=',
-                'cash_registers.id'
-            )->join(
-                'users as u',
-                'u.id',
-                '=',
-                'cash_registers.user_id'
-                )
-                ->leftJoin(
-                    'business_locations as bl',
-                    'bl.id',
-                    '=',
-                    'cash_registers.location_id'
-                )
-                ->where('cash_registers.business_id', $business_id)
-                ->select(
-                    'cash_registers.*',
-                    DB::raw(
-                        "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
-                    ),
-                    'bl.name as location_name',
-                    DB::raw("SUM(IF(pay_method='cash', IF(transaction_type='sell', amount, 0), 0)) as total_cash_payment"),
-                    DB::raw("SUM(IF(pay_method='cheque', IF(transaction_type='sell', amount, 0), 0)) as total_cheque_payment"),
-                    DB::raw("SUM(IF(pay_method='card', IF(transaction_type='sell', amount, 0), 0)) as total_card_payment"),
-                    DB::raw("SUM(IF(pay_method='bank_transfer', IF(transaction_type='sell', amount, 0), 0)) as total_bank_transfer_payment"),
-                    DB::raw("SUM(IF(pay_method='other', IF(transaction_type='sell', amount, 0), 0)) as total_other_payment"),
-                    DB::raw("SUM(IF(pay_method='advance', IF(transaction_type='sell', amount, 0), 0)) as total_advance_payment"),
-                    DB::raw("SUM(IF(pay_method='custom_pay_1', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_1"),
-                    DB::raw("SUM(IF(pay_method='custom_pay_2', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_2"),
-                    DB::raw("SUM(IF(pay_method='custom_pay_3', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_3"),
-                    DB::raw("SUM(IF(pay_method='custom_pay_4', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_4"),
-                    DB::raw("SUM(IF(pay_method='custom_pay_5', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_5"),
-                    DB::raw("SUM(IF(pay_method='custom_pay_6', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_6"),
-                    DB::raw("SUM(IF(pay_method='custom_pay_7', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_7")
-                )->groupBy('cash_registers.id');
 
-            $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
-                $registers->whereIn('cash_registers.location_id', $permitted_locations);
-            }
+        $start_date = request()->input('start_date');
+        $end_date = request()->input('end_date');
 
-            if (! empty($request->input('user_id'))) {
-                $registers->where('cash_registers.user_id', $request->input('user_id'));
-            }
-            if (! empty($request->input('status'))) {
-                $registers->where('cash_registers.status', $request->input('status'));
-            }
-            $start_date = $request->get('start_date');
-            $end_date = $request->get('end_date');
+        $permitted_locations = auth()->user()->permitted_locations();
 
-            if (! empty($start_date) && ! empty($end_date)) {
-                $registers->whereDate('cash_registers.created_at', '>=', $start_date)
-                        ->whereDate('cash_registers.created_at', '<=', $end_date);
-            }
+            $registers = $this->transactionUtil->registerReport($business_id, $permitted_locations, $start_date, $end_date);
 
             return Datatables::of($registers)
                 ->editColumn('total_card_payment', function ($row) {
@@ -1733,7 +1694,14 @@ class ReportController extends Controller
         }
 
         $business_id = $request->session()->get('user.business_id');
+        $custom_labels = json_decode(session('business.custom_labels'), true);
+
+        $product_custom_field1 = !empty($custom_labels['product']['custom_field_1']) ? $custom_labels['product']['custom_field_1'] : '';
+        $product_custom_field2 = !empty($custom_labels['product']['custom_field_2']) ? $custom_labels['product']['custom_field_2'] : '';
+
         if ($request->ajax()) {
+            $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+
             $variation_id = $request->get('variation_id', null);
             $query = TransactionSellLine::join(
                 'transactions as t',
@@ -1755,9 +1723,12 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
+                ->with('transaction.payment_lines')
                 ->select(
                     'p.name as product_name',
                     'p.type as product_type',
+                    'p.product_custom_field1 as product_custom_field1',
+                    'p.product_custom_field2 as product_custom_field2',
                     'pv.name as product_variation',
                     'v.name as variation_name',
                     'v.sub_sku',
@@ -1870,8 +1841,22 @@ class ReportController extends Controller
                      .'<br>'.'<span data-orig-value="'.$row->item_tax.'" 
                      class="tax" data-unit="'.$row->tax.'"><small>('.$row->tax.')</small></span>';
                 })
+                ->addColumn('payment_methods', function ($row) use ($payment_types) {
+                    $methods = array_unique($row->transaction->payment_lines->pluck('method')->toArray());
+                    $count = count($methods);
+                    $payment_method = '';
+                    if ($count == 1) {
+                        $payment_method = $payment_types[$methods[0]] ?? '';
+                    } elseif ($count > 1) {
+                        $payment_method = __('lang_v1.checkout_multi_pay');
+                    }
+
+                    $html = ! empty($payment_method) ? '<span class="payment-method" data-orig-value="'.$payment_method.'" data-status-name="'.$payment_method.'">'.$payment_method.'</span>' : '';
+
+                    return $html;
+                })
                 ->editColumn('customer', '@if(!empty($supplier_business_name)) {{$supplier_business_name}},<br>@endif {{$customer}}')
-                ->rawColumns(['invoice_no', 'unit_sale_price', 'subtotal', 'sell_qty', 'discount_amount', 'unit_price', 'tax', 'customer'])
+                ->rawColumns(['invoice_no', 'unit_sale_price', 'subtotal', 'sell_qty', 'discount_amount', 'unit_price', 'tax', 'customer', 'payment_methods'])
                 ->make(true);
         }
 
@@ -1883,7 +1868,7 @@ class ReportController extends Controller
 
         return view('report.product_sell_report')
             ->with(compact('business_locations', 'customers', 'categories', 'brands',
-                'customer_group'));
+                'customer_group', 'product_custom_field1', 'product_custom_field2'));
     }
 
     /**
@@ -3470,6 +3455,8 @@ class ReportController extends Controller
         $end_date = \Carbon::now()->format('Y-m-d');
         $location_id = request()->input('location_id');
         $filters = request()->only(['category_id', 'sub_category_id', 'brand_id', 'unit_id']);
+
+        $permitted_locations = auth()->user()->permitted_locations();
         //Get Closing stock
         $closing_stock_by_pp = $this->transactionUtil->getOpeningClosingStock(
             $business_id,
@@ -3477,7 +3464,8 @@ class ReportController extends Controller
             $location_id,
             false,
             false,
-            $filters
+            $filters,
+            $permitted_locations
         );
         $closing_stock_by_sp = $this->transactionUtil->getOpeningClosingStock(
             $business_id,
@@ -3485,7 +3473,8 @@ class ReportController extends Controller
             $location_id,
             false,
             true,
-            $filters
+            $filters,
+            $permitted_locations
         );
         $potential_profit = $closing_stock_by_sp - $closing_stock_by_pp;
         $profit_margin = empty($closing_stock_by_sp) ? 0 : ($potential_profit / $closing_stock_by_sp) * 100;

@@ -75,11 +75,12 @@
 					@endif			
 				</p>
 				</div>
-			@else
-				<div class="text-box">
-					<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
-				</div>
 			@endif
+				@if(!empty($receipt_details->letter_head))
+					<div class="text-box">
+						<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
+					</div>
+				@endif
 			<div class="border-top textbox-info">
 				<p class="f-left"><strong>{!! $receipt_details->invoice_no_prefix !!}</strong></p>
 				<p class="f-right">
@@ -193,6 +194,39 @@
 	        		</p>
 	        	</div>
 	        @endif
+
+			@if (!empty($receipt_details->sell_custom_field_1_value))
+				<div class="textbox-info">
+					<p class="f-left"><strong>{!! $receipt_details->sell_custom_field_1_label !!}</strong></p>
+					<p class="f-right">
+						{{$receipt_details->sell_custom_field_1_value}}
+					</p>
+				</div>
+			@endif
+			@if (!empty($receipt_details->sell_custom_field_2_value))
+				<div class="textbox-info">
+					<p class="f-left"><strong>{!! $receipt_details->sell_custom_field_2_label !!}</strong></p>
+					<p class="f-right">
+						{{$receipt_details->sell_custom_field_2_value}}
+					</p>
+				</div>
+			@endif
+			@if (!empty($receipt_details->sell_custom_field_3_value))
+				<div class="textbox-info">
+					<p class="f-left"><strong>{!! $receipt_details->sell_custom_field_3_label !!}</strong></p>
+					<p class="f-right">
+						{{$receipt_details->sell_custom_field_3_value}}
+					</p>
+				</div>
+			@endif
+			@if (!empty($receipt_details->sell_custom_field_4_value))
+				<div class="textbox-info">
+					<p class="f-left"><strong>{!! $receipt_details->sell_custom_field_4_label !!}</strong></p>
+					<p class="f-right">
+						{{$receipt_details->sell_custom_field_4_value}}
+					</p>
+				</div>
+			@endif
 
 	        <!-- customer info -->
 	        <div class="textbox-info">

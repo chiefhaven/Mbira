@@ -21,6 +21,7 @@ use Excel;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
+use App\Events\ContactCreatedOrModified;
 
 class ContactController extends Controller
 {
@@ -603,6 +604,8 @@ class ContactController extends Controller
                 $name_array[] = $input['last_name'];
             }
 
+            $input['contact_type'] = $request->input('contact_type_radio');
+
             $input['name'] = trim(implode(' ', $name_array));
 
             if (! empty($request->input('is_export'))) {
@@ -627,6 +630,8 @@ class ContactController extends Controller
 
             DB::beginTransaction();
             $output = $this->contactUtil->createNewContact($input);
+
+            event(new ContactCreatedOrModified($input, 'added'));
 
             $this->moduleUtil->getModuleData('after_contact_saved', ['contact' => $output['data'], 'input' => $request->input()]);
 
@@ -789,6 +794,10 @@ class ContactController extends Controller
                     $name_array[] = $input['last_name'];
                 }
 
+                $input['contact_type'] = $request->input('contact_type_radio');
+
+
+
                 $input['name'] = trim(implode(' ', $name_array));
 
                 $input['is_export'] = ! empty($request->input('is_export')) ? 1 : 0;
@@ -812,6 +821,8 @@ class ContactController extends Controller
                 }
 
                 $output = $this->contactUtil->updateContact($input, $id, $business_id);
+
+                event(new ContactCreatedOrModified($output['data'], 'updated'));
 
                 $this->contactUtil->activityLog($output['data'], 'edited');
             } catch (\Exception $e) {
@@ -861,6 +872,8 @@ class ContactController extends Controller
                             ->update(['allow_login' => 0]);
 
                         $contact->delete();
+
+                        event(new ContactCreatedOrModified($contact, 'deleted'));
                     }
                     $output = ['success' => true,
                         'msg' => __('contact.deleted_success'),

@@ -510,6 +510,11 @@ class ModuleUtil extends Util
         $category_types = ['product'];
 
         $modules_data = $this->getModuleData('addTaxonomies');
+
+        // print_r($modules_data);
+
+        // exit;
+
         $module_data = [];
         foreach ($modules_data as $module => $data) {
             foreach ($data  as $key => $value) {

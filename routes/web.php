@@ -370,7 +370,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
     //Backup
     Route::get('backup/download/{file_name}', [BackUpController::class, 'download']);
-    Route::get('backup/delete/{file_name}', [BackUpController::class, 'delete']);
+    Route::get('backup/{id}/delete', [BackUpController::class, 'delete'])->name('delete_backup');
     Route::resource('backup', BackUpController::class)->only('index', 'create', 'store');
 
     Route::get('selling-price-group/activate-deactivate/{id}', [SellingPriceGroupController::class, 'activateDeactivate']);
@@ -438,6 +438,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
         Route::get('/orders', [Restaurant\OrderController::class, 'index']);
         Route::get('/orders/mark-as-served/{id}', [Restaurant\OrderController::class, 'markAsServed']);
         Route::get('/data/get-pos-details', [Restaurant\DataController::class, 'getPosDetails']);
+        Route::get('/data/check-staff-pin', [Restaurant\DataController::class, 'checkStaffPin']);
         Route::get('/orders/mark-line-order-as-served/{id}', [Restaurant\OrderController::class, 'markLineOrderAsServed']);
         Route::get('/print-line-order', [Restaurant\OrderController::class, 'printLineOrder']);
     });

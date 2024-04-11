@@ -32,7 +32,8 @@
 				<div class="input-group-btn">
 					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fas fa-search-plus"></i></button>
 				</div>
-				{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
+                {{-- Removed mousetrap class as it was causing issue with barcode scanning --}}
+				{!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
 				'disabled' => is_null($default_location)? true : false,
 				'autofocus' => is_null($default_location)? false : true,
 				]); !!}
@@ -170,12 +171,26 @@
             </label><button type="button" data-toggle="modal" data-target="#recurringInvoiceModal" class="btn btn-link"><i class="fa fa-external-link-square-alt"></i></button>@show_tooltip(__('lang_v1.recurring_invoice_help'))
 		</div>
 	@endif
+	
 	<!-- Call restaurant module if defined -->
     @if(in_array('tables' ,$enabled_modules) || in_array('service_staff' ,$enabled_modules))
     	<div class="clearfix"></div>
     	<span id="restaurant_module_span">
       		<div class="col-md-3"></div>
     	</span>
+    @endif
+
+	@if(in_array('kitchen' ,$enabled_modules))
+		<div class="col-md-3">
+			<div class="form-group">
+				<div class="checkbox">
+				<label>
+						{!! Form::checkbox('is_kitchen_order', 1, false, ['class' => 'input-icheck status', 'id' => 'is_kitchen_order']); !!} {{ __('lang_v1.kitchen_order') }}
+				</label>
+				@show_tooltip(__('lang_v1.kitchen_order_tooltip'))
+				</div>
+			</div>
+		</div>
     @endif
     
 </div>

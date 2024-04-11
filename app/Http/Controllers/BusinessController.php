@@ -220,7 +220,6 @@ class BusinessController extends Controller
                 $package = \Modules\Superadmin\Entities\Package::find($package_id);
                 if (! empty($package)) {
                     Auth::login($user);
-
                     return redirect()->route('register-pay', ['package_id' => $package_id]);
                 }
             }

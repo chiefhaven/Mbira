@@ -62,6 +62,7 @@ use Razorpay\Api\Api;
 use Stripe\Charge;
 use Stripe\Stripe;
 use Yajra\DataTables\Facades\DataTables;
+use App\Events\SellCreatedOrModified;
 
 class SellPosController extends Controller
 {
@@ -292,7 +293,7 @@ class SellPosController extends Controller
                 'invoice_schemes',
                 'default_invoice_schemes',
                 'invoice_layouts',
-                'users'
+                'users', 
             ));
     }
 
@@ -472,6 +473,10 @@ class SellPosController extends Controller
                     $input['res_waiter_id'] = request()->get('res_waiter_id');
                 }
 
+                if ($this->transactionUtil->isModuleEnabled('kitchen')) {
+                    $input['is_kitchen_order'] = request()->get('is_kitchen_order');
+                }
+
                 //upload document
                 $input['document'] = $this->transactionUtil->uploadFile($request, 'sell_document', 'documents');
 
@@ -589,6 +594,8 @@ class SellPosController extends Controller
                 $this->transactionUtil->activityLog($transaction, 'added');
 
                 DB::commit();
+
+                SellCreatedOrModified::dispatch($transaction);
 
                 if ($request->input('is_save_and_print') == 1) {
                     $url = $this->transactionUtil->getInvoiceUrl($transaction->id, $business_id);
@@ -1223,6 +1230,10 @@ class SellPosController extends Controller
                     $input['res_waiter_id'] = request()->get('res_waiter_id');
                 }
 
+                if ($this->transactionUtil->isModuleEnabled('kitchen')) {
+                    $input['is_kitchen_order'] = request()->get('is_kitchen_order');
+                }
+
                 //upload document
                 $document_name = $this->transactionUtil->uploadFile($request, 'sell_document', 'documents');
                 if (! empty($document_name)) {
@@ -1395,6 +1406,8 @@ class SellPosController extends Controller
 
                 $this->transactionUtil->activityLog($transaction, 'edited', $transaction_before);
 
+                SellCreatedOrModified::dispatch($transaction);
+                
                 DB::commit();
 
                 if ($request->input('is_save_and_print') == 1) {

@@ -131,4 +131,9 @@ LANG = {
 'settings': 'Cài đặt',
 'advance_payment_cannot_be_more_than_once': 'Thanh toán trước không được chọn nhiều lần',
 'not_connected_to_a_network': 'Bạn không được kết nối với Mạng',
+'enter_pin_here': 'Nhập mã PIN ở đây',
+'authentication_failed': 'Xác thực thất bại!',
+'authentication_successfull': 'Xác thực thành công',
+'please_enter' : 'Vui lòng nhập',
+'or_more_characters' : 'hoặc nhiều hơn ký tự'
 };

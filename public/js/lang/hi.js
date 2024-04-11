@@ -111,4 +111,9 @@ LANG = {
 "last_year": "पिछले साल", 
 "last_financial_year": "अंतिम वित्तीय वर्ष", 
 "this_month_last_year": "इस महीने पिछले साल", 
+'enter_pin_here': 'यहाँ पिन दर्ज करें',
+'authentication_failed': 'प्रमाणीकरण असफल हुआ!',
+'authentication_successfull': 'प्रमाणीकरण सफल हुआ',
+'please_enter' : 'कृपया दर्ज करें',
+'or_more_characters' : 'या अधिक अक्षर',
 };

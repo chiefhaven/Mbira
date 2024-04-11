@@ -181,7 +181,10 @@
         <small class="help-block">
             (@lang('lang_v1.total_sell_price') - @lang('lang_v1.total_purchase_price'))
             @if(!empty($data['gross_profit_label']))
-                + {{$data['gross_profit_label']}}
+                {{-- + {{$data['gross_profit_label']}} --}}
+                @foreach ($data['gross_profit_label'] as $val)
+                    + {{$val}}
+                @endforeach
             @endif
         </small>
 

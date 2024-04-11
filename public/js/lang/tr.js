@@ -111,4 +111,9 @@ LANG = {
 "last_year": "Geçen yıl", 
 "last_financial_year": "Son mali yıl", 
 "this_month_last_year": "Geçen ay bu ay", 
+'enter_pin_here': "PIN'i Buraya Girin",
+'authentication_failed': 'Kimlik doğrulama başarısız!',
+'authentication_successfull': 'Kimlik doğrulama başarılı',
+'please_enter' : 'Lütfen girin',
+'or_more_characters' : 'veya daha fazla karakter',
 };

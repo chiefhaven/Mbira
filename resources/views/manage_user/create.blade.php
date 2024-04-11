@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-2">
         <div class="form-group">
           <div class="checkbox">
             <br/>
@@ -50,6 +50,23 @@
             </label>
             @show_tooltip(__('lang_v1.tooltip_enable_user_active'))
           </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <div class="checkbox">
+            <br/>
+            <label>
+                 {!! Form::checkbox('is_enable_service_staff_pin', 1, false, ['class' => 'input-icheck status', 'id' => 'is_enable_service_staff_pin']); !!} {{ __('lang_v1.enable_service_staff_pin') }}
+            </label>
+            @show_tooltip(__('lang_v1.tooltip_is_enable_service_staff_pin'))
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 hide service_staff_pin_div">
+        <div class="form-group">
+          {!! Form::label('service_staff_pin', __( 'lang_v1.staff_pin' ) . ':') !!}
+            {!! Form::password('service_staff_pin', ['class' => 'form-control', 'required' => true, 'placeholder' => __( 'lang_v1.staff_pin' ) ]); !!}
         </div>
       </div>
   @endcomponent
@@ -197,6 +214,15 @@
       $('div.selected_contacts_div').addClass('hide');
     });
 
+    $('#is_enable_service_staff_pin').on('ifChecked', function(event){
+      $('div.service_staff_pin_div').removeClass('hide');
+    });
+
+    $('#is_enable_service_staff_pin').on('ifUnchecked', function(event){
+      $('div.service_staff_pin_div').addClass('hide');
+      $('#service_staff_pin').val('');
+    });
+
     $('#allow_login').on('ifChecked', function(event){
       $('div.user_auth_fields').removeClass('hide');
     });
@@ -302,5 +328,8 @@
       }
     }
   });
+
+
+  
 </script>
 @endsection

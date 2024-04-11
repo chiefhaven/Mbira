@@ -110,7 +110,7 @@
                   <div class="multi-input">
                     {!! Form::label('pay_term_number', __('contact.pay_term') . ':') !!} @show_tooltip(__('tooltip.pay_term'))
                     <br/>
-                    {!! Form::number('pay_term_number', $purchase->pay_term_number, ['class' => 'form-control width-40 pull-left', 'placeholder' => __('contact.pay_term')]); !!}
+                    {!! Form::number('pay_term_number', $purchase->pay_term_number, ['class' => 'form-control width-40 pull-left', 'min' => 0, 'placeholder' => __('contact.pay_term')]); !!}
 
                     {!! Form::select('pay_term_type', 
                       ['months' => __('lang_v1.months'), 
@@ -521,7 +521,7 @@
   
     <div class="row">
         <div class="col-sm-12 text-center">
-          <button type="button" id="submit_purchase_form" class="btn btn-primary btn-big">@lang('messages.update')</button>
+          <button type="button" id="submit_purchase_form" class="btn btn-primary btn-big btn-flat">@lang('messages.update')</button>
         </div>
     </div>
 {!! Form::close() !!}

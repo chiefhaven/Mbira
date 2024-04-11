@@ -1264,7 +1264,10 @@ class AccountController extends Controller
             $account_transaction->operation_date = $this->commonUtil->uf_date($request->input('operation_date'), true);
             $account_transaction->note = $request->input('note');
 
-            $account_transaction->account_id = $request->input('account_id');
+            if($request->input('account_id'))
+            {
+                $account_transaction->account_id = $request->input('account_id');
+            }            
 
             $account_transaction->save();
 

@@ -110,5 +110,10 @@ LANG = {
     "this_year": "Este ano", 
     "last_year": "Ano passado", 
     "last_financial_year": "Último exercício financeiro", 
-    "this_month_last_year": "Este mês no ano passado", 			   
+    "this_month_last_year": "Este mês no ano passado", 
+    'enter_pin_here': 'Digite o PIN aqui',
+    'authentication_failed': 'Autenticação falhou!',
+    'authentication_successfull': 'Autenticação bem-sucedida',	
+    'please_enter' : 'Vui lòng nhập',
+    'or_more_characters' : 'hoặc nhiều hơn ký tự',		   
 };

@@ -22,7 +22,11 @@
         @if($transaction->type != 'opening_balance')
         <div class="col-md-4">
           <div class="well">
-            <strong>@lang('purchase.ref_no'): </strong>{{ $transaction->ref_no }}<br>
+            @if ($transaction->type == 'hms_booking')
+              <strong>@lang('hms::lang.booking_Id'): </strong>{{ $transaction->ref_no }}<br>
+            @else
+              <strong>@lang('purchase.ref_no'): </strong>{{ $transaction->ref_no }}<br>
+            @endif
             @if(!empty($transaction->location))
               <strong>@lang('purchase.location'): </strong>{{ $transaction->location->name }}
             @endif

@@ -46,14 +46,14 @@ class ModifierSetsController extends Controller
                     'action',
                     '
                     @can("product.update")
-                        <button type="button" data-href="{{action(\'Restaurant\ModifierSetsController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_modifier_button" data-container=".modifier_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                        <button type="button" data-href="{{action(\'App\Http\Controllers\Restaurant\ModifierSetsController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_modifier_button" data-container=".modifier_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
-                        <button type="button" data-href="{{action(\'Restaurant\ProductModifierSetController@edit\', [$id])}}" class="btn btn-xs btn-info edit_modifier_button" data-container=".modifier_modal"><i class="fa fa-cubes"></i> @lang("restaurant.manage_products")</button>
+                        <button type="button" data-href="{{action(\'App\Http\Controllers\Restaurant\ProductModifierSetController@edit\', [$id])}}" class="btn btn-xs btn-info edit_modifier_button" data-container=".modifier_modal"><i class="fa fa-cubes"></i> @lang("restaurant.manage_products")</button>
                     &nbsp;
                     @endcan
 
                     @can("product.delete")
-                        <button data-href="{{action(\'Restaurant\ModifierSetsController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_modifier_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\Restaurant\ModifierSetsController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_modifier_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan
                     '
                 )
