@@ -1,7 +1,7 @@
 <div class="table-responsive">
     @if(in_array('create', $permissions))
         <div class="pull-right">
-            <button type="button" class="btn btn-sm btn-primary docs_and_notes_btn pull-right" data-href="{{action([\App\Http\Controllers\DocumentAndNoteController::class, 'create'], ['notable_id' => $notable_id, 'notable_type' => $notable_type])}}">
+            <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm docs_and_notes_btn pull-right" data-href="{{action([\App\Http\Controllers\DocumentAndNoteController::class, 'create'], ['notable_id' => $notable_id, 'notable_type' => $notable_type])}}">
                 @lang('messages.add')&nbsp;
                 <i class="fa fa-plus"></i>
             </button> 

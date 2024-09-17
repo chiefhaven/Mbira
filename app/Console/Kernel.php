@@ -20,7 +20,10 @@ class Kernel extends ConsoleKernel
 
         if ($env === 'live') {
             //Scheduling backup, specify the time when the backup will get cleaned & time when it will run.
-            $schedule->command('backup:run')->dailyAt('23:50');
+            
+            $schedule->command('backup:clean')->daily()->at('01:00');
+            $schedule->command('backup:run')->daily()->at('01:30');
+
 
             //Schedule to create recurring invoices
             $schedule->command('pos:generateSubscriptionInvoices')->dailyAt('23:30');

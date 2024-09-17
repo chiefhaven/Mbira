@@ -57,4 +57,8 @@ return [
     'import_products' => 'Tải lên sản phẩm',
     'file_to_import' => 'Chọn file tải lên',
     'file_imported_successfully' => 'Tải lên thành công',
+    'variation_sku_format' => 'Định dạng SKU Biến thể',
+    'variation_sku_format_help_text' => 'Định dạng SKU Biến thể - Khi SKU biến thể trống, định dạng này sẽ được sử dụng để tạo SKU cho các biến thể.',
+    'sku_number' => 'Số SKU (Ví dụ -> ABC-1, ABC-2)',
+    'sku_variation_number' => 'Biến thể SKU (Ví dụ -> ABCS, ABCM)'
 ];

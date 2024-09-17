@@ -50,8 +50,8 @@
 			                		<th>{{ __('lang_v1.lot_n_expiry') }}</th>
 			              		@endif
 								<th>@lang('sale.qty')</th>
-								<th>@lang('sale.unit_price')</th>
-								<th>@lang('sale.subtotal')</th>
+								<th class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">@lang('sale.unit_price')</th>
+								<th class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">@lang('sale.subtotal')</th>
 							</tr>
 							@foreach( $stock_adjustment->stock_adjustment_lines as $stock_adjustment_line )
 								<tr>
@@ -68,10 +68,10 @@
 									<td>
 										{{@format_quantity($stock_adjustment_line->quantity)}}
 									</td>
-									<td>
+									<td class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">
 										{{@num_format($stock_adjustment_line->unit_price)}}
 									</td>
-									<td>
+									<td class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">
 										{{@num_format($stock_adjustment_line->unit_price * $stock_adjustment_line->quantity)}}
 									</td>
 								</tr>
@@ -81,7 +81,7 @@
      			</div>
      			<div class="col-md-6 col-md-offset-6 col-sm-12 col-xs-12">
 				    <div class="table-responsive">
-				        <table class="table no-border">
+				        <table class="table no-border @cannot('view_purchase_price') show_price_with_permission no-print @endcan">
 				          	<tr>
 				            	<th>@lang('stock_adjustment.total_amount'): </th>
 				            	<td><span class="display_currency pull-right" data-currency_symbol="true">{{ $stock_adjustment->final_total }}</span></td>
@@ -102,10 +102,10 @@
 		    </div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-primary no-print" aria-label="Print" 
+			<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white no-print" aria-label="Print" 
 			onclick="$(this).closest('div.modal-content').printThis();"><i class="fa fa-print"></i> @lang( 'messages.print' )
 			</button>
-			<button type="button" class="btn btn-default no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
+			<button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
 		</div>
 	</div>
 </div>

@@ -8,7 +8,7 @@
 @endphp
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('purchase.edit_purchase') <i class="fa fa-keyboard-o hover-q text-muted" aria-hidden="true" data-container="body" data-toggle="popover" data-placement="bottom" data-content="@include('purchase.partials.keyboard_shortcuts_details')" data-html="true" data-trigger="hover" data-original-title="" title=""></i></h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('purchase.edit_purchase') <i class="fa fa-keyboard-o hover-q text-muted" aria-hidden="true" data-container="body" data-toggle="popover" data-placement="bottom" data-content="@include('purchase.partials.keyboard_shortcuts_details')" data-html="true" data-trigger="hover" data-original-title="" title=""></i></h1>
 </section>
 
 <!-- Main content -->
@@ -224,7 +224,7 @@
     @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
             <div class="col-sm-2 text-center">
-              <button type="button" class="btn btn-primary btn-flat" data-toggle="modal" data-target="#import_purchase_products_modal">@lang('product.import_products')</button>
+              <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" data-toggle="modal" data-target="#import_purchase_products_modal">@lang('product.import_products')</button>
             </div>
             <div class="col-sm-8">
               <div class="form-group">
@@ -464,7 +464,7 @@
 
     <div class="row">
       <div class="col-md-12 text-center">
-        <button type="button" class="btn btn-primary btn-sm" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
+        <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
       </div>
       <div class="col-md-8 col-md-offset-4" id="additional_expenses_div">
         <table class="table table-condensed">
@@ -521,7 +521,7 @@
   
     <div class="row">
         <div class="col-sm-12 text-center">
-          <button type="button" id="submit_purchase_form" class="btn btn-primary btn-big btn-flat">@lang('messages.update')</button>
+          <button type="button" id="submit_purchase_form" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-lg">@lang('messages.update')</button>
         </div>
     </div>
 {!! Form::close() !!}

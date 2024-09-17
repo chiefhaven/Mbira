@@ -6,9 +6,9 @@
 	            <h3 class="box-title">@lang('sale.location'): {{$value}}</h3>
 	        </div>
 			<div class="box-body">
-				<div class="row">
+				<div class="row tw-overflow-scroll">
 					<div class="col-sm-12">
-						<table class="table table-condensed table-bordered text-center table-striped add_opening_stock_table">
+						<table class="table table-condensed table-bordered text-center table-responsive table-striped add_opening_stock_table">
 								<thead>
 								<tr class="bg-green">
 									<th>@lang( 'product.product_name' )</th>
@@ -111,7 +111,7 @@
 	</td>
 	<td>
 		@if($loop->index == 0)
-			<button type="button" class="btn btn-primary btn-xs add_stock_row" data-sub-key="{{ count($purchases[$key][$variation->id])}}" 
+			<button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-primary add_stock_row" data-sub-key="{{ count($purchases[$key][$variation->id])}}" 
 				data-row-html='<tr>
 					<td>
 						{{ $product->name }} @if( $product->type == "variable" ) (<b>{{ $variation->product_variation->name }}</b> : {{ $variation->name }}) @endif

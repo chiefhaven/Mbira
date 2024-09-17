@@ -75,11 +75,14 @@ class ProductUtil extends Util
      * @param $input_variations
      * @return bool
      */
-    public function createVariableProductVariations($product, $input_variations, $business_id = null)
+    public function createVariableProductVariations($product, $input_variations, $sku_type, $business_id = null, )
     {
         if (! is_object($product)) {
             $product = Product::find($product);
         }
+
+
+
 
         //create product variations
         foreach ($input_variations as $key => $value) {
@@ -129,7 +132,7 @@ class ProductUtil extends Util
                         continue;
                     }
 
-                    $sub_sku = empty($v['sub_sku']) ? $this->generateSubSku($product->sku, $c, $product->barcode_type) : $v['sub_sku'];
+                    $sub_sku = empty($v['sub_sku']) ? $this->generateSubSku($product->sku, $c, $product->barcode_type, $v['value'], $sku_type) : $v['sub_sku'];
                     $variation_value_id = ! empty($v['variation_value_id']) ? $v['variation_value_id'] : null;
                     $variation_value_name = ! empty($v['value']) ? $v['value'] : null;
 
@@ -189,7 +192,7 @@ class ProductUtil extends Util
      * @param $input_variations_edit
      * @return bool
      */
-    public function updateVariableProductVariations($product_id, $input_variations_edit)
+    public function updateVariableProductVariations($product_id, $input_variations_edit, $sku_type)
     {
         $product = Product::find($product_id);
 
@@ -238,7 +241,7 @@ class ProductUtil extends Util
                                 ->count() + 1;
                 $media = [];
                 foreach ($value['variations'] as $k => $v) {
-                    $sub_sku = empty($v['sub_sku']) ? $this->generateSubSku($product->sku, $c, $product->barcode_type) : $v['sub_sku'];
+                    $sub_sku = empty($v['sub_sku']) ? $this->generateSubSku($product->sku, $c, $product->barcode_type, $v['value'] , $sku_type) : $v['sub_sku'];
 
                     $variation_value_name = ! empty($v['value']) ? $v['value'] : null;
                     $variation_value_id = null;
@@ -457,6 +460,8 @@ class ProductUtil extends Util
      */
     public function getDetailsFromVariation($variation_id, $business_id, $location_id = null, $check_qty = true)
     {
+        $variation = Variation::with('media')->findOrFail($variation_id);
+
         $query = Variation::join('products AS p', 'variations.product_id', '=', 'p.id')
                 ->join('product_variations AS pv', 'variations.product_variation_id', '=', 'pv.id')
                 ->leftjoin('variation_location_details AS vld', 'variations.id', '=', 'vld.variation_id')
@@ -497,6 +502,7 @@ class ProductUtil extends Util
             'p.type as product_type',
             'p.name as product_actual_name',
             'p.warranty_id',
+            'p.image as product_image',
             'p.product_custom_field1',
             'p.product_custom_field2',
             'p.product_custom_field3',
@@ -536,6 +542,8 @@ class ProductUtil extends Util
                         variation_id=variations.id ORDER BY id DESC LIMIT 1) as last_purchased_price')
         )
         ->firstOrFail();
+
+        $product->media = $variation->media;
 
         if ($product->product_type == 'combo') {
             if ($check_qty) {
@@ -923,13 +931,28 @@ class ProductUtil extends Util
      * @param  string  $barcode_type
      * @return void
      */
-    public function generateSubSku($sku, $c, $barcode_type)
+    public function generateSubSku($sku, $c, $barcode_type, $value, $sku_type)
     {
-        $sub_sku = $sku.$c;
+        
+        // old formate
+        if($sku_type == 'with_out_variation'){
 
-        if (in_array($barcode_type, ['C128', 'C39'])) {
-            $sub_sku = $sku.'-'.$c;
+            $sub_sku = $sku.$c;
+            
+            if (in_array($barcode_type, ['C128', 'C39'])) {
+                $sub_sku = $sku.'-'.$c;
+            }
+
+        }else {
+
+            // new formate
+            $sub_sku = $sku.preg_replace('/[^a-zA-Z0-9]/', '', $value);
+            
+            if (in_array($barcode_type, ['C128', 'C39'])) {
+                $sub_sku = $sku.preg_replace('/[^a-zA-Z0-9]/', '', $value);
+            }
         }
+        
 
         return $sub_sku;
     }

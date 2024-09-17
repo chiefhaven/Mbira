@@ -24,10 +24,10 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">
+            <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">
                 @lang('messages.close')
             </button>
-            <button type="submit" class="btn btn-primary ladda-button">
+            <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white ladda-button">
                 @lang('messages.update')
             </button>
         </div>

@@ -88,4 +88,5 @@ return [
     'customer_note' => 'Opmerking van de klant',
     'table_report' => 'Tabelrapport',
     'service_staff_report' => 'Service Staff Report',
+    'service_staff_replacement' => 'Vervanging van servicepersoneel', 
 ];

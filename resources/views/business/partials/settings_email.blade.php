@@ -65,7 +65,7 @@
         </div>
         <div class="clearfix"></div>
         <div class="col-xs-12 test_email_btn @if(!empty($email_settings['use_superadmin_settings'])) hide @endif">
-            <button type="button" class="btn btn-success pull-right" id="test_email_btn">@lang('lang_v1.test_email_configuration')</button>
+            <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white  pull-right" id="test_email_btn">@lang('lang_v1.test_email_configuration')</button>
         </div>
     </div>
 </div>

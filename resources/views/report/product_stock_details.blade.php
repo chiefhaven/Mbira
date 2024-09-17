@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>{{ __('lang_v1.product_stock_details')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('lang_v1.product_stock_details')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -50,7 +50,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <br>
-                                <button type="submit" class="btn btn-primary">@lang('lang_v1.search')</button>
+                                <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang('lang_v1.search')</button>
                             </div>
                         </div>
                         {!! Form::close() !!}

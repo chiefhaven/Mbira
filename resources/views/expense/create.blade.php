@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('expense.add_expense')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('expense.add_expense')</h1>
 </section>
 
 <!-- Main content -->
@@ -135,7 +135,7 @@
 	</div>
 	@endcomponent
 	<div class="col-sm-12 text-center">
-		<button type="submit" class="btn btn-primary btn-big">@lang('messages.save')</button>
+		<button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white">@lang('messages.save')</button>
 	</div>
 {!! Form::close() !!}
 </section>

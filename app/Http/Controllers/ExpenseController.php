@@ -170,7 +170,7 @@ class ExpenseController extends Controller
                 ->addColumn(
                     'action',
                     '<div class="btn-group">
-                        <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                        <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max dropdown-toggle" 
                             data-toggle="dropdown" aria-expanded="false"> @lang("messages.actions")<span class="caret"></span><span class="sr-only">Toggle Dropdown
                                 </span>
                         </button>

@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.add_purchase_requisition')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.add_purchase_requisition')</h1>
 </section>
 
 <!-- Main content -->
@@ -46,7 +46,7 @@
 		<div class="row">
 			<div class="col-sm-12 text-right">
 				<br>
-				<button type="button" class="btn bg-yellow" id="show_pr_products"><i class="fas fa-search"></i> @lang('lang_v1.show_products')</button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-sm" id="show_pr_products"><i class="fas fa-search"></i> @lang('lang_v1.show_products')</button>
 			</div>
 		</div>
 	@endcomponent
@@ -95,7 +95,7 @@
 
 	<div class="row">
 		<div class="col-sm-12 text-center">
-			<button type="button" class="btn btn-primary btn-flat btn-lg" id="submit_pr_form">@lang('messages.save')</button>
+			<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white" id="submit_pr_form">@lang('messages.save')</button>
 		</div>
 	</div>
 

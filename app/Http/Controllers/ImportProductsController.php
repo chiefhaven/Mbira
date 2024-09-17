@@ -671,10 +671,12 @@ class ImportProductsController extends Controller
                                 $this->addOpeningStock($opening_stock, $product, $business_id);
                             }
                         } elseif ($product->type == 'variable') {
-                            //Create variable product variations
+                            //Create variable product variations and with_out_variation is sku type of variation
+
                             $this->productUtil->createVariableProductVariations(
                                 $product,
                                 [$variation_data],
+                                "with_out_variation",
                                 $business_id
                             );
 

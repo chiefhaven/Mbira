@@ -43,12 +43,12 @@ class CustomerGroupController extends Controller
                     ->addColumn(
                         'action',
                         '@can("customer.update")
-                            <button data-href="{{action(\'App\Http\Controllers\CustomerGroupController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_customer_group_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                            <button data-href="{{action(\'App\Http\Controllers\CustomerGroupController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary tw-m-0.5 edit_customer_group_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                         @endcan
 
                         @can("customer.delete")
-                            <button data-href="{{action(\'App\Http\Controllers\CustomerGroupController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_customer_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                            <button data-href="{{action(\'App\Http\Controllers\CustomerGroupController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error tw-m-0.5 delete_customer_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                         @endcan'
                     )
                     ->editColumn('selling_price_group', '@if($price_calculation_type=="selling_price_group") {{$selling_price_group}} @else -- @endif ')

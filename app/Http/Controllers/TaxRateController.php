@@ -48,11 +48,11 @@ class TaxRateController extends Controller
                 ->addColumn(
                     'action',
                     '@can("tax_rate.update")
-                    <button data-href="{{action(\'App\Http\Controllers\TaxRateController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_tax_rate_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    <button data-href="{{action(\'App\Http\Controllers\TaxRateController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_tax_rate_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                     @endcan
                     @can("tax_rate.delete")
-                        <button data-href="{{action(\'App\Http\Controllers\TaxRateController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_tax_rate_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\TaxRateController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_tax_rate_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
                 ->editColumn('name', '@if($for_tax_group == 1) {{$name}} <small>(@lang("lang_v1.for_tax_group_only"))</small> @else {{$name}} @endif')

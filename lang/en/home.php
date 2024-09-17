@@ -11,7 +11,7 @@ return [
     |
     */
     'home' => 'Home',
-    'welcome_message' => 'Welcome :name,',
+    'welcome_message' => 'Welcome :name, 👋',
     'total_sell' => 'Total Sales',
     'total_purchase' => 'Total purchase',
     'invoice_due' => 'Invoice due',
@@ -28,4 +28,5 @@ return [
     'due_amount' => 'Due Amount',
     'stock_expiry_alert' => 'Stock Expiry Alert',
     'todays_profit' => "Today's profit",
+    'dashboard' => 'Dashboard',
 ];

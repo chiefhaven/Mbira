@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.import_sales')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.import_sales')</h1>
 </section>
 
 <!-- Main content -->
@@ -38,14 +38,14 @@
                         </div>
                         <div class="col-sm-4">
                         <br>
-                            <button type="submit" class="btn btn-primary">@lang('lang_v1.upload_and_review')</button>
+                            <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang('lang_v1.upload_and_review')</button>
                         </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
                             <br>
-                            <a href="{{ asset('files/import_sales_template.xlsx') }}" class="btn btn-success" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
+                            <a href="{{ asset('files/import_sales_template.xlsx') }}" class="tw-dw-btn tw-dw-btn-success tw-text-white" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
                         </div>
                     </div>
 
@@ -122,7 +122,7 @@
                                 </p>
                             </td>
                             @can('sell.delete')
-                                <td><a href="{{action([\App\Http\Controllers\ImportSalesController::class, 'revertSaleImport'], $key)}}" class="btn btn-xs btn-danger revert_import"><i class="fas fa-undo"></i> @lang('lang_v1.revert_import')</a></td>
+                                <td><a href="{{action([\App\Http\Controllers\ImportSalesController::class, 'revertSaleImport'], $key)}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error revert_import"><i class="fas fa-undo"></i> @lang('lang_v1.revert_import')</a></td>
                             @endcan
                         </tr>
                     @endforeach

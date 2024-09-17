@@ -181,6 +181,7 @@ return [
     'show_sale_description' => 'Mostrar descripción de venta',
     'product_imei_or_sn' => '(Producto IMEI o Número de serie)',
     'purchase_already_exist' => 'El producto no se puede eliminar porque existen compras relacionadas con este producto',
+    'sale_already_exist' => 'El producto no se puede eliminar porque existe una venta relacionada con este producto',
     'opening_stock_sold' => 'El producto no se puede eliminar porque se vendieron algunas existencias', /* modified */
     'stock_adjusted' => 'El producto no puede eliminarse porque algunas existencias están ajustadas',
     'product_delete_success' => 'Producto eliminado con éxito',
@@ -628,7 +629,7 @@ return [
     'deactivated_success' => 'Desactivado satisfactoriamente',
     'products_could_not_be_deleted' => 'Algunos productos no se pudieron eliminar porque tiene transacciones relacionadas con ellos',
     'price' => 'Precio',
-    'auto_backup_instruction' => 'Para habilitar la copia de seguridad automática, debe configurar un trabajo cron con este comando',
+    'auto_backup_instruction' => 'Para habilitar la copia de seguridad automática y la limpieza de la copia de seguridad, debe configurar una tarea cron con este comando',
     'gross_profit' => 'Beneficio bruto',
     'single' => 'Soltero',
     'variable' => 'Variable',
@@ -661,8 +662,7 @@ return [
     'allow_selected_contacts_tooltip' => 'Solo permitir el acceso a los contactos seleccionados en el cuadro de búsqueda de ventas / compras de clientes / proveedores',
     'allowed_contacts' => 'Contactos permitidos',
     'view_purchase_price' => 'Ver precio de compra',
-    'view_purchase_price_tooltip' => 'Permiso para ver el precio de compra en los detalles del producto',
-    'created' => 'Creado',
+    'view_purchase_price_tooltip' => 'Permiso para ver el precio de compra en los detalles del producto, la transferencia de stock y el ajuste de stock',    'created' => 'Creado',
     'updated' => 'Actualizado',
     'deleted' => 'Eliminado',
     'day' => 'Día',
@@ -1350,5 +1350,10 @@ return [
     'delivery_note' => 'Nota de entrega',
     'above_mentioned_items_received_in_good_condition' => 'Los artículos mencionados anteriormente se recibieron en buen estado',
     'received_by' => 'Recibido por',
+    'enter_details_below_to_check_repair_status' => 'Ingrese los detalles a continuación para verificar el estado de la reparación',
+    'search_by' => 'Buscar por',
+    'in_stock' => 'en stock',
+    'cogs' => 'COGS:',
+    'cogs_help_text' => 'Costo de los bienes vendidos = Inventario inicial (stock de apertura) + compras − inventario final (stock de cierre)',
 ];
 

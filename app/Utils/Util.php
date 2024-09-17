@@ -412,15 +412,27 @@ class Util
         Config::set('nexmo.api_key', $sms_settings['nexmo_key']);
         Config::set('nexmo.api_secret', $sms_settings['nexmo_secret']);
 
-        $nexmo = app('Nexmo\Client');
+        // $nexmo = app('Nexmo\Client');
+        $client = new Client();
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+
         $numbers = explode(',', trim($data['mobile_number']));
 
         foreach ($numbers as $number) {
-            $nexmo->message()->send([
+            $body = json_encode([
+                'api_key' => $sms_settings['nexmo_key'],
+                'api_secret' => $sms_settings['nexmo_secret'],
                 'to' => $number,
                 'from' => $sms_settings['nexmo_from'],
                 'text' => $data['sms_body'],
             ]);
+
+            $request = new \GuzzleHttp\Psr7\Request('POST', 'https://rest.nexmo.com/sms/json', $headers, $body);
+            
+            $response = $client->sendAsync($request)->wait();
         }
     }
 
@@ -526,7 +538,13 @@ class Util
             $response = $client->post($sms_settings['url'], [
                 'headers' => $headers, 'body' => json_encode($request_data, JSON_FORCE_OBJECT)]);
         }
+        // if ($sms_settings['request_method'] == 'get') {
+        //     $response = $client->get($sms_settings['url'].'?'.http_build_query($request_data), $options);
+        // } else {
+        //     $options['form_params'] = $request_data;
 
+        //     $response = $client->post($sms_settings['url'], $options);
+        // }
 
         return $response;
     }
@@ -1036,7 +1054,12 @@ class Util
 
     public function getCronJobCommand()
     {
-        $php_binary_path = exec('which php');
+        if (function_exists('exec')) {
+            $php_binary_path = exec('which php');
+        } else {
+            $php_binary_path = PHP_BINARY;
+        }
+
         if (empty($php_binary_path)) {
             // Use a default fallback or handle the case where 'which php' doesn't return a valid path
             $php_binary_path = 'php';
@@ -1501,6 +1524,9 @@ class Util
                     'base_uri' => 'https://nominatim.openstreetmap.org/',
                     'timeout' => 10,
                     'verify' => false,
+                    'headers' => [
+                        'User-Agent' => 'pos'  // Add a User-Agent header
+                    ],
                 ]);
 
                 try {
@@ -1736,4 +1762,75 @@ class Util
             }
         }
     }
+
+
+    function getDateRange($timePeriod)
+    {
+        switch ($timePeriod) {
+            case 'today':
+                $start = \Carbon::now()->startOfDay();
+                $end = \Carbon::now()->endOfDay();
+                break;
+
+            case 'yesterday':
+                $start = \Carbon::now()->subDay()->startOfDay();
+                $end = \Carbon::now()->subDay()->endOfDay();
+                break;
+
+            case 'last_7_days':
+                $start = \Carbon::now()->subDays(6)->startOfDay();
+                $end = \Carbon::now()->endOfDay();
+                break;
+
+            case 'last_30_days':
+                $start = \Carbon::now()->subDays(29)->startOfDay();
+                $end = \Carbon::now()->endOfDay();
+                break;
+
+            case 'this_month':
+                $start = \Carbon::now()->startOfMonth();
+                $end = \Carbon::now()->endOfMonth();
+                break;
+
+            case 'last_month':
+                $start = \Carbon::now()->subMonth()->startOfMonth();
+                $end = \Carbon::now()->subMonth()->endOfMonth();
+                break;
+
+            case 'this_month_last_year':
+                $start = \Carbon::now()->subYear()->startOfMonth();
+                $end = \Carbon::now()->subYear()->endOfMonth();
+                break;
+
+            case 'this_year':
+                $start = \Carbon::now()->startOfYear();
+                $end = \Carbon::now()->endOfYear();
+                break;
+
+            case 'last_year':
+                $start = \Carbon::now()->subYear()->startOfYear();
+                $end = \Carbon::now()->subYear()->endOfYear();
+                break;
+
+                case 'current_financial_year':
+                    // Assuming financial year starts in April
+                    $start = \Carbon\Carbon::now()->month >= 4 ? \Carbon\Carbon::now()->startOfYear()->month(4)->startOfMonth() : \Carbon\Carbon::now()->subYear()->startOfYear()->month(4)->startOfMonth();
+                    $end = \Carbon\Carbon::now()->month >= 4 ? \Carbon\Carbon::now()->startOfYear()->month(4)->startOfMonth()->addYear()->subDay() : \Carbon\Carbon::now()->startOfYear()->subDay();
+                    break;
+        
+                case 'last_financial_year':
+                    // Assuming financial year starts in April
+                    $start = \Carbon\Carbon::now()->subYear()->month >= 4 ? \Carbon\Carbon::now()->subYear()->startOfYear()->month(4)->startOfMonth() : \Carbon\Carbon::now()->subYears(2)->startOfYear()->month(4)->startOfMonth();
+                    $end = \Carbon\Carbon::now()->subYear()->month >= 4 ? \Carbon\Carbon::now()->subYear()->startOfYear()->month(4)->startOfMonth()->addYear()->subDay() : \Carbon\Carbon::now()->subYear()->startOfYear()->subDay();
+                    break;
+        
+                default:
+                $start = null;
+                $end = null;
+                break;
+        }
+
+        return ['start' => $start, 'end' => $end];
+    }
+
 }

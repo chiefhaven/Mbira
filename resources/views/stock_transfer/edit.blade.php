@@ -5,14 +5,14 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.edit_stock_transfer')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.edit_stock_transfer')</h1>
 </section>
 
 <!-- Main content -->
 <section class="content no-print">
 	{!! Form::open(['url' => action([\App\Http\Controllers\StockTransferController::class, 'update'], [$sell_transfer->id]), 'method' => 'put', 'id' => 'stock_transfer_form' ]) !!}
-	<div class="box box-solid">
-		<div class="box-body">
+
+		@component('components.widget', ['class' => 'box-solid'])
 			<div class="row">
 				<div class="col-sm-4">
 					<div class="form-group">
@@ -52,13 +52,13 @@
 				</div>
 				
 			</div>
-		</div>
-	</div> <!--box end-->
-	<div class="box box-solid">
+		@endcomponent
+	
+		@component('components.widget', ['class' => 'box-solid'])
 		<div class="box-header">
         	<h3 class="box-title">{{ __('stock_adjustment.search_products') }}</h3>
        	</div>
-		<div class="box-body">
+		<div class="">
 			<div class="row">
 				<div class="col-sm-8 col-sm-offset-2">
 					<div class="form-group">
@@ -84,10 +84,10 @@
 								<th class="col-sm-2 text-center">
 									@lang('sale.qty')
 								</th>
-								<th class="col-sm-2 text-center">
+								<th class="col-sm-2 text-center show_price_with_permission">
 									@lang('sale.unit_price')
 								</th>
-								<th class="col-sm-2 text-center">
+								<th class="col-sm-2 text-center show_price_with_permission">
 									@lang('sale.subtotal')
 								</th>
 								<th class="col-sm-2 text-center"><i class="fa fa-trash" aria-hidden="true"></i></th>
@@ -107,7 +107,7 @@
 							@endforeach
 						</tbody>
 						<tfoot>
-							<tr class="text-center"><td colspan="3"></td><td><div class="pull-right"><b>@lang('sale.total'):</b> <span id="total_adjustment">{{@num_format($subtotal)}}</span></div></td></tr>
+							<tr class="text-center show_price_with_permission"><td colspan="3"></td><td><div class="pull-right"><b>@lang('sale.total'):</b> <span id="total_adjustment">{{@num_format($subtotal)}}</span></div></td></tr>
 						</tfoot>
 					</table>
 					<input type="hidden" id="product_row_index" value="{{$product_row_index}}">
@@ -115,9 +115,8 @@
 				</div>
 			</div>
 		</div>
-	</div> <!--box end-->
-	<div class="box box-solid">
-		<div class="box-body">
+	@endcomponent
+	@component('components.widget', ['class' => 'box-solid'])
 			<div class="row">
 				<div class="col-sm-4">
 					<div class="form-group">
@@ -136,7 +135,7 @@
 				$final_total = $subtotal + $sell_transfer->shipping_charges;
 			@endphp
 			<div class="row">
-				<div class="col-md-12 text-right">
+				<div class="col-md-12 text-right show_price_with_permission">
 					<input type="hidden" id="total_amount" name="final_total" value="{{$sell_transfer->final_total}}">
 					<b>@lang('stock_adjustment.total_amount'):</b> <span id="final_total_text">{{@num_format($final_total)}}</span>
 				</div>
@@ -146,9 +145,8 @@
 					<button type="submit" id="save_stock_transfer" class="btn btn-primary btn-big">@lang('messages.save')</button>
 				</div>
 			</div>
-
-		</div>
-	</div> <!--box end-->
+		@endcomponent
+<!--box end-->
 	{!! Form::close() !!}
 </section>
 @stop
@@ -158,3 +156,10 @@
 		__page_leave_confirmation('#stock_transfer_form');
 	</script>
 @endsection
+@cannot('view_purchase_price')
+    <style>
+        .show_price_with_permission {
+            display: none !important;
+        }
+    </style>
+@endcannot

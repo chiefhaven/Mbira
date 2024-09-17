@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>{{ __('lang_v1.notification_templates')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('lang_v1.notification_templates')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -41,7 +41,7 @@
     </div>
     <div class="row">
         <div class="col-md-12 text-center">
-            <button type="submit" class="btn btn-danger btn-big">@lang('messages.save')</button>
+            <button type="submit" class="tw-dw-btn tw-dw-btn-error tw-dw-btn-lg tw-text-white">@lang('messages.save')</button>
         </div>
     </div>
     {!! Form::close() !!}

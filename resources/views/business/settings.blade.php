@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('business.business_settings')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('business.business_settings')</h1>
     <br>
     @include('layouts.partials.search_settings')
 </section>
@@ -17,25 +17,26 @@
     <div class="row">
         <div class="col-xs-12">
        <!--  <pos-tab-container> -->
-        <div class="col-xs-12 pos-tab-container">
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 pos-tab-menu">
+        {{-- <div class="col-xs-12 pos-tab-container"> --}}
+        @component('components.widget', ['class' =>  'pos-tab-container'])
+            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 pos-tab-menu tw-rounded-lg">
                 <div class="list-group">
-                    <a href="#" class="list-group-item text-center active">@lang('business.business')</a>
-                    <a href="#" class="list-group-item text-center">@lang('business.tax') @show_tooltip(__('tooltip.business_tax'))</a>
-                    <a href="#" class="list-group-item text-center">@lang('business.product')</a>
-                    <a href="#" class="list-group-item text-center">@lang('contact.contact')</a>
-                    <a href="#" class="list-group-item text-center">@lang('business.sale')</a>
-                    <a href="#" class="list-group-item text-center">@lang('sale.pos_sale')</a>
-                    <a href="#" class="list-group-item text-center">@lang('purchase.purchases')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.payment')</a>
-                    <a href="#" class="list-group-item text-center">@lang('business.dashboard')</a>
-                    <a href="#" class="list-group-item text-center">@lang('business.system')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.prefixes')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.email_settings')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.sms_settings')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.reward_point_settings')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.modules')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.custom_labels')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base  active">@lang('business.business')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.tax') @show_tooltip(__('tooltip.business_tax'))</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.product')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('contact.contact')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.sale')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('sale.pos_sale')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('purchase.purchases')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.payment')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.dashboard')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.system')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.prefixes')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.email_settings')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.sms_settings')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.reward_point_settings')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.modules')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.custom_labels')</a>
                 </div>
             </div>
             <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 pos-tab">
@@ -82,14 +83,15 @@
                 <!-- tab 12 end -->
                 @include('business.partials.settings_custom_labels')
             </div>
-        </div>
+        @endcomponent
+        {{-- </div> --}}
         <!--  </pos-tab-container> -->
         </div>
     </div>
 
     <div class="row">
         <div class="col-sm-12 text-center">
-            <button class="btn btn-danger btn-big" type="submit">@lang('business.update_settings')</button>
+            <button class="tw-dw-btn tw-dw-btn-error tw-dw-btn-lg tw-text-white" type="submit">@lang('business.update_settings')</button>
         </div>
     </div>
 {!! Form::close() !!}

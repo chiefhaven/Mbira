@@ -5,8 +5,8 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang( 'restaurant.modifier_sets' )
-        <small>@lang( 'restaurant.manage_your_modifiers' )</small>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang( 'restaurant.modifier_sets' )
+        <small class="tw-text-sm md:tw-text-base tw-text-gray-700 tw-font-semibold">@lang( 'restaurant.manage_your_modifiers' )</small>
     </h1>
     <!-- <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
@@ -17,33 +17,41 @@
 <!-- Main content -->
 <section class="content">
 
-	<div class="box">
-        <div class="box-header">
-        	<h3 class="box-title">@lang( 'restaurant.all_your_modifiers' )</h3>
-            @can('restaurant.create')
-            	<div class="box-tools">
-                    <button type="button" class="btn btn-block btn-primary btn-modal" 
-                    	data-href="{{action([\App\Http\Controllers\Restaurant\ModifierSetsController::class, 'create'])}}" 
-                    	data-container=".modifier_modal">
-                    	<i class="fa fa-plus"></i> @lang( 'messages.add' )</button>
-                </div>
-            @endcan
-        </div>
-        <div class="box-body">
-            @can('restaurant.view')
-            	<table class="table table-bordered table-striped" id="modifier_table">
-            		<thead>
-            			<tr>
-            				<th>@lang( 'restaurant.modifier_sets' )</th>
-                            <th>@lang( 'restaurant.modifiers' )</th>
-                            <th>@lang( 'restaurant.products' )</th>
-            				<th>@lang( 'messages.action' )</th>
-            			</tr>
-            		</thead>
-            	</table>
-            @endcan
-        </div>
+
+    @component('components.widget')
+    <div class="box-header">
+        <h3 class="box-title">@lang( 'restaurant.all_your_modifiers' )</h3>
+        @can('restaurant.create')
+            <div class="box-tools">
+                    <button class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full btn-modal"
+                    data-href="{{action([\App\Http\Controllers\Restaurant\ModifierSetsController::class, 'create'])}}" 
+                    data-container=".modifier_modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 5l0 14" />
+                        <path d="M5 12l14 0" />
+                    </svg> @lang('messages.add')
+                </button>
+            </div>
+        @endcan
     </div>
+    <div class="box-body">
+        @can('restaurant.view')
+            <table class="table table-bordered table-striped" id="modifier_table">
+                <thead>
+                    <tr>
+                        <th>@lang( 'restaurant.modifier_sets' )</th>
+                        <th>@lang( 'restaurant.modifiers' )</th>
+                        <th>@lang( 'restaurant.products' )</th>
+                        <th>@lang( 'messages.action' )</th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
+    </div>
+    @endcomponent
 
     <div class="modal fade modifier_modal" tabindex="-1" role="dialog" 
     	aria-labelledby="gridSystemModalLabel">
@@ -87,6 +95,7 @@
             var modifier_table = $('#modifier_table').DataTable({
                     processing: true,
                     serverSide: true,
+                    fixedHeader:false,
                     ajax: '/modules/modifiers',
                     columnDefs: [ {
                         "targets": [1,2, 3],

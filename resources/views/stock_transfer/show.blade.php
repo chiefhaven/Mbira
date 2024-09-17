@@ -75,7 +75,7 @@
 				          <th>#</th>
 				          <th>@lang('sale.product')</th>
 				          <th>@lang('sale.qty')</th>
-				          <th>@lang('sale.subtotal')</th>
+				          <th class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">@lang('sale.subtotal')</th>
 				        </tr>
 				        @php 
 				          $total = 0.00;
@@ -102,8 +102,8 @@
 				               @endif
 				            </td>
 				            <td>{{ @format_quantity($sell_lines->quantity) }} @if(!empty($sell_lines->sub_unit)) {{$sell_lines->sub_unit->short_name}} @else {{$sell_lines->product->unit->short_name}} @endif</td>
-				            <td>
-				              <span class="display_currency" data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax * $sell_lines->quantity }}</span>
+				            <td class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">
+				              <span class="display_currency " data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax * $sell_lines->quantity }}</span>
 				            </td>
 				          </tr>
 				          @php 
@@ -120,19 +120,19 @@
 				  <div class="col-xs-12 col-md-6 col-md-offset-6">
 				    <div class="table-responsive">
 				      <table class="table">
-				        <tr>
-				          <th>@lang('purchase.net_total_amount'): </th>
+				        <tr class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">
+				          <th >@lang('purchase.net_total_amount'): </th>
 				          <td></td>
 				          <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $total }}</span></td>
 				        </tr>
 				        @if( !empty( $sell_transfer->shipping_charges ) )
-				          <tr>
+				          <tr class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">
 				            <th>@lang('purchase.additional_shipping_charges'):</th>
 				            <td><b>(+)</b></td>
 				            <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell_transfer->shipping_charges }}</span></td>
 				          </tr>
 				        @endif
-				        <tr>
+				        <tr class="@cannot('view_purchase_price') show_price_with_permission no-print @endcan">
 				          <th>@lang('purchase.purchase_total'):</th>
 				          <td></td>
 				          <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $sell_transfer->final_total }}</span></td>
@@ -166,10 +166,10 @@
 				</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-primary no-print" aria-label="Print" 
+			<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white no-print" aria-label="Print" 
 			onclick="$(this).closest('div.modal-content').printThis();"><i class="fa fa-print"></i> @lang( 'messages.print' )
 			</button>
-			<button type="button" class="btn btn-default no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
+			<button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
 		</div>
 	</div>
 </div>

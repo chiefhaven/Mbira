@@ -2937,6 +2937,10 @@ class TransactionUtil extends Util
             $query->where('transactions.location_id', $filters['location_id']);
         }
 
+        if (! empty($filters['created_by'])) {
+            $query->where('transactions.created_by', $filters['created_by']);
+        }
+
         if (! empty($filters['expense_for'])) {
             $query->where('transactions.expense_for', $filters['expense_for']);
         }
@@ -3990,12 +3994,20 @@ class TransactionUtil extends Util
             $sum = $tax->sub_taxes->sum('amount');
 
             $details = [];
+            
             foreach ($sub_taxes as $sub_tax) {
+                if ($sum != 0) {
+                    $calculated_tax = ($amount / $sum) * $sub_tax->amount;
+                } else {
+                    // Handle the case where $sum is zero. For example, you might set calculated_tax to 0.
+                    $calculated_tax = 0;
+                }
+            
                 $details[] = [
                     'id' => $sub_tax->id,
                     'name' => $sub_tax->name,
                     'amount' => $sub_tax->amount,
-                    'calculated_tax' => ($amount / $sum) * $sub_tax->amount,
+                    'calculated_tax' => $calculated_tax,
                 ];
             }
 
@@ -5377,6 +5389,49 @@ class TransactionUtil extends Util
             $ledger[$key]['balance'] = $balance;
         }
 
+        //Get Overall transaction
+        $overall_transaction_sums = $this->__transactionQuery($contact_id, null, null, $location_id)
+                ->select(
+                    DB::raw("SUM(IF(type = 'purchase', final_total, 0)) as total_purchase"),
+                    DB::raw("SUM(IF(type = 'sell' AND status = 'final', final_total, 0)) as total_invoice"),
+                    DB::raw("SUM(IF(type = 'sell_return', final_total, 0)) as total_sell_return"),
+                    DB::raw("SUM(IF(type = 'purchase_return', final_total, 0)) as total_purchase_return"),
+                    DB::raw("SUM(IF(type = 'opening_balance', final_total, 0)) as total_opening_balance"),
+                    DB::raw("SUM(IF(type = 'ledger_discount', final_total, 0)) as total_ledger_discount")
+                )->first();
+        $total_overall_invoice = $overall_transaction_sums->total_invoice - $overall_transaction_sums->total_sell_return + $overall_transaction_sums->total_opening_balance - $overall_transaction_sums->total_ledger_discount;
+        $total_overall_purchase = $overall_transaction_sums->total_purchase - $overall_transaction_sums->total_purchase_return;
+        $overall_ledger_discount = $overall_transaction_sums->total_ledger_discount;
+
+        //Get Overall transaction payment
+        $overall_payments = $this->__paymentQuery($contact_id, null, null, $location_id)
+                            ->select('transaction_payments.*', 'bl.name as location_name', 't.type as transaction_type', 'is_advance')
+                                    ->get();
+        $overall_total_invoice_paid = $overall_payments->where('transaction_type', 'sell')->where('is_return', 0)->sum('amount');
+        $overall_total_ob_paid = $overall_payments->where('transaction_type', 'opening_balance')->where('is_return', 0)->sum('amount');
+        $overall_total_sell_change_return = $overall_payments->where('transaction_type', 'sell')->where('is_return', 1)->sum('amount');
+        $overall_total_sell_change_return = ! empty($overall_total_sell_change_return) ? $overall_total_sell_change_return : 0;
+        $overall_total_invoice_paid -= $overall_total_sell_change_return;
+        $overall_total_purchase_paid = $overall_payments->where('transaction_type', 'purchase')->where('is_return', 0)->sum('amount');
+        $overall_total_sell_return_paid = $overall_payments->where('transaction_type', 'sell_return')->sum('amount');
+        $overall_total_purchase_return_paid = $overall_payments->where('transaction_type', 'purchase_return')->sum('amount');
+        
+        $overall_total_advance_payment = $this->__paymentQuery($contact_id, null, null, $location_id)
+                                        ->select('bl.name as location_name',
+                                                't.type as transaction_type',
+                                                'is_advance',
+                                                'transaction_payments.id',
+                                                DB::raw('(transaction_payments.amount - COALESCE((SELECT SUM(amount) from transaction_payments as TP where TP.parent_id = transaction_payments.id), 0)) as amount')
+                                        )
+                                        ->where('is_advance', 1)
+                                        ->get()
+                                        ->sum('amount');
+
+        $total_overall_paid_customer = $overall_total_invoice_paid - $overall_total_sell_return_paid + $overall_total_ob_paid; //Add '+ $overall_total_advance_payment'
+
+        $total_overall_paid_supplier = $overall_total_purchase_paid - $overall_total_purchase_return_paid;
+        $overall_due = $total_overall_invoice + $total_overall_purchase - $total_overall_paid_customer - $total_overall_paid_supplier - $overall_ledger_discount;
+
         $output = [
             'ledger' => $ledger,
             'start_date' => $start_date,
@@ -5388,6 +5443,14 @@ class TransactionUtil extends Util
             'total_paid' => $total_paid,
             'total_reverse_payment' => $total_reverse_payment,
             'ledger_discount' => $ledger_discount,
+
+            'all_total_invoice' => $total_overall_invoice,
+            'all_invoice_paid' => $total_overall_paid_customer,
+            // 'all_total_paid' => $all_total_paid,
+            'all_total_purchase' => $total_overall_purchase,
+            'all_purchase_paid' => $total_overall_paid_supplier,
+            'all_balance_due' => $overall_due,
+            'all_ledger_discount' => $overall_ledger_discount,
         ];
 
         return $output;
@@ -6309,7 +6372,7 @@ class TransactionUtil extends Util
      *
      * @return array
      */
-    public function registerReport($business_id, $permitted_locations, $start_date = null, $end_date = null)
+    public function registerReport($business_id, $permitted_locations, $start_date = null, $end_date = null, $user_id = null)
     {
         $registers = CashRegister::leftjoin(
             'cash_register_transactions as ct',

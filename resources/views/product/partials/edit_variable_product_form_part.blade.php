@@ -7,6 +7,7 @@
     <table class="table table-bordered add-product-price-table table-condensed" id="product_variation_form_part">
         <thead>
           <tr>
+            <th></th>
             <th class="col-sm-2">@lang('product.variation_name')</th>
             <th class="col-sm-9">@lang('product.variation_values')</th>
           </tr>
@@ -27,7 +28,7 @@
                         <th>@lang('product.value')</th>
                         <th>@lang('product.default_purchase_price') &nbsp;&nbsp;<b><i class="fa fa-info-circle" aria-hidden="true" data-toggle="popover" data-html="true" data-trigger="hover" data-content="<p class='text-primary'>Drag the mouse over the table cells to copy input values</p>" data-placement="top"></i></b></th>
                         <th>@lang('product.default_selling_price') &nbsp;&nbsp;<b><i class="fa fa-info-circle" aria-hidden="true" data-toggle="popover" data-html="true" data-trigger="hover" data-content="<p class='text-primary'>Drag the mouse over the table cells to copy input values</p>" data-placement="top"></i></b></th>
-                        <th><button type="button" class="btn btn-success btn-xs add_variation_value_row">+</button></th>
+                        <th><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-accent add_variation_value_row">+</button></th>
                     </tr>
                     @foreach($product_variation->variations as $variation )
                     <tr>
@@ -46,7 +47,7 @@
                           {!! Form::number('product_variation[' . $loop->parent->index . '][variations][' . $loop->index . '][sell_price_inc_tax]',
                           $variation->sell_price_inc_tax, ['class' => 'form-control input-sm variable_dsp_inc_tax', 'min' => '0', 'placeholder' => __('product.inc_of_tax')]); !!}
                         </td>
-                        <td><button type="button" class="btn btn-danger btn-xs remove_variation_value_row">-</button>
+                        <td><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error remove_variation_value_row"><i class="fa fa-trash"></i></button>
                         <input type="hidden" class="variation_row_index" value="{{ $loop->index }}"></td>
                     </tr>
                     @endforeach

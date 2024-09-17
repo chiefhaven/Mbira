@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>Report 606 (@lang('lang_v1.purchase'))
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">Report 606 (@lang('lang_v1.purchase'))
     </h1>
 </section>
 
@@ -81,6 +81,7 @@
         purchase_report_table = $('#purchase_report_table').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader:false,
             ajax: {
                 url: '/reports/purchase-report',
                 data: function(d) {

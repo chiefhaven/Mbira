@@ -48,11 +48,11 @@ class RoleController extends Controller
                     if (! $row->is_default || $row->name == 'Cashier#'.$row->business_id) {
                         $action = '';
                         if (auth()->user()->can('roles.update')) {
-                            $action .= '<a href="'.action([\App\Http\Controllers\RoleController::class, 'edit'], [$row->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> '.__('messages.edit').'</a>';
+                            $action .= '<a href="'.action([\App\Http\Controllers\RoleController::class, 'edit'], [$row->id]).'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary"><i class="glyphicon glyphicon-edit"></i> '.__('messages.edit').'</a>';
                         }
                         if (auth()->user()->can('roles.delete')) {
                             $action .= '&nbsp
-                                <button data-href="'.action([\App\Http\Controllers\RoleController::class, 'destroy'], [$row->id]).'" class="btn btn-xs btn-danger delete_role_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
+                                <button data-href="'.action([\App\Http\Controllers\RoleController::class, 'destroy'], [$row->id]).'" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_role_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
                         }
 
                         return $action;

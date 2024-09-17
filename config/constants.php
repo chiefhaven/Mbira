@@ -33,7 +33,7 @@ return [
     'document_size_limit' => '5000000', //in Bytes,
     'image_size_limit' => '5000000', //in Bytes
 
-    'asset_version' => 540,
+    'asset_version' => 600,
 
     'disable_purchase_in_other_currency' => true,
 
@@ -54,6 +54,11 @@ return [
     'administrator_usernames' => env('ADMINISTRATOR_USERNAMES'),
     'allow_registration' => env('ALLOW_REGISTRATION', true),
     'app_title' => env('APP_TITLE'),
+
+    'google_recaptcha_key' => env('GOOGLE_RECAPTCHA_KEY'),
+    'google_recaptcha_secret' => env('GOOGLE_RECAPTCHA_SECRET'),
+    'enable_recaptcha' => env('ENABLE_RECAPTCHA', false),
+    
     'mpdf_temp_path' => storage_path('app/pdf'), //Temporary path used by mpdf
 
     'document_upload_mimes_types' => ['application/pdf' => '.pdf',

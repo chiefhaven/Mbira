@@ -4,7 +4,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang('lang_v1.sales_order')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.sales_order')
     </h1>
 </section>
 
@@ -49,7 +49,7 @@
         @can('so.create')
             @slot('tool')
                 <div class="box-tools">
-                    <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\SellController::class, 'create'])}}?sale_type=sales_order">
+                    <a class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-sm tw-text-white" href="{{action([\App\Http\Controllers\SellController::class, 'create'])}}?sale_type=sales_order">
                     <i class="fa fa-plus"></i> @lang('lang_v1.add_sales_order')</a>
                 </div>
             @endslot
@@ -97,6 +97,7 @@ $(document).ready( function(){
     sell_table = $('#sell_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         aaSorting: [[1, 'desc']],
         "ajax": {
             "url": '/sells?sale_type=sales_order',

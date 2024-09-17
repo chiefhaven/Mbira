@@ -64,7 +64,7 @@
           <br>
           <br>
           <a href="{{$sell->document_path}}" 
-          download="{{$sell->document_name}}" class="btn btn-xs btn-success pull-left no-print">
+          download="{{$sell->document_name}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-accent pull-left no-print">
             <i class="fa fa-download"></i> 
               &nbsp;{{ __('purchase.download_document') }}
           </a>
@@ -410,12 +410,12 @@
   </div>
   <div class="modal-footer">
     @if($sell->type != 'sales_order')
-    <a href="#" class="print-invoice btn btn-success" data-href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a>
+    <a href="#" class="print-invoice tw-dw-btn tw-dw-btn-success tw-text-white" data-href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a>
     @endif
     @can('print_invoice')
-      <a href="#" class="print-invoice btn btn-primary" data-href="{{route('sell.printInvoice', [$sell->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.print_invoice")</a>
+      <a href="#" class="print-invoice tw-dw-btn tw-dw-btn-primary tw-text-white" data-href="{{route('sell.printInvoice', [$sell->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.print_invoice")</a>
     @endcan
-      <button type="button" class="btn btn-default no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
+      <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
   </div>
 </div>

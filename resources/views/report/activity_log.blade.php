@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>{{ __('lang_v1.activity_log')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('lang_v1.activity_log')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -81,6 +81,7 @@
         activity_log_table = $('#activity_log_table').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader:false,
             aaSorting: [[0, 'desc']],
             "ajax": {
                 "url": '{{action([\App\Http\Controllers\ReportController::class, 'activityLog'])}}',

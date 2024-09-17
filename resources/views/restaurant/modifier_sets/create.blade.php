@@ -47,12 +47,12 @@
                         </td>';
 
                     $html_other_row = $html . '<td>
-                            <button class="btn btn-danger btn-xs pull-right remove-modifier-row" type="button"><i class="fa fa-minus"></i></button>
+                            <button class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error pull-right remove-modifier-row" type="button"><i class="fa fa-minus"></i></button>
                           </td>
                         </tr>';
 
                     $html_first_row = $html . "<td>
-                            <button class='btn btn-primary btn-xs pull-right add-modifier-row' type='button'
+                            <button class='tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-primary pull-right add-modifier-row' type='button'
                             data-html='{{ $html_other_row }}'>
                             <i class='fa fa-plus'></i></button>
                           </td>
@@ -75,8 +75,8 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="btn btn-primary">@lang( 'messages.save' )</button>
-      <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang( 'messages.save' )</button>
+      <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 
     {!! Form::close() !!}

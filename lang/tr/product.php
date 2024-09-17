@@ -58,4 +58,8 @@ return [
     'import_products' => 'Ürünleri İçe Aktar',
     'file_to_import' => 'İçe Aktarılacak Dosya',
     'file_imported_successfully' => 'Dosya başarıyla içe aktarıldı',
+    'variation_sku_format' => 'Varyasyon SKU Formatı',
+    'variation_sku_format_help_text' => 'Varyasyon SKU Formatı - Varyasyon SKU boş olduğunda, varyasyonlar için SKU oluşturmak için bu format kullanılacaktır.',
+    'sku_number' => 'SKU Numarası (Örnek -> ABC-1, ABC-2)',
+    'sku_variation_number' => 'SKU Varyasyon (Örnek -> ABCS, ABCM)'
 ];

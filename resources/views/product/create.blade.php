@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('product.add_new_product')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('product.add_new_product')</h1>
     <!-- <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
         <li class="active">Here</li>
@@ -347,16 +347,16 @@
             <div class="text-center">
                 <div class="btn-group">
                     @if($selling_price_group_count)
-                    <button type="submit" value="submit_n_add_selling_prices" class="btn btn-warning btn-big submit_product_form">@lang('lang_v1.save_n_add_selling_price_group_prices')</button>
+                    <button type="submit" value="submit_n_add_selling_prices" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-white submit_product_form">@lang('lang_v1.save_n_add_selling_price_group_prices')</button>
                     @endif
 
                     @can('product.opening_stock')
-                    <button id="opening_stock_button" @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) disabled @endif type="submit" value="submit_n_add_opening_stock" class="btn bg-purple btn-big submit_product_form">@lang('lang_v1.save_n_add_opening_stock')</button>
+                    <button id="opening_stock_button" @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) disabled @endif type="submit" value="submit_n_add_opening_stock" class="tw-dw-btn tw-dw-btn-lg tw-text-white bg-purple submit_product_form">@lang('lang_v1.save_n_add_opening_stock')</button>
                     @endcan
 
-                    <button type="submit" value="save_n_add_another" class="btn bg-maroon btn-big submit_product_form">@lang('lang_v1.save_n_add_another')</button>
+                    <button type="submit" value="save_n_add_another" class="tw-dw-btn tw-dw-btn-lg bg-maroon submit_product_form">@lang('lang_v1.save_n_add_another')</button>
 
-                    <button type="submit" value="submit" class="btn btn-primary btn-big submit_product_form">@lang('messages.save')</button>
+                    <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white submit_product_form">@lang('messages.save')</button>
                 </div>
 
             </div>
@@ -370,7 +370,7 @@
 @endsection
 
 @section('javascript')
-@php $asset_v = env('APP_VERSION'); @endphp
+
 <script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
 
 <script type="text/javascript">

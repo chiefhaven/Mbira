@@ -29,10 +29,10 @@ class VariationTemplateController extends Controller
             return Datatables::of($variations)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_variation_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    '<button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_variation_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                         @if(empty($total_pv))
-                        <button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_variation_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\VariationTemplateController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_variation_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                         @endif'
                 )
                 ->editColumn('values', function ($data) {

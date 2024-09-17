@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>{{ __('lang_v1.gst_purchase_report')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('lang_v1.gst_purchase_report')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -107,6 +107,7 @@
                 scrollY: "75vh",
                 scrollX:        true,
                 scrollCollapse: true,
+                fixedHeader:false,
                 ajax: {
                     url: '/reports/gst-purchase-report',
                     data: function(d) {

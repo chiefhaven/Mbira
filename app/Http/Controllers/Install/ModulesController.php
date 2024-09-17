@@ -42,6 +42,7 @@ class ModulesController extends Controller
 
         //Get list of all modules.
         $modules = Module::toCollection()->toArray();
+        //print_r($modules);exit;
 
         foreach ($modules as $module => $details) {
             $modules[$module]['is_installed'] = $this->moduleUtil->isModuleInstalled($details['name']) ? true : false;

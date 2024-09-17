@@ -95,5 +95,6 @@ return [
     'customer_note' => 'Müşteri notu',
     'table_report' => 'Masa Raporu',
     'service_staff_report' => 'Servis Personel Raporu',
+    'service_staff_replacement' => 'Hizmet personeli değiştirme'
 
 ];

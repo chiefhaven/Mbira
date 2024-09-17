@@ -85,6 +85,7 @@ $(document).ready(function() {
     var brands_table = $('#brands_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         ajax: '/brands',
         columnDefs: [
             {
@@ -162,6 +163,7 @@ $(document).ready(function() {
     var tax_rates_table = $('#tax_rates_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         ajax: '/tax-rates',
         columnDefs: [
             {
@@ -267,6 +269,7 @@ $(document).ready(function() {
     var units_table = $('#unit_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         ajax: '/units',
         columnDefs: [
             {
@@ -438,6 +441,7 @@ $(document).ready(function() {
     contact_table = $('#contact_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         scrollY:        "75vh",
         scrollX:        true,
         scrollCollapse: true,
@@ -702,6 +706,7 @@ $(document).ready(function() {
     var variation_table = $('#variation_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         ajax: '/variation-templates',
         columnDefs: [
             {
@@ -713,7 +718,7 @@ $(document).ready(function() {
     });
     $(document).on('click', '#add_variation_values', function() {
         var html =
-            '<div class="form-group"><div class="col-sm-7 col-sm-offset-3"><input type="text" name="variation_values[]" class="form-control" required></div><div class="col-sm-2"><button type="button" class="btn btn-danger delete_variation_value">-</button></div></div>';
+            '<div class="form-group"><div class="col-sm-7 col-sm-offset-3"><input type="text" name="variation_values[]" class="form-control" required></div><div class="col-sm-2"><button type="button" class="tw-dw-btn tw-dw-btn-error tw-text-white tw-dw-btn-sm delete_variation_value">-</button></div></div>';
         $('#variation_values').append(html);
     });
     $(document).on('click', '.delete_variation_value', function() {
@@ -959,6 +964,7 @@ $(document).ready(function() {
     var tax_groups_table = $('#tax_groups_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         ajax: '/group-taxes',
         columnDefs: [
             {
@@ -1104,6 +1110,7 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         bPaginate: false,
+        fixedHeader:false,
         buttons: [],
         ajax: '/invoice-schemes',
         columnDefs: [
@@ -1250,6 +1257,7 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         bPaginate: false,
+        fixedHeader:false,
         buttons: [],
         ajax: '/business-location',
         columnDefs: [
@@ -1442,6 +1450,7 @@ $(document).ready(function() {
     expense_table = $('#expense_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         aaSorting: [[1, 'desc']],
         ajax: {
             url: '/expenses',
@@ -1681,6 +1690,7 @@ $(document).ready(function() {
     var sales_commission_agent_table = $('#sales_commission_agent_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         ajax: '/sales-commission-agents',
         columnDefs: [
             {
@@ -1786,6 +1796,7 @@ $(document).ready(function() {
     var customer_groups_table = $('#customer_groups_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         ajax: '/customer-group',
         columnDefs: [
             {
@@ -1927,6 +1938,7 @@ $(document).ready(function() {
     discounts_table = $('#discounts_table').DataTable({
                     processing: true,
                     serverSide: true,
+                    fixedHeader:false,
                     ajax: base_path + '/discount',
                     columnDefs: [
                         {
@@ -1955,6 +1967,7 @@ $(document).ready(function() {
     types_of_service_table = $('#types_of_service_table').DataTable({
                         processing: true,
                         serverSide: true,
+                        fixedHeader:false,
                         ajax: base_path + '/types-of-service',
                         columnDefs: [
                             {
@@ -2011,26 +2024,32 @@ $(document).ready(function() {
         data: search_options,
         placeholder: LANG.search,
     });
-    $('#search_settings').change( function(){
-        //Get label position and add active class to the tab
+
+    $('#search_settings').change(function(){
+        // Get label position and add active class to the tab
         var label_index = $(this).val();
         var label = label_objects[label_index];
         $('.pos-tab-content.active').removeClass('active');
         var tab_content = label.closest('.pos-tab-content');
         tab_content.addClass('active');
-        tab_index = $('.pos-tab-content').index(tab_content);
+        var tab_index = $('.pos-tab-content').index(tab_content);
         $('.list-group-item.active').removeClass('active');
         $('.list-group-item').eq(tab_index).addClass('active');
-
-        //Highlight the label for three seconds
-        $([document.documentElement, document.body]).animate({
-            scrollTop: label.offset().top - 100
+            
+        // Scroll the container to the target element
+        var container = $('#scrollable-container');
+        var targetOffset = label.offset().top + container.scrollTop() - container.offset().top;
+        
+        container.animate({
+            scrollTop: targetOffset - 100 // Adjust offset as needed
         }, 500);
+        
         label.css('background-color', 'yellow');
         setTimeout(function(){ 
             label.css('background-color', ''); 
         }, 3000);
     });
+
     $('#add_invoice_layout_form #design').change( function(){
         if ($(this).val() == 'slim') {
             $('#hide_price_div').removeClass('hide');

@@ -59,16 +59,16 @@
         @endif
     </td>
     <td @if($count_child_payments > 0) class="bg-gray" @endif>
-        <button type="button" class="btn btn-primary btn-xs btn-modal" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'viewPayment'], [$payment->id])}}" data-container=".view_modal"><i class="fas fa-eye"></i>{{__('messages.view')}}</button>
+        <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-primary btn-modal" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'viewPayment'], [$payment->id])}}" data-container=".view_modal"><i class="fas fa-eye"></i>{{__('messages.view')}}</button>
 
         @if(!empty($transaction_id))
             @if(( in_array($transaction_type, ['purchase', 'purchase_return']) && auth()->user()->can('edit_purchase_payment')) || (in_array($transaction_type, ['sell', 'sell_return']) && auth()->user()->can('edit_sell_payment')) )
-                <button type="button" class="btn btn-info btn-xs btn-modal" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'edit'], [$payment->id])}}" data-container=".view_modal"><i class="fas fa-edit"></i> {{__('messages.edit')}}</button>
+                <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info btn-modal" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'edit'], [$payment->id])}}" data-container=".view_modal"><i class="fas fa-edit"></i> {{__('messages.edit')}}</button>
              @endif
         @endif
 
         @if((in_array($transaction_type, ['purchase', 'purchase_return']) && auth()->user()->can('delete_purchase_payment')) || (in_array($transaction_type, ['sell', 'sell_return']) && auth()->user()->can('delete_sell_payment')) || ((empty($transaction_type)|| $transaction_type=='opening_balance') && (auth()->user()->can('customer.create') || auth()->user()->can('customer.update') || auth()->user()->can('supplier.create') || auth()->user()->can('supplier.update') ) ))
-            <button type="button" class="btn btn-danger btn-xs delete_payment" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'destroy'], [$payment->id])}}" > <i class="fas fa-trash"></i>{{__('messages.delete')}}</button>
+            <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error delete_payment" data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'destroy'], [$payment->id])}}" > <i class="fas fa-trash"></i>{{__('messages.delete')}}</button>
         @endif
     </td>
 </tr>

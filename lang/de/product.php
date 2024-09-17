@@ -47,4 +47,8 @@
      'import_products' => 'Produkte importieren',
      'file_to_import' => 'Zu importierende Datei',
      'file_imported_successfully' => 'Datei erfolgreich importiert',
+     'variation_sku_format' => 'Variations-SKU-Format',
+     'variation_sku_format_help_text' => 'Variations-SKU-Format - Wenn die Variation-SKU leer ist, wird dieses Format verwendet, um SKU für Variationen zu generieren.',
+     'sku_number' => 'SKU-Nummer (Beispiel -> ABC-1, ABC-2)',
+     'sku_variation_number' => 'SKUVariations (Beispiel -> ABCS, ABCM)'
  ];

@@ -88,4 +88,5 @@ return [
     'customer_note' => 'ملاحظة العميل',
     'table_report' => 'تقرير الطاولة',
     'service_staff_report' => 'تقرير موظفي الخدمة',
+    'service_staff_replacement' => 'استبدال موظفي الخدمة',
 ];

@@ -5,8 +5,8 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang( 'report.purchase_sell' )
-        <small>@lang( 'report.purchase_sell_msg' )</small>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang( 'report.purchase_sell' )
+        <small class="tw-text-sm md:tw-text-base tw-text-gray-700 tw-font-semibold">@lang( 'report.purchase_sell_msg' )</small>
     </h1>
 </section>
 
@@ -27,7 +27,7 @@
         <div class="col-md-2 col-xs-6">
             <div class="form-group pull-right">
                 <div class="input-group">
-                  <button type="button" class="btn btn-primary" id="purchase_sell_date_filter">
+                  <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" id="purchase_sell_date_filter">
                     <span>
                       <i class="fa fa-calendar"></i> {{ __('messages.filter_by_date') }}
                     </span>
@@ -144,9 +144,17 @@
     </div>
     <div class="row no-print">
         <div class="col-sm-12">
-            <button type="button" class="btn btn-primary pull-right" 
-            aria-label="Print" onclick="window.print();"
-            ><i class="fa fa-print"></i> @lang( 'messages.print' )</button>
+            <button class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right" aria-label="Print"
+                onclick="window.print();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                    <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                </svg> @lang('messages.print')
+            </button>
         </div>
     </div>
 	

@@ -45,7 +45,8 @@ class StockAdjustmentController extends Controller
      */
     public function index()
     {
-        if (! auth()->user()->can('purchase.view') && ! auth()->user()->can('purchase.create')) {
+
+        if (! auth()->user()->can('purchase.view') && ! auth()->user()->can('purchase.create') && ! auth()->user()->can('view_own_purchase')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -91,21 +92,39 @@ class StockAdjustmentController extends Controller
                 $stock_adjustments->where('transactions.location_id', $location_id);
             }
 
+            if (! auth()->user()->can('purchase.view') && auth()->user()->can('view_own_purchase')) {
+                $stock_adjustments->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+
+            if(! auth()->user()->can('purchase.delete')){
+                $hide = 'hide';
+            }
+
             return Datatables::of($stock_adjustments)
-                ->addColumn('action', '<button type="button" data-href="{{action([\App\Http\Controllers\StockAdjustmentController::class, \'show\'], [$id]) }}" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>
+                ->addColumn('action', '<button type="button" data-href="{{action([\App\Http\Controllers\StockAdjustmentController::class, \'show\'], [$id]) }}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-primary btn-modal" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>
                  &nbsp;
-                    <button type="button" data-href="{{  action([\App\Http\Controllers\StockAdjustmentController::class, \'destroy\'], [$id]) }}" class="btn btn-danger btn-xs delete_stock_adjustment '.$hide.'"><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</button>')
+                    <button type="button" data-href="{{  action([\App\Http\Controllers\StockAdjustmentController::class, \'destroy\'], [$id]) }}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error delete_stock_adjustment '.$hide.'"><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</button>')
                 ->removeColumn('id')
                 ->editColumn(
                     'final_total',
                     function ($row) {
-                        return $this->transactionUtil->num_f($row->final_total, true);
+                        if (auth()->user()->can('view_purchase_price')) {
+                            return $this->transactionUtil->num_f($row->final_total, true);                     
+                         } else {
+                            return '<span>-</span>';
+                        }
+                        
                     }
                 )
+
                 ->editColumn(
                     'total_amount_recovered',
                     function ($row) {
-                        return $this->transactionUtil->num_f($row->total_amount_recovered, true);
+                        if (auth()->user()->can('view_purchase_price')) {
+                            return $this->transactionUtil->num_f($row->total_amount_recovered, true);                    
+                         } else {
+                            return '<span>-</span>';
+                        }
                     }
                 )
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')

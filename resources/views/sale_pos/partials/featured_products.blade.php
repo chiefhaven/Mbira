@@ -1,6 +1,6 @@
 @foreach($featured_products as $variation)
 	<div class="col-md-3 col-xs-4 product_list no-print">
-		<div class="product_box" data-toggle="tooltip" data-placement="bottom" data-variation_id="{{$variation->id}}" title="{{$variation->full_name}}">
+		<div class="product_box hover:tw-shadow-lg hover:tw-animate-pulse" data-toggle="tooltip" data-placement="bottom" data-variation_id="{{$variation->id}}" title="{{$variation->full_name}}">
 
 		<div class="image-container" 
 			style="background-image: url(

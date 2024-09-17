@@ -10,11 +10,11 @@
                 <a href="{{$payment_link}}" class="btn btn-info no-print" style="margin-right: 20px;"><i class="fas fa-money-check-alt" title="@lang('lang_v1.pay')"></i> @lang('lang_v1.pay')
                 </a>
             @endif
-            <button type="button" class="btn btn-primary no-print btn-sm" id="print_invoice" 
+            <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white no-print tw-dw-btn-sm" id="print_invoice" 
                  aria-label="Print"><i class="fas fa-print"></i> @lang( 'messages.print' )
             </button>
             @auth
-                <a href="{{action([\App\Http\Controllers\SellController::class, 'index'])}}" class="btn btn-success no-print btn-sm" ><i class="fas fa-backward"></i>
+                <a href="{{action([\App\Http\Controllers\SellController::class, 'index'])}}" class="tw-dw-btn tw-dw-btn-success tw-text-white no-print tw-dw-btn-sm" ><i class="fas fa-backward"></i>
                 </a>
             @endauth
         </div>

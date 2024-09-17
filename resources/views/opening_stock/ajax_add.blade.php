@@ -10,8 +10,8 @@
 			@include('opening_stock.form-part')
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-primary" id="add_opening_stock_btn">@lang('messages.save')</button>
-		    <button type="button" class="btn btn-default no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
+			<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white" id="add_opening_stock_btn">@lang('messages.save')</button>
+		    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
 		 </div>
 	 {!! Form::close() !!}
 	</div>

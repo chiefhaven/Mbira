@@ -95,5 +95,6 @@ return [
     'customer_note' => 'Lưu ý khách hàng',
     'table_report' => 'Báo cáo bàn',
     'service_staff_report' => 'Nhân viên phục vụ',
+    'service_staff_replacement' => 'Thay thế nhân viên phục vụ',
 
 ];

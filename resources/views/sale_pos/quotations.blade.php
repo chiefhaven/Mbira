@@ -4,7 +4,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang('lang_v1.list_quotations')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.list_quotations')
         <small></small>
     </h1>
 </section>
@@ -42,8 +42,17 @@
     @component('components.widget', ['class' => 'box-primary'])
         @slot('tool')
             <div class="box-tools">
-                <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'quotation'])}}">
-                <i class="fa fa-plus"></i> @lang('lang_v1.add_quotation')</a>
+
+                <a class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right"
+                    href="{{action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'quotation'])}}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 5l0 14" />
+                        <path d="M5 12l14 0" />
+                    </svg> @lang('lang_v1.add_quotation')
+                </a>
             </div>
         @endslot
         <div class="table-responsive">
@@ -85,6 +94,7 @@ $(document).ready( function(){
     sell_table = $('#sell_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         aaSorting: [[0, 'desc']],
         "ajax": {
             "url": '/sells/draft-dt?is_quotation=1',

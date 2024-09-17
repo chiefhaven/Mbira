@@ -88,4 +88,5 @@ return [
     'customer_note' => 'Kundenmitteilung',
     'table_report' => 'Tabellenbericht',
     'service_staff_report' => 'Service-Mitarbeiterbericht',
+    'service_staff_replacement' => 'Austausch des Servicepersonals',
 ];

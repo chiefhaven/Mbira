@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>{{ __('lang_v1.product_sell_report')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('lang_v1.product_sell_report')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -225,6 +225,7 @@
                         product_sell_report_by_category_datatable = $('table#product_sell_report_by_category').DataTable({
                                 processing: true,
                                 serverSide: true,
+                                fixedHeader:false,
                                 ajax: {
                                     url: '/reports/product-sell-grouped-by',
                                     data: function(d) {
@@ -281,6 +282,7 @@
                         product_sell_report_by_brand_datatable = $('table#product_sell_report_by_brand').DataTable({
                                 processing: true,
                                 serverSide: true,
+                                fixedHeader:false,
                                 ajax: {
                                     url: '/reports/product-sell-grouped-by',
                                     data: function(d) {

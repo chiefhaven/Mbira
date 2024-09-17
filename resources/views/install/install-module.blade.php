@@ -1,5 +1,5 @@
 @extends('layouts.install')
-@section('title', 'Installation')
+@section('title', 'Installation/Update')
 
 @section('content')
 <div class="container">
@@ -32,7 +32,7 @@
                       action="{{$action_url}}">
                     {{ csrf_field() }}
 
-                    <h4> License Details <small class="text-danger">Make sure to provide correct licensing information</small></h4>
+                    <h2> License Details - <code>{{$module_display_name}} Module</code><br/><small class="text-danger"> Make sure to provide correct licensing information</small></h2>
                     <hr/>
 
                     <div class="col-md-4">
@@ -40,8 +40,12 @@
                             <label for="license_code">License Code:*</label>
                             <input type="text" name="license_code" required class="form-control" id="license_code">
 
-                            @if(!empty($intruction_type) && $intruction_type == 'uf')
-                                <p class="help-block"><a href="https://ultimatefosters.com/docs/ultimate-fosters-shop/license-key/" target="_blank">Where is my License Key?</a></p>
+                            @if($intruction_type == 'uf')
+                                <p class="help-block"><a href="https://ultimatefosters.com/docs/ultimate-fosters-shop/license-key/#Getting-License-Details-for-products-purchased-from-ultimatefosterscom" target="_blank">Where is my License Key?</a></p>
+                            @endif
+
+                            @if($intruction_type == 'cc')
+                                <p class="help-block"><a href="https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code-#:~:text=Hover%20the%20mouse%20over%20your,as%20PDF%20or%20text%20file)." target="_blank">Where is my License Key?</a></p>
                             @endif
                         </div>
                     </div>
@@ -51,8 +55,12 @@
                             <label for="login_username">Login Username:*</label>
                             <input type="text" name="login_username" required class="form-control" id="login_username">
 
-                            @if(!empty($intruction_type) && $intruction_type == 'uf')
-                                <p class="help-block"><a href="https://ultimatefosters.com/docs/ultimate-fosters-shop/user-name/" target="_blank" class="text-success">Where is my Username?</a></p>
+                            @if($intruction_type == 'uf')
+                                <p class="help-block"><a href="https://ultimatefosters.com/docs/ultimate-fosters-shop/user-name/#Steps-to-get-your-username-for-all-products-purchased-from-UltimateFosters" target="_blank" class="text-success">Where is my Username?</a></p>
+                            @endif
+
+                            @if($intruction_type == 'cc')
+                                <p class="help-block">Enter the username that you use for codecanyon or envato login</p>
                             @endif
                         </div>
                     </div>
@@ -64,10 +72,13 @@
                           <p class="help-block">For Newsletter & support</p>
                         </div>
                     </div>
-                    {{-- @include('install.partials.e_license') --}}
+
+                    @if($intruction_type == 'cc')
+                        @include('install.partials.e_license')
+                    @endif
 
                     <div class="col-md-12">
-                        <button type="submit" id="install_button" class="btn btn-primary pull-right">I Agree, Install</button>
+                        <button type="submit" id="install_button" class="btn btn-primary pull-right">I Agree, SUBMIT</button>
                     </div>
               </form>
             </div>

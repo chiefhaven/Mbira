@@ -95,5 +95,6 @@ return [
     'customer_note' => 'د ګیراک یادښت',
     'table_report' => 'میز راپور',
     'service_staff_report' => 'خدمتې کارمندانو راپور',
+    'service_staff_replacement' => 'د خدمتونو کې اوړندول',
 
 ];

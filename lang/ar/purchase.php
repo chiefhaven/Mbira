@@ -56,4 +56,9 @@
      'attach_document' => 'إرفاق وثيقة',
      'download_document' => 'تحميل الوثيقة',
      'max_file_size' => 'الحد الأقصى لحجم الملف : size: ميجا',
+     'variation_sku_format' => 'تنسيق SKU المتغير',
+     'variation_sku_format_help_text' => 'تنسيق SKU المتغير - عندما يكون SKU المتغير فارغًا، سيتم استخدام هذا التنسيق لتوليد SKU للمتغيرات.',
+     'sku_number' => 'SKU-الرقم (مثال -> ABC-1، ABC-2)',
+
+     'sku_variation_number' => 'SKUالرقم (مثال -> ABCS، ABCM)'
  ];

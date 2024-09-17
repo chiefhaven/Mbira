@@ -31,7 +31,7 @@
       @if($purchase->document_path)
         
         <a href="{{$purchase->document_path}}" 
-        download="{{$purchase->document_name}}" class="btn btn-sm btn-success pull-left no-print">
+        download="{{$purchase->document_name}}" class="tw-dw-btn tw-dw-btn-success tw-text-white tw-dw-btn-sm pull-left no-print">
           <i class="fa fa-download"></i> 
             &nbsp;{{ __('purchase.download_document') }}
         </a>
@@ -191,15 +191,23 @@
                  @endif
               </td>
               @if($purchase->type == 'purchase_order')
-              <td>
-                <span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->quantity - $purchase_line->po_quantity_purchased }}</span> @if(!empty($purchase_line->sub_unit)) {{$purchase_line->sub_unit->short_name}} @else {{$purchase_line->product->unit->short_name}} @endif
-              </td>
+                <td>
+                  <span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->quantity - $purchase_line->po_quantity_purchased }}</span> @if(!empty($purchase_line->actual_name)) {{$purchase_line->sub_unit->actual_name}} @else {{$purchase_line->product->unit->actual_name}} @endif
+                </td>
               @endif
-              <td><span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->quantity }}</span> @if(!empty($purchase_line->sub_unit)) {{$purchase_line->sub_unit->short_name}} @else {{$purchase_line->product->unit->short_name}} @endif
-
+              <td>
+                <span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->quantity }}</span> @if(!empty($purchase_line->sub_unit)) {{$purchase_line->sub_unit->actual_name}} @else {{$purchase_line->product->unit->actual_name}} @endif 
+                @if($purchase_line->product->unit->sub_units)
+                  @foreach($purchase_line->product->unit->sub_units as $sub_unit)
+                    @if($sub_unit->id == $purchase_line->sub_unit_id)
+                      ({{ (float) $sub_unit->base_unit_multiplier }}
+                      {{ $purchase_line->product->unit->short_name }})
+                    @endif
+                  @endforeach
+                @endif
                 @if(!empty($purchase_line->product->second_unit) && $purchase_line->secondary_unit_quantity != 0)
                     <br>
-                    <span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->secondary_unit_quantity }}</span> {{$purchase_line->product->second_unit->short_name}}
+                    <span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->secondary_unit_quantity }}</span> {{$purchase_line->product->second_unit->actual_name}}
                 @endif
 
               </td>

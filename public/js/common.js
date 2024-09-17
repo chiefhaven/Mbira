@@ -153,7 +153,7 @@ $(document).ready(function () {
         {
             extend: 'csv',
             text: '<i class="fa fa-file-csv" aria-hidden="true"></i> ' + LANG.export_to_csv,
-            className: 'btn-sm',
+            className: 'tw-dw-btn-xs  tw-dw-btn tw-dw-btn-outline tw-my-2',
             exportOptions: {
                 columns: ':visible',
             },
@@ -162,7 +162,7 @@ $(document).ready(function () {
         {
             extend: 'excel',
             text: '<i class="fa fa-file-excel" aria-hidden="true"></i> ' + LANG.export_to_excel,
-            className: 'btn-sm',
+            className: 'tw-dw-btn-xs  tw-dw-btn tw-dw-btn-outline tw-my-2',
             exportOptions: {
                 columns: ':visible',
             },
@@ -171,7 +171,7 @@ $(document).ready(function () {
         {
             extend: 'print',
             text: '<i class="fa fa-print" aria-hidden="true"></i> ' + LANG.print,
-            className: 'btn-sm',
+            className: 'tw-dw-btn-xs  tw-dw-btn tw-dw-btn-outline tw-my-2',
             exportOptions: {
                 columns: ':visible',
                 stripHtml: true,
@@ -192,14 +192,14 @@ $(document).ready(function () {
         {
             extend: 'colvis',
             text: '<i class="fa fa-columns" aria-hidden="true"></i> ' + LANG.col_vis,
-            className: 'btn-sm',
+            className: 'tw-dw-btn-xs  tw-dw-btn tw-dw-btn-outline tw-my-2',
         },
     ];
 
     var pdf_btn = {
         extend: 'pdf',
         text: '<i class="fa fa-file-pdf" aria-hidden="true"></i> ' + LANG.export_to_pdf,
-        className: 'btn-sm',
+        className: 'tw-dw-btn-xs  tw-dw-btn tw-dw-btn-outline tw-my-2',
         exportOptions: {
             columns: ':visible',
         },
@@ -218,7 +218,7 @@ $(document).ready(function () {
         //Uncomment below line to enable save state of datatable.
         //stateSave: true,
         fixedHeader: true,
-        dom: '<"row margin-bottom-20 text-center"<"col-sm-2"l><"col-sm-7"B><"col-sm-3"f> r>tip',
+        dom: '<"row margin-bottom-20 text-center"<"col-sm-1"l><"col-sm-8"B><"col-sm-3"f> r>tip',
         buttons: buttons,
         aLengthMenu: [
             [25, 50, 100, 200, 500, 1000, -1],
@@ -243,6 +243,8 @@ $(document).ready(function () {
             },
         },
     });
+
+   
 
     if ($('input#iraqi_selling_price_adjustment').length > 0) {
         iraqi_selling_price_adjustment = true;
@@ -342,7 +344,7 @@ var dateRangeSettings = {
     },
 };
 
-//Check for number string in input field, if data-decimal is 0 then don't allow decimal symbol
+//Check for number string in input field, if data-decimal is 0 then don't allow decimal symbol and if no_neg then don't allow  negative value
 $(document).on('keypress', 'input.input_number', function (event) {
     var is_decimal = $(this).data('decimal');
 
@@ -354,6 +356,11 @@ $(document).on('keypress', 'input.input_number', function (event) {
         }
     } else {
         var regex = new RegExp(/^[0-9.,-]+$/);
+    }
+
+    // Check for no negative values
+    if(is_decimal == 'no_neg'){
+        var regex = new RegExp(/^[0-9.,]+$/);
     }
 
     var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
@@ -469,6 +476,9 @@ $('button#btnCalculator, button#return_sale').hover(function () {
     $(this).tooltip('show');
 });
 $('button#return_sale').click(function () {
+    $(this).popover('toggle');
+});
+$('button#service_staff_replacement').click(function () {
     $(this).popover('toggle');
 });
 $(document).on('mouseleave', 'button#btnCalculator, button#return_sale', function (e) {

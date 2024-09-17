@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>{{ __('lang_v1.customer_groups_report')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('lang_v1.customer_groups_report')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -83,6 +83,7 @@
             cg_report_table = $('#cg_report_table').DataTable({
                             processing: true,
                             serverSide: true,
+                            fixedHeader:false,
                             "ajax": {
                                 "url": "/reports/customer-group",
                                 "data": function ( d ) {

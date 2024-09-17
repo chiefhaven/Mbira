@@ -61,7 +61,7 @@ class DocumentAndNoteController extends Controller
                 return Datatables::of($document_note)
                     ->addColumn('action', function ($row) use ($notable_type, $permissions) {
                         $html = '<div class="btn-group">
-                                    <button class="btn btn-info dropdown-toggle btn-xs" type="button"  data-toggle="dropdown" aria-expanded="false">
+                                    <button class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-info tw-w-max dropdown-toggle" type="button"  data-toggle="dropdown" aria-expanded="false">
                                         '.__('messages.action').'
                                         <span class="caret"></span>
                                         <span class="sr-only">

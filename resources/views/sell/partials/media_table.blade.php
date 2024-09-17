@@ -15,9 +15,9 @@
 				</small>
 			</td>
 			<td>
-				<a href="{{$media->display_url}}" download="{{$media->display_name}}" class="btn btn-success btn-xs no-print"><i class="fas fa-download"></i> @lang('lang_v1.download')</a>
+				<a href="{{$media->display_url}}" download="{{$media->display_name}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-accent no-print"><i class="fas fa-download"></i> @lang('lang_v1.download')</a>
 				@if(!empty($delete))
-					<button type="button" data-href="{{action([\App\Http\Controllers\ProductController::class, 'deleteMedia'], [$media->id])}}" class="btn btn-danger btn-xs delete-media no-print"><i class="fas fa-trash"></i> @lang('messages.delete')</a>
+					<button type="button" data-href="{{action([\App\Http\Controllers\ProductController::class, 'deleteMedia'], [$media->id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error delete-media no-print"><i class="fas fa-trash"></i> @lang('messages.delete')</a>
 				@endif
 			</td>
 		</tr>

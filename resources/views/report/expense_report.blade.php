@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>{{ __('report.expense_report')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('report.expense_report')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="col-sm-12">
-                  <button type="submit" class="btn btn-primary pull-right">@lang('report.apply_filters')</button>
+                  <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-sm tw-text-white pull-right">@lang('report.apply_filters')</button>
                 </div> 
                 {!! Form::close() !!}
             @endcomponent

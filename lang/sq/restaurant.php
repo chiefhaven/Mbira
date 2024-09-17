@@ -88,4 +88,5 @@ return [
     'customer_note' => 'Shënim i klientit',
     'table_report' => 'Tabela Raport',
     'service_staff_report' => 'Raporti i Stafit të Shërbimit',
+    'service_staff_replacement' => 'Zëvendësimi i stafit të shërbimit',
 ];

@@ -46,7 +46,10 @@ class AccountController extends Controller
 
         $business_id = session()->get('user.business_id');
         if (request()->ajax()) {
-            $accounts = Account::leftjoin('account_transactions as AT', 'AT.account_id', '=', 'accounts.id')
+            $accounts = Account::leftjoin('account_transactions as AT', function ($join) {
+                    $join->on('AT.account_id', '=', 'accounts.id')
+                        ->whereNull('AT.deleted_at');
+                })
             ->leftjoin(
                 'account_types as ats',
                 'accounts.account_type_id',
@@ -97,22 +100,22 @@ class AccountController extends Controller
 
             $is_closed = request()->input('account_status') == 'closed' ? 1 : 0;
             $accounts->where('is_closed', $is_closed)
-                ->whereNull('AT.deleted_at')
+                // ->whereNull('AT.deleted_at')
                 ->groupBy('accounts.id');
 
             return DataTables::of($accounts)
                             ->addColumn(
                                 'action',
-                                '<button data-href="{{action(\'App\Http\Controllers\AccountController@edit\',[$id])}}" data-container=".account_model" class="btn btn-xs btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
-                                <a href="{{action(\'App\Http\Controllers\AccountController@show\',[$id])}}" class="btn btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
+                                '<button data-href="{{action(\'App\Http\Controllers\AccountController@edit\',[$id])}}" data-container=".account_model" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                                <a href="{{action(\'App\Http\Controllers\AccountController@show\',[$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
                                 @if($is_closed == 0)
-                                <button data-href="{{action(\'App\Http\Controllers\AccountController@getFundTransfer\',[$id])}}" class="btn btn-xs btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
+                                <button data-href="{{action(\'App\Http\Controllers\AccountController@getFundTransfer\',[$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
 
-                                <button data-href="{{action(\'App\Http\Controllers\AccountController@getDeposit\',[$id])}}" class="btn btn-xs btn-success btn-modal" data-container=".view_modal"><i class="fas fa-money-bill-alt"></i> @lang("account.deposit")</button>
+                                <button data-href="{{action(\'App\Http\Controllers\AccountController@getDeposit\',[$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-success btn-modal" data-container=".view_modal"><i class="fas fa-money-bill-alt"></i> @lang("account.deposit")</button>
 
-                                <button data-url="{{action(\'App\Http\Controllers\AccountController@close\',[$id])}}" class="btn btn-xs btn-danger close_account"><i class="fa fa-power-off"></i> @lang("messages.close")</button>
+                                <button data-url="{{action(\'App\Http\Controllers\AccountController@close\',[$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error close_account"><i class="fa fa-power-off"></i> @lang("messages.close")</button>
                                 @elseif($is_closed == 1)
-                                    <button data-url="{{action(\'App\Http\Controllers\AccountController@activate\',[$id])}}" class="btn btn-xs btn-success activate_account"><i class="fa fa-power-off"></i> @lang("messages.activate")</button>
+                                    <button data-url="{{action(\'App\Http\Controllers\AccountController@activate\',[$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-success activate_account"><i class="fa fa-power-off"></i> @lang("messages.activate")</button>
                                 @endif'
                             )
                             ->editColumn('name', function ($row) {
@@ -445,12 +448,12 @@ class AccountController extends Controller
                                 $action = '';
                                 if (auth()->user()->can('delete_account_transaction')) {
                                     if ($row->sub_type == 'fund_transfer' || $row->sub_type == 'deposit') {
-                                        $action .= '<button type="button" class="btn btn-danger btn-xs delete_account_transaction" data-href="'.action([\App\Http\Controllers\AccountController::class, 'destroyAccountTransaction'], [$row->id]).'"><i class="fa fa-trash"></i> '.__('messages.delete').'</button>';
+                                        $action .= '<button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error delete_account_transaction" data-href="'.action([\App\Http\Controllers\AccountController::class, 'destroyAccountTransaction'], [$row->id]).'"><i class="fa fa-trash"></i> '.__('messages.delete').'</button>';
                                     }
                                 }
                                 if (auth()->user()->can('edit_account_transaction')) {
                                     if ($row->sub_type == 'fund_transfer' || $row->sub_type == 'deposit' || $row->sub_type == 'opening_balance') {
-                                        $action .= ' <button type="button" class="btn btn-primary btn-xs btn-modal" data-container="#edit_account_transaction" data-href="'.action([\App\Http\Controllers\AccountController::class, 'editAccountTransaction'], [$row->id]).'"><i class="fa fa-edit"></i> '.__('messages.edit').'</button>';
+                                        $action .= ' <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-primary btn-modal" data-container="#edit_account_transaction" data-href="'.action([\App\Http\Controllers\AccountController::class, 'editAccountTransaction'], [$row->id]).'"><i class="fa fa-edit"></i> '.__('messages.edit').'</button>';
                                     }
                                 }
 
@@ -459,7 +462,7 @@ class AccountController extends Controller
 
                                     $display_name = ! empty($row->media->first()) ? $row->media->first()->display_name : $row->transfer_transaction->media->first()->display_name;
 
-                                    $action .= '&nbsp; <a class="btn btn-success btn-xs" href="'.$display_url.'" download="'.$display_name.'"><i class="fa fa-download"></i> '.__('purchase.download_document').'</a>';
+                                    $action .= '&nbsp; <a class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-accent" href="'.$display_url.'" download="'.$display_name.'"><i class="fa fa-download"></i> '.__('purchase.download_document').'</a>';
                                 }
 
                                 return $action;

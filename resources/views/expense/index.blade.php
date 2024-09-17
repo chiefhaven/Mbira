@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('expense.expenses')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('expense.expenses')</h1>
 </section>
 
 <!-- Main content -->
@@ -71,8 +71,18 @@
                 @can('expense.add')
                     @slot('tool')
                         <div class="box-tools">
-                            <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\ExpenseController::class, 'create'])}}">
-                            <i class="fa fa-plus"></i> @lang('messages.add')</a>
+                            {{-- <a class="btn btn-block btn-primary" href="{{action([\App\Http\Controllers\ExpenseController::class, 'create'])}}">
+                            <i class="fa fa-plus"></i> @lang('messages.add')</a> --}}
+                            <a class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right"
+                                href="{{action([\App\Http\Controllers\ExpenseController::class, 'create'])}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M12 5l0 14" />
+                                    <path d="M5 12l14 0" />
+                                </svg> @lang('messages.add')
+                            </a>
                         </div>
                     @endslot
                 @endcan

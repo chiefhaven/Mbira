@@ -88,4 +88,5 @@ return [
     'customer_note' => 'Nota al cliente',
     'table_report' => 'Informe de tabla',
     'service_staff_report' => 'Informe del personal de servicio',
+    'service_staff_replacement' => 'Substituição de funcionários de serviço'
 ];

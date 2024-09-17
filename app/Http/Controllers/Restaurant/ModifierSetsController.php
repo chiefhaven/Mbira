@@ -46,14 +46,14 @@ class ModifierSetsController extends Controller
                     'action',
                     '
                     @can("product.update")
-                        <button type="button" data-href="{{action(\'App\Http\Controllers\Restaurant\ModifierSetsController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_modifier_button" data-container=".modifier_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                        <button type="button" data-href="{{action(\'App\Http\Controllers\Restaurant\ModifierSetsController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_modifier_button" data-container=".modifier_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
-                        <button type="button" data-href="{{action(\'App\Http\Controllers\Restaurant\ProductModifierSetController@edit\', [$id])}}" class="btn btn-xs btn-info edit_modifier_button" data-container=".modifier_modal"><i class="fa fa-cubes"></i> @lang("restaurant.manage_products")</button>
+                        <button type="button" data-href="{{action(\'App\Http\Controllers\Restaurant\ProductModifierSetController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-info edit_modifier_button" data-container=".modifier_modal"><i class="fa fa-cubes"></i> @lang("restaurant.manage_products")</button>
                     &nbsp;
                     @endcan
 
                     @can("product.delete")
-                        <button data-href="{{action(\'App\Http\Controllers\Restaurant\ModifierSetsController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_modifier_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\Restaurant\ModifierSetsController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_modifier_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan
                     '
                 )
@@ -145,7 +145,8 @@ class ModifierSetsController extends Controller
                 'name' => 'DUMMY',
                 'variations' => $modifers,
             ];
-            $this->productUtil->createVariableProductVariations($modifer_set->id, $modifiers_data);
+            // with_out_variation is sku type of variation
+            $this->productUtil->createVariableProductVariations($modifer_set->id, $modifiers_data, "with_out_variation",);
 
             DB::commit();
 

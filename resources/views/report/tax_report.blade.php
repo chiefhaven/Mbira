@@ -5,8 +5,8 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang( 'report.tax_report' )
-        <small>@lang( 'report.tax_report_msg' )</small>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang( 'report.tax_report' )
+        <small class="tw-text-sm md:tw-text-base tw-text-gray-700 tw-font-semibold">@lang( 'report.tax_report_msg' )</small>
     </h1>
 </section>
 
@@ -24,7 +24,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('tax_report_contact_id', __( 'report.contact' ) . ':') !!}
-                        {!! Form::select('tax_report_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'id' => 'tax_report_contact_id', 'placeholder' => __('lang_v1.all')]); !!}
+                        {!! Form::select('tax_report_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'tax_report_contact_id', 'placeholder' => __('lang_v1.all')]); !!}
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -88,9 +88,17 @@
     </div>
     <div class="row no-print">
         <div class="col-sm-12">
-            <button type="button" class="btn btn-primary pull-right" 
-            aria-label="Print" onclick="window.print();"
-            ><i class="fa fa-print"></i> @lang( 'messages.print' )</button>
+            <button class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right tw-mb-2" aria-label="Print"
+                onclick="window.print();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                    <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                </svg> @lang('messages.print')
+            </button>
         </div>
     </div>
     <div class="row">
@@ -99,11 +107,11 @@
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
                     <li class="active">
-                        <a href="#input_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-down" aria-hidden="true"></i> @lang('report.input_tax')</a>
+                        <a href="#input_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-down" aria-hidden="true"></i> @lang('report.input_tax') ( @lang('lang_v1.purchase') )</a>
                     </li>
 
                     <li>
-                        <a href="#output_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-up" aria-hidden="true"></i> @lang('report.output_tax')</a>
+                        <a href="#output_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-up" aria-hidden="true"></i> @lang('report.output_tax')  ( @lang('sale.sells') )</a>
                     </li>
 
                     <li>
@@ -258,6 +266,7 @@
         input_tax_table = $('#input_tax_table').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader:false,
             ajax: {
                 url: '/reports/tax-details',
                 data: function(d) {
@@ -308,6 +317,7 @@
                     output_tax_datatable = $('#output_tax_table').DataTable({
                         processing: true,
                         serverSide: true,
+                        fixedHeader:false,
                         aaSorting: [[0, 'desc']],
                         ajax: {
                             url: '/reports/tax-details',
@@ -358,6 +368,7 @@
                     expense_tax_datatable = $('#expense_tax_table').DataTable({
                         processing: true,
                         serverSide: true,
+                        fixedHeader:false,
                         ajax: {
                             url: '/reports/tax-details',
                             data: function(d) {
@@ -401,6 +412,10 @@
                     });
                 }
             }
+
+             // remove class from data table button
+             $('.btn-default').removeClass('btn-default');
+            $('.tw-dw-btn-outline').removeClass('btn');
         });
         
         $('#tax_report_date_range, #tax_report_location_id, #tax_report_contact_id').change( function(){
@@ -413,6 +428,7 @@
             if ($("#expense_tax_tab").hasClass('active')) {
                 expense_tax_datatable.ajax.reload();
             }
+            
         });
     });
 </script>

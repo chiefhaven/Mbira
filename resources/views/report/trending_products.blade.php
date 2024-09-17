@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div class="col-sm-12">
-                  <button type="submit" class="btn btn-primary pull-right">@lang('report.apply_filters')</button>
+                  <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right">@lang('report.apply_filters')</button>
                 </div> 
                 {!! Form::close() !!}
             @endcomponent
@@ -81,7 +81,7 @@
     </div>
     <div class="row no-print">
         <div class="col-sm-12">
-            <button type="button" class="btn btn-primary pull-right" 
+            <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right" 
             aria-label="Print" onclick="window.print();"
             ><i class="fa fa-print"></i> @lang( 'messages.print' )</button>
         </div>

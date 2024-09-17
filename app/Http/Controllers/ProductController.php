@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\ProductsCreatedOrModified;
+use App\TransactionSellLine;
 
 class ProductController extends Controller
 {
@@ -201,7 +202,7 @@ class ProductController extends Controller
                     'action',
                     function ($row) use ($selling_price_group_count) {
                         $html =
-                        '<div class="btn-group"><button type="button" class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">'.__('messages.actions').'<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button><ul class="dropdown-menu dropdown-menu-left" role="menu"><li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'show']).'?product_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fa fa-barcode"></i> '.__('barcode.labels').'</a></li>';
+                        '<div class="btn-group"><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max dropdown-toggle" data-toggle="dropdown" aria-expanded="false">'.__('messages.actions').'<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button><ul class="dropdown-menu dropdown-menu-left" role="menu"><li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'show']).'?product_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fa fa-barcode"></i> '.__('barcode.labels').'</a></li>';
 
                         if (auth()->user()->can('product.view')) {
                             $html .=
@@ -514,7 +515,8 @@ class ProductController extends Controller
             } elseif ($product->type == 'variable') {
                 if (! empty($request->input('product_variation'))) {
                     $input_variations = $request->input('product_variation');
-                    $this->productUtil->createVariableProductVariations($product->id, $input_variations);
+                    
+                    $this->productUtil->createVariableProductVariations($product->id, $input_variations, $request->input('sku_type'));
                 }
             } elseif ($product->type == 'combo') {
 
@@ -816,13 +818,13 @@ class ProductController extends Controller
                 //Update existing variations
                 $input_variations_edit = $request->get('product_variation_edit');
                 if (! empty($input_variations_edit)) {
-                    $this->productUtil->updateVariableProductVariations($product->id, $input_variations_edit);
+                    $this->productUtil->updateVariableProductVariations($product->id, $input_variations_edit,$request->input('sku_type'));
                 }
 
                 //Add new variations created.
                 $input_variations = $request->input('product_variation');
                 if (! empty($input_variations)) {
-                    $this->productUtil->createVariableProductVariations($product->id, $input_variations);
+                    $this->productUtil->createVariableProductVariations($product->id, $input_variations, $request->input('sku_type'));
                 }
             } elseif ($product->type == 'combo') {
 
@@ -973,6 +975,24 @@ class ProductController extends Controller
                                 ->with('variations')
                                 ->first();
 
+                // check for enable stock = 0 product
+                if($product->enable_stock == 0){
+                    $t_count = TransactionSellLine::join(
+                        'transactions as T',
+                        'transaction_sell_lines.transaction_id',
+                        '=',
+                        'T.id'
+                    )
+                        ->where('T.business_id', $business_id)
+                        ->where('transaction_sell_lines.product_id', $id)
+                        ->count();
+
+                    if ($t_count > 0) {
+                        $can_be_deleted = false;
+                        $error_msg = "can't delete product exit in sell";
+                    }
+                }
+
                 //Check if product is added as an ingredient of any recipe
                 if ($this->moduleUtil->isModuleInstalled('Manufacturing')) {
                     $variation_ids = $product->variations->pluck('id');
@@ -984,7 +1004,7 @@ class ProductController extends Controller
                         $error_msg = __('manufacturing::lang.added_as_ingredient');
                     }
                 }
-
+            
                 if ($can_be_deleted) {
                     if (! empty($product)) {
                         DB::beginTransaction();
@@ -2178,6 +2198,7 @@ class ProductController extends Controller
         $tax_attributes = $tax_dropdown['attributes'];
 
         $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->pluck('name', 'id');
+        $business_locations = BusinessLocation::forDropdown($business_id);
 
         return view('product.partials.bulk_edit_product_row')->with(compact(
             'product',
@@ -2186,7 +2207,8 @@ class ProductController extends Controller
             'taxes',
             'tax_attributes',
             'sub_categories',
-            'price_groups'
+            'price_groups',
+            'business_locations'
         ));
     }
 

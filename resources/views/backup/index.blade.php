@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.backup')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.backup')
     </h1>
 </section>
 
@@ -32,10 +32,16 @@
       @component('components.widget', ['class' => 'box-primary'])
         @slot('tool')
           <div class="box-tools">
-            <a id="create-new-backup-button" href="{{ url('backup/create') }}" class="btn btn-primary pull-right"
-                     style="margin-bottom:2em;"><i
-                          class="fa fa-plus"></i> @lang('lang_v1.create_new_backup')
-            </a>
+            <a class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right btn-modal-coupon"
+                    href="{{ url('backup/create') }}" id="create-new-backup-button" style="margin-bottom:2em;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 5l0 14" />
+                        <path d="M5 12l14 0" />
+                    </svg> @lang('messages.add')
+              </a>
           </div>
         @endslot
         @if (count($backups))
@@ -61,10 +67,10 @@
                                 {{ Carbon::createFromTimestamp($backup['last_modified'])->diffForHumans(Carbon::now()) }}
                             </td>
                             <td>
-                              <a class="btn btn-xs btn-success"
+                              <a class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-accent"
                                    href="{{action([\App\Http\Controllers\BackUpController::class, 'download'], [$backup['file_name']])}}"><i
                                         class="fa fa-cloud-download"></i> @lang('lang_v1.download')</a>
-                                <a class="btn btn-xs btn-danger link_confirmation" data-button-type="delete"
+                                <a class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error link_confirmation" data-button-type="delete"
                                    href="{{ route('delete_backup', $backup['file_name']) }}"><i class="fa fa-trash-o"></i>
                                     @lang('messages.delete') </a>
                             </td>
@@ -80,8 +86,6 @@
             <br>
             <strong>@lang('lang_v1.auto_backup_instruction'):</strong><br>
             <code>{{$cron_job_command}}</code> <br>
-            <strong>@lang('lang_v1.backup_clean_command_instruction'):</strong><br>
-            <code>{{$backup_clean_cron_job_command}}</code>
       @endcomponent
     </div>
   </div>

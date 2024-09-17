@@ -12,6 +12,10 @@ $(document).ready(function() {
             '</button></div></div>',
         orphan: true,
         backdrop: true,
+        onEnd: function(tour) {
+            $("#side-bar").addClass("tw-overflow-y-auto");
+            window.location.href = window.location.href;
+        }
     });
     tour.addSteps([
         {
@@ -113,6 +117,7 @@ $(document).ready(function() {
         },
     ]);
     $('#start_tour').click(function() {
+        $("#side-bar").removeClass("tw-overflow-y-auto");
         tour.init();
         tour.restart();
     });

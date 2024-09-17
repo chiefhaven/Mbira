@@ -6,7 +6,7 @@
 <!-- Content Header (Page header) -->
 <section class="content-header">
 <br>
-    <h1>@lang('lang_v1.add_purchase_return')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.add_purchase_return')</h1>
 </section>
 
 <!-- Main content -->
@@ -138,7 +138,7 @@
 	</div> <!--box end-->
 	<div class="row">
 		<div class="col-md-12 text-center">
-			<button type="button" id="submit_purchase_return_form" class="btn btn-primary btn-big btn-flat">@lang('messages.submit')</button>
+			<button type="button" id="submit_purchase_return_form" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white">@lang('messages.submit')</button>
 		</div>
 	</div>
 	{!! Form::close() !!}

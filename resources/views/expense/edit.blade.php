@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('expense.edit_expense')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('expense.edit_expense')</h1>
 </section>
 
 <!-- Main content -->
@@ -106,7 +106,7 @@
   </div> <!--box end-->
   @include('expense.recur_expense_form_part')
   <div class="col-sm-12 text-center">
-    <button type="submit" class="btn btn-primary btn-big">@lang('messages.update')</button>
+    <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-lg">@lang('messages.update')</button>
   </div>
 
 {!! Form::close() !!}

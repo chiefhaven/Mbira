@@ -35,7 +35,7 @@
                 <i class="fa fa-calendar-check-o"></i>
                 {{@format_date($document_note->created_at)}}
             </span>
-            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
+            <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white tw-dw-btn-sm" data-dismiss="modal">
                 @lang('messages.close')
             </button>
         </div>

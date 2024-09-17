@@ -5,8 +5,8 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang( 'invoice.invoice_settings' )
-        <small>@lang( 'invoice.manage_your_invoices' )</small>
+    <h1  class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang( 'invoice.invoice_settings' )
+        <small class="tw-text-sm md:tw-text-base tw-text-gray-700 tw-font-semibold">@lang( 'invoice.manage_your_invoices' )</small>
     </h1>
     <!-- <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
@@ -19,7 +19,8 @@
     <div class="row">
         <div class="col-md-12">
             <!-- Custom Tabs -->
-            <div class="nav-tabs-custom">
+            @component('components.widget')
+            <div class="">
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#tab_1" data-toggle="tab" aria-expanded="true">@lang('invoice.invoice_schemes')</a></li>
                     <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false">@lang('invoice.invoice_layouts')</a></li>
@@ -28,8 +29,19 @@
                     <div class="tab-pane active" id="tab_1">
                         <div class="row">
                             <div class="col-md-12">
-                                <h4>@lang( 'invoice.all_your_invoice_schemes' ) <button type="button" class="btn btn-primary btn-modal pull-right" data-href="{{action([\App\Http\Controllers\InvoiceSchemeController::class, 'create'])}}" data-container=".invoice_modal">
-                                        <i class="fa fa-plus"></i> @lang( 'messages.add' )</button></h4>
+                                <h4>@lang( 'invoice.all_your_invoice_schemes' )
+                                        <button class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right tw-mb-2 btn-modal"
+                                            data-href="{{action([\App\Http\Controllers\InvoiceSchemeController::class, 'create'])}}" 
+                                            data-container=".invoice_modal">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M12 5l0 14" />
+                                                <path d="M5 12l14 0" />
+                                            </svg> @lang('messages.add')
+                                        </button>
+                                </h4>
                             </div>
                         </div>
                         <br>
@@ -57,7 +69,7 @@
                     <div class="tab-pane" id="tab_2">
                         <div class="row">
                             <div class="col-md-12">
-                                <h4>@lang( 'invoice.all_your_invoice_layouts' ) <a class="btn btn-primary pull-right" href="{{action([\App\Http\Controllers\InvoiceLayoutController::class, 'create'])}}">
+                                <h4>@lang( 'invoice.all_your_invoice_layouts' ) <a class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm pull-right" href="{{action([\App\Http\Controllers\InvoiceLayoutController::class, 'create'])}}">
                                         <i class="fa fa-plus"></i> @lang( 'messages.add' )</a></h4>
                             </div>
                             <div class="col-md-12">
@@ -97,6 +109,7 @@
                 </div>
                 <!-- /.tab-content -->
             </div>
+            @endcomponent
             <!-- nav-tabs-custom -->
         </div>
     </div>

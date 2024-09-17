@@ -186,18 +186,18 @@
             <b>@lang('lang_v1.paid_on'):</b> {{ @format_datetime($single_payment_line->paid_on) }}<br/>
             <br>
             @if(!empty($single_payment_line->document_path))
-              <a href="{{$single_payment_line->document_path}}" class="btn btn-success btn-xs no-print" download="{{$single_payment_line->document_name}}"><i class="fa fa-download" data-toggle="tooltip" title="{{__('purchase.download_document')}}"></i> {{__('purchase.download_document')}}</a>
+              <a href="{{$single_payment_line->document_path}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-accent no-print" download="{{$single_payment_line->document_name}}"><i class="fa fa-download" data-toggle="tooltip" title="{{__('purchase.download_document')}}"></i> {{__('purchase.download_document')}}</a>
             @endif
           </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary no-print" 
+      <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white no-print" 
         aria-label="Print" 
           onclick="$(this).closest('div.modal').printThis();">
         <i class="fa fa-print"></i> @lang( 'messages.print' )
       </button>
-      <button type="button" class="btn btn-default no-print" data-dismiss="modal">@lang( 'messages.close' )
+      <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )
       </button>
     </div>
   </div>

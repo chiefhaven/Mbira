@@ -47,4 +47,8 @@
      'import_products' => 'Produktet e importit',
      'file_to_import' => 'File To Import',
      'file_imported_successfully' => 'Skedari i importuar me sukses',
+     'variation_sku_format' => 'Formati i SKU-së së Variantit',
+     'variation_sku_format_help_text' => 'Formati i SKU-së së Variantit - Kur SKU-ja e variantit është e zbrazët, ky format do të përdoret për të gjeneruar SKU për variantet.',
+     'sku_number' => 'SKU-Numri (Shembull -> ABC-1, ABC-2)',
+     'sku_variation_number' => 'SKUVariant (Shembull -> ABCS, ABCM)'
  ];

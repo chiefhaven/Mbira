@@ -56,9 +56,9 @@
 		</div>
 
 		<div class="modal-footer">
-			<button type="button" id="refresh_service_staff_availability_status" title="@lang('lang_v1.refresh')" class="btn btn-success"><i class="fas fa-redo"></i> @lang('lang_v1.refresh')</button>
+			<button type="button" id="refresh_service_staff_availability_status" title="@lang('lang_v1.refresh')" class="tw-dw-btn tw-dw-btn-success tw-text-white"><i class="fas fa-redo"></i> @lang('lang_v1.refresh')</button>
 
-		    <button type="button" class="btn btn-default" data-dismiss="modal">@lang('messages.close')</button>
+		    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
 		</div>
 	</div>
 </div>

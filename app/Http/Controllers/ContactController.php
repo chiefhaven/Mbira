@@ -149,7 +149,7 @@ class ContactController extends Controller
                 'action',
                 function ($row) {
                     $html = '<div class="btn-group">
-                    <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                    <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max  dropdown-toggle" 
                         data-toggle="dropdown" aria-expanded="false">'.
                         __('messages.actions').
                         '<span class="caret"></span><span class="sr-only">Toggle Dropdown
@@ -375,7 +375,7 @@ class ContactController extends Controller
                 'action',
                 function ($row) {
                     $html = '<div class="btn-group">
-                    <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                    <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max dropdown-toggle" 
                         data-toggle="dropdown" aria-expanded="false">'.
                         __('messages.actions').
                         '<span class="caret"></span><span class="sr-only">Toggle Dropdown
@@ -400,6 +400,7 @@ class ContactController extends Controller
                     }
 
                     if (auth()->user()->can('customer.update')) {
+                    if(!$row->is_default){
                         $html .= '<li><a href="'.action([\App\Http\Controllers\ContactController::class, 'updateStatus'], [$row->id]).'"class="update_contact_status"><i class="fas fa-power-off"></i>';
 
                         if ($row->contact_status == 'active') {
@@ -407,8 +408,9 @@ class ContactController extends Controller
                         } else {
                             $html .= __('messages.activate');
                         }
-
                         $html .= '</a></li>';
+                    }
+                       
                     }
 
                     $html .= '<li class="divider"></li>';

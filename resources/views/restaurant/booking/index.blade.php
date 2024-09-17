@@ -239,6 +239,7 @@
             todays_bookings_table = $('#todays_bookings_table').DataTable({
                             processing: true,
                             serverSide: true,
+                            fixedHeader:false,
                             "ordering": false,
                             'searching': false,
                             "pageLength": 10,

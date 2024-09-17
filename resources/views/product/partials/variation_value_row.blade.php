@@ -71,7 +71,7 @@
     <td>{!! Form::file('variation_images_' . $variation_index . '_' . $value_index . '[]', ['class' => 
         'variation_images', 'accept' => 'image/*', 'multiple']); !!}</td>
     <td>
-        <button type="button" class="btn btn-danger btn-xs remove_variation_value_row">-</button>
+        <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error remove_variation_value_row"><i class="fa fa-trash"></i></button>
         <input type="hidden" class="variation_row_index" value="{{$value_index}}">
     </td>
 </tr>

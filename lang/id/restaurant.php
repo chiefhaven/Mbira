@@ -95,5 +95,6 @@ return [
     'customer_note' => 'Catatan Pelanggan',
     'table_report' => 'Laporan Meja',
     'service_staff_report' => 'Laporan Staf Layanan',
+    'service_staff_replacement' => 'Penggantian staf layanan',
 
 ];

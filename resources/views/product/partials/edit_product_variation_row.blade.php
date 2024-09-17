@@ -23,6 +23,9 @@
 
 <tr class="variation_row">
     <td>
+        <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error delete_complete_row"><i class="fa fa-trash"></i></button>
+    </td>
+    <td>
         {!! Form::text($array_name . '[' . $row_index .'][name]', $product_variation->name, ['class' => 'form-control input-sm variation_name', 'required', 'readonly']); !!}
 
         {!! Form::hidden($array_name . '[' . $row_index .'][variation_template_id]', $product_variation->variation_template_id); !!}
@@ -49,7 +52,7 @@
                 <small><i><span class="dsp_label"></span></i></small>
                 </th>
                 <th>@lang('lang_v1.variation_images')</th>
-                <th><button type="button" class="btn btn-success btn-xs add_variation_value_row">+</button></th>
+                <th><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-accent add_variation_value_row">+</button></th>
             </tr>
             </thead>
 
@@ -112,7 +115,7 @@
                         @endif
                     </td>
                     <td>
-                        <button type="button" class="btn btn-danger btn-xs remove_variation_value_row">-</button>
+                        <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error remove_variation_value_row"><i class="fa fa-trash"></i></button>
                         <input type="hidden" class="variation_row_index" value="@if($action == 'duplicate'){{$loop->index}}@else{{0}}@endif">
                     </td>
                 </tr>

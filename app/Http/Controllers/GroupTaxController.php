@@ -25,9 +25,9 @@ class GroupTaxController extends Controller
             return Datatables::of($tax_rates)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'App\Http\Controllers\GroupTaxController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".tax_group_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    '<button data-href="{{action(\'App\Http\Controllers\GroupTaxController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal" data-container=".tax_group_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
-                        <button data-href="{{action(\'App\Http\Controllers\GroupTaxController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_tax_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
+                        <button data-href="{{action(\'App\Http\Controllers\GroupTaxController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_tax_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
                 )
                 ->editColumn('amount', '{{@num_format($amount)}}')
                 ->editColumn('sub_taxes', function ($row) {

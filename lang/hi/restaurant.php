@@ -88,4 +88,5 @@ return [
     'customer_note' => 'ग्राहक नोट',
     'table_report' => 'टेबल रिपोर्ट',
     'service_staff_report' => 'सेवा कर्मचारी रिपोर्ट',
+    'service_staff_replacement' => 'सेवा कर्मचारी का प्रतिस्थापन',
 ];

@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>{{ __('restaurant.service_staff_report')}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('restaurant.service_staff_report')}}</h1>
 </section>
 
 <!-- Main content -->
@@ -96,6 +96,7 @@
         service_staff_report = $('table#service_staff_report').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader:false,
             aaSorting: [[0, 'desc']],
             "ajax": {
                 "url": "/sells",
@@ -140,6 +141,7 @@
         service_staff_line_orders = $('table#service_staff_line_orders').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader:false,
             aaSorting: [[0, 'desc']],
             "ajax": {
                 "url": "/reports/service-staff-line-orders",

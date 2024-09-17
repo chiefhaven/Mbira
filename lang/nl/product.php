@@ -47,4 +47,8 @@
      'import_products' => 'Producten importeren',
      'file_to_import' => 'Bestand om te importeren',
      'file_imported_successfully' => 'Bestand met succes geïmporteerd',
+     'variation_sku_format' => 'Variant SKU-indeling',
+     'variation_sku_format_help_text' => 'Variant SKU-indeling - Wanneer de variant SKU leeg is, wordt dit formaat gebruikt om SKU"s voor varianten te genereren.',
+     'sku_number' => 'SKU-Nummer (Voorbeeld -> ABC-1, ABC-2)',
+     'sku_variation_number' => 'SKUVariant (Voorbeeld -> ABCS, ABCM)'
  ];

@@ -58,4 +58,7 @@ return [
     'import_products' => 'Impor Produk',
     'file_to_import' => 'File Untuk Diimpor',
     'file_imported_successfully' => 'File berhasil diimpor',
+    'variation_sku_format_help_text' => 'Format SKU Variasi - Ketika SKU variasi kosong, format ini akan digunakan untuk menghasilkan SKU untuk variasi.',
+    'sku_number' => 'Nomor SKU (Contoh -> ABC-1, ABC-2)',
+    'sku_variation_number' => 'Variasi SKU (Contoh -> ABCS, ABCM)'
 ];

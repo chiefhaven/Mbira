@@ -21,15 +21,15 @@
            {!! Form::text('variation_values[]', null, ['class' => 'form-control', 'required']); !!}
         </div>
         <div class="col-sm-2">
-          <button type="button" class="btn btn-primary" id="add_variation_values">+</button>
+          <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" id="add_variation_values">+</button>
         </div>
       </div>
       <div id="variation_values"></div>
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="btn btn-primary">@lang('messages.save')</button>
-      <button type="button" class="btn btn-default" data-dismiss="modal">@lang('messages.close')</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang('messages.save')</button>
+      <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
     </div>
 
     {!! Form::close() !!}

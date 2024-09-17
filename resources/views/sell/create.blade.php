@@ -19,7 +19,7 @@
 @section('content')
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>{{$title}}</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{$title}}</h1>
 </section>
 <!-- Main content -->
 <section class="content no-print">
@@ -113,7 +113,6 @@
 							<small><p class="help-block hide" id="price_group_text">@lang('lang_v1.price_group'): <span></span></p></small>
 						</div>
 					</div>
-					<div class="modal fade types_of_service_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel"></div>
 				@endif
 				
 				@if(in_array('subscription', $enabled_modules))
@@ -681,7 +680,7 @@
             </div>
 	        <div class="clearfix"></div>
 	        <div class="col-md-12 text-center">
-				<button type="button" class="btn btn-primary btn-sm" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-sm tw-text-white" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
 			</div>
 			<div class="col-md-8 col-md-offset-4" id="additional_expenses_div" style="display: none;">
 				<table class="table table-condensed">
@@ -877,9 +876,9 @@
 	
 	<div class="row">
 		{!! Form::hidden('is_save_and_print', 0, ['id' => 'is_save_and_print']); !!}
-		<div class="col-sm-12 text-center">
-			<button type="button" id="submit-sell" class="btn btn-primary btn-big">@lang('messages.save')</button>
-			<button type="button" id="save-and-print" class="btn btn-success btn-big">@lang('lang_v1.save_and_print')</button>
+		<div class="col-sm-12 text-center tw-mt-4">
+			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white">@lang('messages.save')</button>
+			<button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>
 		</div>
 	</div>
 	
@@ -903,6 +902,9 @@
 
 <!-- quick product modal -->
 <div class="modal fade quick_add_product_modal" tabindex="-1" role="dialog" aria-labelledby="modalTitle"></div>
+
+<div class="modal fade types_of_service_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel"></div>
+
 
 @include('sale_pos.partials.configure_search_modal')
 

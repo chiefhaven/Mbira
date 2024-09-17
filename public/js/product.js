@@ -210,6 +210,8 @@ $(document).ready(function() {
 
         var variation_skus = [];
 
+        var submit_type  = $(this).attr('value');
+
         $('#product_form_part').find('.input_sub_sku').each( function(){
             var element = $(this);
             var row_variation_id = '';
@@ -228,7 +230,6 @@ $(document).ready(function() {
                 data: { skus: variation_skus},
                 success: function(result) {
                     if (result.success == true) {
-                        var submit_type = $(this).attr('value');
                         $('#submit_type').val(submit_type);
                         if ($('form#product_add_form').valid()) {
                             $('form#product_add_form').submit();
@@ -240,7 +241,6 @@ $(document).ready(function() {
                 },
             });
         } else {
-            var submit_type = $(this).attr('value');
             $('#submit_type').val(submit_type);
             if ($('form#product_add_form').valid()) {
                 $('form#product_add_form').submit();
@@ -457,6 +457,21 @@ $(document).ready(function() {
                 },
             });
         }
+    });
+
+    $(document).on('click','.delete_complete_row', function(){
+        swal({
+            title: LANG.sure,
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then(willDelete => {
+            if (willDelete) {
+                $(this)
+                .closest('.variation_row')
+                .remove();
+            }
+        });
     });
 
     $(document).on('click', '.remove_variation_value_row', function() {

@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang('lang_v1.sell_return')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.sell_return')
     </h1>
 </section>
 
@@ -74,6 +74,7 @@
         sell_return_table = $('#sell_return_table').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader:false,
             aaSorting: [[0, 'desc']],
             "ajax": {
                 "url": "/sell-return",

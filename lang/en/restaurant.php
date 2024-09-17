@@ -23,6 +23,7 @@ return [
     'table_label' => 'Table label',
     'show_service_staff' => 'Show service staff',
     'service_staff_label' => 'Service staff label',
+    'service_staff_replacement' => 'Service staff replacement',
     'select_waiter' => 'Select Waiter',
     'modifiers' => 'Modifiers',
     'modifier_sets' => 'Modifier Sets',

@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('account.account_book')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('account.account_book')
     </h1>
 </section>
 
@@ -135,6 +135,7 @@
         account_book = $('#account_book').DataTable({
                             processing: true,
                             serverSide: true,
+                            fixedHeader:false,
                             ajax: {
                                 url: '{{action([\App\Http\Controllers\AccountController::class, 'show'],[$account->id])}}',
                                 data: function(d) {

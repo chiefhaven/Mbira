@@ -518,6 +518,7 @@ $(document).ready(function() {
     purchase_table = $('#purchase_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         scrollY: "75vh",
         scrollX:        true,
         scrollCollapse: true,

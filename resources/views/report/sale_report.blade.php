@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>Report 607 (@lang('business.sale'))
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">Report 607 (@lang('business.sale'))
     </h1>
 </section>
 
@@ -60,6 +60,7 @@
         sale_report_table = $('#sale_report_table').DataTable({
             processing: true,
             serverSide: true,
+            fixedHeader:false,
             aaSorting: [[1, 'desc']],
             "ajax": {
                 "url": "/sells",

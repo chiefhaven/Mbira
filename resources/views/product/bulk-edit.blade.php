@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.bulk_edit_products')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.bulk_edit_products')</h1>
 </section>
 
 <!-- Main content -->
@@ -42,7 +42,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-12">
-			<button type="submit" class="btn btn-primary pull-right">@lang('messages.update')</button>
+			<button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right">@lang('messages.update')</button>
 		</div>
 	</div>
 	{!! Form::close() !!}

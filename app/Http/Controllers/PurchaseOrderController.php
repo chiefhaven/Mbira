@@ -151,7 +151,7 @@ class PurchaseOrderController extends Controller
             return Datatables::of($purchase_orders)
                 ->addColumn('action', function ($row) use ($is_admin) {
                     $html = '<div class="btn-group">
-                            <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                            <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-info tw-w-max dropdown-toggle" 
                                 data-toggle="dropdown" aria-expanded="false">'.
                                 __('messages.actions').
                                 '<span class="caret"></span><span class="sr-only">Toggle Dropdown
@@ -819,6 +819,15 @@ class PurchaseOrderController extends Controller
                         'payment_lines'
                     )
                     ->first();
+
+
+        
+        foreach ($purchase->purchase_lines as $key => $value) {
+            if (! empty($value->sub_unit_id)) {
+                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                $purchase->purchase_lines[$key] = $formated_purchase_line;
+            }
+        }
 
         $location_details = BusinessLocation::find($purchase->location_id);
         $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_details->invoice_layout_id);

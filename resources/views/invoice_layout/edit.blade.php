@@ -9,7 +9,7 @@
 </style>
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('invoice.edit_invoice_layout')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('invoice.edit_invoice_layout')</h1>
 </section>
 
 <!-- Main content -->
@@ -1125,7 +1125,7 @@
 
 <div class="row">
   <div class="col-sm-12 text-center">
-    <button type="submit" class="btn btn-primary btn-big">@lang('messages.update')</button>
+    <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-lg">@lang('messages.update')</button>
   </div>
 </div>
 

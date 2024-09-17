@@ -8,6 +8,8 @@ use App\Utils\BusinessUtil;
 use App\Utils\ModuleUtil;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use App\Rules\ReCaptcha;
+
 
 class LoginController extends Controller
 {
@@ -135,4 +137,22 @@ class LoginController extends Controller
 
         return '/home';
     }
+
+    public function validateLogin(Request $request)
+    {
+        if(config('constants.enable_recaptcha')){
+            $this->validate($request, [
+                $this->username() => 'required|string',
+                'password' => 'required|string',
+                'g-recaptcha-response' => ['required', new ReCaptcha]
+            ]);
+        }else{
+            $this->validate($request, [
+                $this->username() => 'required|string',
+                'password' => 'required|string',
+            ]);
+        }
+       
+    }
+
 }

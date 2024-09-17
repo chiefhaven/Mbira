@@ -47,4 +47,9 @@
      'import_products' => 'Produkte importieren',
      'file_to_import' => 'Zu importierende Datei',
      'file_imported_successfully' => 'Datei erfolgreich importiert',
+     'variation_sku_format' => '变体SKU格式',
+     'variation_sku_format_help_text' => '变体SKU格式 - 当变体SKU为空时，将使用此格式生成变体的SKU。',
+     'sku_number' => 'SKU编号（示例-> ABC-1，ABC-2）',
+     'sku_variation_number' => 'SKU变体（示例-> ABCS，ABCM）'
+     
  ];

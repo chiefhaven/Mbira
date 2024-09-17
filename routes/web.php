@@ -363,6 +363,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
     //Sell return
     Route::get('validate-invoice-to-return/{invoice_no}', [SellReturnController::class, 'validateInvoiceToReturn']);
+    // service staff replacement
+    Route::get('validate-invoice-to-service-staff-replacement/{invoice_no}', [SellPosController::class, 'validateInvoiceToServiceStaffReplacement']);
+    Route::put('change-service-staff/{id}', [SellPosController::class, 'change_service_staff'])->name('change_service_staff');
+
     Route::resource('sell-return', SellReturnController::class);
     Route::get('sell-return/get-product-row', [SellReturnController::class, 'getProductRow']);
     Route::get('/sell-return/print/{id}', [SellReturnController::class, 'printInvoice']);

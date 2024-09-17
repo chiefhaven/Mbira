@@ -47,4 +47,8 @@
      'import_products' => 'आयात उत्पाद',
      'file_to_import' => 'आयात करने के लिए फ़ाइल',
      'file_imported_successfully' => 'फ़ाइल सफलतापूर्वक आयातित हुई',
+     'variation_sku_format' => 'वेरिएशन एसकेयू स्वरूप',
+     'variation_sku_format_help_text' => 'वेरिएशन एसकेयू स्वरूप - जब वेरिएशन एसकेयू खाली होता है तो यह स्वरूप वेरिएशन के लिए एसकेयू उत्पन्न करने के लिए प्रयोग किया जाएगा।',
+     'sku_number' => 'एसकेयू-संख्या (उदाहरण -> ABC-1, ABC-2)',
+     'sku_variation_number' => 'एसकेयूवेरिएशन (उदाहरण -> ABCS, ABCM)'
  ];

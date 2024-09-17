@@ -343,7 +343,7 @@ class InstallController extends Controller
                 abort(404);
             }
 
-            DB::commit();
+            @DB::commit();
 
             $output = ['success' => 1,
                 'msg' => 'Updated Succesfully to version '.$this->appVersion.' !!',

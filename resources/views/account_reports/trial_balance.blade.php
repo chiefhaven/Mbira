@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang( 'account.trial_balance')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang( 'account.trial_balance')
     </h1>
 </section>
 
@@ -103,7 +103,7 @@
             </table>
         </div>
         <div class="box-footer">
-            <button type="button" class="btn btn-primary no-print pull-right"onclick="window.print()">
+            <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white no-print pull-right"onclick="window.print()">
           <i class="fa fa-print"></i> @lang('messages.print')</button>
         </div>
     </div>

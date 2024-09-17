@@ -49,11 +49,11 @@ class UnitController extends Controller
                 ->addColumn(
                     'action',
                     '@can("unit.update")
-                    <button data-href="{{action(\'App\Http\Controllers\UnitController@edit\', [$id])}}" class="btn btn-xs btn-primary edit_unit_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    <button data-href="{{action(\'App\Http\Controllers\UnitController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_unit_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                     @endcan
                     @can("unit.delete")
-                        <button data-href="{{action(\'App\Http\Controllers\UnitController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_unit_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\UnitController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_unit_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                     @endcan'
                 )
                 ->editColumn('allow_decimal', function ($row) {

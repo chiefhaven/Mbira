@@ -104,7 +104,7 @@ class PurchaseController extends Controller
             return Datatables::of($purchases)
                 ->addColumn('action', function ($row) {
                     $html = '<div class="btn-group">
-                            <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                            <button type="button" class="btn-modal tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max dropdown-toggle" 
                                 data-toggle="dropdown" aria-expanded="false">'.
                                 __('messages.actions').
                                 '<span class="caret"></span><span class="sr-only">Toggle Dropdown
@@ -1323,6 +1323,14 @@ class PurchaseController extends Controller
                                     )
                                     ->first();
             $payment_methods = $this->productUtil->payment_types(null, false, $business_id);
+
+
+            foreach ($purchase->purchase_lines as $key => $value) {
+                if (! empty($value->sub_unit_id)) {
+                    $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                    $purchase->purchase_lines[$key] = $formated_purchase_line;
+                }
+            }
 
             //Purchase orders
             $purchase_order_nos = '';

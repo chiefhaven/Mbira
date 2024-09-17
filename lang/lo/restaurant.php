@@ -95,5 +95,6 @@ return [
     'customer_note' => 'ໝາຍເດ ຂອງລູກຄ້າ',
     'table_report' => 'ລາຍງານໂຕະ ',
     'service_staff_report' => ' ລາຍງານ ພະນັກງານບໍລິການ ',
+    'service_staff_replacement' => 'ການປ່ຽນພະນັກງານບໍລິການບໍ່ດີເຕັມ',
 
 ];

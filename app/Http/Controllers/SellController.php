@@ -323,8 +323,17 @@ class SellController extends Controller
             }
 
             $with[] = 'payment_lines';
-            if (! empty($with)) {
-                $sells->with($with);
+            
+            if (!empty($with)) {
+                foreach ($with as $relation) {
+                    if ($relation == 'payment_lines' && !empty(request()->input('payment_method'))) {
+                        $sells->whereHas($relation, function ($query) {
+                            $query->where('method', request()->input('payment_method'));
+                        });
+                    } else {
+                        $sells->with($relation);
+                    }
+                }
             }
 
             //$business_details = $this->businessUtil->getDetails($business_id);
@@ -337,7 +346,7 @@ class SellController extends Controller
                     'action',
                     function ($row) use ($only_shipments, $is_admin, $sale_type) {
                         $html = '<div class="btn-group">
-                                    <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                                    <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max dropdown-toggle" 
                                         data-toggle="dropdown" aria-expanded="false">'.
                                         __('messages.actions').
                                         '<span class="caret"></span><span class="sr-only">Toggle Dropdown
@@ -610,8 +619,11 @@ class SellController extends Controller
             $sources['woocommerce'] = 'Woocommerce';
         }
 
+        $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+
+
         return view('sell.index')
-        ->with(compact('business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'service_staffs', 'is_tables_enabled', 'is_service_staff_enabled', 'is_types_service_enabled', 'shipping_statuses', 'sources'));
+        ->with(compact('business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'service_staffs', 'is_tables_enabled', 'is_service_staff_enabled', 'is_types_service_enabled', 'shipping_statuses', 'sources', 'payment_types'));
     }
 
     /**
@@ -1312,7 +1324,7 @@ class SellController extends Controller
                  ->addColumn(
                     'action', function ($row) {
                         $html = '<div class="btn-group">
-                                <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                                <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max dropdown-toggle" 
                                     data-toggle="dropdown" aria-expanded="false">'.
                                     __('messages.actions').
                                     '<span class="caret"></span><span class="sr-only">Toggle Dropdown

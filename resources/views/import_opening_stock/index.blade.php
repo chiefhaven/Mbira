@@ -5,7 +5,7 @@
 <br/>
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.import_opening_stock')</h1>
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.import_opening_stock')</h1>
 </section>
 
 <!-- Main content -->
@@ -40,7 +40,7 @@
                         </div>
                         <div class="col-sm-4">
                         <br>
-                            <button type="submit" class="btn btn-primary">@lang('messages.submit')</button>
+                            <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang('messages.submit')</button>
                         </div>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                 <br><br>
                 <div class="row">
                     <div class="col-sm-4">
-                        <a href="{{ asset('files/import_opening_stock_csv_template.xls') }}" class="btn btn-success" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
+                        <a href="{{ asset('files/import_opening_stock_csv_template.xls') }}" class="tw-dw-btn tw-dw-btn-success tw-text-white" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
                     </div>
                 </div>
             @endcomponent

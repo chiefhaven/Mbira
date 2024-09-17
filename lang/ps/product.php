@@ -58,4 +58,8 @@ return [
     'import_products' => 'محصولات پورته کړئ',
     'file_to_import' => 'دوتنه چې پورته کړئ',
     'file_imported_successfully' => 'دوتنه په بریالیتوب سره پورته شوه',
+    'variation_sku_format' => 'د تغیر SKU قالب',
+    'variation_sku_format_help_text' => 'د تغیر SKU قالب - کله تغیر SKU خالی دی، دا قالب به کارولای شي کولای شي تر SKU د بدلونو لپاره.',
+    'sku_number' => 'SKU-شمیره (مثال -> ABC-1، ABC-2)',
+    'sku_variation_number' => 'SKUشمیره (مثال -> ABCS، ABCM)'
 ];

@@ -209,6 +209,7 @@ class HomeController extends Controller
 
         $common_settings = ! empty(session('business.common_settings')) ? session('business.common_settings') : [];
 
+
         return view('home.index', compact('sells_chart_1', 'sells_chart_2', 'widgets', 'all_locations', 'common_settings', 'is_admin'));
     }
 
@@ -225,9 +226,12 @@ class HomeController extends Controller
             $location_id = request()->location_id;
             $business_id = request()->session()->get('user.business_id');
 
-            $purchase_details = $this->transactionUtil->getPurchaseTotals($business_id, $start, $end, $location_id);
+            // get user id parameter
+            $created_by = request()->user_id;
 
-            $sell_details = $this->transactionUtil->getSellTotals($business_id, $start, $end, $location_id);
+            $purchase_details = $this->transactionUtil->getPurchaseTotals($business_id, $start, $end, $location_id, $created_by);
+
+            $sell_details = $this->transactionUtil->getSellTotals($business_id, $start, $end, $location_id, $created_by);
 
             $total_ledger_discount = $this->transactionUtil->getTotalLedgerDiscount($business_id, $start, $end);
 
@@ -242,7 +246,8 @@ class HomeController extends Controller
                 $transaction_types,
                 $start,
                 $end,
-                $location_id
+                $location_id,
+                $created_by
             );
 
             $total_purchase_inc_tax = ! empty($purchase_details['total_purchase_inc_tax']) ? $purchase_details['total_purchase_inc_tax'] : 0;
@@ -362,7 +367,7 @@ class HomeController extends Controller
                     return '<span class="display_currency" data-currency_symbol="true">'.
                     $due.'</span>';
                 })
-                ->addColumn('action', '@can("purchase.create") <a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="btn btn-xs btn-success add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endcan')
+                ->addColumn('action', '@can("purchase.create") <a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-accent add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endcan')
                 ->removeColumn('supplier_business_name')
                 ->editColumn('supplier', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$supplier}}')
                 ->editColumn('ref_no', function ($row) {
@@ -447,7 +452,7 @@ class HomeController extends Controller
 
                     return $row->invoice_no;
                 })
-                ->addColumn('action', '@if(auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access")) <a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="btn btn-xs btn-success add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endif')
+                ->addColumn('action', '@if(auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access")) <a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-accent add_payment_modal"><i class="fas fa-money-bill-alt"></i> @lang("purchase.add_payment")</a> @endif')
                 ->editColumn('customer', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$customer}}')
                 ->removeColumn('supplier_business_name')
                 ->removeColumn('id')

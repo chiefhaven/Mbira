@@ -29,7 +29,7 @@
 				                <span class="input-group-addon">
 				                    <i class="fa fa-info"></i>
 				                </span>
-				                {!! Form::text('shipping_charges_modal', !empty($transaction->shipping_charges) ? @num_format($transaction->shipping_charges) : 0, ['class' => 'form-control input_number','placeholder' => __('sale.shipping_charges')]); !!}
+				                {!! Form::text('shipping_charges_modal', !empty($transaction->shipping_charges) ? @num_format($transaction->shipping_charges) : 0, ['class' => 'form-control input_number input_number', 'data-decimal' => 'no_neg', 'placeholder' => __('sale.shipping_charges')]); !!}
 				            </div>
 				        </div>
 				    </div>
@@ -50,7 +50,7 @@
 					<div class="col-md-6">
 				        <div class="form-group">
 				            {!! Form::label('delivery_person_modal', __('lang_v1.delivery_person') . ':' ) !!} <br>
-				            {!! Form::select('delivery_person_modal', $users, !empty($transaction->delivery_person) ? $transaction->delivery_person : null, ['class' => 'form-control select2 width-100','placeholder' => __('messages.please_select')]); !!}
+				            {!! Form::select('delivery_person_modal', $users, !empty($transaction->delivery_person) ? $transaction->delivery_person : null, ['style' => 'width:100%' ,'class' => 'form-control select2 width-100','placeholder' => __('messages.please_select')]); !!}
 				        </div>
 				    </div>
 				    @php
@@ -155,8 +155,8 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" id="posShippingModalUpdate">@lang('messages.update')</button>
-			    <button type="button" class="btn btn-default" data-dismiss="modal">@lang('messages.cancel')</button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white" id="posShippingModalUpdate">@lang('messages.update')</button>
+			    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.cancel')</button>
 			</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->

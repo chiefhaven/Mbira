@@ -26,7 +26,7 @@
 		@endphp
 
 		@if( ($edit_price || $edit_discount) && empty($is_direct_sell) )
-		<div title="@lang('lang_v1.pos_edit_product_price_help')">
+		<div title="@lang('lang_v1.pos_edit_product_price_help')" style="display: inline">
 		<span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}">
 			{!! $product_name !!}
 			&nbsp;<i class="fa fa-info-circle"></i>
@@ -35,6 +35,15 @@
 		@else
 			{!! $product_name !!}
 		@endif
+		<img src="@if(count($product->media) > 0)
+						{{$product->media->first()->display_url}}
+					@elseif(!empty($product->product_image))
+						{{asset('/uploads/img/' . rawurlencode($product->product_image))}}
+					@else
+						{{asset('/img/default.png')}}
+					@endif" alt="product-img" loading="lazy"style="height: 100%;display: inline;margin-left: 3px; border: black;border-radius: 5px; margin-top: 5px; width: 50px;object-fit: cover;">
+
+
 		<input type="hidden" class="enable_sr_no" value="{{$product->enable_sr_no}}">
 		<input type="hidden" 
 			class="product_type" 
@@ -99,8 +108,16 @@
 		@if(empty($is_direct_sell))
 		<div class="modal fade row_edit_product_price_model" id="row_edit_product_price_modal_{{$row_count}}" tabindex="-1" role="dialog">
 			@include('sale_pos.partials.row_edit_product_price_modal')
-		</div>
+		</div> 
 		@endif
+<br>
+		<small class="text-muted p-1">
+			@if($product->enable_stock)
+			{{ @num_format($product->qty_available) }} {{$product->unit}} @lang('lang_v1.in_stock')
+			@else
+				--
+			@endif
+		</small>
 
 		<!-- Description modal end -->
 		@if(in_array('modifiers' , $enabled_modules))

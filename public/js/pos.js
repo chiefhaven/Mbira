@@ -1,3 +1,5 @@
+var global_brand_id = null;
+var global_p_category_id = null;
 $(document).ready(function() {
     customer_set = false;
     //Prevent enter key function except texarea
@@ -268,7 +270,7 @@ $(document).ready(function() {
                     item.sub_sku +
                     ')' +
                     '<br> Price: ' +
-                    selling_price +
+                    __currency_trans_from_en(selling_price, false, false, __currency_precision, true) +
                     ' (Out of stock) </li>';
                 return $(string).appendTo(ul);
             } else {
@@ -282,7 +284,7 @@ $(document).ready(function() {
                     selling_price = item.variation_group_price;
                 }
 
-                string += ' (' + item.sub_sku + ')' + '<br> Price: ' + selling_price;
+                string += ' (' + item.sub_sku + ')' + '<br> Price: ' + __currency_trans_from_en(selling_price, false, false, __currency_precision, true);
                 if (item.enable_stock == 1) {
                     var qty_available = __currency_trans_from_en(item.qty_available, false, false, __currency_precision, true);
                     string += ' - ' + qty_available + item.unit;
@@ -312,7 +314,7 @@ $(document).ready(function() {
         var unit_price_inc_tax = __read_number(tr.find('input.pos_unit_price_inc_tax'));
         var line_total = entered_qty * unit_price_inc_tax;
 
-        __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+        __write_number(tr.find('input.pos_line_total'), line_total, false);
         tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
 
         //Change modifier quantity
@@ -391,7 +393,7 @@ $(document).ready(function() {
         var unit_price = get_unit_price_from_discounted_unit_price(tr, discounted_unit_price);
 
         __write_number(tr.find('input.pos_unit_price'), unit_price);
-        __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+        __write_number(tr.find('input.pos_line_total'), line_total, false);
         tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
 
         pos_each_row(tr);
@@ -481,7 +483,7 @@ $(document).ready(function() {
             var line_total = quantity * unit_price_inc_tax;
 
             __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
-            __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+            __write_number(tr.find('input.pos_line_total'), line_total, false);
             tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
             pos_each_row(tr);
             pos_total_row();
@@ -892,6 +894,7 @@ $(document).ready(function() {
         $('input#shipping_address').val($('#shipping_address_modal').val());
         $('input#shipping_status').val($('#shipping_status_modal').val());
         $('input#delivered_to').val($('#delivered_to_modal').val());
+        $('input#delivery_person').val($('#delivery_person_modal').val());
 
         //Update shipping charges
         __write_number(
@@ -1134,27 +1137,110 @@ $(document).ready(function() {
 
     //Show product list.
     get_product_suggestion_list(
-        $('select#product_category').val(),
-        $('select#product_brand').val(),
+        global_p_category_id,
+        global_brand_id,
         $('input#location_id').val(),
         null,
         is_enabled_stock,
         device_model_id
     );
-    $('select#product_category, select#product_brand, select#select_location_id').on('change', function(e) {
+    
+    $('select#select_location_id').on('change', function(e) {
         $('input#suggestion_page').val(1);
         var location_id = $('input#location_id').val();
         if (location_id != '' || location_id != undefined) {
             get_product_suggestion_list(
-                $('select#product_category').val(),
-                $('select#product_brand').val(),
+                global_p_category_id,
+                global_brand_id,
                 $('input#location_id').val(),
                 null
             );
         }
-
         get_featured_products();
     });
+
+// on click sub category in category drawer
+    $('.product_category').on('click', function(e) {
+        global_p_category_id = $(this).data('value');
+        $('input#suggestion_page').val(1);
+        var location_id = $('input#location_id').val();
+        if (location_id != '' || location_id != undefined) {
+            get_product_suggestion_list(
+                global_p_category_id,
+                global_brand_id,
+                $('input#location_id').val(),
+                null
+            );
+        }
+        get_featured_products();
+        $('.overlay-category').trigger('click');
+    });
+
+    //  function for show sub category 
+    $('.main-category').on('click', function(){
+
+        global_p_category_id = $(this).data('value');
+        parent = $(this).data('parent');
+
+        if (parent == 0) {
+            get_product_suggestion_list(
+                global_p_category_id,
+                global_brand_id,
+                $('input#location_id').val(),
+                null
+            );
+            get_featured_products();
+            $('.overlay-category').trigger('click');
+        }
+        else {
+            var main_category = $(this).data('value');
+
+            $('.main-category-div').hide();
+            $('.'+ main_category).fadeIn();
+            $('.category_heading').text('Sub Category ' + $(this).data('name'));
+            $('.category-back').fadeIn();
+        }
+    })
+
+    // function for back button in category 
+    $('.category-back').on('click', function(){
+        $('.main-category-div').fadeIn();
+        $('.main-category-all').fadeIn();
+        $('.all-sub-category').hide();
+        $('.category-back').hide();
+        $('.category_heading').text('Category');
+    });
+
+    // on click brand in brand drawer 
+    $('.product_brand').on('click', function(e) {
+        global_brand_id = $(this).data('value');
+        $('input#suggestion_page').val(1);
+        var location_id = $('input#location_id').val();
+
+        if (location_id != '' || location_id != undefined) {
+            get_product_suggestion_list(
+                global_p_category_id,
+                global_brand_id,
+                $('input#location_id').val(),
+                null
+            );
+        }
+        get_featured_products();
+        $('.overlay-brand').trigger('click');
+    });
+
+    // close side bar 
+
+    $('.close-side-bar-category').on('click', function() {
+        $('.overlay-category').trigger('click');
+    });
+
+    $('.close-side-bar-brand').on('click', function() {
+        $('.overlay-brand').trigger('click');
+    });
+
+
+    
 
     $(document).on('click', 'div.product_box', function() {
         //Check if location is not set then show error message.
@@ -1324,8 +1410,8 @@ $(document).ready(function() {
     $(window).resize(function() {
         var win_height = $(window).height();
         div_height = __calculate_amount('percentage', 63, win_height);
-        $('div.pos_product_div').css('min-height', div_height + 'px');
-        $('div.pos_product_div').css('max-height', div_height + 'px');
+        // $('div.pos_product_div').css('min-height', div_height + 'px');
+        // $('div.pos_product_div').css('max-height', div_height + 'px');
     });
 
     //Used for weighing scale barcode
@@ -2172,12 +2258,16 @@ function get_unit_price_from_discounted_unit_price(row, discounted_unit_price) {
 
 //Update quantity if line subtotal changes
 $('table#pos_table tbody').on('change', 'input.pos_line_total', function() {
+
     var subtotal = __read_number($(this));
     var tr = $(this).parents('tr');
     var quantity_element = tr.find('input.pos_quantity');
     var unit_price_inc_tax = __read_number(tr.find('input.pos_unit_price_inc_tax'));
     var quantity = subtotal / unit_price_inc_tax;
     __write_number(quantity_element, quantity);
+
+    __write_number($(this), subtotal, false);
+
 
     if (sell_form_validator) {
         sell_form_validator.element(quantity_element);
@@ -2191,13 +2281,15 @@ $('table#pos_table tbody').on('change', 'input.pos_line_total', function() {
 });
 
 $('div#product_list_body').on('scroll', function() {
+
+
     if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
         var page = parseInt($('#suggestion_page').val());
         page += 1;
         $('#suggestion_page').val(page);
         var location_id = $('input#location_id').val();
-        var category_id = $('select#product_category').val();
-        var brand_id = $('select#product_brand').val();
+        var category_id = global_p_category_id;
+        var brand_id = global_brand_id;
 
         var is_enabled_stock = null;
         if ($("#is_enabled_stock").length) {
@@ -2901,6 +2993,53 @@ $(document).on('click', '#send_for_sell_return', function(e) {
         });
     }
 })
+
+    $(document).on('click', '#send_for_sercice_staff_replacement', function (e) {
+        var invoice_no = $('#send_for_sell_service_staff_invoice_no').val();
+
+        if (invoice_no) {
+            $.ajax({
+                method: 'get',
+                url: /validate-invoice-to-service-staff-replacement/ + encodeURI(invoice_no),
+                dataType: 'json',
+                success: function (result) {
+                    if (result.success == true) {
+                        $('#service_staff_replacement').popover('hide');
+                        $('#service_staff_modal').html(result.msg);
+                        $('#service_staff_modal').modal('show');
+                       
+                    } else {
+                        toastr.error(result.msg);
+                    }
+                },
+            });
+        }
+    });
+
+    $(document).on('shown.bs.modal', '#service_staff_modal', function () {
+        $('#change_service_staff').validate();
+    });
+
+
+    $(document).on('submit', 'form#change_service_staff', function (e) {
+        e.preventDefault();
+        var data = $(this).serialize();
+
+        $.ajax({
+            method: 'POST',
+            url: $(this).attr('action'),
+            dataType: 'json',
+            data: data,
+            success: function (result) {
+                if (result.success == true) {
+                    $('#service_staff_modal').modal('hide');
+                    toastr.success(result.msg);
+                } else {
+                    toastr.error(result.msg);
+                }
+            },
+        });
+    });
 
 $(document).on('ifChanged', 'input[name="search_fields[]"]', function(event) {
     var search_fields = [];

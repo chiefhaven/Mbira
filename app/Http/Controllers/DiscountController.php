@@ -55,12 +55,12 @@ class DiscountController extends Controller
             return Datatables::of($discounts)
                 ->addColumn(
                     'action',
-                    '<button data-href="{{action(\'App\Http\Controllers\DiscountController@edit\', [$id])}}" class="btn btn-xs btn-primary btn-modal" data-container=".discount_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
+                    '<button data-href="{{action(\'App\Http\Controllers\DiscountController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal" data-container=".discount_modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
-                        <button data-href="{{action(\'App\Http\Controllers\DiscountController@destroy\', [$id])}}" class="btn btn-xs btn-danger delete_discount_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
+                        <button data-href="{{action(\'App\Http\Controllers\DiscountController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_discount_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>
                         @if($is_active != 1)
                             &nbsp;
-                            <button data-href="{{action(\'App\Http\Controllers\DiscountController@activate\', [$id])}}" class="btn btn-xs btn-success activate-discount"><i class="fa fa-circle-o"></i> @lang("lang_v1.reactivate")</button>
+                            <button data-href="{{action(\'App\Http\Controllers\DiscountController@activate\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-accent activate-discount"><i class="fa fa-circle-o"></i> @lang("lang_v1.reactivate")</button>
                         @endif
                         '
                 )

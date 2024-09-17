@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang( 'lang_v1.shipments')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang( 'lang_v1.shipments')
     </h1>
 </section>
 
@@ -130,8 +130,8 @@
 </div>
 
 <!-- This will be printed -->
-<!-- <section class="invoice print_section" id="receipt_section">
-</section> -->
+<section class="invoice print_section" id="receipt_section">
+</section>
 
 @stop
 
@@ -154,6 +154,7 @@ $(document).ready( function(){
     sell_table = $('#sell_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
         aaSorting: [[1, 'desc']],
         scrollY:        "75vh",
         scrollX:        true,

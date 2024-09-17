@@ -51,10 +51,11 @@ class BackUpController extends Controller
         $backups = array_reverse($backups);
 
         $cron_job_command = $this->commonUtil->getCronJobCommand();
-        $backup_clean_cron_job_command = $this->commonUtil->getBackupCleanCronJobCommand();
+        
+        // $backup_clean_cron_job_command = $this->commonUtil->getBackupCleanCronJobCommand();
 
         return view('backup.index')
-            ->with(compact('backups', 'cron_job_command', 'backup_clean_cron_job_command'));
+            ->with(compact('backups', 'cron_job_command'));
     }
 
     /**

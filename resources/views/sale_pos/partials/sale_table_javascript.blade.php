@@ -21,6 +21,8 @@ $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_custo
 sell_table = $('#sell_table').DataTable({
         processing: true,
         serverSide: true,
+        fixedHeader:false,
+        fixedHeader:false,
         aaSorting: [[1, 'desc']],
         scrollY: "75vh",
         scrollX:        true,

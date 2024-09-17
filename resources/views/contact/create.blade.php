@@ -229,7 +229,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <button type="button" class="btn btn-primary center-block more_btn" data-target="#more_div">@lang('lang_v1.more_info') <i class="fa fa-chevron-down"></i></button>
+                <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm center-block more_btn" data-target="#more_div">@lang('lang_v1.more_info') <i class="fa fa-chevron-down"></i></button>
             </div>
 
             <div id="more_div" class="hide">
@@ -543,8 +543,8 @@
     </div>
     
     <div class="modal-footer">
-      <button type="submit" class="btn btn-primary">@lang( 'messages.save' )</button>
-      <button type="button" class="btn btn-default" data-dismiss="modal">@lang( 'messages.close' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang( 'messages.save' )</button>
+      <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 
     {!! Form::close() !!}

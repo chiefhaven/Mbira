@@ -59,11 +59,11 @@ class TaxonomyController extends Controller
                     'action', function ($row) use ($can_edit, $can_delete, $category_type) {
                         $html = '';
                         if ($can_edit) {
-                            $html .= '<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'edit'], [$row->id]).'?type='.$category_type.'" class="btn btn-xs btn-primary edit_category_button"><i class="glyphicon glyphicon-edit"></i>'.__('messages.edit').'</button>';
+                            $html .= '<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'edit'], [$row->id]).'?type='.$category_type.'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_category_button"><i class="glyphicon glyphicon-edit"></i>'.__('messages.edit').'</button>';
                         }
 
                         if ($can_delete) {
-                            $html .= '&nbsp;<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'destroy'], [$row->id]).'" class="btn btn-xs btn-danger delete_category_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
+                            $html .= '&nbsp;<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'destroy'], [$row->id]).'" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_category_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
                         }
 
                         return $html;

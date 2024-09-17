@@ -243,7 +243,7 @@
 					{{$loop->iteration}}
 				</td>
 				<td style="width: 40% !important;">
-					{{ $purchase_line->product->name }}
+					{{ $purchase_line->product->name }} 
 	                @if( $purchase_line->product->type == 'variable')
 	                  - {{ $purchase_line->variations->product_variation->name}}
 	                  - {{ $purchase_line->variations->name}}
@@ -263,7 +263,15 @@
 					</td>
 				@endif
 				<td>
-					{{@format_quantity($purchase_line->quantity)}}
+					{{@format_quantity($purchase_line->quantity)}} @if(!empty($purchase_line->sub_unit)) {{$purchase_line->sub_unit->actual_name}}  @else {{$purchase_line->product->unit->actual_name}} @endif   {{-- Display the base_unit_multiplier here --}}
+						@if($purchase_line->product->unit->sub_units)
+							@foreach($purchase_line->product->unit->sub_units as $sub_unit)
+								@if($sub_unit->id == $purchase_line->sub_unit_id)
+									({{ (float) $sub_unit->base_unit_multiplier }}
+									{{ $purchase_line->product->unit->short_name }})
+								@endif
+							@endforeach
+						@endif
 				</td>
 				<td>
 					@format_currency($purchase_line->purchase_price)
