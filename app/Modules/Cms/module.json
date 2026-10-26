@@ -1,0 +1,14 @@
+{
+    "name": "Cms",
+    "alias": "cms",
+    "description": "Mini CMS (content management system) Module for DCP to help manage all frontend content like Landing page, Blog, Contact Us & many other pages.",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Cms\\Providers\\CmsServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

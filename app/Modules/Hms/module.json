@@ -1,0 +1,11 @@
+{
+    "name": "Hms",
+    "alias": "hms",
+    "description": "Hotel Management System module for UltimatePOS, provides features for room bookings, extras, coupons & related features",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Hms\\Providers\\HmsServiceProvider"
+    ],
+    "files": []
+}
