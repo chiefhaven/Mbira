@@ -1,6 +1,11 @@
 var global_brand_id = null;
 var global_p_category_id = null;
+var global_is_clear_local_storage = false;
 $(document).ready(function() {
+    $(document).on('change', '#isRelief', function() {
+        $('#pos_vat5_fields').toggleClass('hide', !this.checked);
+    });
+    $('#isRelief').trigger('change');
     customer_set = false;
     //Prevent enter key function except texarea
     $('form').on('keyup keypress', function(e) {
@@ -149,6 +154,8 @@ $(document).ready(function() {
         // }
         if ($('.contact_due_text').length) {
             get_contact_due(data.id);
+            // store on customer change
+            saveFormDataToLocalStorage();
         }
     });
 
@@ -169,6 +176,44 @@ $(document).ready(function() {
                     if ($('#price_group').length > 0) {
                         price_group = $('#price_group').val();
                     }
+                    
+                    //If default price group present
+                    if ($('#default_price_group').length > 0 && price_group === '') {
+                        price_group = $('#default_price_group').val();
+                    }
+
+                    //If types of service selected give more priority
+                    if ($('#types_of_service_price_group').length > 0 && 
+                        $('#types_of_service_price_group').val()) {
+                        price_group = $('#types_of_service_price_group').val();
+                    }
+                    
+                    var customer_id = $('select#customer_id').val();
+                    var is_direct_sell = false;
+                    if ($('input[name="is_direct_sale"]').length > 0 &&
+                        $('input[name="is_direct_sale"]').val() == 1) {
+                        is_direct_sell = true;
+                    }
+                    
+                    var disable_qty_alert = false;
+                    if ($('#disable_qty_alert').length) {
+                        disable_qty_alert = true;
+                    }
+                    
+                    var is_sales_order = $('#sale_type').length && $('#sale_type').val() == 'sales_order' ? true : false;
+                    
+                    var is_draft = false;
+                    if($('#status') && ($('#status').val()=='quotation' || 
+                    $('#status').val()=='draft')) {
+                        is_draft = true;
+                    }
+                    
+                    var is_serial_no = false;
+                    if ($('input[name="is_serial_no"]').length > 0 &&
+                        $('input[name="is_serial_no"]').val() == 1) {
+                        is_serial_no = true;
+                    }
+                    
                     $.getJSON(
                         '/products/list',
                         {
@@ -176,13 +221,42 @@ $(document).ready(function() {
                             location_id: $('input#location_id').val(),
                             term: request.term,
                             not_for_selling: 0,
-                            search_fields: search_fields
+                            search_fields: search_fields,
+                            auto_add_single: true,
+                            product_row: $('input#product_row_count').val(),
+                            customer_id: customer_id,
+                            is_direct_sell: is_direct_sell,
+                            is_serial_no: is_serial_no,
+                            is_sales_order: is_sales_order,
+                            disable_qty_alert: disable_qty_alert,
+                            is_draft: is_draft
                         },
-                        response
+                        function(data) {
+                            // Check if auto-add is enabled (single product found)
+                            if (data.auto_add && data.row_data) {
+                                // Automatically add the product row
+                                if (data.row_data.success) {
+                                    $('#search_product').val('');
+                                    pos_add_product_row_from_data(data.row_data);
+                                } else {
+                                    toastr.error(data.row_data.msg);
+                                }
+                                // Return a special marker to indicate auto-add was handled
+                                response([{auto_added: true}]);
+                            } else {
+                                // Normal autocomplete response
+                                response(data.products || data);
+                            }
+                        }
                     );
                 },
                 minLength: 2,
                 response: function(event, ui) {
+                    // Skip if auto-add already handled the product
+                    if (ui.content.length == 1 && ui.content[0].auto_added) {
+                        return;
+                    }
+                    
                     if (ui.content.length == 1) {
                         ui.item = ui.content[0];
 
@@ -204,7 +278,9 @@ $(document).ready(function() {
                         }
                     } else if (ui.content.length == 0) {
                         toastr.error(LANG.no_products_found);
-                        $('input#search_product').select();
+                        if (!$('#__is_mobile').length) {
+                            $('input#search_product').select();
+                        }
                     }
                 },
                 focus: function(event, ui) {
@@ -224,8 +300,8 @@ $(document).ready(function() {
                     }
 
                     var is_draft=false;
-                    if($('input#status') && ($('input#status').val()=='quotation' || 
-                    $('input#status').val()=='draft')) {
+                    if($('#status') && ($('#status').val()=='quotation' || 
+                    $('#status').val()=='draft')) {
                         var is_draft=true;
                     }
 
@@ -241,6 +317,11 @@ $(document).ready(function() {
                 },
             })
             .autocomplete('instance')._renderItem = function(ul, item) {
+                // Skip rendering if this is the auto_added marker
+                if (item.auto_added) {
+                    return $('<li style="display:none;">').appendTo(ul);
+                }
+                
                 var is_overselling_allowed = false;
                 if($('input#is_overselling_allowed').length) {
                     is_overselling_allowed = true;
@@ -251,8 +332,9 @@ $(document).ready(function() {
                     for_so = true;
                 }
                 var is_draft=false;
-                if($('input#status') && ($('input#status').val()=='quotation' || 
-                $('input#status').val()=='draft')) {
+                
+                if($('#status') && ($('#status').val()=='quotation' || 
+                $('#status').val()=='draft')) {
                     var is_draft=true;
                 }
 
@@ -300,14 +382,16 @@ $(document).ready(function() {
 
     //Update line total and check for quantity not greater than max quantity
     $('table#pos_table tbody').on('change', 'input.pos_quantity', function() {
-        if (sell_form_validator) {
-            sell_form.valid();
-        }
+        // comment line becouse it validate form at increment and decrement item
+        // if (sell_form_validator) {
+        //     sell_form.valid();
+        // }
         if (pos_form_validator) {
             pos_form_validator.element($(this));
         }
         // var max_qty = parseFloat($(this).data('rule-max'));
         var entered_qty = __read_number($(this));
+        
 
         var tr = $(this).parents('tr');
 
@@ -834,12 +918,12 @@ $(document).ready(function() {
                             $('#modal_payment').modal('hide');
                             toastr.success(result.msg);
 
-                            reset_pos_form();
-
-                            //Check if enabled or not
-                            if (result.receipt.is_enabled) {
+                            // Print before reset: edit reset navigates away from this page.
+                            if (result.receipt && result.receipt.is_enabled) {
                                 pos_print(result.receipt);
                             }
+
+                            reset_pos_form();
                         } else {
                             toastr.error(result.msg);
                         }
@@ -967,60 +1051,97 @@ $(document).ready(function() {
                                 return $('#contact_id').val();
                             },
                             hidden_id: function() {
-                                if ($('#hidden_id').length) {
-                                    return $('#hidden_id').val();
-                                } else {
-                                    return '';
-                                }
+                                return $('#hidden_id').val() || '';
                             },
                         },
                     },
                 },
+                // tax_number remote validation removed - now handled with sweet alert
             },
             messages: {
                 contact_id: {
+                    required: LANG.contact_id_required,
                     remote: LANG.contact_id_already_exists,
                 },
             },
             submitHandler: function(form) {
-                $.ajax({
-                    method: 'POST',
-                    url: base_path + '/check-mobile',
-                    dataType: 'json',
-                    data: {
-                        contact_id: function() {
-                            return $('#hidden_id').val();
-                        },
-                        mobile_number: function() {
-                            return $('#mobile').val();
-                        },
-                    },
-                    beforeSend: function(xhr) {
-                        __disable_submit_button($(form).find('button[type="submit"]'));
-                    },
-                    success: function(result) {
-                        if (result.is_mobile_exists == true) {
-                            swal({
-                                title: LANG.sure,
-                                text: result.msg,
-                                icon: 'warning',
-                                buttons: true,
-                                dangerMode: true,
-                            }).then(willContinue => {
-                                if (willContinue) {
-                                    submitQuickContactForm(form);
-                                } else {
-                                    $('#mobile').select();
-                                }
-                            });
-                            
-                        } else {
-                            submitQuickContactForm(form);
-                        }
-                    },
-                });
+                checkTaxNumberAndSubmitQuick(form);
             },
         });
+
+    function checkTaxNumberAndSubmitQuick(form) {
+        // Check if tax_number field exists and has a value
+        if ($('#tax_number').length && $('#tax_number').val().trim() !== '') {
+            $.ajax({
+                method: 'POST',
+                url: base_path + '/contacts/check-tax-number',
+                dataType: 'json',
+                data: {
+                    contact_id: $('#hidden_id').val(),
+                    tax_number: $('#tax_number').val(),
+                },
+                success: function(result) {
+                    if (result.is_tax_number_exists == true) {
+                        swal({
+                            title: LANG.sure,
+                            text: result.msg,
+                            icon: 'warning',
+                            buttons: true,
+                            dangerMode: true,
+                        }).then(willContinue => {
+                            if (willContinue) {
+                                checkMobileAndSubmitQuick(form);
+                            } else {
+                                $('#tax_number').select();
+                            }
+                        });
+                    } else {
+                        checkMobileAndSubmitQuick(form);
+                    }
+                },
+            });
+        } else {
+            // If no tax number, proceed to mobile check
+            checkMobileAndSubmitQuick(form);
+        }
+    }
+
+    function checkMobileAndSubmitQuick(form) {
+        $.ajax({
+            method: 'POST',
+            url: base_path + '/check-mobile',
+            dataType: 'json',
+            data: {
+                contact_id: function() {
+                    return $('#hidden_id').val();
+                },
+                mobile_number: function() {
+                    return $('#mobile').val();
+                },
+            },
+            success: function(result) {
+                if (result.is_mobile_exists == true) {
+                    swal({
+                        title: LANG.sure,
+                        text: result.msg,
+                        icon: 'warning',
+                        buttons: true,
+                        dangerMode: true,
+                    }).then(willContinue => {
+                        if (willContinue) {
+                            submitQuickContactForm(form);
+                        } else {
+                            $('#mobile').select();
+                        }
+                    });
+                    
+                } else {
+                    submitQuickContactForm(form);
+                }
+            },
+        });
+    }
+
     $('.contact_modal').on('hidden.bs.modal', function() {
         $('form#quick_add_contact')
             .find('button[type="submit"]')
@@ -1052,7 +1173,34 @@ $(document).ready(function() {
         sell_form = $('form#edit_sell_form');
         pos_total_row();
     }
-    sell_form_validator = sell_form.validate();
+    sell_form_validator = sell_form.validate({
+        rules: {
+            invoice_no: {
+                remote: {
+                    url: '/sell/check-invoice-number',
+                    type: 'post',
+                    data: {
+                        invoice_no: function() {
+                            return $('#invoice_no').val();
+                        },
+                        transaction_id: function() {
+                            var id = '';
+                            var editForm = $('form#edit_sell_form');
+                            if (editForm.length) {
+                                id = editForm.data('transaction-id');
+                            }
+                            return id || '';
+                        }
+                    }
+                }
+            },
+        },
+        messages: {
+            invoice_no: {
+                remote: LANG.invoice_number_already_exists,
+            },
+        },
+    });
 
     $('button#submit-sell, button#save-and-print').click(function(e) {
         //Check if product is present or not.
@@ -1196,7 +1344,8 @@ $(document).ready(function() {
             var main_category = $(this).data('value');
 
             $('.main-category-div').hide();
-            $('.'+ main_category).fadeIn();
+            $('.all-sub-category').hide();
+            $('.all-sub-category[data-category-id="' + main_category + '"]').fadeIn();
             $('.category_heading').text('Sub Category ' + $(this).data('name'));
             $('.category-back').fadeIn();
         }
@@ -1276,7 +1425,9 @@ $(document).ready(function() {
         var key = e.which;
         if (key == 13) {
             // the enter key code
-            $('#search_product').focus();
+            if (!$('#__is_mobile').length) {
+                $('#search_product').focus();
+            }
         }
     });
 
@@ -1582,6 +1733,130 @@ function get_recent_transactions(status, element_obj) {
 }
 
 //variation_id is null when weighing_scale_barcode is used.
+
+/**
+ * Common function to insert product row into POS table
+ * @param {object} result - The result object containing html_content and other data
+ */
+function pos_insert_product_row(result) {
+    var product_row = $('input#product_row_count').val();
+    $('table#pos_table tbody')
+        .append(result.html_content)
+        .find('input.pos_quantity');
+    //increment row count
+    $('input#product_row_count').val(parseInt(product_row) + 1);
+    var this_row = $('table#pos_table tbody')
+        .find('tr')
+        .last();
+    pos_each_row(this_row);
+
+    //For initial discount if present
+    var line_total = __read_number(this_row.find('input.pos_line_total'));
+    this_row.find('span.pos_line_total_text').text(line_total);
+
+    pos_total_row();
+
+    //Check if multipler is present then multiply it when a new row is added.
+    if(__getUnitMultiplier(this_row) > 1){
+        this_row.find('select.sub_unit').trigger('change');
+    }
+
+    if (result.enable_sr_no == '1') {
+        var new_row = $('table#pos_table tbody')
+            .find('tr')
+            .last();
+        new_row.find('.row_edit_product_price_model').modal('show');
+    }
+
+    round_row_to_iraqi_dinnar(this_row);
+    __currency_convert_recursively(this_row);
+
+    if (!$('#__is_mobile').length) {
+        $('input#search_product')
+            .focus()
+            .select();
+    }
+
+    //Used in restaurant module
+    if (result.html_modifier) {
+        $('table#pos_table tbody')
+            .find('tr')
+            .last()
+            .find('td:first')
+            .append(result.html_modifier);
+    }
+
+    //scroll bottom of items list
+    $(".pos_product_div").animate({ scrollTop: $('.pos_product_div').prop("scrollHeight")}, 1000);
+}
+
+// Helper function to add product row from server data
+function pos_add_product_row_from_data(result) {
+    if (result.success) {
+        var variation_id = result.variation_id;
+        var add_new_row = true;
+        
+        // Check item addition method setting
+        var item_addtn_method = 0;
+        if ($('#item_addition_method').length) {
+            item_addtn_method = $('#item_addition_method').val();
+        }
+        
+        // If item_addtn_method != 0, check for duplicate products
+        if (item_addtn_method != 0 && variation_id) {
+            var is_added = false;
+            
+            // Search for variation id in each row of pos table
+            $('#pos_table tbody')
+                .find('tr')
+                .each(function() {
+                    var row_v_id = $(this).find('.row_variation_id').val();
+                    var enable_sr_no = $(this).find('.enable_sr_no').val();
+                    var modifiers_exist = false;
+                    if ($(this).find('input.modifiers_exist').length > 0) {
+                        modifiers_exist = true;
+                    }
+                    
+                    if (
+                        row_v_id == variation_id &&
+                        enable_sr_no !== '1' &&
+                        !modifiers_exist &&
+                        !is_added
+                    ) {
+                        add_new_row = false;
+                        is_added = true;
+                        
+                        // Increment product quantity
+                        var qty_element = $(this).find('.pos_quantity');
+                        var qty = __read_number(qty_element);
+                        __write_number(qty_element, qty + 1);
+                        qty_element.change();
+                        
+                        round_row_to_iraqi_dinnar($(this));
+                        
+                        if (!$('#__is_mobile').length) {
+                            $('input#search_product')
+                                .focus()
+                                .select();
+                        }
+                    }
+            });
+        }
+        
+        // Add new row if not a duplicate
+        if (add_new_row) {
+            pos_insert_product_row(result);
+        }
+    } else {
+        toastr.error(result.msg);
+        if (!$('#__is_mobile').length) {
+            $('input#search_product')
+                .focus()
+                .select();
+        }
+    }
+}
+
 function pos_product_row(variation_id = null, purchase_line_id = null, weighing_scale_barcode = null, quantity = 1) {
 
     //Get item addition method
@@ -1629,9 +1904,11 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
 
                     round_row_to_iraqi_dinnar($(this));
 
-                    $('input#search_product')
-                        .focus()
-                        .select();
+                    if (!$('#__is_mobile').length) {
+                        $('input#search_product')
+                            .focus()
+                            .select();
+                    }
                 }
         });
     }
@@ -1674,9 +1951,18 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
         }
 
         var is_draft=false;
-        if($('input#status') && ($('input#status').val()=='quotation' || 
-        $('input#status').val()=='draft')) {
+        if($('#status') && ($('#status').val()=='quotation' || 
+        $('#status').val()=='draft')) {
             is_draft=true;
+        }
+
+        var is_serial_no = false;
+
+        if (
+            $('input[name="is_serial_no"]').length > 0 &&
+            $('input[name="is_serial_no"]').val() == 1
+        ) {
+            is_serial_no = true;
         }
         
         $.ajax({
@@ -1687,6 +1973,7 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                 product_row: product_row,
                 customer_id: customer_id,
                 is_direct_sell: is_direct_sell,
+                is_serial_no: is_serial_no,
                 price_group: price_group,
                 purchase_line_id: purchase_line_id,
                 weighing_scale_barcode: weighing_scale_barcode,
@@ -1698,57 +1985,14 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             dataType: 'json',
             success: function(result) {
                 if (result.success) {
-                    $('table#pos_table tbody')
-                        .append(result.html_content)
-                        .find('input.pos_quantity');
-                    //increment row count
-                    $('input#product_row_count').val(parseInt(product_row) + 1);
-                    var this_row = $('table#pos_table tbody')
-                        .find('tr')
-                        .last();
-                    pos_each_row(this_row);
-
-                    //For initial discount if present
-                    var line_total = __read_number(this_row.find('input.pos_line_total'));
-                    this_row.find('span.pos_line_total_text').text(line_total);
-
-                    pos_total_row();
-
-                    //Check if multipler is present then multiply it when a new row is added.
-                    if(__getUnitMultiplier(this_row) > 1){
-                        this_row.find('select.sub_unit').trigger('change');
-                    }
-
-                    if (result.enable_sr_no == '1') {
-                        var new_row = $('table#pos_table tbody')
-                            .find('tr')
-                            .last();
-                        new_row.find('.row_edit_product_price_model').modal('show');
-                    }
-
-                    round_row_to_iraqi_dinnar(this_row);
-                    __currency_convert_recursively(this_row);
-
-                    $('input#search_product')
-                        .focus()
-                        .select();
-
-                    //Used in restaurant module
-                    if (result.html_modifier) {
-                        $('table#pos_table tbody')
-                            .find('tr')
-                            .last()
-                            .find('td:first')
-                            .append(result.html_modifier);
-                    }
-
-                    //scroll bottom of items list
-                    $(".pos_product_div").animate({ scrollTop: $('.pos_product_div').prop("scrollHeight")}, 1000);
+                    pos_insert_product_row(result);
                 } else {
                     toastr.error(result.msg);
-                    $('input#search_product')
-                        .focus()
-                        .select();
+                    if (!$('#__is_mobile').length) {
+                        $('input#search_product')
+                            .focus()
+                            .select();
+                    }
                 }
             },
         });
@@ -1801,6 +2045,16 @@ function pos_total_row() {
     //$('span.unit_price_total').html(unit_price_total);
     $('span.price_total').html(__currency_trans_from_en(price_total, false));
     calculate_billing_details(price_total);
+
+    if (
+        $('input[name="is_serial_no"]').length > 0 &&
+        $('input[name="is_serial_no"]').val() == 1
+    ) {
+        update_serial_no();
+    }
+    // store on any update
+    saveFormDataToLocalStorage();
+
 }
 
 function get_subtotal() {
@@ -1964,6 +2218,8 @@ function calculate_balance_due() {
 
     __highlight(bal_due * -1, $('span.balance_due'));
     __highlight(change_return * -1, $('span.change_return_span'));
+    // store payment details
+    saveFormDataToLocalStorage();
 }
 
 function isValidPosForm() {
@@ -2006,6 +2262,7 @@ function reset_pos_form(){
 	if(sell_form[0]){
 		sell_form[0].reset();
 	}
+    $('#isRelief').trigger('change');
 	set_default_customer();
 	set_location();
 
@@ -2071,6 +2328,10 @@ function reset_pos_form(){
     $('.contact_due_text').addClass('hide');
 
     $(document).trigger('sell_form_reset');
+
+    // Set global_is_clear_local_storage to true to clear local storage
+    global_is_clear_local_storage = true;
+    saveFormDataToLocalStorage();
 }
 
 function set_default_customer() {
@@ -2148,8 +2409,10 @@ function set_location() {
 
     if ($('input#location_id').val()) {
         $('input#search_product')
-            .prop('disabled', false)
-            .focus();
+            .prop('disabled', false);
+        if (!$('#__is_mobile').length) {
+            $('input#search_product').focus();
+        }
     } else {
         $('input#search_product').prop('disabled', true);
     }
@@ -2788,7 +3051,9 @@ $("#sales_order_ids").on("select2:select", function (e) {
         async: false,
         data: {
             product_row: product_row,
-            sales_order_id: sales_order_id
+            sales_order_id: sales_order_id,
+            is_serial_no: true,
+
         },
         dataType: 'json',
         success: function(result) {
@@ -3176,3 +3441,108 @@ $(document).on('change', '#res_waiter_id', function(e){
         
     }
 })
+
+// update serial number of product item
+function update_serial_no(){
+    $('.product_row').each(function (index) {
+        // Add the serial number to the first <td> of each row (index + 1 to start from 1)
+        if ($(this).find('td:first').hasClass('serial_no')) {
+            $(this).find('td:first').text(index + 1);
+        }
+    });
+}
+
+
+/**
+ * Saves the serialized form data from #add_pos_sell_form into LocalStorage.
+ */
+function saveFormDataToLocalStorage() {
+
+
+    // Check if global_is_clear_local_storage is true and reset it to false if so
+    if(global_is_clear_local_storage){
+        localStorage.setItem("pos_form_data_array", JSON.stringify([]));
+        global_is_clear_local_storage = false;
+        return false; // Exit the function early if global_is_clear_local_storage was true
+    }
+
+    // var storedArrayData = JSON.parse(localStorage.getItem("pos_form_data_array"));
+
+    // console.log("All data afer clear:", storedArrayData);
+
+    let form = $('form#add_pos_sell_form'); // Select the form by ID
+    // Check if the form exists in the DOM
+    if (form.length === 0) {
+        console.error("Error: Form #add_pos_sell_form not found.");
+        return;
+    }
+    // Serialize form data into an array of objects: [{name: 'input_name', value: 'input_value'}, ...]
+    let formArray = form.serializeArray();
+
+    // Find if "price_total" already exists in the array
+    let priceIndex = formArray.findIndex(item => item.name === "price_total");
+
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[priceIndex].value = get_subtotal();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "price_total", value: get_subtotal() });
+    }
+
+    // Find if "order_tax" already exists in the array
+    let textIndex = formArray.findIndex(item => item.name === "order_tax");
+
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[textIndex].value = $("#order_tax").text().trim();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "order_tax", value: $("#order_tax").text().trim()});
+    }
+
+    // Find if "shipping_charges_amount" already exists in the array
+    let shipping_charges_amount = formArray.findIndex(item => item.name === "shipping_charges_amount");
+
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[shipping_charges_amount].value = $("#shipping_charges_amount").text().trim();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "shipping_charges_amount", value: $("#shipping_charges_amount").text().trim()});
+    }
+
+    // Find if "total_paying_input" already exists in the array
+    let total_paying_input = formArray.findIndex(item => item.name === "total_paying_input");
+    
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[total_paying_input].value = $("#total_paying_input").val();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "total_paying_input", value: $("#total_paying_input").val()});
+    }
+
+    // Find if "change_return" already exists in the array
+    let change_return = formArray.findIndex(item => item.name === "change_return");
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[change_return].value = $("#change_return").val();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "change_return", value: $("#change_return").val()});
+    }
+     // Find if "in_balance_due" already exists in the array
+     let in_balance_due = formArray.findIndex(item => item.name === "in_balance_due");
+     if (priceIndex !== -1) {
+         // If exists, update the value
+         formArray[in_balance_due].value = $("#in_balance_due").val();
+     } else {
+         // If not exists, push new entry
+         formArray.push({ name: "in_balance_due", value: $("#in_balance_due").val()});
+     }
+    // Store serialized data in LocalStorage as a JSON string
+    localStorage.setItem("pos_form_data_array", JSON.stringify(formArray));
+
+    // console.log("Form data successfully saved to LocalStorage.");
+}

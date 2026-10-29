@@ -2,6 +2,7 @@
 
 namespace Modules\Connector\Http\Controllers;
 
+use App\Utils\ModuleUtil;
 use App\Utils\Util;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -18,13 +19,26 @@ class ClientController extends Controller
     }
 
     /**
+     * Check whether the current user can manage connector clients.
+     *
+     * @return bool
+     */
+    protected function canManageClients()
+    {
+        $business_id = request()->session()->get('user.business_id');
+        $moduleUtil = new ModuleUtil();
+
+        return auth()->user()->can('superadmin') || $moduleUtil->hasThePermissionInSubscription($business_id, 'connector_module');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return Response
      */
     public function index()
     {
-        if (! auth()->user()->can('superadmin')) {
+        if (! $this->canManageClients()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -39,7 +53,9 @@ class ClientController extends Controller
                     ->get()
                     ->makeVisible('secret');
 
-        return view('connector::clients.index')->with(compact('clients', 'is_demo'));
+        $can_manage_clients = $this->canManageClients();
+
+        return view('connector::clients.index')->with(compact('clients', 'is_demo', 'can_manage_clients'));
     }
 
     /**
@@ -60,7 +76,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        if (! auth()->user()->can('superadmin')) {
+        if (! $this->canManageClients()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -133,7 +149,7 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        if (! auth()->user()->can('superadmin')) {
+        if (! $this->canManageClients()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -153,7 +169,7 @@ class ClientController extends Controller
 
     public function regenerate()
     {
-        if (! auth()->user()->can('superadmin')) {
+        if (! $this->canManageClients()) {
             abort(403, 'Unauthorized action.');
         }
 

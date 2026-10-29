@@ -50,37 +50,56 @@ class TaxonomyController extends Controller
 
             $business_id = request()->session()->get('user.business_id');
 
-            $category = Category::where('business_id', $business_id)
-                            ->where('category_type', $category_type)
-                            ->select(['name', 'short_code', 'description', 'id', 'parent_id']);
+            $all_categories = Category::where('business_id', $business_id)
+                ->where('category_type', $category_type)
+                ->get()
+                ->keyBy('id');
+
+            $grouped = $all_categories->groupBy('parent_id');
+
+            $category = collect();
+
+            // Get parents (those with parent_id = null or 0)
+            $parents = $grouped[null] ?? $grouped[0] ?? [];
+
+            foreach ($parents as $parent) {
+                // Push parent
+                $category->push($parent);
+
+                // Get and push children with prefixed parent name
+                foreach ($grouped[$parent->id] ?? [] as $child) {
+                    // Attach parent name for use in editColumn
+                    $child->parent_name = $parent->name;
+                    $category->push($child);
+                }
+            }
 
             return Datatables::of($category)
-                ->addColumn(
-                    'action', function ($row) use ($can_edit, $can_delete, $category_type) {
-                        $html = '';
-                        if ($can_edit) {
-                            $html .= '<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'edit'], [$row->id]).'?type='.$category_type.'" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_category_button"><i class="glyphicon glyphicon-edit"></i>'.__('messages.edit').'</button>';
-                        }
-
-                        if ($can_delete) {
-                            $html .= '&nbsp;<button data-href="'.action([\App\Http\Controllers\TaxonomyController::class, 'destroy'], [$row->id]).'" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_category_button"><i class="glyphicon glyphicon-trash"></i> '.__('messages.delete').'</button>';
-                        }
-
-                        return $html;
+                ->addColumn('action', function ($row) use ($can_edit, $can_delete, $category_type) {
+                    $html = '';
+                    if ($can_edit) {
+                        $html .= '<button data-href="' . action([\App\Http\Controllers\TaxonomyController::class, 'edit'], [$row->id]) . '?type=' . $category_type . '" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_category_button"><i class="glyphicon glyphicon-edit"></i> ' . __('messages.edit') . '</button>';
                     }
-                )
+
+                    if ($can_delete) {
+                        $html .= '&nbsp;<button data-href="' . action([\App\Http\Controllers\TaxonomyController::class, 'destroy'], [$row->id]) . '" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_category_button"><i class="glyphicon glyphicon-trash"></i> ' . __('messages.delete') . '</button>';
+                    }
+
+                    return $html;
+                })
                 ->editColumn('name', function ($row) {
-                    if ($row->parent_id != 0) {
-                        return '--'.$row->name;
-                    } else {
-                        return $row->name;
+                    // If parent_name is set (means it's a child)
+                    if (!empty($row->parent_name)) {
+                        return $row->parent_name . ' -> ' . $row->name;
                     }
+                    return $row->name;
                 })
                 ->removeColumn('id')
                 ->removeColumn('parent_id')
                 ->rawColumns(['action'])
                 ->make(true);
-        }
+
+            }
 
         $module_category_data = $this->moduleUtil->getTaxonomyData($category_type);
 

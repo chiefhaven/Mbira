@@ -13,6 +13,7 @@ use App\Utils\TransactionUtil;
 use Datatables;
 use DB;
 use Illuminate\Http\Request;
+use Modules\EIS\Services\Sales\SaleSubmissionRule;
 
 class TransactionPaymentController extends Controller
 {
@@ -100,50 +101,134 @@ class TransactionPaymentController extends Controller
                     $prefix_type = 'expense_payment';
                 }
 
+                $paymentRequest = $request->except(['_token', 'saved_split_operation_id', 'document']);
+                ksort($paymentRequest);
+                $document = $request->file('document');
+                $documentHash = $document ? hash_file('sha256', $document->getRealPath()) : null;
+                if ($document && $documentHash === false) {
+                    throw new \RuntimeException('Unable to fingerprint the payment document.');
+                }
+                $paymentRequest['document_sha256'] = $documentHash;
+                $paymentRequest['document_name'] = $document ? $document->getClientOriginalName() : null;
+                $payload_hash = hash('sha256', json_encode($paymentRequest, JSON_THROW_ON_ERROR));
+
                 DB::beginTransaction();
 
-                $ref_count = $this->transactionUtil->setAndGetReferenceCount($prefix_type);
-                //Generate reference number
-                $inputs['payment_ref_no'] = $this->transactionUtil->generateReferenceNumber($prefix_type, $ref_count);
+                $paymentWork = fn () => \App\Services\Sales\SavedSaleWriteGuard::splitPayment(
+                    DB::connection(),
+                    $transaction_id,
+                    $business_id,
+                    auth()->user()->id,
+                    $request->input('saved_split_operation_id'),
+                    $payload_hash,
+                    function ($is_split) use ($business_id, $transaction_id, $prefix_type, &$inputs, $request) {
+                        $transaction = Transaction::where('business_id', $business_id)
+                            ->with(['contact'])->lockForUpdate()->findOrFail($transaction_id);
 
-                $inputs['business_id'] = $request->session()->get('business.id');
-                $inputs['document'] = $this->transactionUtil->uploadFile($request, 'document', 'documents');
+                        if ($transaction->payment_status == 'paid') {
+                            return ['success' => true, 'msg' => __('purchase.amount_already_paid')];
+                        }
 
-                //Pay from advance balance
-                $payment_amount = $inputs['amount'];
-                $contact_balance = ! empty($transaction->contact) ? $transaction->contact->balance : 0;
-                if ($inputs['method'] == 'advance' && $inputs['amount'] > $contact_balance) {
-                    throw new AdvanceBalanceNotAvailable(__('lang_v1.required_advance_balance_not_available'));
-                }
+                        if ($is_split && (!is_numeric($inputs['amount'] ?? null) || (float) $inputs['amount'] <= 0)) {
+                            throw new \App\Services\Sales\SavedSplitException(
+                                'invalid_payment_amount',
+                                'Enter a payment amount greater than zero.',
+                                422
+                            );
+                        }
 
-                if (! empty($inputs['amount'])) {
-                    $tp = TransactionPayment::create($inputs);
+                        \App\Services\Sales\SavedSaleWriteGuard::lock(DB::connection(), $transaction_id);
+                        $transaction_before = $transaction->replicate();
 
-                    if (! empty($request->input('denominations'))) {
-                        $this->transactionUtil->addCashDenominations($tp, $request->input('denominations'));
+                        if ($is_split) {
+                            if (empty($transaction->location)) {
+                                throw new \App\Services\Sales\SavedSplitException(
+                                    'split_location_missing',
+                                    'The saved sale location is unavailable; contact an administrator.',
+                                    409
+                                );
+                            }
+
+                            $show_advance = in_array($transaction->type, ['sell', 'purchase']);
+                            $payment_types = $this->transactionUtil->payment_types($transaction->location, $show_advance);
+                            if (!array_key_exists($inputs['method'] ?? '', $payment_types)) {
+                                throw new \App\Services\Sales\SavedSplitException(
+                                    'invalid_payment_method',
+                                    'Select a payment method enabled for this sale location.',
+                                    422
+                                );
+                            }
+                            if (!empty($request->input('account_id')) &&
+                                (!$this->moduleUtil->isModuleEnabled('account', $business_id) ||
+                                    !\App\Account::where('business_id', $business_id)
+                                        ->where('id', $request->input('account_id'))
+                                        ->where('is_closed', 0)->exists())) {
+                                throw new \App\Services\Sales\SavedSplitException(
+                                    'invalid_payment_account',
+                                    'Select a payment account belonging to this business.',
+                                    422
+                                );
+                            }
+                        }
+
+                        $ref_count = $this->transactionUtil->setAndGetReferenceCount($prefix_type);
+                        $inputs['payment_ref_no'] = $this->transactionUtil->generateReferenceNumber($prefix_type, $ref_count);
+                        $inputs['business_id'] = $request->session()->get('business.id');
+                        $inputs['document'] = $this->transactionUtil->uploadFile($request, 'document', 'documents');
+
+                        $contact_balance = ! empty($transaction->contact) ? $transaction->contact->balance : 0;
+                        if ($inputs['method'] == 'advance' && $inputs['amount'] > $contact_balance) {
+                            throw new AdvanceBalanceNotAvailable(__('lang_v1.required_advance_balance_not_available'));
+                        }
+
+                        $payment = null;
+                        if (! empty($inputs['amount'])) {
+                            $payment = TransactionPayment::create($inputs);
+
+                            if (! empty($request->input('denominations'))) {
+                                $this->transactionUtil->addCashDenominations($payment, $request->input('denominations'));
+                            }
+
+                            $inputs['transaction_type'] = $transaction->type;
+                            event(new TransactionPaymentAdded($payment, $inputs));
+                        }
+
+                        $payment_status = $this->transactionUtil->updatePaymentStatus($transaction_id, $transaction->final_total);
+                        $transaction->payment_status = $payment_status;
+                        $this->transactionUtil->activityLog($transaction, 'payment_edited', $transaction_before);
+
+                        if ($transaction_before->payment_status !== 'paid' && SaleSubmissionRule::qualifies($transaction)) {
+                            SaleSubmissionRule::initiate($transaction);
+                        }
+
+                        return [
+                            'success' => true,
+                            'msg' => __('purchase.payment_added_success'),
+                            'payment_id' => $payment ? $payment->id : null,
+                            'payment_status' => $payment_status,
+                        ];
                     }
-
-                    $inputs['transaction_type'] = $transaction->type;
-                    event(new TransactionPaymentAdded($tp, $inputs));
-                }
-
-                //update payment status
-                $payment_status = $this->transactionUtil->updatePaymentStatus($transaction_id, $transaction->final_total);
-                $transaction->payment_status = $payment_status;
-
-                $this->transactionUtil->activityLog($transaction, 'payment_edited', $transaction_before);
+                );
+                $payment_result = (new \App\Services\Sales\RestaurantBillService(DB::connection()))->backendPayment(
+                    auth()->user(), (int) $transaction_id, $paymentWork
+                );
 
                 DB::commit();
+                $output = ['success' => $payment_result['success'], 'msg' => $payment_result['msg']];
+            } else {
+                $output = ['success' => true,
+                    'msg' => __('purchase.payment_added_success'),
+                ];
             }
-
-            $output = ['success' => true,
-                'msg' => __('purchase.payment_added_success'),
-            ];
         } catch (\Exception $e) {
-            DB::rollBack();
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
             $msg = __('messages.something_went_wrong');
 
             if (get_class($e) == \App\Exceptions\AdvanceBalanceNotAvailable::class) {
+                $msg = $e->getMessage();
+            } elseif ($e instanceof \App\Services\Sales\SavedSplitException) {
                 $msg = $e->getMessage();
             } else {
                 \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
@@ -291,6 +376,10 @@ class TransactionPaymentController extends Controller
 
             $this->transactionUtil->activityLog($transaction, 'payment_edited', $transaction_before);
 
+            if ($transaction_before->payment_status !== 'paid' && SaleSubmissionRule::qualifies($transaction)) {
+                SaleSubmissionRule::initiate($transaction);
+            }
+
             DB::commit();
 
             //event
@@ -330,7 +419,23 @@ class TransactionPaymentController extends Controller
                 DB::beginTransaction();
 
                 if (! empty($payment->transaction_id)) {
-                    TransactionPayment::deletePayment($payment);
+                    $business_id = request()->session()->get('user.business_id');
+                    $result = \App\Services\Sales\SavedSaleWriteGuard::splitPaymentDeletion(
+                        DB::connection(),
+                        $payment->transaction_id,
+                        $business_id,
+                        auth()->user()->id,
+                        $payment->id,
+                        function ($is_split) use ($id, $business_id) {
+                            $payment = TransactionPayment::where('id', $id)
+                                ->whereHas('transaction', function ($query) use ($business_id) {
+                                    $query->where('business_id', $business_id);
+                                })->lockForUpdate()->findOrFail($id);
+                            TransactionPayment::deletePayment($payment);
+
+                            return ['success' => true];
+                        }
+                    );
                 } else { //advance payment
                     $adjusted_payments = TransactionPayment::where('parent_id',
                                                 $payment->id)
@@ -412,8 +517,12 @@ class TransactionPaymentController extends Controller
                 //Accounts
                 $accounts = $this->moduleUtil->accountsDropdown($business_id, true, false, true);
 
+                $saved_split_operation_id = \App\Services\Sales\SavedSaleWriteGuard::hasSplitHistory(DB::connection(), $transaction_id)
+                    ? (string) \Illuminate\Support\Str::uuid()
+                    : null;
+
                 $view = view('transaction_payment.payment_row')
-                ->with(compact('transaction', 'payment_types', 'payment_line', 'amount_formated', 'accounts'))->render();
+                ->with(compact('transaction', 'payment_types', 'payment_line', 'amount_formated', 'accounts', 'saved_split_operation_id'))->render();
 
                 $output = ['status' => 'due',
                     'view' => $view, ];

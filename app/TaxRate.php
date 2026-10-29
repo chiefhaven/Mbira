@@ -105,4 +105,9 @@ class TaxRate extends Model
     {
         return $query->where('for_tax_group', 0);
     }
+
+    public function transanction()
+    {
+        return $this->hasMany(\App\Transaction::class);
+    }
 }

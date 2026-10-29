@@ -12,6 +12,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title') - {{ config('app.name', 'POS') }}</title>
+    @include('layouts.partials.branding-icon')
 
     @include('layouts.partials.css')
 
@@ -30,6 +31,7 @@
     @endif
 
     @yield('content')
+    @include('layouts.partials.branding-public-footer')
 
     @include('layouts.partials.javascripts')
     <!-- Scripts -->

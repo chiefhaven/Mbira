@@ -1,0 +1,15 @@
+{
+    "name": "EIS",
+    "alias": "eis",
+    "description": "Electronic Invoicing System integration",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "priority": 0,
+    "providers": [
+        "Modules\\EIS\\Providers\\EISServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

@@ -59,7 +59,7 @@ return [
             'strict' => false,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
             //'dump' => [ 'dump_binary_path' => 'D:\laragon\bin\mysql\mysql-8.0.30-winx64\bin'] 
             // Uncomment above line for windows & provide path to mysql dump binary for backup to work

@@ -109,7 +109,7 @@
         data-msg_max_default="@lang('validation.custom-messages.quantity_not_available', ['qty'=> $product->formatted_qty_available, 'unit' => $product->unit  ])" @endif >
         <input type="hidden" class="base_unit_multiplier" name="products[{{$row_index}}][base_unit_multiplier]" value="{{$multiplier}}">
 
-         <input type="hidden" class="hidden_base_unit_price" value="{{$product->last_purchased_price}}">
+         <input type="hidden" class="hidden_base_unit_price" value="{{$product->default_purchase_price}}">
 
         <input type="hidden" name="products[{{$row_index}}][product_unit_id]" value="{{$product->unit_id}}">
         @if(!empty($sub_units))
@@ -126,10 +126,10 @@
         @endif
     </td>
     <td class="show_price_with_permission">
-        <input type="text" name="products[{{$row_index}}][unit_price]" class="form-control product_unit_price input_number " value="{{@num_format($product->last_purchased_price * $multiplier)}}">
+        <input type="text" name="products[{{$row_index}}][unit_price]" class="form-control product_unit_price input_number " value="{{@num_format($product->default_purchase_price * $multiplier)}}">
     </td>
     <td class="show_price_with_permission">
-        <input type="text" readonly name="products[{{$row_index}}][price]" class="form-control product_line_total " value="{{@num_format($product->quantity_ordered*$product->last_purchased_price)}}">
+        <input type="text" readonly name="products[{{$row_index}}][price]" class="form-control product_line_total " value="{{@num_format($product->quantity_ordered*$product->default_purchase_price)}}">
     </td>
     <td class="text-center">
         <i class="fa fa-trash remove_product_row cursor-pointer" aria-hidden="true"></i>

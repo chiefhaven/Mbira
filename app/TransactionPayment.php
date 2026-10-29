@@ -15,6 +15,16 @@ class TransactionPayment extends Model
      */
     protected $guarded = ['id'];
 
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            \App\Services\Sales\SavedSaleWriteGuard::model($model);
+        });
+        static::deleting(function ($model) {
+            \App\Services\Sales\SavedSaleWriteGuard::model($model);
+        });
+    }
+
     /**
      * Get the phone record associated with the user.
      */
@@ -69,6 +79,8 @@ class TransactionPayment extends Model
 
     public static function deletePayment($payment)
     {
+        // Fence the sale before touching parent allocations or firing any event.
+        \App\Services\Sales\SavedSaleWriteGuard::lock($payment->getConnection(), $payment->transaction_id);
         //Update parent payment if exists
         if (! empty($payment->parent_id)) {
             $parent_payment = TransactionPayment::find($payment->parent_id);

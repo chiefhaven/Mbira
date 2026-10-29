@@ -8,6 +8,7 @@ use Datatables;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 
 class TableController extends Controller
 {
@@ -79,13 +80,17 @@ class TableController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $request->validate(['allow_multiple_orders' => 'sometimes|boolean', 'is_default' => 'sometimes|boolean']);
         try {
             $input = $request->only(['name', 'description', 'location_id']);
+            $input['allow_multiple_orders'] = $request->boolean('allow_multiple_orders');
+            $input['is_default'] = $request->boolean('is_default');
             $business_id = $request->session()->get('user.business_id');
             $input['business_id'] = $business_id;
             $input['created_by'] = $request->session()->get('user.id');
 
-            $table = ResTable::create($input);
+            $table = new ResTable($input);
+            $this->saveTable($table);
             $output = ['success' => true,
                 'data' => $table,
                 'msg' => __('lang_v1.added_success'),
@@ -148,6 +153,7 @@ class TableController extends Controller
         }
 
         if (request()->ajax()) {
+            $request->validate(['allow_multiple_orders' => 'sometimes|boolean', 'is_default' => 'sometimes|boolean']);
             try {
                 $input = $request->only(['name', 'description']);
                 $business_id = $request->session()->get('user.business_id');
@@ -155,7 +161,9 @@ class TableController extends Controller
                 $table = ResTable::where('business_id', $business_id)->findOrFail($id);
                 $table->name = $input['name'];
                 $table->description = $input['description'];
-                $table->save();
+                $table->allow_multiple_orders = $request->boolean('allow_multiple_orders');
+                $table->is_default = $request->boolean('is_default');
+                $this->saveTable($table);
 
                 $output = ['success' => true,
                     'msg' => __('lang_v1.updated_success'),
@@ -170,6 +178,25 @@ class TableController extends Controller
 
             return $output;
         }
+    }
+
+    private function saveTable(ResTable $table): void
+    {
+        DB::transaction(function () use ($table) {
+            // Serialize default changes even when the location has no tables yet.
+            BusinessLocation::where('business_id', $table->business_id)
+                ->whereKey($table->location_id)->lockForUpdate()->firstOrFail();
+
+            if ($table->is_default) {
+                ResTable::where('business_id', $table->business_id)
+                    ->where('location_id', $table->location_id)
+                    ->when($table->exists, function ($query) use ($table) {
+                        $query->where('id', '!=', $table->id);
+                    })
+                    ->where('is_default', true)->update(['is_default' => false]);
+            }
+            $table->save();
+        });
     }
 
     /**

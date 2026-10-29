@@ -76,8 +76,6 @@
 				<ul class="list-group">
 					@foreach($gateways as $k => $v)
 						<div class="list-group-item">
-							<b>@lang('superadmin::lang.pay_via', ['method' => $v])</b>
-							
 							<div class="row" id="paymentdiv_{{$k}}">
 								@php 
 									$view = 'superadmin::subscription.partials.pay_'.$k;

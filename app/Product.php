@@ -3,9 +3,17 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
+
+    protected static function booted()
+    {
+        static::saving(fn ($product) => \App\Services\EisProductPolicy::guard($product));
+        static::deleting(fn ($product) => \App\Services\EisProductPolicy::guard($product, true));
+    }
     /**
      * The attributes that aren't mass assignable.
      *
@@ -15,6 +23,10 @@ class Product extends Model
 
     protected $appends = ['image_url'];
 
+    protected $fillable = [
+        'product_description'
+    ];
+
     /**
      * The attributes that should be cast to native types.
      *
@@ -22,6 +34,7 @@ class Product extends Model
      */
     protected $casts = [
         'sub_unit_ids' => 'array',
+        'deleted_at',
     ];
 
     /**
@@ -150,6 +163,25 @@ class Product extends Model
     public function scopeActive($query)
     {
         return $query->where('products.is_inactive', 0);
+    }
+
+    public function scopeWithStockLocationDetails($query, $businessId, $locationId, $permittedLocations)
+    {
+        $locations = \App\BusinessLocation::where('business_id', $businessId)->active();
+        if ($permittedLocations !== 'all') {
+            $locations->whereIn('id', $permittedLocations);
+        }
+        if (!empty($locationId) && $locationId !== 'none') {
+            $locations->where('id', $locationId);
+        }
+        if ($locationId === 'none') {
+            $locations->whereRaw('1 = 0');
+        }
+
+        return $query->leftJoin('variation_location_details as vld', function ($join) use ($locations) {
+            $join->on('vld.variation_id', '=', 'v.id')
+                ->whereIn('vld.location_id', $locations->select('id'));
+        });
     }
 
     /**

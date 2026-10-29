@@ -128,6 +128,8 @@ LANG = {
     'time_logs' : 'Time Logs',
     'documents_and_notes' : 'Documents & Note',
     'invoices': 'Invoices',
+    'sell_due': 'Sell Due',
+    'sell_return_due': 'Sell Return Due',
     'settings' : 'Settings',
     'advance_payment_cannot_be_more_than_once': 'Advance payment cannot be selected more than once',
     'not_connected_to_a_network': "You're not connected to a Network",
@@ -138,4 +140,32 @@ LANG = {
     'authentication_successfull': 'Authentication successfull',
     'please_enter' : 'Please enter ',
     'or_more_characters' : 'or more characters',
+    'name_already_exists' : 'Product with this name already exists',
+    // AI Assistance translations
+    'use_ai': 'Use AI',
+    'image_added_successfully': 'Image added successfully',
+    'fill_required_fields': 'Please fill in required fields before using AI',
+    'generating_description': 'Generating product description...',
+    'generating_image': 'Generating product image...',
+    'processing': 'Processing...',
+    'use_description': 'Use Description',
+    'use_image': 'Use Image',
+    'submit': 'Submit',
+    'fill_name_brand_for_image': 'Please fill in Product Name, Brand before generating image.',
+    'fill_name_brand_unit_for_ai': 'Please fill in Product Name, Brand, and Unit before using AI.',
+    'something_went_wrong_try_again': 'Something went wrong, please try again',
+    'invoice_number_already_exists' :'Invoice number already exists',
+    'tax_number_already_exists' : 'This tax number already exists',
+    'missing_skus' : 'Missing SKUs',
+    'each': 'Each',
+    'total': 'Total',
+        
+    // Member profile related
+    'diet_plan_applied_to_form_successfully': 'Diet plan applied to form successfully!',
+    'workout_plan_saved_successfully': 'Workout plan saved successfully!',
+    'workout_plan_applied_to_form_successfully': 'Workout plan applied to form successfully!',
+
+    'name_length_exceeded': 'The total length of Prefix, First, Middle & Last Name cannot exceed 127 characters.',
+    'error': 'Error',
+    'ok': 'OK'
 };

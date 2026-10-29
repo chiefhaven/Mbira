@@ -6,6 +6,7 @@ use App\AccountTransaction;
 use App\BusinessLocation;
 use App\Category;
 use App\Events\TransactionPaymentAdded;
+use App\Exports\StandardBankReportExport;
 use App\Transaction;
 use App\TransactionPayment;
 use App\User;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\View;
+use Maatwebsite\Excel\Excel;
 use Modules\Essentials\Entities\EssentialsAllowanceAndDeduction;
 use Modules\Essentials\Entities\EssentialsLeave;
 use Modules\Essentials\Entities\EssentialsUserSalesTarget;
@@ -1184,5 +1186,38 @@ class PayrollController extends Controller
         $employees = $users->pluck('full_name', 'id')->toArray();
 
         return $employees;
+    }
+
+    public function exportMRACsv(Request $request)
+    {
+        $business_id = request()->session()->get('user.business_id');
+        if (! (auth()->user()->can('superadmin') || $this->moduleUtil->hasThePermissionInSubscription($business_id, 'essentials_module'))) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $payroll_group_id = $request->input('payroll_group_id');
+
+            return Excel::download(new MRAReportExport($business_id, $payroll_group_id), 'mra_report.xlsx');
+        } catch (Exception $e) {
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
+            $output = ['success' => false,
+                'msg' => __('messages.something_went_wrong'),
+            ];
+
+            return redirect()->action([\Modules\Essentials\Http\Controllers\PayrollController::class, 'index'])->with('status', $output);
+        }
+    }
+
+    public function exportStdBank(Request $request)
+    {
+        return Excel::download(
+            new StandardBankReportExport(
+                $request->business_id,
+                $request->payroll_group_id
+            ),
+            'standard_bank_payroll.csv'
+        );
     }
 }

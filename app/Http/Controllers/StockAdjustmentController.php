@@ -13,6 +13,10 @@ use DB;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use App\Events\StockAdjustmentCreatedOrModified;
+use Illuminate\Validation\ValidationException;
+use Modules\EIS\Models\EisSetting;
+use Modules\EIS\Services\Stock\StockOutboundService;
+use Modules\EIS\Services\Terminal\TerminalContext;
 
 class StockAdjustmentController extends Controller
 {
@@ -46,7 +50,7 @@ class StockAdjustmentController extends Controller
     public function index()
     {
 
-        if (! auth()->user()->can('purchase.view') && ! auth()->user()->can('purchase.create') && ! auth()->user()->can('view_own_purchase')) {
+        if (! auth()->user()->can('stock_adjustment.view') && ! auth()->user()->can('stock_adjustment.create') && ! auth()->user()->can('view_own_stock_adjustment')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -92,11 +96,11 @@ class StockAdjustmentController extends Controller
                 $stock_adjustments->where('transactions.location_id', $location_id);
             }
 
-            if (! auth()->user()->can('purchase.view') && auth()->user()->can('view_own_purchase')) {
+            if (! auth()->user()->can('stock_adjustment.view') && auth()->user()->can('view_own_stock_adjustment')) {
                 $stock_adjustments->where('transactions.created_by', request()->session()->get('user.id'));
             }
 
-            if(! auth()->user()->can('purchase.delete')){
+            if(! auth()->user()->can('stock_adjustment.delete')){
                 $hide = 'hide';
             }
 
@@ -149,7 +153,7 @@ class StockAdjustmentController extends Controller
      */
     public function create()
     {
-        if (! auth()->user()->can('purchase.create')) {
+        if (! auth()->user()->can('stock_adjustment.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -161,9 +165,17 @@ class StockAdjustmentController extends Controller
         }
 
         $business_locations = BusinessLocation::forDropdown($business_id);
+        $permitted = auth()->user()->permitted_locations($business_id);
+        $locationQuery = BusinessLocation::where('business_id', $business_id);
+        if ($permitted !== 'all') {
+            $locationQuery->whereIn('id', $permitted);
+        }
+        $eisLocations = EisSetting::where('business_id', $business_id)
+            ->whereIn('location_id', $locationQuery->select('id'))
+            ->distinct()->pluck('location_id')->map(fn ($id) => (int) $id)->values();
 
         return view('stock_adjustment.create')
-                ->with(compact('business_locations'));
+                ->with(compact('business_locations', 'eisLocations'));
     }
 
     /**
@@ -174,15 +186,18 @@ class StockAdjustmentController extends Controller
      */
     public function store(Request $request)
     {
-        if (! auth()->user()->can('purchase.create')) {
+        if (! auth()->user()->can('stock_adjustment.create')) {
             abort(403, 'Unauthorized action.');
         }
+
+        $request->validate(['location_id' => 'required|integer']);
+        $business_id = $request->session()->get('user.business_id');
+        $eisAdjustment = $this->validatedEisAdjustmentReason($request, (int) $business_id);
 
         try {
             DB::beginTransaction();
 
             $input_data = $request->only(['location_id', 'transaction_date', 'adjustment_type', 'additional_notes', 'total_amount_recovered', 'final_total', 'ref_no']);
-            $business_id = $request->session()->get('user.business_id');
 
             //Check if subscribed or not
             if (! $this->moduleUtil->isSubscribed($business_id)) {
@@ -241,7 +256,13 @@ class StockAdjustmentController extends Controller
                 ];
                 $this->transactionUtil->mapPurchaseSell($business, $stock_adjustment->stock_adjustment_lines, 'stock_adjustment');
 
-                event(new StockAdjustmentCreatedOrModified($stock_adjustment, 'added'));
+                event(new StockAdjustmentCreatedOrModified(
+                    $stock_adjustment,
+                    'added',
+                    $eisAdjustment['reason'] ?? null,
+                    $eisAdjustment['terminal_id'] ?? null,
+                    $eisAdjustment['site_id'] ?? null
+                ));
 
                 $this->transactionUtil->activityLog($stock_adjustment, 'added', null, [], false);
             }
@@ -251,7 +272,7 @@ class StockAdjustmentController extends Controller
             ];
 
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
 
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
@@ -277,7 +298,7 @@ class StockAdjustmentController extends Controller
      */
     public function show($id)
     {
-        if (! auth()->user()->can('purchase.view')) {
+        if (! auth()->user()->can('stock_adjustment.view')) {
             abort(403, 'Unauthorized action.');
         }
         $business_id = request()->session()->get('user.business_id');
@@ -309,7 +330,7 @@ class StockAdjustmentController extends Controller
      */
     public function edit(Transaction $stockAdjustment)
     {
-        //
+        $this->assertStockAdjustmentMutable($stockAdjustment);
     }
 
     /**
@@ -321,7 +342,7 @@ class StockAdjustmentController extends Controller
      */
     public function update(Request $request, Transaction $stockAdjustment)
     {
-        //
+        $this->assertStockAdjustmentMutable($stockAdjustment);
     }
 
     /**
@@ -332,17 +353,17 @@ class StockAdjustmentController extends Controller
      */
     public function destroy($id)
     {
-        if (! auth()->user()->can('purchase.delete')) {
+        if (! auth()->user()->can('stock_adjustment.delete')) {
             abort(403, 'Unauthorized action.');
         }
+        $stock_adjustment = Transaction::where('id', $id)
+            ->where('type', 'stock_adjustment')
+            ->with(['stock_adjustment_lines'])
+            ->firstOrFail();
+        $this->assertStockAdjustmentMutable($stock_adjustment);
         try {
             if (request()->ajax()) {
                 DB::beginTransaction();
-
-                $stock_adjustment = Transaction::where('id', $id)
-                                    ->where('type', 'stock_adjustment')
-                                    ->with(['stock_adjustment_lines'])
-                                    ->first();
 
                 //Add deleted product quantity to available quantity
                 $stock_adjustment_lines = $stock_adjustment->stock_adjustment_lines;
@@ -411,6 +432,7 @@ class StockAdjustmentController extends Controller
                     $lot_number->qty_formated = $this->productUtil->num_f($lot_number->qty_available);
                     $lot_numbers[] = $lot_number;
                 }
+
             }
             $product->lot_numbers = $lot_numbers;
 
@@ -425,6 +447,77 @@ class StockAdjustmentController extends Controller
         }
     }
 
+    private function validatedEisAdjustmentReason(Request $request, int $businessId): ?array
+    {
+        $locationId = (int) $request->input('location_id');
+        $location = BusinessLocation::where('business_id', $businessId)->findOrFail($locationId);
+        $permitted = $request->user()->permitted_locations($businessId);
+        if ($permitted !== 'all' && !in_array($locationId, array_map('intval', (array) $permitted), true)) {
+            abort(403);
+        }
+        $settings = EisSetting::where('business_id', $businessId)
+            ->where('location_id', $locationId)->get();
+        if ($settings->isEmpty()) {
+            return null;
+        }
+
+        $input = $request->validate([
+            'eis_adjustment_reason' => 'required|string|max:500',
+        ]);
+        if ($location->default_eis_setting_id) {
+            $setting = TerminalContext::settings(
+                $businessId,
+                null,
+                (int) $location->default_eis_setting_id,
+                $locationId
+            );
+        } elseif ($settings->count() === 1) {
+            $setting = $settings->first();
+        } else {
+            throw ValidationException::withMessages([
+                'eis_adjustment_reason' => 'Choose a default terminal for this EIS location before adjusting stock.',
+            ]);
+        }
+        try {
+            TerminalContext::assertActive($setting);
+            $reasons = app(StockOutboundService::class)->adjustmentReasons($setting);
+        } catch (\Throwable $exception) {
+            \Log::warning('EIS stock adjustment reasons unavailable', [
+                'business_id' => $businessId, 'location_id' => $locationId, 'exception' => get_class($exception),
+            ]);
+            throw ValidationException::withMessages([
+                'eis_adjustment_reason' => 'EIS adjustment reasons are unavailable. Try again when EIS is reachable.',
+            ]);
+        }
+        if (!in_array($input['eis_adjustment_reason'], $reasons, true)) {
+            throw ValidationException::withMessages([
+                'eis_adjustment_reason' => 'Choose a current stock adjustment reason returned by EIS.',
+            ]);
+        }
+
+        return [
+            'reason' => $input['eis_adjustment_reason'],
+            'terminal_id' => (int) $setting->id,
+            'site_id' => TerminalContext::site($setting),
+        ];
+    }
+
+    private function assertStockAdjustmentMutable(Transaction $adjustment): void
+    {
+        if (($adjustment->source ?? null) === 'eis_reconciliation') {
+            abort(409, 'EIS reconciliation stock adjustments are audited and cannot be deleted or edited.');
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasTable('eis_stock_operations')) {
+            return;
+        }
+        $hasOutbound = DB::table('eis_stock_operations')
+            ->where('source_stock_adjustment_id', $adjustment->id)
+            ->exists();
+        if ($hasOutbound) {
+            abort(409, 'This stock adjustment has an immutable EIS operation. Use an audited reconciliation instead of deleting or editing its history.');
+        }
+    }
+
     /**
      * Sets expired purchase line as stock adjustmnet
      *
@@ -433,7 +526,7 @@ class StockAdjustmentController extends Controller
      */
     public function removeExpiredStock($purchase_line_id)
     {
-        if (! auth()->user()->can('purchase.delete')) {
+        if (! auth()->user()->can('stock_adjustment.delete')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -443,6 +536,14 @@ class StockAdjustmentController extends Controller
                                     ->first();
 
             if (! empty($purchase_line)) {
+                $locationId = (int) $purchase_line->transaction->location_id;
+                if (EisSetting::where('business_id', request()->session()->get('user.business_id'))
+                    ->where('location_id', $locationId)->exists()) {
+                    return [
+                        'success' => 0,
+                        'msg' => 'Use the stock adjustment form for this EIS site so you can select a current EIS adjustment reason.',
+                    ];
+                }
                 DB::beginTransaction();
 
                 $qty_unsold = $purchase_line->quantity - $purchase_line->quantity_sold - $purchase_line->quantity_adjusted - $purchase_line->quantity_returned;

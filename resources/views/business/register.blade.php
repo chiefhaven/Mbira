@@ -34,7 +34,7 @@
                 'id' => 'business_register_form',
                 'files' => true,
             ]) !!}
-            @include('business.partials.register_form')
+            @include('business.partials.register_form', ['is_register' => true])
             {!! Form::hidden('package_id', $package_id) !!}
             {!! Form::close() !!}
             </div>

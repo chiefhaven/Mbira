@@ -77,7 +77,7 @@
                             @endforeach
                             @foreach ($categories as $category)
                                 @if (!empty($category['sub_categories']))
-                                    <div class="{{ $category['id'] }} all-sub-category" style="display: none">
+                                    <div class="all-sub-category" data-category-id="{{ $category['id'] }}" style="display: none">
                                         @foreach ($category['sub_categories'] as $sc)
                                             @if ($sc['parent_id'] != 0)
                                                 <div class="col-md-3 col-xs-12 tw-mb-5 tw-w-auto tw-h-auto tw-cursor-pointer product_category no-print"

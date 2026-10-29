@@ -1,4 +1,3 @@
-<!-- default value -->
 @php
     $go_back_url = action([\App\Http\Controllers\SellPosController::class, 'index']);
     $transaction_sub_type = '';
@@ -12,7 +11,6 @@
             if (!empty($value['go_back_url'])) {
                 $go_back_url = $value['go_back_url'];
             }
-
             if (!empty($value['transaction_sub_type'])) {
                 $transaction_sub_type = $value['transaction_sub_type'];
                 $view_suspended_sell_url .= '&transaction_sub_type=' . $transaction_sub_type;
@@ -21,344 +19,364 @@
         @endphp
     @endforeach
 @endif
+
 <input type="hidden" name="transaction_sub_type" id="transaction_sub_type" value="{{ $transaction_sub_type }}">
 @inject('request', 'Illuminate\Http\Request')
+
+<style>
+.ph *{box-sizing:border-box}
+.ph{
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 2px 16px rgba(17,17,26,.08);
+    margin:4px 0 0;
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+/* ── Location block ── */
+.ph__location{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-shrink:0;
+}
+.ph__location-label{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#6b7280;
+    white-space:nowrap;
+}
+.ph__location select.form-control{
+    height:30px;
+    font-size:13px;
+    padding:0 8px;
+    border-radius:6px;
+    border:1px solid #d1d5db;
+    min-width:120px;
+}
+.ph__location-name{
+    font-size:13px;
+    font-weight:600;
+    color:#111827;
+}
+
+/* ── Datetime chip ── */
+.ph__datetime{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#646EE4;
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:6px;
+    white-space:nowrap;
+}
+.ph__datetime i{cursor:pointer;opacity:.8}
+.ph__datetime i:hover{opacity:1}
+
+/* ── Toolbar ── */
+.ph__toolbar{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    flex-wrap:wrap;
+}
+
+/* ── Icon button base ── */
+.ph__btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    width:34px;
+    height:34px;
+    border:1px solid #e5e7eb;
+    border-radius:8px;
+    background:#fff;
+    color:#374151;
+    cursor:pointer;
+    transition:background .15s, border-color .15s, color .15s;
+    font-size:14px;
+    text-decoration:none;
+    flex-shrink:0;
+}
+.ph__btn:hover{background:#f3f4f6;border-color:#9ca3af;color:#111827}
+.ph__btn:active{transform:scale(.96)}
+
+/* ── Text button (labelled) ── */
+.ph__btn--text{
+    width:auto;
+    padding:0 10px;
+    font-size:12px;
+    font-weight:600;
+    gap:5px;
+}
+
+/* ── Colour accents on icons ── */
+.ic-blue{color:#009EE4}
+.ic-indigo{color:#646EE4}
+.ic-green{color:#00935F}
+.ic-red{color:#EF4B53}
+.ic-gray{color:#A5ADBB}
+
+/* ── Divider ── */
+.ph__sep{
+    width:1px;height:22px;
+    background:#e5e7eb;
+    flex-shrink:0;
+    margin:0 2px;
+}
+
+/* ── Mobile hamburger ── */
+.ph__hamburger{
+    display:none;
+    align-items:center;
+    gap:8px;
+    margin-left:auto;
+}
+.ph__hamburger .ph__btn{border:none;background:transparent;font-size:18px}
+
+@media(max-width:767px){
+    .ph{flex-wrap:wrap;padding:10px 12px;gap:8px}
+    .ph__hamburger{display:flex}
+    .ph__toolbar{
+        display:none;
+        width:100%;
+        flex-direction:column;
+        align-items:stretch;
+        border-top:1px solid #e5e7eb;
+        padding-top:8px;
+        gap:6px;
+    }
+    .ph__toolbar.is-open{display:flex}
+    .ph__btn{width:100%;height:36px;justify-content:flex-start;padding:0 10px;border-radius:8px}
+    .ph__btn--text{width:100%}
+    .ph__sep{display:none}
+    .ph__datetime{display:none}
+    .ph__mobile-products{display:inline-flex!important}
+}
+.ph__mobile-products{display:none}
+</style>
+
 <div class="col-md-12 no-print pos-header">
     <input type="hidden" id="pos_redirect_url" value="{{ $pos_redirect_url }}">
 
-    {{-- <div class="row">
-      
-        <div class="col-md-6">
-            <div class="m-6 mt-5" style="display: flex;">
-                <p><strong>@lang('sale.location'): &nbsp;</strong>
-                    @if (empty($transaction->location_id))
-                        @if (count($business_locations) > 1)
-                            <div style="width: 28%;margin-bottom: 5px;">
-                                {!! Form::select(
-                                    'select_location_id',
-                                    $business_locations,
-                                    $default_location->id ?? null,
-                                    ['class' => 'form-control input-sm', 'id' => 'select_location_id', 'required', 'autofocus'],
-                                    $bl_attributes,
-                                ) !!}
-                            </div>
-                        @else
-                            {{ $default_location->name }}
-                        @endif
-                    @endif
+    <div class="ph">
 
-                    @if (!empty($transaction->location_id))
-                        {{ $transaction->location->name }}
-                    @endif &nbsp; <span class="curr_datetime">{{ @format_datetime('now') }}</span>
-                    <i class="fa fa-keyboard hover-q text-muted" aria-hidden="true" data-container="body"
-                        data-toggle="popover" data-placement="bottom" data-content="@include('sale_pos.partials.keyboard_shortcuts_details')"
-                        data-html="true" data-trigger="hover" data-original-title="" title=""></i>
-                </p>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <a href="{{ $go_back_url }}" title="{{ __('lang_v1.go_back') }}"
-                class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-info m-5 pull-right">
-                <strong><i class="fa fa-backward fa-lg"></i></strong>
-            </a>
-            @if (!empty($pos_settings['inline_service_staff']))
-                <button type="button" id="show_service_staff_availability"
-                    title="{{ __('lang_v1.service_staff_availability') }}"
-                    class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-flat m-6 btn-xs m-5 pull-right"
-                    data-container=".view_modal"
-                    data-href="{{ action([\App\Http\Controllers\SellPosController::class, 'showServiceStaffAvailibility']) }}">
-                    <strong><i class="fa fa-users fa-lg"></i></strong>
-                </button>
-            @endif
+        {{-- ── Left: location + datetime ── --}}
+        <div class="ph__location">
+            <span class="ph__location-label">@lang('sale.location')</span>
 
-            @can('close_cash_register')
-                <button type="button" id="close_register" title="{{ __('cash_register.close_register') }}"
-                    class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-error m-5 btn-modal pull-right"
-                    data-container=".close_register_modal"
-                    data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getCloseRegister']) }}">
-                    <strong><i class="fa fa-window-close fa-lg"></i></strong>
-                </button>
-            @endcan
-
-            @if (!empty($pos_settings['inline_service_staff']) || (in_array('tables', $enabled_modules) || in_array('service_staff', $enabled_modules)))
-                <button type="button"
-                    class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary m-6 btn-xs m-5 pull-right popover-default"
-                    id="service_staff_replacement" title="{{ __('restaurant.service_staff_replacement') }}"
-                    data-toggle="popover" data-trigger="click"
-                    data-content='<div class="m-8"><input type="text" class="form-control" placeholder="@lang('sale.invoice_no')" id="send_for_sell_service_staff_invoice_no"></div><div class="w-100 text-center"><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-error" id="send_for_sercice_staff_replacement">@lang('lang_v1.send')</button></div>'
-                    data-html="true" data-placement="bottom">
-                    <strong><i class="fa fa-user-plus fa-lg"></i></strong>
-                </button>
-            @endif
-
-            @can('view_cash_register')
-                <button type="button" id="register_details" title="{{ __('cash_register.register_details') }}"
-                    class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-success m-6 btn-xs m-5 btn-modal pull-right"
-                    data-container=".register_details_modal"
-                    data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getRegisterDetails']) }}">
-                    <strong><i class="fa fa-briefcase fa-lg" aria-hidden="true"></i></strong>
-                </button>
-            @endcan
-
-            <button title="@lang('lang_v1.calculator')" id="btnCalculator" type="button"
-                class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-success pull-right m-5 btn-xs mt-10 popover-default"
-                data-toggle="popover" data-trigger="click" data-content='@include('layouts.partials.calculator')' data-html="true"
-                data-placement="bottom">
-                <strong><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></strong>
-            </button>
-
-            <button type="button"
-                class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-error m-6 m-5 pull-right popover-default"
-                id="return_sale" title="@lang('lang_v1.sell_return')" data-toggle="popover" data-trigger="click"
-                data-content='<div class="m-8"><input type="text" class="form-control" placeholder="@lang('sale.invoice_no')" id="send_for_sell_return_invoice_no"></div><div class="w-100 text-center"><button type="button" class="tw-dw-btn tw-dw-btn-error tw-text-white tw-dw-btn-sm" id="send_for_sell_return">@lang('lang_v1.send')</button></div>'
-                data-html="true" data-placement="bottom">
-                <strong><i class="fas fa-undo fa-lg"></i></strong>
-            </button>
-
-            <button type="button" title="{{ __('lang_v1.full_screen') }}"
-                class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary m-6 hidden-xs m-5 pull-right"
-                id="full_screen">
-                <strong><i class="fa fa-window-maximize fa-lg"></i></strong>
-            </button>
-
-            <button type="button" id="view_suspended_sales" title="{{ __('lang_v1.view_suspended_sales') }}"
-                class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-yellow m-6 btn-xs m-5 btn-modal pull-right"
-                data-container=".view_modal" data-href="{{ $view_suspended_sell_url }}">
-                <strong><i class="fa fa-pause-circle fa-lg"></i></strong>
-            </button>
-            @if (empty($pos_settings['hide_product_suggestion']))
-                <button type="button" title="{{ __('lang_v1.view_products') }}" data-placement="bottom"
-                    class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-success m-6 btn-xs m-5 btn-modal pull-right tw-block md:tw-hidden"
-                    data-toggle="modal" data-target="#mobile_product_suggestion_modal">
-                    <strong><i class="fa fa-cubes fa-lg"></i></strong>
-                </button>
-            @endif
-
-            @if (Module::has('Repair') && $transaction_sub_type != 'repair')
-                @include('repair::layouts.partials.pos_header')
-            @endif
-
-            @if (in_array('pos_sale', $enabled_modules) && !empty($transaction_sub_type))
-                @can('sell.create')
-                    <a href="{{ action([\App\Http\Controllers\SellPosController::class, 'create']) }}"
-                        title="@lang('sale.pos_sale')"
-                        class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-success m-6 btn-xs m-5 pull-right">
-                        <strong><i class="fa fa-th-large"></i> &nbsp; @lang('sale.pos_sale')</strong>
-                    </a>
-                @endcan
-            @endif
-            @can('expense.add')
-                <button type="button" title="{{ __('expense.add_expense') }}" data-placement="bottom"
-                    class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary m-6 btn-xs m-5 btn-modal pull-right"
-                    id="add_expense">
-                    <strong><i class="fa fas fa-minus-circle"></i> @lang('expense.add_expense')</strong>
-                </button>
-            @endcan
-
-        </div>
-
-    </div> --}}
-
-    <div
-        class="tw-flex tw-flex-col md:tw-flex-row tw-items-center tw-justify-between tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white tw-rounded-xl tw-mx-0 tw-mt-1 tw-mb-0 md:tw-mb-0 tw-p-3">
-        <div class="tw-w-full md:tw-w-1/3">
-            <div class="tw-flex tw-items-center tw-gap-2">
-                <p><strong>@lang('sale.location'): &nbsp;</strong></p>
-                <div style="width: 28%">
-                    @if (empty($transaction->location_id))
-                        @if (count($business_locations) > 1)
-                            {!! Form::select(
-                                'select_location_id',
-                                $business_locations,
-                                $default_location->id ?? null,
-                                ['class' => 'form-control input-sm', 'id' => 'select_location_id', 'required', 'autofocus'],
-                                $bl_attributes,
-                            ) !!}
-                        @else
-                            {{ $default_location->name }}
-                        @endif
-                    @else
-                    {{ $transaction->location->name }}
-                    @endif
-                </div>
-                <div
-                    class="tw-hidden md:tw-block tw-bg-[#646EE4] hover:tw-bg-[#414aac] tw-py-1.5 tw-px-2 tw-rounded-md">
-                     &nbsp; <span
-                        class="curr_datetime text-white tw-font-semibold">{{ @format_datetime('now') }}</span>
-                    <i class="fa fa-keyboard hover-q text-white" aria-hidden="true" data-container="body"
-                        data-toggle="popover" data-placement="bottom" data-content="@include('sale_pos.partials.keyboard_shortcuts_details')"
-                        data-html="true" data-trigger="hover" data-original-title="" title=""></i>
-                </div>
-
-                @if (empty($pos_settings['hide_product_suggestion']))
-                    <button type="button" title="{{ __('lang_v1.view_products') }}" data-placement="bottom"
-                        class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-w-8 tw-h-8 tw-text-gray-600 btn-modal pull-right tw-block md:tw-hidden"
-                        data-toggle="modal" data-target="#mobile_product_suggestion_modal">
-                        <strong><i class="fa fa-cubes fa-lg tw-text-[#00935F] !tw-text-sm"></i></strong>
-                    </button>
+            @if (empty($transaction->location_id))
+                @if (count($business_locations) > 1)
+                    {!! Form::select(
+                        'select_location_id',
+                        $business_locations,
+                        $default_location->id ?? null,
+                        ['class' => 'form-control input-sm', 'id' => 'select_location_id', 'required', 'autofocus'],
+                        $bl_attributes,
+                    ) !!}
+                @else
+                    <span class="ph__location-name">{{ $default_location->name }}</span>
                 @endif
+            @else
+                <span class="ph__location-name">{{ $transaction->location->name }}</span>
+            @endif
 
-                <span class="tw-block md:tw-hidden">
-                    <i class="fas hamburger fa-bars tw-mx-5"
-                        onclick="document.getElementById('pos_header_more_options').classList.toggle('tw-hidden')"></i>
-                </span>
-
-            </div>
+            <span class="ph__datetime">
+                <span class="curr_datetime">{{ @format_datetime('now') }}</span>
+                <i class="fa fa-keyboard hover-q" aria-hidden="true"
+                   data-container="body" data-toggle="popover" data-placement="bottom"
+                   data-content="@include('sale_pos.partials.keyboard_shortcuts_details')"
+                   data-html="true" data-trigger="hover" title=""></i>
+            </span>
         </div>
 
-        <div class="tw-w-full md:tw-w-2/3 !tw-p-0 tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-col md:tw-flex-row tw-hidden md:tw-flex"
-            id="pos_header_more_options">
-            <a href="{{ $go_back_url }}" title="{{ __('lang_v1.go_back') }}"
-                class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right">
-                <strong class="!tw-m-3">
-                    <i class="fa fa-backward fa-lg fa fa-backward tw-fa-lg tw-text-[#009EE4] !tw-text-sm"></i>
-                    <span class="tw-inline md:tw-hidden">{{ __('lang_v1.go_back') }}</span>
-                </strong>
+        {{-- ── Mobile: product suggestion + hamburger ── --}}
+        <div class="ph__hamburger">
+            @if (empty($pos_settings['hide_product_suggestion']))
+                <button type="button"
+                    title="{{ __('lang_v1.view_products') }}"
+                    class="ph__btn ph__mobile-products btn-modal"
+                    data-toggle="modal" data-target="#mobile_product_suggestion_modal">
+                    <i class="fa fa-cubes ic-green"></i>
+                </button>
+            @endif
+
+            <button type="button" class="ph__btn" aria-label="More options"
+                onclick="document.getElementById('pos_header_more_options').classList.toggle('is-open')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        {{-- ── Toolbar ── --}}
+        <div class="ph__toolbar" id="pos_header_more_options">
+
+            {{-- Go back --}}
+            <a href="{{ $go_back_url }}" title="{{ __('lang_v1.go_back') }}" class="ph__btn ph__btn--text">
+                <i class="fa fa-arrow-left ic-blue"></i>
+                <span class="ph-label">{{ __('lang_v1.go_back') }}</span>
             </a>
 
-            {{-- <a href="{{ $go_back_url }}" title="{{ __('lang_v1.go_back') }}"
-              class="md:tw-hidden tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right">
-            <strong class="!tw-m-3">
-                <i class="fa fa-backward fa-lg fa fa-backward tw-fa-lg tw-text-[#009EE4] !tw-text-sm"></i>
-                <span class="tw-inline md:tw-hidden">{{ __('lang_v1.go_back') }}</span>
-            </strong>
-          </a> --}}
+            <div class="ph__sep"></div>
 
+            {{-- Recent transactions (mobile only row) --}}
             @if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
                 <button type="button"
-                    class="md:tw-hidden tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right"
-                    data-toggle="modal" data-target="#recent_transactions_modal" id="recent-transactions">
-                        <strong class="!tw-m-3">
-                            <i class="fa fa-clock fa-lg tw-text-[#646EE4] !tw-text-sm"></i>
-                            <span class="tw-inline md:tw-hidden">{{ __('lang_v1.recent_transactions') }}</span>
-                        </strong>
+                    class="ph__btn ph__btn--text d-md-none"
+                    data-toggle="modal" data-target="#recent_transactions_modal" id="recent-transactions-header">
+                    <i class="fa fa-clock ic-indigo"></i>
+                    <span class="ph-label">{{ __('lang_v1.recent_transactions') }}</span>
                 </button>
             @endif
 
+            {{-- Service staff availability --}}
             @if (!empty($pos_settings['inline_service_staff']))
-                <button type="button" id="show_service_staff_availability"
+                <button type="button"
+                    id="show_service_staff_availability"
                     title="{{ __('lang_v1.service_staff_availability') }}"
-                    class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right"
+                    class="ph__btn ph__btn--text"
                     data-container=".view_modal"
                     data-href="{{ action([\App\Http\Controllers\SellPosController::class, 'showServiceStaffAvailibility']) }}">
-                    <strong class="!tw-m-3">
-                        <i class="fa fa-users fa-lg tw-text-[#646EE4] !tw-text-sm"></i>
-                        <span class="tw-inline md:tw-hidden">{{ __('lang_v1.service_staff_availability') }}</span>
-                    </strong>
+                    <i class="fa fa-users ic-indigo"></i>
+                    <span class="ph-label">{{ __('lang_v1.service_staff_availability') }}</span>
                 </button>
             @endif
 
+            {{-- Close register --}}
             @can('close_cash_register')
-                <button type="button" id="close_register" title="{{ __('cash_register.close_register') }}"
-                    class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 btn-modal pull-right"
+                <button type="button"
+                    id="close_register"
+                    title="{{ __('cash_register.close_register') }}"
+                    class="ph__btn ph__btn--text btn-modal"
                     data-container=".close_register_modal"
                     data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getCloseRegister']) }}">
-                    <strong class="!tw-m-3">
-                        <i class="fa fa-window-close fa-lg tw-text-[#EF4B53] !tw-text-sm"></i>
-                        <span class="tw-inline md:tw-hidden">{{ __('cash_register.close_register') }}</span>
-                    </strong>
+                    <i class="fa fa-window-close ic-red"></i>
+                    <span class="ph-label">{{ __('cash_register.close_register') }}</span>
                 </button>
             @endcan
 
-            @if (
-                !empty($pos_settings['inline_service_staff']) ||
-                    (in_array('tables', $enabled_modules) || in_array('service_staff', $enabled_modules)))
+            {{-- Service staff replacement --}}
+            @if (!empty($pos_settings['inline_service_staff']) || (in_array('tables', $enabled_modules) || in_array('service_staff', $enabled_modules)))
                 <button type="button"
-                    class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right popover-default"
-                    id="service_staff_replacement" title="{{ __('restaurant.service_staff_replacement') }}"
-                    data-toggle="popover" data-trigger="click"
-                    data-content='<div class="m-8"><input type="text" class="form-control" placeholder="@lang('sale.invoice_no')" id="send_for_sell_service_staff_invoice_no"></div><div class="w-100 text-center"><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-error" id="send_for_sercice_staff_replacement">@lang('lang_v1.send')</button></div>'
-                    data-html="true" data-placement="bottom">
-
-                    <strong class="!tw-m-3">
-                        <i class="fa fa-user-plus fa-lg tw-text-[#646EE4] !tw-text-sm"></i>
-                        <span class="tw-inline md:tw-hidden">{{ __('restaurant.service_staff_replacement') }}</span>
-                    </strong>
+                    id="service_staff_replacement"
+                    title="{{ __('restaurant.service_staff_replacement') }}"
+                    class="ph__btn ph__btn--text popover-default"
+                    data-toggle="popover" data-trigger="click" data-html="true" data-placement="bottom"
+                    data-content='<div class="m-8"><input type="text" class="form-control" placeholder="@lang('sale.invoice_no')" id="send_for_sell_service_staff_invoice_no"></div><div class="w-100 text-center"><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-error" id="send_for_sercice_staff_replacement">@lang('lang_v1.send')</button></div>'>
+                    <i class="fa fa-user-plus ic-indigo"></i>
+                    <span class="ph-label">{{ __('restaurant.service_staff_replacement') }}</span>
                 </button>
             @endif
 
+            {{-- Register details --}}
             @can('view_cash_register')
-                <button type="button" id="register_details" title="{{ __('cash_register.register_details') }}"
-                    class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 btn-modal pull-right"
+                <button type="button"
+                    id="register_details"
+                    title="{{ __('cash_register.register_details') }}"
+                    class="ph__btn ph__btn--text btn-modal"
                     data-container=".register_details_modal"
                     data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getRegisterDetails']) }}">
-
-                    <strong class="!tw-m-3">
-                        <i class="fa fa-briefcase tw-fa-lg tw-text-[#00935F] !tw-text-sm" aria-hidden="true"></i>
-                        <span class="tw-inline md:tw-hidden">{{ __('cash_register.register_details') }}</span>
-                    </strong>
+                    <i class="fa fa-briefcase ic-green"></i>
+                    <span class="ph-label">{{ __('cash_register.register_details') }}</span>
                 </button>
             @endcan
 
-            <button title="@lang('lang_v1.calculator')" id="btnCalculator" type="button"
-                class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right popover-default"
-                data-toggle="popover" data-trigger="click" data-content='@include('layouts.partials.calculator')' data-html="true"
-                data-placement="bottom">
+            <div class="ph__sep"></div>
 
-
-                <strong class="!tw-m-3">
-                    <i class="fa fa-calculator fa-lg tw-text-[#00935F] !tw-text-sm" aria-hidden="true"></i>
-                    <span class="tw-inline md:tw-hidden">{{ __('lang_v1.calculator') }}</span>
-                </strong>
-            </button>
-
+            {{-- Calculator --}}
             <button type="button"
-                class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right pull-right popover-default"
-                id="return_sale" title="@lang('lang_v1.sell_return')" data-toggle="popover" data-trigger="click"
-                data-content='<div class="m-8"><input type="text" class="form-control" placeholder="@lang('sale.invoice_no')" id="send_for_sell_return_invoice_no"></div><div class="w-100 text-center"><button type="button" class="tw-dw-btn tw-dw-btn-error tw-text-white tw-dw-btn-sm" id="send_for_sell_return">@lang('lang_v1.send')</button></div>'
-                data-html="true" data-placement="bottom">
-                <strong class="!tw-m-3">
-                    <i class="fas fa-undo fa-lg tw-text-[#EF4B53] !tw-text-sm"></i>
-                    <span class="tw-inline md:tw-hidden">{{ __('lang_v1.sell_return') }}</span>
-                </strong>
+                id="btnCalculator"
+                title="@lang('lang_v1.calculator')"
+                class="ph__btn ph__btn--text popover-default"
+                data-toggle="popover" data-trigger="click" data-html="true" data-placement="bottom"
+                data-content='@include('layouts.partials.calculator')'>
+                <i class="fa fa-calculator ic-green"></i>
+                <span class="ph-label">{{ __('lang_v1.calculator') }}</span>
             </button>
 
-
-            <button type="button" title="{{ __('lang_v1.full_screen') }}"
-                class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right"
-                id="full_screen">
-                <strong class="!tw-m-3">
-                    <i class="fa fa-window-maximize fa-lg tw-text-[#646EE4] !tw-text-sm"></i>
-                    <span class="tw-inline md:tw-hidden">Full Screen</span>
-                </strong>
+            {{-- Sell return --}}
+            <button type="button"
+                id="return_sale"
+                title="@lang('lang_v1.sell_return')"
+                class="ph__btn ph__btn--text popover-default"
+                data-toggle="popover" data-trigger="click" data-html="true" data-placement="bottom"
+                data-content='<div class="m-8"><input type="text" class="form-control" placeholder="@lang('sale.invoice_no')" id="send_for_sell_return_invoice_no"></div><div class="w-100 text-center"><button type="button" class="tw-dw-btn tw-dw-btn-error tw-text-white tw-dw-btn-sm" id="send_for_sell_return">@lang('lang_v1.send')</button></div>'>
+                <i class="fas fa-undo ic-red"></i>
+                <span class="ph-label">{{ __('lang_v1.sell_return') }}</span>
             </button>
 
-            <button type="button" id="view_suspended_sales" title="{{ __('lang_v1.view_suspended_sales') }}"
-                class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 btn-modal pull-right"
-                data-container=".view_modal" data-href="{{ $view_suspended_sell_url }}">
-                <strong class="!tw-m-3">
-                    <i class="fa fa-pause-circle fa-lg tw-text-[#A5ADBB] !tw-text-sm"></i>
-                    <span class="tw-inline md:tw-hidden">{{ __('lang_v1.view_suspended_sales') }}</span>
-                </strong>
+            {{-- Full screen --}}
+            <button type="button"
+                id="full_screen"
+                title="{{ __('lang_v1.full_screen') }}"
+                class="ph__btn ph__btn--text">
+                <i class="fa fa-window-maximize ic-indigo"></i>
+                <span class="ph-label">Full screen</span>
             </button>
 
+            {{-- View suspended sales --}}
+            <button type="button"
+                id="view_suspended_sales"
+                title="{{ __('lang_v1.view_suspended_sales') }}"
+                class="ph__btn ph__btn--text btn-modal"
+                data-container=".view_modal"
+                data-href="{{ $view_suspended_sell_url }}">
+                <i class="fa fa-pause-circle ic-gray"></i>
+                <span class="ph-label">{{ __('lang_v1.view_suspended_sales') }}</span>
+            </button>
 
+            {{-- Customer display screen --}}
+            @if (!empty($pos_settings['customer_display_screen']))
+                <a href="{{ route('pos_display') }}"
+                    id="customer_display_screen"
+                    title="{{ __('lang_v1.customer_display_screen') }}"
+                    onclick="window.open(this.href,'customer_display','width='+screen.width+',height='+screen.height+',top=0,left=0'); return false;"
+                    class="ph__btn ph__btn--text">
+                    <i class="fa fa-tv ic-indigo"></i>
+                    <span class="ph-label">{{ __('lang_v1.customer_display_screen') }}</span>
+                </a>
+            @endif
+
+            {{-- Repair module --}}
             @if (Module::has('Repair') && $transaction_sub_type != 'repair')
                 @include('repair::layouts.partials.pos_header')
             @endif
 
             @if (in_array('pos_sale', $enabled_modules) && !empty($transaction_sub_type))
                 @can('sell.create')
+                    <div class="ph__sep"></div>
                     <a href="{{ action([\App\Http\Controllers\SellPosController::class, 'create']) }}"
                         title="@lang('sale.pos_sale')"
-                        class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-w-auto tw-h-auto tw-py-1 tw-px-4 tw-rounded-md pull-right">
-                        <strong><i class="fa fa-th-large tw-text-[#00935F] !tw-text-sm"></i> &nbsp;
-                            @lang('sale.pos_sale')</strong>
+                        class="ph__btn ph__btn--text">
+                        <i class="fa fa-th-large ic-green"></i>
+                        <span class="ph-label">@lang('sale.pos_sale')</span>
                     </a>
                 @endcan
             @endif
+
+            {{-- Add expense --}}
             @can('expense.add')
-                <button type="button" title="{{ __('expense.add_expense') }}" data-placement="bottom"
-                    class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-w-auto tw-h-auto tw-py-1 tw-px-4 tw-rounded-md btn-modal pull-right"
-                    id="add_expense">
-                    <strong><i class="fa fas fa-minus-circle"></i> @lang('expense.add_expense')</strong>
+                <button type="button"
+                    id="add_expense"
+                    title="{{ __('expense.add_expense') }}"
+                    class="ph__btn ph__btn--text btn-modal">
+                    <i class="fa fa-minus-circle ic-red"></i>
+                    <span class="ph-label">@lang('expense.add_expense')</span>
                 </button>
             @endcan
 
-        </div>
-    </div>
+        </div>{{-- /.ph__toolbar --}}
+
+    </div>{{-- /.ph --}}
 </div>
 
-<div class="modal fade" id="service_staff_modal" tabindex="-1" role="dialog"
-    aria-labelledby="gridSystemModalLabel">
-</div>
+<div class="modal fade" id="service_staff_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel"></div>

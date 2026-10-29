@@ -80,91 +80,39 @@
             </div>
         </div>
 
+        
         <div class="clearfix"></div>
         
-        <h4>Razorpay: <small>(For INR India)</small></h4>
+        <h4>ONEKHUSA:</h4>
         <div class="col-xs-4">
             <div class="form-group">
-                {!! Form::label('RAZORPAY_KEY_ID', 'Key ID:') !!}
-                {!! Form::text('RAZORPAY_KEY_ID', $default_values['RAZORPAY_KEY_ID'], ['class' => 'form-control']); !!}
-            </div>
-        </div>
-        <div class="col-xs-4">
-            <div class="form-group">
-                {!! Form::label('RAZORPAY_KEY_SECRET', 'Key Secret:') !!}
-                {!! Form::text('RAZORPAY_KEY_SECRET', $default_values['RAZORPAY_KEY_SECRET'], ['class' => 'form-control']); !!}
-            </div>
-        </div>
-
-
-
-
-        <div class="clearfix"></div>
-        
-        <h4>Pesapal: <small>(For KES currency)</small></h4>
-        <div class="col-xs-4">
-            <div class="form-group">
-                {!! Form::label('PESAPAL_CONSUMER_KEY', 'Consumer Key:') !!}
-                {!! Form::text('PESAPAL_CONSUMER_KEY', $default_values['PESAPAL_CONSUMER_KEY'], ['class' => 'form-control']); !!}
+                {!! Form::label('ONEKHUSA_BASEURL', 'Public key:') !!}
+                {!! Form::text('ONEKHUSA_BASEURL', $default_values['ONEKHUSA_BASEURL'], ['class' => 'form-control']); !!}
             </div>
         </div>
         <div class="col-xs-4">
             <div class="form-group">
-                {!! Form::label('PESAPAL_CONSUMER_SECRET', 'Consumer Secret:') !!}
-                {!! Form::text('PESAPAL_CONSUMER_SECRET', $default_values['PESAPAL_CONSUMER_SECRET'], ['class' => 'form-control']); !!}
-            </div>
-        </div>
-
-        <div class="col-xs-4">
-            <div class="form-group">
-                {!! Form::label('PESAPAL_LIVE', 'Is Live?') !!}
-                {!! Form::select('PESAPAL_LIVE',['false' => 'False', 'true' => 'True'],  $default_values['PESAPAL_LIVE'], ['class' => 'form-control']); !!}
-            </div>
-        </div>
-
-        <div class="clearfix"></div>
-        
-        <h4>Paystack: <small>(For NGN Nigeria, GHS Ghana)</small></h4>
-        <div class="col-xs-6">
-            <div class="form-group">
-                {!! Form::label('PAYSTACK_PUBLIC_KEY', 'Public key:') !!}
-                {!! Form::text('PAYSTACK_PUBLIC_KEY', $default_values['PAYSTACK_PUBLIC_KEY'], ['class' => 'form-control']); !!}
-            </div>
-        </div>
-        <div class="col-xs-6">
-            <div class="form-group">
-                {!! Form::label('PAYSTACK_SECRET_KEY', 'Secret key:') !!}
-                {!! Form::text('PAYSTACK_SECRET_KEY', $default_values['PAYSTACK_SECRET_KEY'], ['class' => 'form-control']); !!}
-            </div>
-        </div>
-
-        <div class="clearfix"></div>
-        
-        <h4>Flutterwave:</h4>
-        <div class="col-xs-4">
-            <div class="form-group">
-                {!! Form::label('FLUTTERWAVE_PUBLIC_KEY', 'Public key:') !!}
-                {!! Form::text('FLUTTERWAVE_PUBLIC_KEY', $default_values['FLUTTERWAVE_PUBLIC_KEY'], ['class' => 'form-control']); !!}
+                {!! Form::label('ONEKHUSA_MERCHANT_ACCOUNT_NUMBER', 'Merchant Account Number:') !!}
+                {!! Form::text('ONEKHUSA_MERCHANT_ACCOUNT_NUMBER', $default_values['ONEKHUSA_MERCHANT_ACCOUNT_NUMBER'], ['class' => 'form-control']); !!}
             </div>
         </div>
         <div class="col-xs-4">
             <div class="form-group">
-                {!! Form::label('FLUTTERWAVE_SECRET_KEY', 'Secret key:') !!}
-                {!! Form::text('FLUTTERWAVE_SECRET_KEY', $default_values['FLUTTERWAVE_SECRET_KEY'], ['class' => 'form-control']); !!}
+                {!! Form::label('ONEKHUSA_API_SECRET', 'API Secret:') !!}
+                {!! Form::text('ONEKHUSA_API_SECRET', $default_values['ONEKHUSA_API_SECRET'], ['class' => 'form-control']); !!}
             </div>
         </div>
         <div class="col-xs-4">
             <div class="form-group">
-                {!! Form::label('FLUTTERWAVE_ENCRYPTION_KEY', 'Encryption key:') !!}
-                {!! Form::text('FLUTTERWAVE_ENCRYPTION_KEY', $default_values['FLUTTERWAVE_ENCRYPTION_KEY'], ['class' => 'form-control']); !!}
+                {!! Form::label('ONEKHUSA_API_KEY', 'API Key:') !!}
+                {!! Form::text('ONEKHUSA_API_KEY', $default_values['ONEKHUSA_API_KEY'], ['class' => 'form-control']); !!}
             </div>
         </div>
-        <div class="col-xs-12 mt-0">
-            <p class="help-block mt-0">
-                <a href="https://support.flutterwave.com/en/articles/3632719-accepted-currencies" target="_blank">
-                    @lang('superadmin::lang.flutterwave_help_text')
-                </a>
-            </p>
+        <div class="col-xs-4">
+            <div class="form-group">
+                {!! Form::label('ONEKHUSA_ORGANISATION_ID', 'Organisation ID:') !!}
+                {!! Form::text('ONEKHUSA_ORGANISATION_ID', $default_values['ONEKHUSA_ORGANISATION_ID'], ['class' => 'form-control']); !!}
+            </div>
         </div>
         <div class="col-xs-12">
             <br/>

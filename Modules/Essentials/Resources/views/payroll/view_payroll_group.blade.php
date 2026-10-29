@@ -3,9 +3,9 @@
 @section('content')
 @include('essentials::layouts.nav_hrm')
 <section class="content-header">
-	<h1>
+	<h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black" >
     	@lang('essentials::lang.view_payroll_group')
-    	<small><code>({{$payroll_group->name}})</code></small>
+    	<small class="tw-text-sm md:tw-text-base tw-text-gray-700 tw-font-semibold"><code>({{$payroll_group->name}})</code></small>
     </h1>
 </section>
 <!-- Main content -->
@@ -15,11 +15,28 @@
 			<div class="box box-solid" id="payroll-group">
 				<div class="box-header no-print">
 					<div class="box-tools">
-						<button type="button" class="btn btn-primary" aria-label="Print" id="print_payrollgroup">
-							<i class="fa fa-print"></i>
-							@lang( 'messages.print' )
-				      	</button>
-			      	</div>
+
+					<!-- Print Button -->
+					<button type="button" 
+							class="tw-dw-btn tw-dw-btn-primary tw-text-white" 
+							id="print_payrollgroup">
+						<i class="fa fa-print me-1"></i>
+						@lang('messages.print')
+					</button>
+
+					<!-- Export MRA CSV -->
+					<a class="tw-dw-btn tw-dw-btn-primary tw-text-white" 
+					href="{{ route('payroll.export.mra') }}">
+						<i class="fa fa-file-csv me-1 text-success"></i> Export to MRA CSV
+					</a>
+
+					<!-- Export STD Bank CSV -->
+					<a class="tw-dw-btn tw-dw-btn-primary tw-text-white" 
+					href="{{ route('payroll.export.std_bank') }}">
+						<i class="fa fa-file-csv me-1 text-success"></i> Export to STD Bank CSV
+					</a>
+
+				</div>
 			    </div>
 				<div class="box-body">
 					<div class="row">

@@ -105,5 +105,6 @@ return [
     'tax_number1' => 'Thuế số 1',
     'tax_number2' => 'Thuế số 2',
     'is_active' => 'Hoạt động',
-    'created_by' => 'Được tạo bởi',
-];
+     'created_by' => 'Được tạo bởi',
+     'additional_number_secondary' => 'Số bổ sung/Số phụ',
+ ];

@@ -11,6 +11,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title')</title> 
+    @include('layouts.partials.branding-icon')
+
+    <!-- Tailwind CSS (includes DaisyUI) -->
+    <link href="{{ asset('css/tailwind/app.css?v='.$asset_v) }}" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/vendor.css?v='.$asset_v) }}">
 
@@ -29,6 +33,7 @@
         <input type="hidden" id="status_span" data-status="{{ session('status.success') }}" data-msg="{{ session('status.msg') }}">
     @endif
     @yield('content')
+    @include('layouts.partials.branding-public-footer')
 
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js?v=$asset_v"></script>

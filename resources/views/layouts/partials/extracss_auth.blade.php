@@ -3,12 +3,104 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <style>
+        /* ================================
+           BACKGROUND OPTIONS
+           ================================ */
+         /* Note: Only uncomment one of the options below. */
+        /* OPTION 1: Flat background */
+        html {
+            height: 100%;
+            background: #ffffff;
+        }
+
+        /* OPTION 2: Background Image */
+        /* Uncomment below for image background */
+        /* html {
+            height: 100%;
+            background-image: url('{{ asset('img/bg-image.jpg') }}');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        } */
+
+        /* Common Body Styles (Always Keep This) */
         body {
-            background-color: #243949;
+            min-height: 100vh;
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         h1 {
-            color: #fff;
+            color: #111827;
+        }
+
+        .login-shell {
+            min-height: calc(100vh - 110px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 0;
+        }
+
+        .login-grid {
+            width: min(100%, 440px);
+            display: block;
+        }
+
+        .login-side-panel,
+        .login-side-placeholder {
+            display: none;
+        }
+
+        .login-main-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .login-card {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: none;
+            padding: 22px 20px 16px;
+        }
+
+        .login-header-block {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .login-header-block h1 {
+            margin: 0 0 6px;
+            color: #111827;
+            font-size: 1.7rem;
+            font-weight: 700;
+        }
+
+        .login-header-block h2 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .login-support-text {
+            display: block;
+            margin-top: 14px;
+            text-align: center;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .login-support-text a {
+            color: #1f2937;
+            font-weight: 600;
+            text-decoration: none;
         }
     </style>
 
@@ -78,12 +170,8 @@
         }
     </style>
     <style>
-        body {
-            background: linear-gradient(to right, #6366f1, #3b82f6);
-        }
-
         h1 {
-            color: #fff;
+            color: #111827;
         }
     </style>
     <style>

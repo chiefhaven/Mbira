@@ -19,7 +19,11 @@ class BusinessLocationResource extends JsonResource
         $default_payment_accounts = ! empty($array['default_payment_accounts']) ? json_decode($array['default_payment_accounts'], true) : [];
         //Add label of each payment methods from business custom labels.
         $util = new Util();
-        $all_payment_methods = $util->payment_types($array['id']);
+        $methodsKey = 'connector.payment_types.'.$array['business_id'];
+        if (! $request->attributes->has($methodsKey)) {
+            $request->attributes->set($methodsKey, $util->payment_types(null, false, $array['business_id']));
+        }
+        $all_payment_methods = $request->attributes->get($methodsKey);
         $payment_methods = [];
         foreach ($default_payment_accounts as $key => $value) {
             if (isset($all_payment_methods[$key]) && $value['is_enabled'] == 1) {

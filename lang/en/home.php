@@ -17,6 +17,7 @@ return [
     'invoice_due' => 'Invoice due',
     'purchase_due' => 'Purchase due',
     'today' => 'Today',
+    'total_vat' => 'Total VAT',
     'this_week' => 'This Week',
     'this_month' => 'This Month',
     'this_fy' => 'This Financial Year',

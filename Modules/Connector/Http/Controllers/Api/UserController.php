@@ -221,13 +221,60 @@ class UserController extends ApiController
         $user = Auth::user();
         $user->is_admin = $this->commonUtil->is_admin($user);
 
-        if (! $user->is_admin) {
-            $user->all_permissions = $user->getAllPermissions()->pluck('name');
-        }
-        unset($user->permissions);
-        unset($user->roles);
+        $roleNames = $user->getRoleNames()->values();
+        $allPermissions = $user->getAllPermissions()->pluck('name')->values();
+
+        $user->role = $roleNames->first();
+        $user->role_name = $roleNames->first();
+        $user->role_names = $roleNames;
+        $user->roles = $roleNames;
+
+        $user->permissions = $allPermissions;
+        $user->all_permissions = $allPermissions;
+
+        unset($user->permissions_relation);
+        unset($user->roles_relation);
 
         return new CommonResource($user);
+    }
+
+    public function adminUsernames()
+    {
+        $administrator_list = config('constants.administrator_usernames');
+        $usernames = collect(explode(',', (string) $administrator_list))
+            ->map(function ($username) {
+                return trim($username);
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return [
+            'success' => true,
+            'data' => [
+                'usernames' => $usernames,
+                'count' => count($usernames),
+            ],
+        ];
+    }
+
+    public function adminUsers()
+    {
+        $usernames = $this->adminUsernames()['data']['usernames'];
+
+        $users = User::whereIn('username', $usernames)
+            ->select('id', 'username', 'first_name', 'last_name', 'email', 'business_id')
+            ->get();
+
+        return [
+            'success' => true,
+            'data' => [
+                'usernames' => $usernames,
+                'count' => count($usernames),
+                'users' => $users,
+            ],
+        ];
     }
 
     /**

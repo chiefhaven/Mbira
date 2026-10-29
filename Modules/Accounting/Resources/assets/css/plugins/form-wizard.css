@@ -1,0 +1,220 @@
+#heading {
+    text-transform: uppercase;
+    color: #3c8dbc;
+    font-weight: normal
+}
+
+.msform {
+    position: relative;
+    margin-top: 20px
+}
+
+.msform fieldset {
+    background: white;
+    border: 0 none;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding-bottom: 20px;
+    position: relative
+}
+
+.form-card {
+    text-align: left
+}
+
+.msform fieldset:not(:first-of-type) {
+    display: none
+}
+
+.msform input[type=text],
+.msform input[type=number],
+.msform textarea,
+.msform select {
+    padding: 8px 15px 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    margin-bottom: 2px;
+    margin-top: 2px;
+    width: 100%;
+    box-sizing: border-box;
+    letter-spacing: 1px
+}
+
+.msform input:focus,
+.msform textarea:focus {
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 1px solid #3c8dbc;
+    outline-width: 0
+}
+
+.card {
+    z-index: 0;
+    border: none;
+    position: relative
+}
+
+.fs-title {
+    font-size: 25px;
+    color: #3c8dbc;
+    margin-bottom: 15px;
+    font-weight: normal;
+    text-align: left
+}
+
+.primary-text {
+    color: #3c8dbc;
+    font-weight: normal
+}
+
+.steps {
+    font-size: 25px;
+    color: gray;
+    margin-bottom: 10px;
+    font-weight: normal;
+    text-align: right
+}
+
+.fieldlabels {
+    color: gray;
+    text-align: left
+}
+
+#progressbar {
+    margin-bottom: 30px;
+    overflow: hidden;
+    color: lightgrey;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+#progressbar .active {
+    color: #3c8dbc
+}
+
+#progressbar .past {
+    color: #5cb85c
+}
+
+#progressbar li {
+    list-style-type: none;
+    font-size: 15px;
+    /* width: 25%; */
+    float: left;
+    position: relative;
+    font-weight: 400
+}
+
+#progressbar #page-one:before {
+    content: "1"
+}
+
+#progressbar #page-two:before {
+    content: "2"
+}
+
+#progressbar #page-three:before {
+    content: "3"
+}
+
+#progressbar #page-four:before {
+    content: "4"
+}
+
+#progressbar #page-five:before {
+    content: "5"
+}
+
+#progressbar #page-six:before {
+    content: "6"
+}
+
+#progressbar #page-seven:before {
+    content: "7"
+}
+
+#progressbar li:before {
+    width: 50px;
+    height: 50px;
+    line-height: 45px;
+    display: block;
+    font-size: 20px;
+    color: #ffffff;
+    background: lightgray;
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+    padding: 2px
+}
+
+#progressbar li:after {
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: lightgray;
+    position: absolute;
+    left: 0;
+    top: 25px;
+    z-index: -1
+}
+
+#progressbar li.active:before,
+#progressbar li.active:after {
+    background: #3c8dbc
+}
+
+#progressbar li.past:before,
+#progressbar li.past:after {
+    background: #5cb85c
+}
+
+.progress {
+    height: 20px
+}
+
+.progress-bar {
+    background-color: #3c8dbc
+}
+
+.progressbar-2 li {
+    width: 50%;
+}
+
+.progressbar-3 li {
+    width: 33%;
+}
+
+.progressbar-4 li {
+    width: 25%;
+}
+
+.progressbar-5 li {
+    width: 20%;
+}
+
+.progressbar-7 li {
+    width: 14%;
+}
+
+.fit-image {
+    width: 100%;
+    object-fit: cover
+}
+
+@media screen and (max-width: 992px) {
+    #progressbar li {
+        list-style-type: none;
+        font-size: 15px;
+        width: 100%;
+        float: left;
+        position: relative;
+        font-weight: 400
+    }
+
+    #progressbar li:not(.active){
+        display: none;
+    }
+  }

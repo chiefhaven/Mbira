@@ -102,7 +102,7 @@
 								@include('stock_transfer.partials.product_table_row', ['product' => $product, 'row_index' => $loop->index, 'sub_units' => !empty($product->unit_details) ? $product->unit_details : []])
 								@php
 									$product_row_index = $loop->index + 1;
-									$subtotal += ($product->quantity_ordered*$product->last_purchased_price);
+									$subtotal += ($product->quantity_ordered*$product->default_purchase_price);
 								@endphp
 							@endforeach
 						</tbody>

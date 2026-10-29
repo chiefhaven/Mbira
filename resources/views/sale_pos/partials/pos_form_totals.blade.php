@@ -1,4 +1,8 @@
 <div class="row pos_form_totals">
+	<div class="col-md-12 mb-12">
+		@include('sale_pos.partials.relief_checkbox')
+		@include('sale_pos.partials.vat5_fields')
+	</div>
 	<div class="col-md-12">
 		<table class="table table-condensed">
 			<tr>
@@ -10,8 +14,8 @@
 				</td>
 			</tr>
 			<tr>
-				@if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
-					<td>
+				
+					<td @if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin')) class="" @else class="hide" @endif>
 						<b class="tw-text-base md:tw-text-lg tw-font-bold">
 							@if($is_discount_enabled)
 								@lang('sale.discount')
@@ -39,7 +43,7 @@
 								</span>
 						</b> 
 					</td>
-				@endif
+				
 				<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
 					<span class="tw-text-base md:tw-text-lg tw-font-semibold">
 						<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('sale.order_tax')(+): @show_tooltip(__('tooltip.sale_tax'))</b>

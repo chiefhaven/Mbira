@@ -115,6 +115,18 @@
     <!-- /.content -->
 @stop
 @section('javascript')
+    @php
+        $custom_labels = json_decode(session('business.custom_labels'), true);
+    @endphp
+    <script>
+        // Custom field visibility configuration
+        var customFieldVisibility = {
+            custom_field_1: @json(!empty($custom_labels['purchase']['custom_field_1'])),
+            custom_field_2: @json(!empty($custom_labels['purchase']['custom_field_2'])),
+            custom_field_3: @json(!empty($custom_labels['purchase']['custom_field_3'])),
+            custom_field_4: @json(!empty($custom_labels['purchase']['custom_field_4']))
+        };
+    </script>
     <script src="{{ asset('js/purchase.js?v=' . $asset_v) }}"></script>
     <script src="{{ asset('js/payment.js?v=' . $asset_v) }}"></script>
     <script>

@@ -114,44 +114,84 @@ $(document).ready(function() {
                 },
             },
             submitHandler: function(form) {
-                $.ajax({
-                    method: 'POST',
-                    url: base_path + '/check-mobile',
-                    dataType: 'json',
-                    data: {
-                        contact_id: function() {
-                            return $('#hidden_id').val();
-                        },
-                        mobile_number: function() {
-                            return $('#mobile').val();
-                        },
-                    },
-                    beforeSend: function(xhr) {
-                        __disable_submit_button($(form).find('button[type="submit"]'));
-                    },
-                    success: function(result) {
-                        if (result.is_mobile_exists == true) {
-                            swal({
-                                title: LANG.sure,
-                                text: result.msg,
-                                icon: 'warning',
-                                buttons: true,
-                                dangerMode: true,
-                            }).then(willContinue => {
-                                if (willContinue) {
-                                    submitQuickAddPurchaseContactForm(form);
-                                } else {
-                                    $('#mobile').select();
-                                }
-                            });
-                            
-                        } else {
-                            submitQuickAddPurchaseContactForm(form);
-                        }
-                    },
-                });
+                __disable_submit_button($(form).find('button[type="submit"]'));
+                checkTaxNumberAndSubmitPurchase(form);
             },
         });
+
+    function checkTaxNumberAndSubmitPurchase(form) {
+        // Check if tax_number field exists and has a value
+        if ($('#tax_number').length && $('#tax_number').val().trim() !== '') {
+            $.ajax({
+                method: 'POST',
+                url: base_path + '/contacts/check-tax-number',
+                dataType: 'json',
+                data: {
+                    contact_id: $('#hidden_id').val(),
+                    tax_number: $('#tax_number').val(),
+                },
+                success: function(result) {
+                    if (result.is_tax_number_exists == true) {
+                        swal({
+                            title: LANG.sure,
+                            text: result.msg,
+                            icon: 'warning',
+                            buttons: true,
+                            dangerMode: true,
+                        }).then(willContinue => {
+                            if (willContinue) {
+                                checkMobileAndSubmitPurchase(form);
+                            } else {
+                                $('#tax_number').select();
+                            }
+                        });
+                    } else {
+                        checkMobileAndSubmitPurchase(form);
+                    }
+                },
+            });
+        } else {
+            // If no tax number, proceed to mobile check
+            checkMobileAndSubmitPurchase(form);
+        }
+    }
+
+    function checkMobileAndSubmitPurchase(form) {
+        $.ajax({
+            method: 'POST',
+            url: base_path + '/check-mobile',
+            dataType: 'json',
+            data: {
+                contact_id: function() {
+                    return $('#hidden_id').val();
+                },
+                mobile_number: function() {
+                    return $('#mobile').val();
+                },
+            },
+            success: function(result) {
+                if (result.is_mobile_exists == true) {
+                    swal({
+                        title: LANG.sure,
+                        text: result.msg,
+                        icon: 'warning',
+                        buttons: true,
+                        dangerMode: true,
+                    }).then(willContinue => {
+                        if (willContinue) {
+                            submitQuickAddPurchaseContactForm(form);
+                        } else {
+                            $('#mobile').select();
+                        }
+                    });
+                    
+                } else {
+                    submitQuickAddPurchaseContactForm(form);
+                }
+            },
+        });
+    }
+
     $('.contact_modal').on('hidden.bs.modal', function() {
         $('form#quick_add_contact')
             .find('button[type="submit"]')
@@ -207,7 +247,7 @@ $(document).ready(function() {
             })
             .autocomplete('instance')._renderItem = function(ul, item) {
             return $('<li>')
-                .append('<div>' + item.text + '</div>')
+                .append('<div>' + escapeHtml(item.text) + '</div>')
                 .appendTo(ul);
         };
     }
@@ -565,6 +605,13 @@ $(document).ready(function() {
             { data: 'payment_status', name: 'payment_status' },
             { data: 'final_total', name: 'final_total' },
             { data: 'payment_due', name: 'payment_due', orderable: false, searchable: false },
+
+            { data: 'custom_field_1', name: 'transactions.custom_field_1', visible: typeof customFieldVisibility !== 'undefined' ? customFieldVisibility.custom_field_1 : false },
+            { data: 'custom_field_2', name: 'transactions.custom_field_2', visible: typeof customFieldVisibility !== 'undefined' ? customFieldVisibility.custom_field_2 : false },
+            { data: 'custom_field_3', name: 'transactions.custom_field_3', visible: typeof customFieldVisibility !== 'undefined' ? customFieldVisibility.custom_field_3 : false },
+            { data: 'custom_field_4', name: 'transactions.custom_field_4', visible: typeof customFieldVisibility !== 'undefined' ? customFieldVisibility.custom_field_4 : false },
+
+            
             { data: 'added_by', name: 'u.first_name' },
         ],
         fnDrawCallback: function(oSettings) {

@@ -226,7 +226,13 @@ class ImportSalesController extends Controller
             $sell_lines = [];
             foreach ($data as $line_data) {
                 if (! empty($line_data['sku'])) {
-                    $variation = Variation::where('sub_sku', $line_data['sku'])->with(['product'])->first();
+                    
+                    $variation = Variation::where('sub_sku', $line_data['sku'])
+                    ->whereHas('product', function ($query) use ($business_id) {
+                        $query->where('business_id', $business_id);
+                    })
+                    ->with(['product'])
+                    ->first();
 
                     $product = ! empty($variation) ? $variation->product : null;
                 } else {

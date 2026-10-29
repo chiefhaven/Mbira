@@ -3,7 +3,7 @@
 namespace Modules\Connector\Transformers;
 
 use App\PurchaseLine;
-use App\Utils\ProductUtil;
+use Modules\Connector\Support\ProductDiscountLookup;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class NewProductResource extends JsonResource
@@ -25,7 +25,11 @@ class NewProductResource extends JsonResource
 
         $send_lot_detail = ! empty(request()->input('send_lot_detail')) && request()->input('send_lot_detail') == 1 ? true : false;
 
-        $productUtil = new ProductUtil;
+        $lookupKey = 'connector.product_discounts.'.$array['business_id'];
+        if (! $request->attributes->has($lookupKey)) {
+            $request->attributes->set($lookupKey, new ProductDiscountLookup($array['business_id']));
+        }
+        $discountLookup = $request->attributes->get($lookupKey);
         foreach ($array['product_variations'] as $key => $value) {
             foreach ($value['variations'] as $k => $v) {
 
@@ -62,7 +66,7 @@ class NewProductResource extends JsonResource
                 $discounts = [];
                 foreach ($array['product_locations'] as $pl) {
                     $selling_price_group = $pl['selling_price_group_id'] ?? null;
-                    $location_discount = $productUtil->getProductDiscount($this, $array['business_id'], $pl['id'], false, $selling_price_group, $v['id']);
+                    $location_discount = $discountLookup->find($this, $pl['id'], $selling_price_group, $v['id']);
                     if (! empty($location_discount)) {
                         $discounts[] = $location_discount;
                     }

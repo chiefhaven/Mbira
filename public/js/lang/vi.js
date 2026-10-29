@@ -8,6 +8,7 @@ LANG = {
 'paid_amount_is_more_than_payable': 'Số tiền đã trả nhiều hơn số tiền phải trả. \ nVui lòng kiểm tra. ',
 'confirm_delete_role': 'Vai trò này sẽ bị xóa.',
 'sku_already_exists': 'SKU đã tồn tại.',
+"name_already_exists" : 'Tên đã tồn tại',
 'ref_no_already_exists': 'Số tham chiếu đã được sử dụng.',
 'out_of_stock': 'Hàng hết hàng',
 'delete_invoice_confirm': 'Cài đặt này sẽ bị xóa.',
@@ -135,5 +136,33 @@ LANG = {
 'authentication_failed': 'Xác thực thất bại!',
 'authentication_successfull': 'Xác thực thành công',
 'please_enter' : 'Vui lòng nhập',
-'or_more_characters' : 'hoặc nhiều hơn ký tự'
+'or_more_characters' : 'hoặc nhiều hơn ký tự',
+'name_already_exists' : "Sản phẩm với tên này đã tồn tại",
+// AI Assistance translations
+'use_ai': 'Sử dụng AI',
+'image_added_successfully': 'Hình ảnh đã được thêm thành công',
+'fill_required_fields': 'Vui lòng điền vào các trường bắt buộc trước khi sử dụng AI',
+'generating_description': 'Đang tạo mô tả sản phẩm...',
+'generating_image': 'Đang tạo hình ảnh sản phẩm...',
+'processing': 'Đang xử lý...',
+'use_description': 'Sử dụng Mô tả',
+'use_image': 'Sử dụng Hình ảnh',
+'submit': 'Gửi',
+'fill_name_brand_for_image': 'Vui lòng điền Tên sản phẩm, Thương hiệu trước khi tạo hình ảnh.',
+'fill_name_brand_unit_for_ai': 'Vui lòng điền Tên sản phẩm, Thương hiệu và Đơn vị trước khi sử dụng AI.',
+'something_went_wrong_try_again': 'Có lỗi xảy ra, vui lòng thử lại',
+ 'invoice_number_already_exists': 'Số hóa đơn đã tồn tại',
+ 'tax_number_already_exists' : 'Số thuế này đã tồn tại',
+ 'missing_skus' : 'Thiếu SKU',
+ 'each': 'Mỗi',
+ 'total': 'Tổng',
+        
+    // Member profile related
+    'diet_plan_applied_to_form_successfully': 'Kế hoạch ăn kiêng đã được áp dụng thành công vào biểu mẫu!',
+    'workout_plan_saved_successfully': 'Kế hoạch tập luyện đã được lưu thành công!',
+    'workout_plan_applied_to_form_successfully': 'Kế hoạch tập luyện đã được áp dụng thành công vào biểu mẫu!',
+
+    'name_length_exceeded': 'Tổng độ dài của Tiền tố, Tên, Tên đệm và Họ không được vượt quá 127 ký tự.',
+    'error': 'Lỗi',
+    'ok': 'OK',
 };

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
@@ -116,6 +117,7 @@ class RoleController extends Controller
         }
 
         try {
+            DB::beginTransaction();
             $role_name = $request->input('name');
             $permissions = $request->input('permissions');
             $business_id = $request->session()->get('user.business_id');
@@ -136,7 +138,8 @@ class RoleController extends Controller
                 ]);
 
                 //Include selling price group permissions
-                $spg_permissions = $request->input('radio_option');
+                $spg_permissions = $request->input('spg_permissions');
+
                 if (! empty($spg_permissions)) {
                     foreach ($spg_permissions as $spg_permission) {
                         $permissions[] = $spg_permission;
@@ -155,6 +158,7 @@ class RoleController extends Controller
                 if (! empty($permissions)) {
                     $role->syncPermissions($permissions);
                 }
+                db::commit();
                 $output = ['success' => 1,
                     'msg' => __('user.role_added'),
                 ];
@@ -166,6 +170,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
+            db::rollBack();
             $output = ['success' => 0,
                 'msg' => __('messages.something_went_wrong'),
             ];

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'eis_catalog_locked' => 'Products are managed by EIS. Manual creation, imports, deletion, stock and price edits are not allowed. Sync EIS to update the catalog.',
+    'eis_local_details' => 'EIS controls product identity, description, units, tax, prices, stock and expiry. Only image, category, brand, locations, racks, alert quantity and custom fields can be edited here.',
 
     /*
     |--------------------------------------------------------------------------

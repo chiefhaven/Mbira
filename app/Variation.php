@@ -9,6 +9,12 @@ class Variation extends Model
 {
     use SoftDeletes;
 
+    protected static function booted()
+    {
+        static::saving(fn ($variation) => \App\Services\EisProductPolicy::guardVariation($variation));
+        static::deleting(fn ($variation) => \App\Services\EisProductPolicy::guardVariation($variation, true));
+    }
+
     /**
      * The attributes that aren't mass assignable.
      *

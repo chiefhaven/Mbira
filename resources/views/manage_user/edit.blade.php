@@ -104,15 +104,15 @@
             @endif
             <div class="col-md-4">
                 <div class="form-group">
-                  {!! Form::label('password', __( 'business.password' ) . ':') !!}
-                    {!! Form::password('password', ['class' => 'form-control', 'placeholder' => __( 'business.password'), 'required' => empty($user->allow_login) ? true : false ]); !!}
-                    <p class="help-block">@lang('user.leave_password_blank')</p>
+                  {!! Form::label('password', "PIN" . ':') !!}
+                    {!! Form::password('password', ['class' => 'form-control', 'placeholder' => "PIN", 'required' => empty($user->allow_login) ? true : false ]); !!}
+                    <p class="help-block">PIN</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                  {!! Form::label('confirm_password', __( 'business.confirm_password' ) . ':') !!}
-                    {!! Form::password('confirm_password', ['class' => 'form-control', 'placeholder' => __( 'business.confirm_password' ), 'required' => empty($user->allow_login) ? true : false ]); !!}
+                  {!! Form::label('confirm_password', "Confirm PIN" . ':') !!}
+                    {!! Form::password('confirm_password', ['class' => 'form-control', 'placeholder' => "Confirm PIN", 'required' => empty($user->allow_login) ? true : false ]); !!}
                   
                 </div>
             </div>

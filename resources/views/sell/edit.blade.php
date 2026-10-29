@@ -25,7 +25,7 @@
 	$common_settings = session()->get('business.common_settings');
 @endphp
 <input type="hidden" id="item_addition_method" value="{{$business_details->item_addition_method}}">
-	{!! Form::open(['url' => action([\App\Http\Controllers\SellPosController::class, 'update'], ['po' => $transaction->id ]), 'method' => 'put', 'id' => 'edit_sell_form', 'files' => true ]) !!}
+	{!! Form::open(['url' => action([\App\Http\Controllers\SellPosController::class, 'update'], ['po' => $transaction->id ]), 'method' => 'put', 'id' => 'edit_sell_form', 'files' => true, 'data-transaction-id' => $transaction->id ]) !!}
 
 	{!! Form::hidden('location_id', $transaction->location_id, ['id' => 'location_id', 'data-receipt_printer_type' => !empty($location_printer_type) ? $location_printer_type : 'browser', 'data-default_payment_accounts' => $transaction->location->default_payment_accounts]); !!}
 
@@ -306,23 +306,9 @@
 			@endcomponent
 			
 			@component('components.widget', ['class' => 'box-solid'])
-				<div class="col-sm-10 col-sm-offset-1">
-					<div class="form-group">
-						<div class="input-group">
-							<div class="input-group-btn">
-								<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fas fa-search-plus"></i></button>
-							</div>
-							{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
-							'autofocus' => true,
-							]); !!}
-							<span class="input-group-btn">
-								<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
-							</span>
-						</div>
-					</div>
-				</div>
+				
 
-				<div class="row col-sm-12 pos_product_div" style="min-height: 0">
+				<div class="row col-sm-12" style="min-height: 0">
 
 					<input type="hidden" name="sell_price_tax" id="sell_price_tax" value="{{$business_details->sell_price_tax}}">
 
@@ -339,6 +325,7 @@
 					<table class="table table-condensed table-bordered table-striped table-responsive" id="pos_table">
 						<thead>
 							<tr>
+								<th class="text-center">#</th>
 								<th class="text-center">	
 									@lang('sale.product')
 								</th>
@@ -373,7 +360,7 @@
 						</thead>
 						<tbody>
 							@foreach($sell_details as $sell_line)
-								@include('sale_pos.product_row', ['product' => $sell_line, 'row_count' => $loop->index, 'tax_dropdown' => $taxes, 'sub_units' => !empty($sell_line->unit_details) ? $sell_line->unit_details : [], 'action' => 'edit', 'is_direct_sell' => true, 'so_line' => $sell_line->so_line, 'is_sales_order' => $transaction->type == 'sales_order'])
+								@include('sale_pos.product_row', ['product' => $sell_line, 'row_count' => $loop->index, 'tax_dropdown' => $taxes, 'sub_units' => !empty($sell_line->unit_details) ? $sell_line->unit_details : [], 'action' => 'edit', 'is_direct_sell' => true, 'so_line' => $sell_line->so_line, 'is_sales_order' => $transaction->type == 'sales_order', 'is_serial_no' => true])
 							@endforeach
 						</tbody>
 					</table>
@@ -392,6 +379,23 @@
 							</td>
 						</tr>
 					</table>
+					</div>
+				</div>
+				<div class="col-sm-10 col-sm-offset-1">
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-btn">
+								<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fas fa-search-plus"></i></button>
+							</div>
+							{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
+							'autofocus' => true,
+							]); !!}
+							<span class="input-group-btn">
+                                @if (!\App\Services\EisProductPolicy::configured(session('user.business_id')))
+								<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+                                @endif
+							</span>
+						</div>
 					</div>
 				</div>
 			@endcomponent
@@ -476,6 +480,7 @@
 					</div>
 			    </div>
 			    <input type="hidden" name="is_direct_sale" value="1">
+				<input type="hidden" name="is_serial_no" value="1">
 			@endcomponent
 
 			@component('components.widget', ['class' => 'box-solid'])

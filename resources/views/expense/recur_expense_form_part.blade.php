@@ -11,9 +11,9 @@
 		        <div class="form-group">
 		        	{!! Form::label('recur_interval', __('lang_v1.recur_interval') . ':*' ) !!}
 		        	<div class="input-group">
-		               {!! Form::number('recur_interval', !empty($expense->recur_interval) ? $expense->recur_interval : null, ['class' => 'form-control', 'style' => 'width: 50%;']); !!}
+		               {!! Form::number('recur_interval', !empty($expense->recur_interval) ? $expense->recur_interval : null, ['class' => 'form-control', 'style' => 'width: 50%; z-index: 0;']); !!}
 		               
-		                {!! Form::select('recur_interval_type', ['days' => __('lang_v1.days'), 'months' => __('lang_v1.months'), 'years' => __('lang_v1.years')], !empty($expense->recur_interval_type) ? $expense->recur_interval_type : 'days', ['class' => 'form-control', 'style' => 'width: 50%;', 'id' => 'recur_interval_type']); !!}
+		                {!! Form::select('recur_interval_type', ['days' => __('lang_v1.days'), 'months' => __('lang_v1.months'), 'years' => __('lang_v1.years')], !empty($expense->recur_interval_type) ? $expense->recur_interval_type : 'days', ['class' => 'form-control', 'style' => 'width: 50%;z-index: 0;', 'id' => 'recur_interval_type']); !!}
 		                
 		            </div>
 		        </div>

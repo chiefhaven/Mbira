@@ -14,7 +14,7 @@
     @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.all_stock_transfers')])
         @slot('tool')
             <div class="box-tools">
-                @if(auth()->user()->can('purchase.create'))
+                @if(auth()->user()->can('stock_transfer.create'))
                     <a class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right"
                         href="{{action([\App\Http\Controllers\StockTransferController::class, 'create'])}}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"

@@ -1,0 +1,197 @@
+table.pretty {
+    width: 100%;
+}
+
+table.pretty th, table.pretty td {
+    border: 1px solid gainsboro;
+    padding: 0.2em;
+}
+
+table.pretty caption {
+    font-style: italic;
+    font-weight: bold;
+    margin-left: inherit;
+    margin-right: inherit;
+}
+
+table.pretty thead tr th {
+    border-bottom: 2px solid;
+    font-weight: bold;
+    text-align: center;
+}
+
+table.pretty thead tr th.empty {
+    border: 0 none;
+}
+
+table.pretty tfoot tr th {
+    border-bottom: 2px solid;
+    border-top: 2px solid;
+    font-weight: bold;
+    text-align: center;
+}
+
+table.pretty tbody tr th {
+    text-align: center;
+}
+
+table.pretty tbody tr td {
+    border-top: 1px solid;
+    text-align: center;
+}
+
+table.pretty tbody tr.odd td {
+    background: none repeat scroll 0 0 #EBF4FB;
+}
+
+table.pretty tbody tr.even td {
+    background: none repeat scroll 0 0 #BCEEEE;
+}
+
+table.pretty thead tr th.highlightcol {
+    border-color: #2E6E9E #2E6E9E gainsboro;
+    border-style: solid;
+    border-width: 2px 2px 1px;
+}
+
+table.pretty tfoot tr th.highlightcol {
+    border-left: 2px solid #2E6E9E;
+    border-right: 2px solid #2E6E9E;
+}
+
+table.pretty thead tr th.lefthighlightcol, table.pretty tbody tr td.lefthighlightcol, table.pretty tfoot tr th.lefthighlightcol {
+    border-left: 2px solid #2E6E9E;
+}
+
+table.pretty thead tr th.righthighlightcol, table.pretty tbody tr td.righthighlightcol, table.pretty tfoot tr th.righthighlightcol {
+    border-right: 2px solid #2E6E9E;
+}
+
+table.pretty thead tr th.lefthighlightcolheader, table.pretty tbody tr td.lefthighlightcolheader, table.pretty tfoot tr th.lefthighlightcolheader {
+    border-left: 2px solid #2E6E9E;
+}
+
+table.pretty thead tr th.righthighlightcolheader, table.pretty tbody tr td.righthighlightcolheader, table.pretty tfoot tr th.righthighlightcolheader {
+    border-right: 2px solid #2E6E9E;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+    color: red;
+}
+
+.month, .year {
+    margin: 2px;
+}
+
+caption, th {
+    text-align: left;
+}
+
+
+.font-11{
+    font-size: 11px;
+}
+
+.style-0 {
+    empty-cells: show;
+    table-layout: fixed;
+    width: 1315pt
+}
+
+.style-1 {
+    color: white;
+    padding-left: 10pt;
+    font-size: 14pt;
+    font-family: "Arial";
+    font-weight: bold;
+    font-style: normal;
+    text-decoration: none;
+    text-align: left;
+    word-spacing: 0pt;
+    letter-spacing: 0pt;
+    background-color: #339933
+}
+
+
+.opacity-75 {
+    opacity: 0.75;
+    filter: alpha(opacity=75);
+}
+.opacity-50 {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+.opacity-25 {
+    opacity: 0.25;
+    filter: alpha(opacity=25);
+}
+.opacity-0 {
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+.no-edge-top {
+    top: 0;
+}
+.no-edge-bottom {
+    bottom: 0;
+}
+.no-edge-left {
+    left: 0;
+}
+.no-edge-right {
+    right: 0;
+}
+.user_name{
+    font-size:14px;
+    font-weight: bold;
+}
+.comments-list .media{
+    border-bottom: 1px dotted #ccc;
+}
+
+img.img-preview{
+    width: 32em;
+    height: 18em;
+}
+
+.tab-fixed-height {
+    height: 500px;
+    overflow-y: scroll;
+}
+
+.content {
+    padding-bottom: 0px !important;
+}
+
+.list-group-link>a.active{
+  background-color: #3c8dbc;
+  color: #ffffff;
+    border-color: #3c8dbc;
+}
+
+.list-group-link>a.active:after{
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  margin-top: -13px;
+  border-left: 0;
+  border-bottom: 13px solid transparent;
+  border-top: 13px solid transparent;
+  border-left: 10px solid #3c8dbc;
+}
+
+hr {
+    border: 0.5px solid #d2d6de;
+}
+
+.link-dark {
+    color: black;
+    text-decoration: underline;
+}
+
+.link-dark:hover {
+    color: darkgray;
+    text-decoration: underline;
+}

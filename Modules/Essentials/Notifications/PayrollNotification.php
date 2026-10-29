@@ -4,6 +4,7 @@ namespace Modules\Essentials\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class PayrollNotification extends Notification
@@ -30,7 +31,7 @@ class PayrollNotification extends Notification
      */
     public function via($notifiable)
     {
-        $channels = ['database'];
+        $channels = ['database', 'mail'];
         if (isPusherEnabled()) {
             $channels[] = 'broadcast';
         }
@@ -46,7 +47,18 @@ class PayrollNotification extends Notification
      */
     public function toMail($notifiable)
     {
+        $transaction_date = \Carbon\Carbon::parse($this->payroll->transaction_date);
+
+        return (new MailMessage)
+            ->subject(__('Payroll Generated: :ref_no', ['ref_no' => $this->payroll->ref_no]))
+            ->line(__('Payroll for :month_year generated.', ['month_year' => $transaction_date->format('m/Y'), 'ref_no' => $this->payroll->ref_no]))
+            ->line(__('Gross Amount: :amount', ['amount' => $this->payroll->gross_amount]))
+            ->line(__('Deductions: :amount', ['amount' => $this->payroll->deductions]))
+            ->line(__('Tax: :amount', ['amount' => $this->payroll->deductions]))
+            ->line(__('Net Amount: :amount', ['amount' => $this->payroll->net_amount]))
+            ->action(__('To view the payroll'), action([\Modules\Essentials\Http\Controllers\PayrollController::class, 'index']));
     }
+
 
     /**
      * Get the array representation of the notification.
@@ -56,7 +68,7 @@ class PayrollNotification extends Notification
      */
     public function toArray($notifiable)
     {
-        $transaction_date = \Carbon::parse($this->payroll->transaction_date);
+        $transaction_date = \Carbon\Carbon::parse($this->payroll->transaction_date);
 
         return [
             'month' => $transaction_date->format('m'),
@@ -77,8 +89,8 @@ class PayrollNotification extends Notification
     {
         $msg = '';
         $title = '';
-        $transaction_date = \Carbon::parse($this->payroll->transaction_date);
-        $month = \Carbon::createFromFormat('m', $transaction_date->format('m'))->format('F');
+        $transaction_date = \Carbon\Carbon::parse($this->payroll->transaction_date);
+        $month = \Carbon\Carbon::createFromFormat('m', $transaction_date->format('m'))->format('F');
         if ($this->payroll->action == 'created') {
             $msg = __('essentials::lang.payroll_added_notification', ['month_year' => $month.'/'.$transaction_date->format('Y'), 'ref_no' => $this->payroll->ref_no, 'created_by' => $this->payroll->sales_person->user_full_name]);
             $title = __('essentials::lang.payroll_added');

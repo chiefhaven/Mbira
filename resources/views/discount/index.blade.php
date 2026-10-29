@@ -13,7 +13,7 @@
     <!-- Main content -->
     <section class="content">
         <div
-            class=" tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw-translate-y-0.5 tw-ring-gray-200">
+            class=" tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md  tw-ring-gray-200">
             <div class="tw-p-4 sm:tw-p-5">
                 <div class="tw-flex tw-gap-2.5 tw-justify-end">
                     @can('brand.create')

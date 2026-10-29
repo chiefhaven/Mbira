@@ -3,6 +3,8 @@
 // use App\Http\Controllers\Modules;
 // use Illuminate\Support\Facades\Route;
 
+use Modules\Essentials\Http\Controllers\PayrollController;
+
 Route::middleware('web', 'authh', 'auth', 'SetSessionData', 'language', 'timezone', 'AdminSidebarMenu')->group(function () {
     Route::prefix('essentials')->group(function () {
         Route::get('/dashboard', [Modules\Essentials\Http\Controllers\DashboardController::class, 'essentialsDashboard']);
@@ -80,6 +82,8 @@ Route::middleware('web', 'authh', 'auth', 'SetSessionData', 'language', 'timezon
         Route::post('/post-payment-payroll-group', [Modules\Essentials\Http\Controllers\PayrollController::class, 'postAddPayment']);
         Route::resource('/payroll', 'Modules\Essentials\Http\Controllers\PayrollController');
         Route::resource('/holiday', 'EssentialsHolidayController');
+        Route::get('/payroll/export/mra', [PayrollController::class, 'exportMRACsv'])->name('payroll.export.mra');
+        Route::get('/payroll/export/std_bank', [PayrollController::class, 'exportStandardBankCsv'])->name('payroll.export.std_bank');
 
         Route::get('/shift/assign-users/{shift_id}', [Modules\Essentials\Http\Controllers\ShiftController::class, 'getAssignUsers']);
         Route::post('/shift/assign-users', [Modules\Essentials\Http\Controllers\ShiftController::class, 'postAssignUsers']);

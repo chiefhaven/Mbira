@@ -1,21 +1,3 @@
-<style>
-    /* Universal scrollbar hiding */
-
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    html::-webkit-scrollbar,
-    body::-webkit-scrollbar {
-      display: none; /* Safari and Chrome */
-    }
-
-    /* Hide scrollbar for IE, Edge */
-    html,
-    body {
-      -ms-overflow-style: none; /* IE and Edge */
-      scrollbar-width: none; /* Firefox */
-    }
-  </style>
-
-  
 
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <style>

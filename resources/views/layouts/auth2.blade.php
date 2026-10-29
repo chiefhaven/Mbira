@@ -12,6 +12,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title') - {{ config('app.name', 'POS') }}</title>
+    @include('layouts.partials.branding-icon')
 
     @include('layouts.partials.css')
 
@@ -25,7 +26,7 @@
 
 </head>
 
-<body class="pace-done" data-new-gr-c-s-check-loaded="14.1172.0" data-gr-ext-installed="" cz-shortcut-listen="true">
+<body class="pace-done @if(request()->segment(1) == 'login') login-viewport @endif" data-new-gr-c-s-check-loaded="14.1172.0" data-gr-ext-installed="" cz-shortcut-listen="true">
     @inject('request', 'Illuminate\Http\Request')
     @if (session('status') && session('status.success'))
         <input type="hidden" id="status_span" data-status="{{ session('status.success') }}"
@@ -33,21 +34,32 @@
     @endif
     <div class="container-fluid">
         <div class="row eq-height-row">
-            <div class="col-md-12 col-sm-12 col-xs-12 right-col tw-pt-20 tw-pb-10 tw-px-5">
+            <div class="col-md-12 col-sm-12 col-xs-12 right-col tw-pb-10 tw-px-5 @if($request->segment(1) == 'login') login-brand-page @else tw-pt-20 @endif">
                 <div class="row">
-                    <div
+                    {{-- <div
                         class="lg:tw-w-16 md:tw-h-16 tw-w-12 tw-h-12 tw-flex tw-items-center tw-justify-center tw-mx-auto tw-overflow-hidden tw-bg-white tw-rounded-full tw-p-0.5 tw-mb-4">
                         <img src="{{ asset('img/logo-small.png')}}" alt="lock" class="tw-rounded-full tw-object-fill" />
-                    </div>
+                    </div> --}}
 
                     <div class="tw-absolute tw-top-2 md:tw-top-5 tw-left-4 md:tw-left-8 tw-flex tw-items-center tw-gap-4"
                         style="text-align: left">
-                        @include('layouts.partials.language_btn')
-
-                        @if(Route::has('repair-status'))
-                            <a class="tw-text-white tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-white"
+                        <a href="{{ url('/') }}">
+                            <div
+                                class="@if($request->segment(1) == 'login') login-brand-logo @else lg:tw-w-16 md:tw-h-16 tw-w-12 tw-h-12 @endif tw-flex tw-items-center tw-justify-center tw-mx-auto tw-overflow-hidden tw-p-0.5 tw-mb-4">
+                                <img src="{{ config('branding.logo') ?: asset('img/logo-small.png') }}" alt="{{ config('app.name') }}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                            </div>
+                        </a>
+                        @if(config('constants.SHOW_REPAIR_STATUS_LOGIN_SCREEN') && Route::has('repair-status'))
+                            <a class="tw-text-gray-800 tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-gray-900"
                                 href="{{ action([\Modules\Repair\Http\Controllers\CustomerRepairStatusController::class, 'index']) }}">
                                 @lang('repair::lang.repair_status')
+                            </a>
+                        @endif
+                        
+                        @if(Route::has('member_scanner'))
+                            <a class="tw-text-gray-800 tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-gray-900"
+                                href="{{ action([\Modules\Gym\Http\Controllers\MemberController::class, 'member_scanner']) }}">
+                                @lang('gym::lang.gym_member_profile')
                             </a>
                         @endif
                     </div>
@@ -58,26 +70,27 @@
                             <!-- Register Url -->
                             @if (config('constants.allow_registration'))
                             {{-- <span
-                                class="tw-text-white tw-font-medium tw-text-sm md:tw-text-base">{{ __('business.not_yet_registered') }}
+                                class="tw-text-gray-800 tw-font-medium tw-text-sm md:tw-text-base">{{ __('business.not_yet_registered') }}
                             </span> --}}
 
-                            <div class="tw-border-2 tw-border-white tw-rounded-full tw-h-10 md:tw-h-12 tw-w-24 tw-flex tw-items-center tw-justify-center">
+                            <div class="tw-border tw-border-gray-300 tw-rounded-full tw-h-10 md:tw-h-12 tw-w-24 tw-flex tw-items-center tw-justify-center">
                              <a href="{{ route('business.getRegister')}}@if(!empty(request()->lang)){{'?lang='.request()->lang}}@endif"
-                                    class="tw-text-white tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-white">
+                                    class="tw-text-gray-800 tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-gray-900">
                                     {{ __('business.register') }}</a>
                             </div>
 
                                 <!-- pricing url -->
                                 @if (Route::has('pricing') && config('app.env') != 'demo' && $request->segment(1) != 'pricing')
-                                    &nbsp; <a class="tw-text-white tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-white"
+                                    &nbsp; <a class="tw-text-gray-800 tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-gray-900"
                                         href="{{ action([\Modules\Superadmin\Http\Controllers\PricingController::class, 'index']) }}">@lang('superadmin::lang.pricing')</a>
                                 @endif
                             @endif
                         @endif
                         @if ($request->segment(1) != 'login')
-                            <a class="tw-text-white tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-white"
+                            <a class="tw-text-gray-800 tw-font-medium tw-text-sm md:tw-text-base hover:tw-text-gray-900"
                                 href="{{ action([\App\Http\Controllers\Auth\LoginController::class, 'login'])}}@if(!empty(request()->lang)){{'?lang='.request()->lang}}@endif">{{ __('business.sign_in') }}</a>
                         @endif
+                        @include('layouts.partials.language_btn')
                     </div>
                     <div class="col-md-10 col-xs-8" style="text-align: right;">
 
@@ -89,6 +102,7 @@
     </div>
 
 
+    @include('layouts.partials.branding-public-footer')
     @include('layouts.partials.javascripts')
 
     <!-- Scripts -->
@@ -108,6 +122,97 @@
         });
     </script>
     <style>
+        .login-brand-logo {
+            width: 128px;
+            height: 72px;
+        }
+        .login-brand-page {
+            padding-top: 104px;
+            padding-bottom: 16px;
+        }
+        .login-viewport {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        .login-viewport > .container-fluid {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            width: 100%;
+        }
+        .login-viewport > .container-fluid > .eq-height-row {
+            display: flex;
+            flex: 1;
+        }
+        .login-brand-page {
+            display: flex;
+            flex-direction: column;
+        }
+        .login-brand-page .login-shell {
+            min-height: 0;
+            flex: 1;
+            padding: 12px 0;
+        }
+        .login-viewport > footer {
+            flex-shrink: 0;
+        }
+        @media (min-width: 768px) {
+            .login-brand-logo {
+                width: 192px;
+                height: 96px;
+            }
+            .login-brand-page {
+                padding-top: 136px;
+            }
+        }
+        @media (max-height: 700px) {
+            .login-brand-page .login-card {
+                padding-top: 16px;
+                padding-bottom: 12px;
+            }
+            .login-brand-page .login-header-block {
+                margin-bottom: 12px;
+            }
+            .login-brand-page .login-support-text {
+                margin-top: 8px;
+            }
+        }
+        @media (max-height: 500px) {
+            .login-brand-logo {
+                width: 96px;
+                height: 48px;
+            }
+            .login-brand-page {
+                padding-top: 72px;
+                padding-bottom: 4px;
+            }
+            .login-brand-page .login-shell {
+                padding: 4px 0;
+            }
+            .login-brand-page .login-card {
+                padding: 10px 16px;
+            }
+            .login-brand-page .form-group,
+            .login-brand-page .login-header-block {
+                margin-bottom: 6px;
+            }
+            .login-brand-page .tw-dw-label {
+                padding-top: 4px;
+                padding-bottom: 4px;
+            }
+            .login-brand-page input,
+            .login-brand-page button[type="submit"] {
+                height: 32px;
+            }
+            .login-brand-page #show_hide_icon {
+                top: 30px !important;
+            }
+            .login-brand-page .login-header-block h1 {
+                font-size: 20px;
+            }
+        }
         .wizard>.content {
             background-color: white !important;
         }

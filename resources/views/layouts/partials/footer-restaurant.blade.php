@@ -6,6 +6,6 @@
     </div> -->
     <!-- Default to the left -->
     <small>
-    	<b>{{ config('app.name', 'ultimatePOS') }} - V{{config('author.app_version')}} | Copyright &copy; {{ date('Y') }} All rights reserved.</b>
+        <b>@include('layouts.partials.branding-footer')</b>
     </small>
 </footer>

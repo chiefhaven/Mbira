@@ -26,7 +26,9 @@
         name="viewport">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     <title>@yield('title') - {{ Session::get('business.name') }}</title>
+    @include('layouts.partials.branding-icon')
 
     @include('layouts.partials.css')
     
@@ -38,14 +40,14 @@
 </head>
 <body
     class="tw-font-sans tw-antialiased tw-text-gray-900 tw-bg-gray-100 @if ($pos_layout) hold-transition lockscreen @else hold-transition skin-@if (!empty(session('business.theme_color'))){{ session('business.theme_color') }}@else{{ 'blue-light' }} @endif sidebar-mini @endif" >
-    <div class="tw-flex">
+    <div class="tw-flex thetop">
         <script type="text/javascript">
             if (localStorage.getItem("upos_sidebar_collapse") == 'true') {
                 var body = document.getElementsByTagName("body")[0];
                 body.className += " sidebar-collapse";
             }
         </script>
-        @if (!$pos_layout)
+        @if (!$pos_layout && $request->segment(1) != 'customer-display')
             @include('layouts.partials.sidebar')
         @endif
 
@@ -73,10 +75,9 @@
                 data-msg="{{ session('status.msg') }}">
         @endif
         <main class="tw-flex tw-flex-col tw-flex-1 tw-h-full tw-min-w-0 tw-bg-gray-100">
-
-            @if (!$pos_layout)
+            @if($request->segment(1) != 'customer-display' && !$pos_layout)
                 @include('layouts.partials.header')
-            @else
+            @elseif($request->segment(1) != 'customer-display')
                 @include('layouts.partials.header-pos')
             @endif
             <!-- empty div for vuejs -->
@@ -128,7 +129,9 @@
         @endif
 
         @include('layouts.partials.javascripts')
-
+        
+        {{-- Module JS --}}
+        @include('layouts.module-assets')
         <div class="modal fade view_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel"></div>
 
         @if (!empty($__additional_views) && is_array($__additional_views))
@@ -139,14 +142,21 @@
         <div>
 
             <div class="overlay tw-hidden"></div>
+        </div>
 </body>
 <style>
     @media print {
-  #scrollable-container {
-    overflow: visible !important;
-    height: auto !important;
-  }
-}
+        #scrollable-container {
+            overflow: visible !important;
+            height: auto !important;
+        }
+        
+        /* Hide side menu */
+        .side-bar,
+        .thetop > aside {
+            display: none !important;
+        }
+    }
 </style>
 <style>
     .small-view-side-active {

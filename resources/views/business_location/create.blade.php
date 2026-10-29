@@ -85,7 +85,7 @@
                 <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme_for_pos') . ':*') !!} @show_tooltip(__('tooltip.invoice_scheme'))
-                        {!! Form::select('invoice_scheme_id', $invoice_schemes, null, ['class' => 'form-control', 'required',
+                        {!! Form::select('invoice_scheme_id', $invoice_schemes, $location_defaults['invoice_scheme_id'], ['class' => 'form-control', 'required',
                         'placeholder' => __('messages.please_select')]); !!}
                     </div>
                 </div>
@@ -93,7 +93,7 @@
                 <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('sale_invoice_scheme_id', __('invoice.invoice_scheme_for_sale') . ':*') !!}
-                        {!! Form::select('sale_invoice_scheme_id', $invoice_schemes, null, ['class' => 'form-control', 'required',
+                        {!! Form::select('sale_invoice_scheme_id', $invoice_schemes, $location_defaults['sale_invoice_scheme_id'], ['class' => 'form-control', 'required',
                         'placeholder' => __('messages.please_select')]); !!}
                     </div>
                 </div>
@@ -102,14 +102,14 @@
                 <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('invoice_layout_id', __('lang_v1.invoice_layout_for_pos') . ':*') !!} @show_tooltip(__('tooltip.invoice_layout'))
-                        {!! Form::select('invoice_layout_id', $invoice_layouts, null, ['class' => 'form-control', 'required',
+                        {!! Form::select('invoice_layout_id', $invoice_layouts, $location_defaults['invoice_layout_id'], ['class' => 'form-control', 'required',
                         'placeholder' => __('messages.please_select')]); !!}
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('sale_invoice_layout_id', __('lang_v1.invoice_layout_for_sale') . ':*') !!} @show_tooltip(__('lang_v1.invoice_layout_for_sale_tooltip'))
-                        {!! Form::select('sale_invoice_layout_id', $invoice_layouts, null, ['class' => 'form-control', 'required',
+                        {!! Form::select('sale_invoice_layout_id', $invoice_layouts, $location_defaults['sale_invoice_layout_id'], ['class' => 'form-control', 'required',
                         'placeholder' => __('messages.please_select')]); !!}
                     </div>
                 </div>
@@ -182,9 +182,12 @@
                                 @foreach($payment_types as $key => $value)
                                 <tr>
                                     <td class="text-center">{{$value}}</td>
-                                    <td class="text-center">{!! Form::checkbox('default_payment_accounts[' . $key . '][is_enabled]', 1, true); !!}</td>
+                                    <td class="text-center">
+                                        {!! Form::hidden('default_payment_accounts[' . $key . '][is_enabled]', 0); !!}
+                                        {!! Form::checkbox('default_payment_accounts[' . $key . '][is_enabled]', 1, !empty($location_defaults['default_payment_accounts'][$key]['is_enabled'])); !!}
+                                    </td>
                                     <td class="text-center @if(empty($accounts)) hide @endif">
-                                        {!! Form::select('default_payment_accounts[' . $key . '][account]', $accounts, null, ['class' => 'form-control input-sm']); !!}
+                                        {!! Form::select('default_payment_accounts[' . $key . '][account]', $accounts, $location_defaults['default_payment_accounts'][$key]['account'] ?? null, ['class' => 'form-control input-sm']); !!}
                                     </td>
                                 </tr>
                                 @endforeach

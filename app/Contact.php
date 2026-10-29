@@ -301,6 +301,18 @@ class Contact extends Authenticatable
         if (! empty($this->country)) {
             $address_array[] = $this->country;
         }
+        if (! empty($this->land_mark)) {
+            $address_array[] = $this->land_mark;
+        }
+        if (! empty($this->street_name)) {
+            $address_array[] = $this->street_name;
+        }
+        if (! empty($this->building_number)) {
+            $address_array[] = $this->building_number;
+        }
+        if (! empty($this->additional_number)) {
+            $address_array[] = $this->additional_number;
+        }
 
         $address = '';
         if (! empty($address_array)) {

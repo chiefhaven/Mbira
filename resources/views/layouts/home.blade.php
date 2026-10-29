@@ -9,6 +9,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>@yield('title')</title>
+        @include('layouts.partials.branding-icon')
 
         <!-- Fonts -->
         <!-- <link href="https://fonts.googleapis.com/css?family=Raleway:100,300,600" rel="stylesheet" type="text/css"> -->
@@ -51,6 +52,7 @@
                 @yield('content')
             </div>
         </div>
+        @include('layouts.partials.branding-public-footer')
         @include('layouts.partials.javascripts')
 
     <!-- Scripts -->

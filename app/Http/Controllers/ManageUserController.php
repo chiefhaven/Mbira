@@ -245,6 +245,20 @@ class ManageUserController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $business_id = request()->session()->get('user.business_id');
+
+         //Check if subscribed
+         if (! $this->moduleUtil->isSubscribed($business_id)) {
+            return $this->moduleUtil->expiredResponse();
+        }
+
+        //Check for users quota if allow_login is true
+        if (!empty($request->input('allow_login'))) {
+            if (! $this->moduleUtil->isQuotaAvailable('users', $business_id)) {
+                return $this->moduleUtil->quotaExpiredResponse('users', $business_id, action([\App\Http\Controllers\ManageUserController::class, 'index']));
+            }
+        }
+
         try {
             $user_data = $request->only(['surname', 'first_name', 'last_name', 'email', 'selected_contacts', 'marital_status',
                 'blood_group', 'contact_number', 'fb_link', 'twitter_link', 'social_media_1',
@@ -256,7 +270,7 @@ class ManageUserController extends Controller
 
             $user_data['is_enable_service_staff_pin'] = ! empty($request->input('is_enable_service_staff_pin')) ? true : false;
 
-            $business_id = request()->session()->get('user.business_id');
+           
 
             if (! isset($user_data['selected_contacts'])) {
                 $user_data['selected_contacts'] = 0;

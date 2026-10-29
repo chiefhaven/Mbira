@@ -4,7 +4,7 @@
       $title = $purchase->type == 'purchase_order' ? __('lang_v1.purchase_order_details') : __('purchase.purchase_details');
       $custom_labels = json_decode(session('business.custom_labels'), true);
     @endphp
-    <h4 class="modal-title" id="modalTitle"> {{$title}} (<b>@lang('purchase.ref_no'):</b> #{{ $purchase->ref_no }})
+    <h4 class="modal-title" id="modalTitle"> {{$title}} (<b>@lang('purchase.ref_no'):</b> #{{ e($purchase->ref_no) }})
     </h4>
 </div>
 <div class="modal-body">

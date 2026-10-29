@@ -86,6 +86,7 @@
 				, {{$receipt_details->date_label}}
 				{{$receipt_details->invoice_date}}
 			@endif
+			@include('sale_pos.receipts.partial.eis_invoice_number')
 		</p>
 		<p>
 			<strong>{{ $receipt_details->customer_label }}</strong> {{$receipt_details->customer_name ?? ''}} <br>

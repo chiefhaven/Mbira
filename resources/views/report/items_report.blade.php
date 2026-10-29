@@ -20,7 +20,7 @@
                         <span class="input-group-addon">
                             <i class="fa fa-user"></i>
                         </span>
-                        {!! Form::select('ir_supplier_id', $suppliers, null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.all')]); !!}
+                        {!! Form::select('ir_supplier_id', $suppliers, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                         <span class="input-group-addon">
                             <i class="fa fa-user"></i>
                         </span>
-                        {!! Form::select('ir_customer_id', $customers, null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.all')]); !!}
+                        {!! Form::select('ir_customer_id', $customers, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
                     </div>
                 </div>
             </div>

@@ -10,7 +10,7 @@ $code = strtolower($system_currency->code);
 		        src="https://checkout.stripe.com/checkout.js" class="stripe-button"
 		        data-key="{{env('STRIPE_PUB_KEY')}}"
 		        data-amount="@if(in_array($code, ['bif','clp','djf','gnf','jpy','kmf','krw','mga','pyg','rwf','ugx','vnd','vuv','xaf','xof','xpf'])) {{$package->price}} @else {{$package->price*100}} @endif"
-		        data-name="{{env('APP_NAME')}}"
+		        data-name="{{ config('app.name') }}"
 		        data-description="{{$package->name}}"
 		        data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
 		        data-locale="auto"

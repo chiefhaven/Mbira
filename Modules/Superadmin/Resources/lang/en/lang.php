@@ -1,6 +1,17 @@
 <?php
 
 return [
+    'general_branding' => 'General / Branding',
+    'branding_help' => 'Change platform branding on public, login, and administration pages. Business names, logos, receipts, and invoices are not changed.',
+    'branding_title' => 'Application title / tagline',
+    'branding_footer' => 'Footer text',
+    'branding_footer_help' => 'Leave blank to use the default application name, version, and copyright footer.',
+    'branding_logo' => 'Main logo',
+    'branding_compact_logo' => 'Compact / sidebar logo',
+    'branding_favicon' => 'Browser icon (favicon)',
+    'branding_reset_image' => 'Reset to default image',
+    'branding_image_help' => 'PNG, JPG, or WebP. Maximum 2 MB. A new upload replaces the current image.',
+    'branding_icon_help' => 'PNG or ICO. Maximum 2 MB. Use a square image, preferably 32 x 32 or 64 x 64.',
     'superadmin' => 'Superadmin',
     'dashboard' => 'Dashboard',
     'all_business' => 'All Businesses',

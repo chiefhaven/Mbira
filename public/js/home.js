@@ -180,6 +180,7 @@ function update_statistics(start, end) {
     $('.total_purchase').html(loader);
     $('.purchase_due').html(loader);
     $('.total_sell').html(loader);
+    $('.total_vat').html(loader);
     $('.invoice_due').html(loader);
     $('.total_expense').html(loader);
     $('.total_purchase_return').html(loader);
@@ -198,6 +199,10 @@ function update_statistics(start, end) {
             //sell details
             $('.total_sell').html(__currency_trans_from_en(data.total_sell, true));
             $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, true));
+
+            //vat details
+            $('.total_vat').html(__currency_trans_from_en(data.total_vat, true));
+
             //expense details
             $('.total_expense').html(__currency_trans_from_en(data.total_expense, true));
             var total_purchase_return = data.total_purchase_return - data.total_purchase_return_paid;

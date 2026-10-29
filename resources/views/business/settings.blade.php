@@ -16,8 +16,6 @@
            'files' => true ]) !!}
     <div class="row">
         <div class="col-xs-12">
-       <!--  <pos-tab-container> -->
-        {{-- <div class="col-xs-12 pos-tab-container"> --}}
         @component('components.widget', ['class' =>  'pos-tab-container'])
             <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 pos-tab-menu tw-rounded-lg">
                 <div class="list-group">
@@ -27,6 +25,7 @@
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('contact.contact')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.sale')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('sale.pos_sale')</a>
+                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.display_screen')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('purchase.purchases')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.payment')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.dashboard')</a>
@@ -35,6 +34,9 @@
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.email_settings')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.sms_settings')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.reward_point_settings')</a>
+                    @if ($canUseEis)
+                        <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.mra_eis')</a>
+                    @endif
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.modules')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.custom_labels')</a>
                 </div>
@@ -48,16 +50,15 @@
                 <!-- tab 2 end -->
                 <!-- tab 3 start -->
                 @include('business.partials.settings_product')
-
                 @include('business.partials.settings_contact')
                 <!-- tab 3 end -->
                 <!-- tab 4 start -->
                 @include('business.partials.settings_sales')
                 @include('business.partials.settings_pos')
+                @include('business.partials.settings_display_pos')
                 <!-- tab 4 end -->
                 <!-- tab 5 start -->
                 @include('business.partials.settings_purchase')
-
                 @include('business.partials.settings_payment')
                 <!-- tab 5 end -->
                 <!-- tab 6 start -->
@@ -79,13 +80,17 @@
                 @include('business.partials.settings_reward_point')
                 <!-- tab 11 end -->
                 <!-- tab 12 start -->
-                @include('business.partials.settings_modules')
+                <!-- MRA EIS Settings Tab -->
+                @if ($canUseEis)
+                    @include('business.partials.settings_mra_eis')
+                @endif
                 <!-- tab 12 end -->
+                <!-- tab 13 start -->
+                @include('business.partials.settings_modules')
+                <!-- tab 13 end -->
                 @include('business.partials.settings_custom_labels')
             </div>
         @endcomponent
-        {{-- </div> --}}
-        <!--  </pos-tab-container> -->
         </div>
     </div>
 
@@ -98,9 +103,11 @@
 </section>
 <!-- /.content -->
 @stop
+
 @section('javascript')
 <script type="text/javascript">
     __page_leave_confirmation('#bussiness_edit_form');
+    
     $(document).on('ifToggled', '#use_superadmin_settings', function() {
         if ($('#use_superadmin_settings').is(':checked')) {
             $('#toggle_visibility').addClass('hide');
@@ -112,7 +119,6 @@
     });
 
     $(document).ready(function(){
-
     
         $('#test_email_btn').click( function() {
             var data = {
@@ -146,12 +152,12 @@
             });
         });
 
+        // SMS Test
         $('#test_sms_btn').click( function() {
             var test_number = $('#test_number').val();
             if (test_number.trim() == '') {
                 toastr.error('{{__("lang_v1.test_number_is_required")}}');
                 $('#test_number').focus();
-
                 return false;
             }
 
@@ -170,7 +176,6 @@
                 param_8: $('#sms_settings_param_key8').val(),
                 param_9: $('#sms_settings_param_key9').val(),
                 param_10: $('#sms_settings_param_key10').val(),
-
                 param_val_1: $('#sms_settings_param_val1').val(),
                 param_val_2: $('#sms_settings_param_val2').val(),
                 param_val_3: $('#sms_settings_param_val3').val(),
@@ -181,7 +186,14 @@
                 param_val_8: $('#sms_settings_param_val8').val(),
                 param_val_9: $('#sms_settings_param_val9').val(),
                 param_val_10: $('#sms_settings_param_val10').val(),
-                test_number: test_number
+                test_number: test_number,
+                header_1: $('#sms_settings_header_key1').val(),
+                header_val_1: $('#sms_settings_header_val1').val(),
+                header_2: $('#sms_settings_header_key2').val(),
+                header_val_2: $('#sms_settings_header_val2').val(),
+                header_3: $('#sms_settings_header_key3').val(),
+                header_val_3: $('#sms_settings_header_val3').val(),
+                data_parameter_type: $('#data_parameter_type').val(),
             };
 
             $.ajax({
@@ -203,7 +215,6 @@
                     }
                 },
             });
-
         });
 
         $('select.custom_labels_products').change(function(){
@@ -214,7 +225,23 @@
             } else{
                 textarea.addClass('hide');
             }
-        })
+        });
+
+        tinymce.init({
+            selector: 'textarea#display_screen_heading',
+            height: 250
+        });
+
+        $('.carousel_image').fileinput({
+            showUpload: true,
+            showPreview: true,
+            browseLabel: LANG.file_browse_label,
+            removeLabel: LANG.remove,
+        });
     });
 </script>
+@if ($canUseEis)
+    @include('eis::shared.styles')
+    @include('eis::terminals.script')
+@endif
 @endsection

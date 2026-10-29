@@ -14,7 +14,7 @@ $('#sell_list_filter_date_range').on('cancel.daterangepicker', function(ev, pick
     sell_table.ajax.reload();
 });
 
-$(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status',  function() {
+$(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #sell_list_filter_eis_void_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status',  function() {
     sell_table.ajax.reload();
 });
 
@@ -48,6 +48,9 @@ sell_table = $('#sell_table').DataTable({
                 if($('#sell_list_filter_payment_status').length) {
                     d.payment_status = $('#sell_list_filter_payment_status').val();
                 }
+                if($('#sell_list_filter_eis_void_status').length) {
+                    d.eis_void_status = $('#sell_list_filter_eis_void_status').val();
+                }
                 if($('#created_by').length) {
                     d.created_by = $('#created_by').val();
                 }
@@ -73,25 +76,27 @@ sell_table = $('#sell_table').DataTable({
             { data: 'action', name: 'action', orderable: false, "searchable": false},
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
-            { data: 'conatct_name', name: 'conatct_name'},
-            { data: 'mobile', name: 'contacts.mobile'},
-            { data: 'business_location', name: 'bl.name'},
+            { data: 'added_by', name: 'u.first_name'},
             { data: 'payment_status', name: 'payment_status'},
+            { data: 'eis_status', name: 'eis_status'},
+            { data: 'eis_void_status', name: 'eis_void_status', orderable: false, searchable: false},
             { data: 'payment_methods', orderable: false, "searchable": false},
             { data: 'final_total', name: 'final_total'},
             { data: 'total_paid', name: 'total_paid', "searchable": false},
             { data: 'total_remaining', name: 'total_remaining'},
+            { data: 'total_items', name: 'total_items', "searchable": false},
             { data: 'return_due', orderable: false, "searchable": false},
             { data: 'shipping_status', name: 'shipping_status'},
-            { data: 'total_items', name: 'total_items', "searchable": false},
             { data: 'types_of_service_name', name: 'tos.name', @if(empty($is_types_service_enabled)) visible: false @endif},
             { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
-            { data: 'added_by', name: 'u.first_name'},
             { data: 'additional_notes', name: 'additional_notes'},
             { data: 'staff_note', name: 'staff_note'},
             { data: 'shipping_details', name: 'shipping_details'},
             { data: 'table_name', name: 'tables.name', @if(empty($is_tables_enabled)) visible: false @endif },
-            { data: 'waiter', name: 'ss.first_name', @if(empty($is_service_staff_enabled)) visible: false @endif }
+            { data: 'waiter', name: 'ss.first_name', @if(empty($is_service_staff_enabled)) visible: false @endif },
+            { data: 'conatct_name', name: 'conatct_name'},
+            { data: 'mobile', name: 'contacts.mobile'},
+            { data: 'business_location', name: 'bl.name'}
         ],
         "fnDrawCallback": function (oSettings) {
             __currency_convert_recursively($('#sell_table'));
@@ -118,7 +123,7 @@ sell_table = $('#sell_table').DataTable({
             $('.payment_method_count').html(__count_status(data, 'payment_methods'));
         },
         createdRow: function( row, data, dataIndex ) {
-            $( row ).find('td:eq(6)').attr('class', 'clickable_td');
+            $( row ).find('td:eq(7)').attr('class', 'clickable_td');
         }
     });
     

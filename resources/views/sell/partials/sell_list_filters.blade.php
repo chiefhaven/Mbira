@@ -23,6 +23,14 @@
     </div>
 </div>
 @endif
+@if(empty($only) || in_array('eis_void_status', $only))
+<div class="col-md-3">
+    <div class="form-group">
+        {!! Form::label('sell_list_filter_eis_void_status', 'EIS void status:') !!}
+        {!! Form::select('sell_list_filter_eis_void_status', ['void' => 'Void', 'not_void' => 'Not void'], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
+    </div>
+</div>
+@endif
 @if(empty($only) || in_array('sell_list_filter_date_range', $only))
 <div class="col-md-3">
     <div class="form-group">

@@ -252,7 +252,7 @@
 					</tr>
 					<tr>
 						<td colspan="3">
-							<strong>@lang('essentials::lang.in_words'):</strong> {{ucfirst($final_total_in_words)}}
+							<strong>@lang('essentials::lang.in_words'):</strong> 
 						</td>
 					</tr>
 					<tr>

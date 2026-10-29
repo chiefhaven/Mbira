@@ -15,15 +15,27 @@ class StockAdjustmentCreatedOrModified
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $stockAdjustment;
     public $action;
+    public $eisAdjustmentReason;
+    public $eisTerminalId;
+    public $eisSiteId;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($stockAdjustment, $action)
+    public function __construct(
+        $stockAdjustment,
+        $action,
+        ?string $eisAdjustmentReason = null,
+        ?int $eisTerminalId = null,
+        ?string $eisSiteId = null
+    )
     {
         $this->stockAdjustment = $stockAdjustment;
         $this->action = $action;
+        $this->eisAdjustmentReason = $eisAdjustmentReason;
+        $this->eisTerminalId = $eisTerminalId;
+        $this->eisSiteId = $eisSiteId;
     }
 
     /**

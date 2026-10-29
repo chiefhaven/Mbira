@@ -37,7 +37,11 @@ class RestaurantUtil extends Util
                 ->where('transactions.business_id', $business_id)
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final');
-        // ->where('transactions.res_order_status', '!=' ,'served');
+        if (DB::getSchemaBuilder()->hasTable('restaurant_bills')) {
+            $query->whereNotExists(function ($q) {
+                $q->selectRaw('1')->from('restaurant_bills')->whereColumn('restaurant_bills.transaction_id', 'transactions.id');
+            });
+        }
 
         if (empty($filter['order_status'])) {
             $query->where(function ($q) {
@@ -161,6 +165,12 @@ class RestaurantUtil extends Util
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final');
+
+        if (DB::getSchemaBuilder()->hasTable('restaurant_bills')) {
+            $query->whereNotExists(function ($q) {
+                $q->selectRaw('1')->from('restaurant_bills')->whereColumn('restaurant_bills.transaction_id', 't.id');
+            });
+        }
 
         if (empty($filter['order_status'])) {
             $query->where(function ($q) {

@@ -4,6 +4,8 @@
 // use App\Http\Controllers\Modules;
 // use Illuminate\Support\Facades\Route;
 
+use Modules\Superadmin\Http\Controllers\SubscriptionController;
+
 Route::get('/pricing', [Modules\Superadmin\Http\Controllers\PricingController::class, 'index'])->name('pricing');
 
 Route::middleware('web', 'auth', 'language', 'AdminSidebarMenu', 'superadmin')->prefix('superadmin')->group(function () {
@@ -26,6 +28,8 @@ Route::middleware('web', 'auth', 'language', 'AdminSidebarMenu', 'superadmin')->
     Route::get('/packages/{id}/destroy', [Modules\Superadmin\Http\Controllers\PackagesController::class, 'destroy']);
 
     Route::get('/settings', [Modules\Superadmin\Http\Controllers\SuperadminSettingsController::class, 'edit']);
+    Route::get('/settings/general', [Modules\Superadmin\Http\Controllers\SuperadminSettingsController::class, 'general'])->name('superadmin.settings.general');
+    Route::put('/settings/general', [Modules\Superadmin\Http\Controllers\SuperadminSettingsController::class, 'updateGeneral'])->name('superadmin.settings.general.update');
     Route::put('/settings', [Modules\Superadmin\Http\Controllers\SuperadminSettingsController::class, 'update']);
     Route::get('/edit-subscription/{id}', [Modules\Superadmin\Http\Controllers\SuperadminSubscriptionsController::class, 'editSubscription']);
     Route::post('/update-subscription', [Modules\Superadmin\Http\Controllers\SuperadminSubscriptionsController::class, 'updateSubscription']);
@@ -44,6 +48,14 @@ Route::middleware('web', 'SetSessionData', 'auth', 'language', 'timezone', 'Admi
 
     Route::get('/subscription/post-flutterwave-payment', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'postFlutterwavePaymentCallback']);
 
+    Route::post('/subscription/initiate-onekhusa-payment', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'initiateOneKhusaPayment']);
+
+    Route::post('/superadmin/subscription/initiate-onekhusa-ajax', [\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'initiateOneKhusaPayment']);
+
+    Route::post('/subscription/initiate-onekhusa-payment', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'initiateOneKhusaPayment'])
+    ->name('subscription.initiate-onekhusa-payment')
+    ->middleware(['web', 'auth']);
+
     Route::post('/subscription/pay-stack', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'getRedirectToPaystack']);
     Route::get('/subscription/post-payment-pay-stack-callback', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'postPaymentPaystackCallback']);
 
@@ -57,6 +69,73 @@ Route::middleware('web', 'SetSessionData', 'auth', 'language', 'timezone', 'Admi
     Route::get('/subscription/{package_id}/register-pay', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'registerPay'])->name('register-pay');
 
     Route::resource('/subscription', 'Modules\Superadmin\Http\Controllers\SubscriptionController');
+});
+
+// Route::group(['middleware' => ['auth', 'superadmin'], 'prefix' => 'superadmin'], function () {
+//     // OneKhusa payment routes
+//     Route::post('/initiate-onekhusa-payment', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'initiateOneKhusaPayment'])
+//         ->name('superadmin.onekhusa.initiate');
+    
+       Route::get('/onekhusa-checkout', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'oneKhusaCheckout'])
+           ->name('superadmin.onekhusa.payment.checkout');
+    
+//     Route::get('/onekhusa-payment-success/{reference?}', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'oneKhusaPaymentSuccess'])
+//         ->name('superadmin.onekhusa.payment.success');
+    
+//     Route::get('/onekhusa-payment-failed', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'oneKhusaPaymentFailed'])
+//         ->name('superadmin.onekhusa.payment.failed');
+    
+//     Route::post('/onekhusa-webhook', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'postOneKhusaPaymentCallback'])
+//         ->name('superadmin.onekhusa.webhook');
+// });
+
+Route::prefix('superadmin/onekhusa')->name('superadmin.onekhusa.')->group(function () {
+
+    // Step 1: Initiate payment (API call from frontend)
+    Route::post('/initiate', [
+        SubscriptionController::class,
+        'initiateOneKhusaPayment'
+    ])->name('initiate');
+
+    // Step 2: Optional checkout page (if you want internal page before redirect)
+    Route::get('/checkout', [
+        SubscriptionController::class,
+        'oneKhusaCheckout'
+    ])->name('checkout');
+
+    // Success redirect from OneKhusa
+    Route::get('/success', [
+        SubscriptionController::class,
+        'oneKhusaSuccess'
+    ])->name('success');
+
+    // Failure redirect from OneKhusa
+    Route::get('/failed', [
+        SubscriptionController::class,
+        'oneKhusaFailed'
+    ])->name('failed');
+
+    // Webhook callback (server-to-server)
+    Route::post('/webhook', [
+        SubscriptionController::class,
+        'oneKhusaWebhook'
+    ])->name('webhook');
+});
+
+// Add these routes inside your superadmin middleware group
+Route::group(['middleware' => ['auth', 'superadmin'], 'prefix' => 'superadmin'], function () {
+    // OneKhusa payment routes
+    Route::post('/initiate-onekhusa-payment', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'initiateOneKhusaPayment'])
+        ->name('superadmin.onekhusa.initiate');
+    
+    Route::get('/onekhusa-payment-success/{reference?}', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'oneKhusaPaymentSuccess'])
+        ->name('superadmin.onekhusa.payment.success');
+    
+    Route::get('/onekhusa-payment-failed', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'oneKhusaPaymentFailed'])
+        ->name('superadmin.onekhusa.payment.failed');
+    
+    Route::post('/onekhusa-webhook', [Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'postOneKhusaPaymentCallback'])
+        ->name('superadmin.onekhusa.webhook');
 });
 
 Route::get('/page/{slug}', [Modules\Superadmin\Http\Controllers\PageController::class, 'showPage'])->name('frontend-pages');

@@ -12,12 +12,16 @@ use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\RestaurantUtil;
+use Modules\EIS\Services\EisSubscriptionAccess;
 use Carbon\Carbon;
 use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
+use App\Rules\ReCaptcha;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 
 class BusinessController extends Controller
 {
@@ -165,6 +169,16 @@ class BusinessController extends Controller
                 ]
             );
 
+            if (config('constants.enable_recaptcha')) {
+                $recaptcha_validator = Validator::make($request->all(), [
+                    'g-recaptcha-response' => ['required', new \App\Rules\ReCaptcha]
+                ]);
+                if ($recaptcha_validator->fails()) {
+                    return back()->withErrors($recaptcha_validator)->withInput();
+                }
+            }
+
+
             DB::beginTransaction();
 
             //Create owner.
@@ -286,6 +300,7 @@ class BusinessController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         $business = Business::where('id', $business_id)->first();
+        $canUseEis = app(EisSubscriptionAccess::class)->allows((int) $business_id);
 
         $currencies = $this->businessUtil->allCurrencies();
         $tax_details = TaxRate::forBusinessDropdown($business_id);
@@ -317,6 +332,10 @@ class BusinessController extends Controller
 
         $email_settings = empty($business->email_settings) ? $this->businessUtil->defaultEmailSettings() : $business->email_settings;
 
+        $eis_settings = empty($business->eis_settings) ? $this->businessUtil->defaultEisSettings() : $business->eis_settings;
+
+        \Log::info('EIS Settings Retrieved', ['business_id' => $business_id, 'eis_settings' => $eis_settings]);
+
         $sms_settings = empty($business->sms_settings) ? $this->businessUtil->defaultSmsSettings() : $business->sms_settings;
 
         $modules = $this->moduleUtil->availableModules();
@@ -335,7 +354,7 @@ class BusinessController extends Controller
 
         $payment_types = $this->moduleUtil->payment_types(null, false, $business_id);
 
-        return view('business.settings', compact('business', 'currencies', 'tax_rates', 'timezone_list', 'months', 'accounting_methods', 'commission_agent_dropdown', 'units_dropdown', 'date_formats', 'shortcuts', 'pos_settings', 'modules', 'theme_colors', 'email_settings', 'sms_settings', 'mail_drivers', 'allow_superadmin_email_settings', 'custom_labels', 'common_settings', 'weighing_scale_setting', 'payment_types'));
+        return view('business.settings', compact('business', 'currencies', 'tax_rates', 'timezone_list', 'months', 'accounting_methods', 'commission_agent_dropdown', 'units_dropdown', 'date_formats', 'shortcuts', 'pos_settings', 'modules', 'theme_colors', 'email_settings', 'eis_settings', 'canUseEis', 'sms_settings', 'mail_drivers', 'allow_superadmin_email_settings', 'custom_labels', 'common_settings', 'weighing_scale_setting', 'payment_types'));
     }
 
     /**
@@ -358,7 +377,7 @@ class BusinessController extends Controller
 
             $business_details = $request->only(['name', 'start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
                 'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
-                'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings',
+                'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings', 'eis_settings',
                 'sms_settings', 'rp_name', 'amount_for_unit_rp',
                 'min_order_total_for_rp', 'max_rp_per_order',
                 'redeem_amount_per_unit_rp', 'min_order_total_for_redeem',
@@ -437,14 +456,28 @@ class BusinessController extends Controller
             $shortcuts = $request->input('shortcuts');
             $business_details['keyboard_shortcuts'] = json_encode($shortcuts);
 
-            //pos_settings
-            $pos_settings = $request->input('pos_settings');
+           // Get existing pos_settings
+            $pos_settings = $request->input('pos_settings', []);
+
+            $pre_busines_detail = $this->businessUtil->getDetails($business_id);
+            $pre_pos_setting = json_decode($pre_busines_detail->pos_settings, true) ?? [];
+            for ($i = 1; $i <= 10; $i++) {
+                $inputName = "carousel_image_$i"; // Image field names should be like carousel_image_1, carousel_image_2, etc.
+
+                if ($request->hasFile($inputName)) {
+                    $image_name = $this->businessUtil->uploadFile($request, $inputName, 'carousel_images', 'image');
+                    $pos_settings[$inputName] = $image_name; // Store image URL inside pos_settings
+                }else if (isset($pre_pos_setting[$inputName])){
+                    $pos_settings[$inputName] = $pre_pos_setting[$inputName] ?? null;
+                }
+            }
             $default_pos_settings = $this->businessUtil->defaultPosSettings();
             foreach ($default_pos_settings as $key => $value) {
                 if (! isset($pos_settings[$key])) {
                     $pos_settings[$key] = $value;
                 }
             }
+            // Save pos_settings as JSON
             $business_details['pos_settings'] = json_encode($pos_settings);
 
             $business_details['custom_labels'] = json_encode($business_details['custom_labels']);
@@ -495,9 +528,22 @@ class BusinessController extends Controller
      */
     public function postCheckEmail(Request $request)
     {
-        $email = $request->input('email');
+        if(config('constants.do_not_allow_disposable_email') && $request->input('is_disposable_email')) {
 
-        $query = User::where('email', $email);
+            $email_validator = Validator::make($request->only('email'), [
+                'email' => 'email|indisposable',
+            ], [
+                'email.indisposable' => __('validation.indisposable'),
+            ]);
+
+            if ($email_validator->fails()) {
+                echo $email_validator->errors()->first('email');
+                exit;
+            }
+        }
+
+        // Second: uniqueness check (existing behavior)
+        $query = User::where('email', $request->input('email'));
 
         if (! empty($request->input('user_id'))) {
             $user_id = $request->input('user_id');
@@ -509,7 +555,12 @@ class BusinessController extends Controller
             echo 'true';
             exit;
         } else {
-            echo 'false';
+            // If indisposable mode, return message string; else preserve boolean 'false' for legacy consumers.
+            if ($request->boolean('is_disposable_email')) {
+                echo __('validation.unique', ['attribute' => __('business.email')]);
+            } else {
+                echo 'false';
+            }
             exit;
         }
     }
@@ -569,6 +620,191 @@ class BusinessController extends Controller
     }
 
     /**
+     * Handles the activation of EIS terminal
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function activateEISTerminal(Request $request)
+    {
+        $base_url = config('services.eis.base_url');
+
+        try {
+
+            $validated = $request->validate([
+                'terminal_activation_code' => 'required|string',
+            ]);
+
+            /**
+             * STEP 1: ACTIVATE TERMINAL
+             */
+            $payload = [
+                'terminalActivationCode' => $validated['terminal_activation_code'],
+                'environment' => [
+                    'platform' => [
+                        'osName' => php_uname('s'),
+                        'osVersion' => php_uname('r'),
+                        'osBuild' => php_uname('v'),
+                        'macAddress' => '00-00-00-00-00-00',
+                    ],
+                    'pos' => [
+                        'productID' => 'MRA-desktop/' . uniqid(),
+                        'productVersion' => '1.0.0',
+                    ],
+                ],
+            ];
+
+            $response = Http::acceptJson()
+                ->timeout(60)
+                ->post($base_url . '/onboarding/activate-terminal', $payload);
+
+            $data = $response->json();
+
+            \Log::info('EIS Terminal Activation Response', ['response' => $data]);
+
+            /**
+             * STEP 2: HTTP CHECK
+             */
+            if (!$response->successful()) {
+                $output = [
+                    'success' => 0,
+                    'msg' => 'HTTP request failed',
+                    'error' => $response->body(),
+                ];
+                return $output;
+            }
+
+            $status = $data['response']['statusCode'] ?? null;
+
+            /**
+             * STEP 3: HANDLE STATUS CODES
+             */
+            if (!in_array($status, [1, -2])) {
+                $output = [
+                    'success' => 0,
+                    'msg' => $data['remark'] ?? 'Activation failed',
+                    'error_code' => $status,
+                    'data' => $data
+                ];
+
+                return $output;
+            }
+
+            /**
+             * STEP 4: EXTRACT TERMINAL SAFELY
+             */
+            $terminal = $data['data']['activatedTerminal'] ?? null;
+
+            $jwt = $terminal['terminalCredentials']['jwtToken'] ?? null;
+            $secret = $terminal['terminalCredentials']['secretKey'] ?? null;
+            $x_signature = $this->computeXSignature($validated['terminal_activation_code'], $secret);
+
+            /**
+             * FALLBACK (IMPORTANT for -2 cases)
+             */
+            if (!$jwt || !$secret) {
+                $business = Business::find(session('user.business_id'));
+                $existing = $business->eis_settings ?? [];
+
+                $jwt = $existing['jwt_token'] ?? null;
+                $secret = $existing['secret_key'] ?? null;
+            }
+
+            if (!$jwt || !$secret) {
+                $output = [
+                    'success' => 0,
+                    'msg' => 'Missing terminal credentials',
+                    'data' => $data
+                ];
+
+                return $output;
+            }
+
+            /**
+             * STEP 5: BUILD SETTINGS
+             */
+            $settings = [
+                'activation_code' => $validated['terminal_activation_code'],
+                'terminal_id' => $terminal['terminalId'] ?? null,
+                'taxpayer_id' => $terminal['taxpayerId'] ?? null,
+                'terminal_position' => $terminal['terminalPosition'] ?? null,
+                'jwt_token' => $jwt,
+                'secret_key' => $secret,
+                'site_id' => $data['data']['configuration']['terminalConfiguration']['terminalSite']['siteId'] ?? null,
+                'status' => 'PENDING_CONFIRMATION',
+            ];
+
+            $business = Business::find(session('user.business_id'));
+
+            /**
+             * STEP 6: CONFIRM TERMINAL
+             */
+            $confirmPayload = [
+                'terminalId' => $settings['terminal_id'],
+            ];
+
+            $confirmResponse = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $jwt,
+                    'x-signature' => $x_signature,
+                    'Accept' => 'application/json',
+                ])
+                ->timeout(60)
+                ->post($base_url . '/onboarding/terminal-activated-confirmation', $confirmPayload);
+
+            $confirmData = $confirmResponse->json();
+
+            /**
+             * STEP 7: FINAL STATUS
+             */
+            if ($confirmResponse->successful()) {
+                $settings['status'] = 'ACTIVE';
+            } else {
+                $settings['status'] = 'PENDING_CONFIRMATION';
+            }
+
+            /**
+             * STEP 8: SAVE (NO json_encode if cast exists)
+             */
+            $business->update([
+                'eis_settings' => $settings,
+            ]);
+
+            /**
+             * STEP 9: FINAL RESPONSE (ONLY RETURN HERE)
+             */
+            $output = [
+                'success' => 1,
+                'msg' => 'Terminal activation processed',
+                'data' => [
+                    'activation' => $data,
+                    'confirmation' => $confirmData,
+                    'settings' => $settings,
+                ]
+            ];
+
+            return $output;
+
+        } catch (\Exception $e) {
+
+            \Log::error('EIS Full Activation Flow Error', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ]);
+
+            $output = [
+                'success' => 0,
+                'msg' => 'Terminal activation failed: ' . $e->getMessage(),
+            ];
+
+            return $output;
+        }
+    }
+
+    public function computeXSignature($activationCode, $secretKey) {
+        $hash = hash_hmac('sha512', $activationCode, $secretKey, true);
+        return base64_encode($hash);
+    }
+
+    /**
      * Handles the testing of sms configuration
      *
      * @return \Illuminate\Http\Response
@@ -585,6 +821,14 @@ class BusinessController extends Controller
             ];
             if (! empty($sms_settings['test_number'])) {
                 $response = $this->businessUtil->sendSms($data);
+                $parameter_type = isset($sms_settings['data_parameter_type']) ? $sms_settings['data_parameter_type'] : 'form-data';
+
+                if($parameter_type == 'json'){
+
+                    $body = json_decode($response->getBody(), true);
+                    // Optional: Check if 'status' or 'success' is true inside JSON (based on API format)
+                    return ['success' => true, 'msg' => 'SMS sent successfully', 'data' => $body];
+                }
             } else {
                 $response = __('lang_v1.test_number_is_required');
             }

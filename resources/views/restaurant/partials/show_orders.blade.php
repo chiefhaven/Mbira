@@ -1,3 +1,6 @@
+@if(($orders_for ?? '') === 'kitchen')
+    @include('restaurant.partials.kitchen_rounds', ['kitchen_tickets' => $kitchen_tickets ?? []])
+@endif
 @forelse($orders as $order)
 	<div class="col-md-3 col-xs-6 order_div">
 		<div class="small-box bg-gray">
@@ -50,7 +53,9 @@
 		</div>
 	@endif
 @empty
+@if(empty($kitchen_tickets))
 <div class="col-md-12">
 	<h4 class="text-center">@lang('restaurant.no_orders_found')</h4>
 </div>
+@endif
 @endforelse

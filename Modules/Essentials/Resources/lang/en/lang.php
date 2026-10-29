@@ -68,6 +68,7 @@ return [
     'approved' => 'Approved',
     'change_status' => 'Change Status',
     'cancelled' => 'Cancelled',
+    'rejected' => 'Rejected',
     'employee' => 'Employee',
     'upcoming' => 'Upcoming',
     'past' => 'Past',

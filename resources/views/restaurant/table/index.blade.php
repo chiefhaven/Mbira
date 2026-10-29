@@ -96,6 +96,13 @@
     <script type="text/javascript">
         $(document).ready(function() {
 
+            $('div.tables_modal').on('shown.bs.modal', function() {
+                $(this).find('input.input-icheck').iCheck({
+                    checkboxClass: 'icheckbox_square-blue',
+                    radioClass: 'iradio_square-blue',
+                });
+            });
+
             $(document).on('submit', 'form#table_add_form', function(e) {
                 e.preventDefault();
                 var data = $(this).serialize();

@@ -308,7 +308,7 @@ class SellingPriceGroupController extends Controller
                 //Remove header row
                 $imported_data = array_splice($parsed_array[0], 1);
 
-                $business_id = request()->user()->business_id;
+                $business_id = $request->session()->get('user.business_id');
                 $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->get();
 
                 //Get price group names from headers
@@ -324,6 +324,9 @@ class SellingPriceGroupController extends Controller
 
                 foreach ($imported_data as $key => $value) {
                     $variation = Variation::where('sub_sku', $value[1])
+                                        ->join('products', 'products.id', '=', 'variations.product_id')
+                                        ->where('products.business_id', $business_id)
+                                        ->select('variations.*')
                                         ->first();
                     if (empty($variation)) {
                         $row = $key + 1;

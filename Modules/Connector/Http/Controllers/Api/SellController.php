@@ -24,6 +24,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Modules\Connector\Transformers\SellResource;
+use Modules\EIS\Models\EisSale;
+use Modules\EIS\Services\Sales\SaleSubmissionRule;
 
 /**
  * @group Sales management
@@ -286,7 +288,7 @@ class SellController extends ApiController
 
         $filters = request()->only(['location_id', 'contact_id', 'payment_status', 'start_date', 'end_date', 'user_id', 'service_staff_id', 'only_subscriptions', 'per_page', 'shipping_status', 'order_by_date', 'source', 'status']);
 
-        $with = ['sell_lines', 'payment_lines', 'contact'];
+        $with = ['sell_lines', 'payment_lines', 'contact', 'eisSale:id,transaction_id,receipt_number,qr_code,request_payload'];
         $query = Transaction::where('business_id', $business_id)
                             ->where('type', 'sell');
 
@@ -311,6 +313,15 @@ class SellController extends ApiController
                 //if user is commission agent display only assigned sells
                 if ($user->hasAnyPermission(['view_commission_agent_sell', 'access_commission_agent_shipping'])) {
                     $q->orWhere('transactions.commission_agent', $user->id);
+                }
+
+                if (! $user->hasAnyPermission([
+                    'view_own_sell_only',
+                    'access_own_shipping',
+                    'view_commission_agent_sell',
+                    'access_commission_agent_shipping',
+                ])) {
+                    $q->whereRaw('1 = 0');
                 }
             });
         }
@@ -629,7 +640,7 @@ class SellController extends ApiController
         $query = Transaction::where('business_id', $business_id)
                         ->whereIn('id', $sell_ids);
 
-        $with = ['sell_lines', 'payment_lines'];
+        $with = ['sell_lines', 'payment_lines', 'contact', 'eisSale:id,transaction_id,receipt_number,qr_code,request_payload'];
 
         if (! empty(request()->input('send_purchase_details')) && request()->input('send_purchase_details') == 1) {
             $with[] = 'sell_lines.sell_line_purchase_lines';
@@ -929,8 +940,10 @@ class SellController extends ApiController
                     }
 
                     $transaction = $this->transactionUtil->createSellTransaction($user->business_id, $input, $invoice_total, $user->id, false);
+                    \Modules\Connector\Support\TillAssignment::bind($user, $transaction->id, $request->attributes->get('connector_till_id'));
 
                     $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id'], false, null, [], false);
+                    $input = $this->__alignDesktopPosCashPayment($input, $transaction);
                     //Add change return
                     $change_return = $this->dummyPaymentLine;
                     $change_return['amount'] = $input['change_return'];
@@ -942,6 +955,13 @@ class SellController extends ApiController
                     }
 
                     if ($input['status'] == 'final') {
+                        //EIS: same offline limit gate as the web POS (SellPosController@store).
+                        //Throwing rolls this sell back and its message is returned in the response entry.
+                        $limit_check = $this->checkEisSaleLimits($business_id, $transaction->final_total, $transaction->location_id, $request->attributes->get('connector_till_id'));
+                        if (! $limit_check['success']) {
+                            throw new \Exception($limit_check['message']);
+                        }
+
                         //Check for final and do some processing.
                         //update product stock
                         foreach ($input['products'] as $product) {
@@ -970,7 +990,10 @@ class SellController extends ApiController
                         }
 
                         //Update payment status
-                        $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
+                        $transaction->payment_status = $this->transactionUtil->updatePaymentStatus(
+                            $transaction->id,
+                            ($input['source'] ?? null) === 'desktop_pos' ? null : $transaction->final_total
+                        );
 
                         if ($business->enable_rp == 1) {
                             $redeemed = ! empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
@@ -1002,6 +1025,12 @@ class SellController extends ApiController
                     $transaction->payment_link = $this->transactionUtil->getInvoicePaymentLink($transaction->id, $business_id);
 
                     DB::commit();
+
+                    // A final sell paid in full initiates the EIS submission (see SaleSubmissionRule).
+                    // The sale is already committed: an EIS failure must not turn it into an error response.
+                    // Failed submissions are stored by EIS (eis_sales / eis_failed_transactions) and retried by the scheduler.
+                    SaleSubmissionRule::initiate($transaction, true);
+
                     $output[] = $transaction;
                 } catch (ModelNotFoundException $e) {
                     DB::rollback();
@@ -1255,8 +1284,12 @@ class SellController extends ApiController
             $sell_data = $request->input();
             $sell_data['business_id'] = $user->business_id;
 
+            // Lock and reread BEFORE formatting historical lines/payments or totals.
+            DB::beginTransaction();
+            \App\Services\Sales\SavedSaleWriteGuard::lock(DB::connection(), $id);
             $transaction_before = Transaction::where('business_id', $user->business_id)->with(['payment_lines'])
-                                    ->findOrFail($id);
+                                    ->lockForUpdate()->findOrFail($id);
+            \Modules\Connector\Support\TillAssignment::bind($user, (int) $id, $request->attributes->get('connector_till_id'));
 
             //Check if location allowed
             if (! $user->can_access_this_location($transaction_before->location_id)) {
@@ -1273,9 +1306,6 @@ class SellController extends ApiController
                 'discount_amount' => $input['discount_amount'],
             ];
             $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
-
-            //Begin transaction
-            DB::beginTransaction();
 
             $transaction = $this->transactionUtil->updateSellTransaction($transaction_before, $business_id, $input, $invoice_total, $user->id, false);
 
@@ -1328,6 +1358,8 @@ class SellController extends ApiController
 
             $this->transactionUtil->activityLog($updated_transaction, 'edited', $transaction_before, ['from_api' => $client->name]);
             DB::commit();
+
+            SaleSubmissionRule::initiate($updated_transaction);
         } catch (ModelNotFoundException $e) {
             DB::rollback();
             $output = $this->modelNotFoundExceptionResult($e);
@@ -1340,6 +1372,31 @@ class SellController extends ApiController
         }
 
         return $output;
+    }
+
+    /**
+     * Same offline limit gate the web POS applies before finalizing a sale
+     * (SellPosController::checkSaleLimits), so EIS limits also hold for API sales.
+     */
+    private function checkEisSaleLimits($business_id, $final_total, $location_id, ?int $till_id = null)
+    {
+        $result = EisSale::checkOfflineLimits($business_id, (float) $final_total, $location_id, $till_id);
+
+        if (! is_array($result)) {
+            return ['success' => true];
+        }
+
+        if (($result['success'] ?? true) === false) {
+            return ['success' => false, 'message' => $result['message'] ?? 'Offline limits exceeded'];
+        }
+
+        // The limit checker intentionally fails open when its own DB/config lookup errors.
+        // That should not block a valid sale, but it should still be logged upstream.
+        if (($result['code'] ?? null) === 'CHECK_ERROR') {
+            return ['success' => true];
+        }
+
+        return ['success' => true];
     }
 
     private function __getValue($key, $data, $obj, $default = null, $db_key = null)
@@ -1365,6 +1422,15 @@ class SellController extends ApiController
     private function __formatSellData($data, $transaction = null)
     {
         $business_id = $data['business_id'];
+        if (array_key_exists('is_kitchen_order', $data)) {
+            if (!in_array($data['is_kitchen_order'], [true, false, 0, 1, '0', '1'], true)) {
+                throw new \InvalidArgumentException('Kitchen order must be a boolean.');
+            }
+            if (!empty($data['is_kitchen_order']) &&
+                !in_array('kitchen', Business::findOrFail($business_id)->enabled_modules ?? [], true)) {
+                throw new \InvalidArgumentException('Enable the Kitchen module in backend business settings before sending kitchen orders.');
+            }
+        }
         $location = BusinessLocation::where('business_id', $business_id)
                                     ->findOrFail($data['location_id']);
 
@@ -1424,6 +1490,7 @@ class SellController extends ApiController
             'round_off_amount' => $this->__getValue('round_off_amount', $data, $transaction),
             'res_table_id' => $this->__getValue('table_id', $data, $transaction, null, 'res_table_id'),
             'res_waiter_id' => $this->__getValue('service_staff_id', $data, $transaction, null, 'res_waiter_id'),
+            'is_kitchen_order' => $this->__getValue('is_kitchen_order', $data, $transaction, 0, 'is_kitchen_order'),
             'change_return' => $this->__getValue('change_return', $data, $transaction, 0),
             'change_return_id' => $this->__getValue('change_return_id', $data, $transaction, null),
             'is_quotation' => $this->__getValue('is_quotation', $data, $transaction, 0),
@@ -1454,9 +1521,18 @@ class SellController extends ApiController
                                 ->findOrFail($product_id);
 
                 $variation = $product->variations->where('id', $variation_id)->first();
+                if (empty($variation) && ! $product->variations->isEmpty()) {
+                    $variation = $product->variations->first();
+                }
+
+                if (empty($variation)) {
+                    throw new \Exception('Product #'.$product_id.' has no valid variation for the selected sale item.');
+                }
+
+                $variation_price = $variation->sell_price_inc_tax ?? $variation->default_sell_price ?? 0;
 
                 //Calculate line discount
-                $unit_price = $this->__getValue('unit_price', $product_data, $sell_line, $variation->sell_price_inc_tax, 'unit_price_before_discount');
+                $unit_price = $this->__getValue('unit_price', $product_data, $sell_line, $variation_price, 'unit_price_before_discount');
 
                 $discount_amount = $this->__getValue('discount_amount', $product_data, $sell_line, 0, 'line_discount_amount');
 
@@ -1472,7 +1548,18 @@ class SellController extends ApiController
                 $item_tax = 0;
                 $unit_price_inc_tax = $discounted_price;
                 $tax_id = $this->__getValue('tax_rate_id', $product_data, $sell_line, null, 'tax_id');
-                if (! empty($tax_id)) {
+                $catalog_price = $this->__desktopPosCatalogPrice(
+                    $formated_data['source'] ?? null,
+                    $unit_price,
+                    $discount_amount,
+                    $tax_id,
+                    $product->tax,
+                    $variation
+                );
+                if ($catalog_price !== null) {
+                    $item_tax = $catalog_price['item_tax'];
+                    $unit_price_inc_tax = $catalog_price['unit_price_inc_tax'];
+                } elseif (! empty($tax_id)) {
                     $tax = TaxRate::where('business_id', $business_id)
                                 ->findOrFail($tax_id);
 
@@ -1602,6 +1689,33 @@ class SellController extends ApiController
         return $formated_data;
     }
 
+    private function __alignDesktopPosCashPayment(array $input, $transaction): array
+    {
+        if (($input['source'] ?? null) === 'desktop_pos' && ($input['status'] ?? null) === 'final' &&
+            isset($input['payment']) && count($input['payment']) === 1 &&
+            ($input['payment'][0]['method'] ?? null) === 'cash') {
+            $input['payment'][0]['amount'] = $transaction->final_total;
+        }
+
+        return $input;
+    }
+
+    private function __desktopPosCatalogPrice($source, $unit_price, $discount_amount, $tax_id, $product_tax_id, $variation): ?array
+    {
+        if ($source !== 'desktop_pos' || empty($tax_id) || (int) $tax_id !== (int) $product_tax_id ||
+            (float) $discount_amount !== 0.0 || ! isset($variation->default_sell_price, $variation->sell_price_inc_tax) ||
+            (float) $unit_price !== (float) $variation->default_sell_price) {
+            return null;
+        }
+
+        $inclusive_price = (float) $variation->sell_price_inc_tax;
+
+        return [
+            'unit_price_inc_tax' => $variation->sell_price_inc_tax,
+            'item_tax' => number_format($inclusive_price - (float) $unit_price, 4, '.', ''),
+        ];
+    }
+
     /**
      * Delete Sell
      *
@@ -1647,10 +1761,13 @@ class SellController extends ApiController
             $delivered_to = $request->input('delivered_to');
             $shipping_statuses = $this->transactionUtil->shipping_statuses();
             if (array_key_exists($shipping_status, $shipping_statuses)) {
-                Transaction::where('business_id', $business_id)
-                    ->where('id', $sell_id)
-                    ->where('type', 'sell')
-                    ->update(['shipping_status' => $shipping_status, 'delivered_to' => $delivered_to]);
+                DB::transaction(function () use ($business_id, $sell_id, $shipping_status, $delivered_to) {
+                    \App\Services\Sales\SavedSaleWriteGuard::lock(DB::connection(), $sell_id);
+                    Transaction::where('business_id', $business_id)
+                        ->where('id', $sell_id)
+                        ->where('type', 'sell')
+                        ->update(['shipping_status' => $shipping_status, 'delivered_to' => $delivered_to]);
+                });
             } else {
                 return $this->otherExceptions('Invalid shipping status');
             }
@@ -1796,6 +1913,10 @@ class SellController extends ApiController
                 $output = $this->transactionUtil->addSellReturn($input, $business_id, $user->id);
 
                 DB::commit();
+                if (DB::getSchemaBuilder()->hasTable('eis_sale_adjustments') && DB::table('eis_sale_adjustments')
+                    ->where('business_id', $business_id)->where('return_id', $output->id)->where('status', 'prepared')->exists()) {
+                    $output->setAttribute('eis_adjustment_message', 'EIS adjustment saved for review in Settings > MRA EIS > EIS Sales; not sent yet.');
+                }
             }
         } catch (ModelNotFoundException $e) {
             DB::rollback();

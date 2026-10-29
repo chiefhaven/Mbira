@@ -12,15 +12,17 @@
 	@component('components.widget', ['class' => 'box-solid', 'title' => __( 'connector::lang.clients' )])
         @slot('tool')
             <div class="box-tools">
-                @can('superadmin')
+                @if($can_manage_clients)
                     <a href="{{action([\Modules\Connector\Http\Controllers\ClientController::class, 'regenerate'])}}" class="btn btn-block btn-default" >
                     <i class="fas fa-plus"></i> @lang( 'connector::lang.regenerate_doc' )</a>
-                @endcan
+                @endif
                 
-                <button type="button" class="btn btn-block btn-primary btn-modal" 
-                    data-toggle="modal" 
-                    data-target="#create_client_modal">
-                    <i class="fas fa-plus"></i> @lang( 'connector::lang.create_client' )</button>
+                @if($can_manage_clients)
+                    <button type="button" class="btn btn-block btn-primary btn-modal" 
+                        data-toggle="modal" 
+                        data-target="#create_client_modal">
+                        <i class="fas fa-plus"></i> @lang( 'connector::lang.create_client' )</button>
+                @endif
             </div>
         @endslot
         <div class="table-responsive">

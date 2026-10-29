@@ -5,6 +5,7 @@ namespace Modules\Connector\Http\Controllers\Api;
 use App\Account;
 use App\Business;
 use App\Utils\BusinessUtil;
+use App\Utils\ContactUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
@@ -99,6 +100,9 @@ class CommonResourceController extends ApiController
 
     /**
      * Get business details
+     *
+     * walk_in_customer contains only the default customer's ID and name for POS
+     * sale creators and administrators; it is null otherwise or when not configured.
      *
      * @response {
         "data": {
@@ -404,17 +408,30 @@ class CommonResourceController extends ApiController
                 "updated_at": null
             },
             "printers": [],
+            "walk_in_customer": {
+                "id": 1,
+                "name": "Walk-In Customer"
+            },
             "currency_precision": 2,
             "quantity_precision": 2
         }
     }
      */
-    public function getBusinessDetails()
+    public function getBusinessDetails(ContactUtil $contactUtil)
     {
         $user = Auth::user();
 
         $business = Business::with(['locations', 'currency', 'printers'])
                         ->findOrFail($user->business_id);
+
+        $walkInCustomer = null;
+        if ($this->commonUtil->is_admin($user) || $user->can('superadmin') || $user->can('sell.create')) {
+            $contact = $contactUtil->getWalkInCustomer($user->business_id);
+            if ($contact !== null) {
+                $walkInCustomer = ['id' => $contact['id'], 'name' => $contact['name']];
+            }
+        }
+        $business->setAttribute('walk_in_customer', $walkInCustomer);
 
         return new BusinessResource($business);
     }

@@ -106,4 +106,9 @@ return [
     'tax_number2' => 'Tax Number 2',
     'is_active' => 'Active',
     'created_by' => 'Created By',
+    'land_mark' => 'Landmark',
+    'street_name' => 'Street name',
+    'building_number' => 'Building number',
+    'additional_number' => 'Additional number',
+    'additional_number_secondary' => 'Additional number/Secondary Number',
 ];

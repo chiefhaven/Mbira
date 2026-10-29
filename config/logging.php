@@ -51,6 +51,16 @@ return [
     */
 
     'channels' => [
+        'connector_audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/connector_audit.log'),
+            'level' => 'info',
+            'days' => 30,
+            'permission' => 0600,
+            'locking' => true,
+            'tap' => [\Modules\Connector\Support\Audit\SanitizeAuditLog::class],
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],

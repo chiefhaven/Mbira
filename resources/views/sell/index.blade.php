@@ -5,7 +5,7 @@
 
     <!-- Content Header (Page header) -->
     <section class="content-header no-print">
-        <h1  class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.sells')
+        <h1  class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.sells') <span id="sell_list_selected_range" class="tw-text-gray-600 tw-font-normal tw-text-base">{{ @format_date(\Carbon\Carbon::now()->subDays(29)) }} ~ {{ @format_date(\Carbon\Carbon::now()) }}</span>
         </h1>
     </section>
 
@@ -73,6 +73,7 @@
                             <th>@lang('lang_v1.contact_no')</th>
                             <th>@lang('sale.location')</th>
                             <th>@lang('sale.payment_status')</th>
+                            <th>EIS void status</th>
                             <th>@lang('lang_v1.payment_method')</th>
                             <th>@lang('sale.total_amount')</th>
                             <th>@lang('sale.total_paid')</th>
@@ -100,6 +101,7 @@
                         <tr class="bg-gray font-17 footer-total text-center">
                             <td colspan="6"><strong>@lang('sale.total'):</strong></td>
                             <td class="footer_payment_status_count"></td>
+                            <td></td>
                             <td class="payment_method_count"></td>
                             <td class="footer_sale_total"></td>
                             <td class="footer_total_paid"></td>
@@ -107,7 +109,7 @@
                             <td class="footer_total_sell_return_due"></td>
                             <td colspan="2"></td>
                             <td class="service_type_count"></td>
-                            <td colspan="7"></td>
+                            <td colspan="11"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -121,6 +123,10 @@
     <div class="modal fade edit_payment_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
     </div>
 
+    @if ($canUseEis && auth()->user()->can('sell.delete'))
+        @include('sell.partials.eis_cancel_receipt_modal')
+    @endif
+
     <!-- This will be printed -->
     <section class="invoice print_section" id="receipt_section">
         </section> 
@@ -131,16 +137,33 @@
     <script type="text/javascript">
         $(document).ready(function() {
             //Date range as a button
+            var startLast30 = moment().subtract(29, 'days');
+            var endLast = moment();
+            
+            // Function to update heading with date range
+            function updateDateRangeHeading(start, end) {
+                if (start && end) {
+                    var formattedStart = start.format(moment_date_format);
+                    var formattedEnd = end.format(moment_date_format);
+                    $('#sell_list_selected_range').text(formattedStart + ' ~ ' + formattedEnd);
+                } else {
+                    // Reset to default (last 30 days)
+                    var defaultStart = moment().subtract(29, 'days').format(moment_date_format);
+                    var defaultEnd = moment().format(moment_date_format);
+                    $('#sell_list_selected_range').text(defaultStart + ' ~ ' + defaultEnd);
+                }
+            }
+            
             $('#sell_list_filter_date_range').daterangepicker(
-                dateRangeSettings,
+                $.extend(true, {}, dateRangeSettings, { startDate: startLast30, endDate: endLast }),
                 function(start, end) {
-                    $('#sell_list_filter_date_range').val(start.format(moment_date_format) + ' ~ ' + end.format(
-                        moment_date_format));
+                    updateDateRangeHeading(start, end);
                     sell_table.ajax.reload();
                 }
             );
             $('#sell_list_filter_date_range').on('cancel.daterangepicker', function(ev, picker) {
                 $('#sell_list_filter_date_range').val('');
+                updateDateRangeHeading(null, null);
                 sell_table.ajax.reload();
             });
 
@@ -167,6 +190,7 @@
                         d.location_id = $('#sell_list_filter_location_id').val();
                         d.customer_id = $('#sell_list_filter_customer_id').val();
                         d.payment_status = $('#sell_list_filter_payment_status').val();
+                        d.eis_void_status = $('#sell_list_filter_eis_void_status').val();
                         d.created_by = $('#created_by').val();
                         d.sales_cmsn_agnt = $('#sales_cmsn_agnt').val();
                         d.service_staffs = $('#service_staffs').val();
@@ -222,6 +246,12 @@
                     {
                         data: 'payment_status',
                         name: 'payment_status'
+                    },
+                    {
+                        data: 'eis_void_status',
+                        name: 'eis_void_status',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'payment_methods',
@@ -364,7 +394,7 @@
             });
 
             $(document).on('change',
-                '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status, #sell_list_filter_source, #payment_method',
+                '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #sell_list_filter_eis_void_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status, #sell_list_filter_source, #payment_method',
                 function() {
                     sell_table.ajax.reload();
                 });
@@ -374,5 +404,11 @@
             });
         });
     </script>
+    @include('sell.partials.eis_void_tools_javascript')
+    @include('sell.partials.eis_sale_sync_javascript')
+    @if ($canUseEis && auth()->user()->can('sell.delete'))
+        @include('eis::shared.result-table')
+        @include('sell.partials.eis_cancel_receipt_javascript')
+    @endif
     <script src="{{ asset('js/payment.js?v=' . $asset_v) }}"></script>
 @endsection

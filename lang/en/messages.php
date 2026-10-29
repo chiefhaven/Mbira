@@ -18,6 +18,8 @@ return [
     'action' => 'Action',
     'actions' => 'Actions',
     'view' => 'View',
+    'split_bill' => 'Split Bill',
+    'select_all' => 'Select All',
     'delete' => 'Delete',
     'close' => 'Close',
     'something_went_wrong' => 'Something went wrong, please try again later',
@@ -44,4 +46,7 @@ return [
     'price' => 'Price',
     'activate' => 'Activate',
     'deactivate' => 'Deactivate',
+    'print_detailed' => 'Print Detailed',
+    'print_mini' => 'Print Mini',
+    'opening' => 'opening',
 ];

@@ -50,6 +50,48 @@
 
 
             <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-end tw-gap-3">
+                <?php
+                    use Modules\EIS\Models\EisSetting;
+
+                    try {
+                        $businessId = auth()->user()->business_id ?? null;
+                        
+                        if (!$businessId) {
+                            throw new \Exception('Business ID not found');
+                        }
+                        
+                        $permittedLocations = auth()->user()->permitted_locations();
+                        $terminals = EisSetting::where('business_id', $businessId)
+                            ->whereHas('location', function ($query) use ($businessId, $permittedLocations) {
+                                $query->where('business_id', $businessId);
+                                if ($permittedLocations !== 'all') {
+                                    $query->whereIn('id', $permittedLocations);
+                                }
+                            })->limit(2)->get();
+                        if ($terminals->count() > 1) {
+                            $eisStatus = 'multiple terminals';
+                        } elseif ($terminals->isEmpty()) {
+                            $eisStatus = 'not configured';
+                        } else {
+                            $terminal = $terminals->first();
+                            $eisHealth = app(\Modules\EIS\Services\Http\EisHealthService::class);
+                            $eisStatus = $terminal->status && $terminal->jwt_token
+                                && $eisHealth->isOnline($businessId, $terminal->jwt_token) ? 'online' : 'offline';
+                        }
+                        
+                    } catch (\Exception $e) {
+                        \Log::error('EIS status error: ' . $e->getMessage());
+                        $eisStatus = 'offline';
+                    }
+
+                    $statusColor = $eisStatus === 'online' ? 'green' : ($eisStatus === 'offline' ? 'red' : 'yellow');
+                ?>
+
+                <span class="tw-inline-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-rounded-full tw-text-sm tw-font-semibold tw-bg-<?php echo $statusColor; ?>-500/10 tw-text-white tw-border tw-border-<?php echo $statusColor; ?>-500/20 tw-shadow-sm">
+                    <span class="tw-inline-block tw-w-2 tw-h-2 tw-rounded-full tw-bg-<?php echo $statusColor; ?>-500 tw-shadow-lg tw-shadow-<?php echo $statusColor; ?>-500/30"></span>
+                    EIS: <?php echo ucfirst($eisStatus); ?>
+                </span>
+
                 @if (Module::has('Essentials'))
                     @includeIf('essentials::layouts.partials.header_part')
                 @endif
@@ -113,7 +155,7 @@
                                         <path d="M12 17l0 .01" />
                                         <path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" />
                                     </svg>
-                                    Application Tour
+                                    @lang('lang_v1.application_tour')
                                 </a>
                             @endif
                         </div>
@@ -121,9 +163,10 @@
 
                 </details>
 
+                {{-- data-toggle="popover" remove this for on hover show --}}
 
                 <button id="btnCalculator" title="@lang('lang_v1.calculator')" data-content='@include('layouts.partials.calculator')'
-                    type="button" data-trigger="click" data-html="true" data-placement="bottom" data-toggle="popover"
+                    type="button" data-trigger="click" data-html="true" data-placement="bottom" 
                     class="tw-hidden md:tw-inline-flex tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-text-white tw-transition-all tw-duration-200 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-p-1.5 tw-rounded-lg tw-ring-1 hover:tw-text-white tw-ring-white/10">
                     <span class="tw-sr-only" aria-hidden="true">
                         Calculator
@@ -206,7 +249,7 @@
                         role="menu" tabindex="-1">
                         <div class="tw-px-4 tw-pt-3 tw-pb-1" role="none">
                             <p class="tw-text-sm" role="none">
-                                Signed in as
+                                @lang('lang_v1.signed_in_as')
                             </p>
                             <p class="tw-text-sm tw-font-medium tw-text-gray-900 tw-truncate" role="none">
                                 {{ Auth::User()->first_name }} {{ Auth::User()->last_name }}

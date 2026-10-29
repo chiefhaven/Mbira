@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\EIS\Models\EisSale;
 
 class Transaction extends Model
 {
@@ -17,12 +18,35 @@ class Transaction extends Model
      */
     protected $guarded = ['id'];
 
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            \App\Services\Sales\SavedSaleWriteGuard::model($model, true);
+        });
+        static::deleting(function ($model) {
+            \App\Services\Sales\SavedSaleWriteGuard::model($model, true);
+            if ($model->type === 'sell' && $model->getConnection()->getSchemaBuilder()->hasTable('eis_sale_adjustments')
+                && $model->getConnection()->table('eis_sale_adjustments')->where('business_id', $model->business_id)
+                    ->where('sale_id', $model->id)->exists()) {
+                throw new \InvalidArgumentException('A sale with fiscal return adjustments cannot be deleted.');
+            }
+            if ($model->type === 'sell_return' && $model->return_parent_id
+                && $model->getConnection()->getSchemaBuilder()->hasTable('eis_sales')
+                && $model->getConnection()->table('eis_sales')->where('business_id', $model->business_id)
+                    ->where('transaction_id', $model->return_parent_id)->exists()) {
+                throw new \InvalidArgumentException('Fiscal returns cannot be deleted. Reduce the return through the POS return form to create a linked debit note.');
+            }
+        });
+    }
+
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
+        'is_relief' => 'boolean',
+        'vat5_certificate_details' => 'array',
         'purchase_order_ids' => 'array',
         'sales_order_ids' => 'array',
         'export_custom_fields_info' => 'array',
@@ -287,6 +311,8 @@ class Transaction extends Model
             'opening_balance' => __('lang_v1.opening_balance'),
             'payment' => __('lang_v1.payment'),
             'ledger_discount' => __('lang_v1.ledger_discount'),
+            'hms_booking' => __('lang_v1.hms_booking'),
+            'gym_subscription' => __('lang_v1.gym_subscription'),
         ];
     }
 
@@ -324,6 +350,11 @@ class Transaction extends Model
     public static function getSellStatuses()
     {
         return ['final' => __('sale.final'), 'draft' => __('sale.draft'), 'quotation' => __('lang_v1.quotation'), 'proforma' => __('lang_v1.proforma')];
+    }
+
+    public function eisSale()
+    {
+        return $this->hasOne(\Modules\EIS\Models\EisSale::class);
     }
 
     /**

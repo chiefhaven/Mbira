@@ -76,7 +76,7 @@ include_once 'install_r.php';
 
 Route::middleware(['setData'])->group(function () {
     Route::get('/', function () {
-        return view('welcome');
+        return redirect()->route('login');
     });
 
     Auth::routes();
@@ -99,6 +99,8 @@ Route::middleware(['setData'])->group(function () {
 
 //Routes for authenticated users only
 Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 'AdminSidebarMenu', 'CheckUserLogin'])->group(function () {
+    Route::get('/admin/eis-migrations', [\App\Http\Controllers\Install\EisMigrationController::class, 'index'])->name('eis-migrations.index');
+    Route::post('/admin/eis-migrations', [\App\Http\Controllers\Install\EisMigrationController::class, 'store'])->name('eis-migrations.store')->middleware('throttle:3,1');
     Route::get('pos/payment/{id}', [SellPosController::class, 'edit'])->name('edit-pos-payment');
     Route::get('service-staff-availability', [SellPosController::class, 'showServiceStaffAvailibility']);
     Route::get('pause-resume-service-staff-timer/{user_id}', [SellPosController::class, 'pauseResumeServiceStaffTimer']);
@@ -120,6 +122,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/calendar', [HomeController::class, 'getCalendar'])->name('calendar');
 
     Route::post('/test-email', [BusinessController::class, 'testEmailConfiguration']);
+    Route::post('/activate-eis-terminal', [BusinessController::class, 'activateEISTerminal'])->name('activate_eis_terminal');
     Route::post('/test-sms', [BusinessController::class, 'testSmsConfiguration']);
     Route::get('/business/settings', [BusinessController::class, 'getBusinessSettings'])->name('business.getBusinessSettings');
     Route::post('/business/update', [BusinessController::class, 'postBusinessSettings'])->name('business.postBusinessSettings');
@@ -129,7 +132,28 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
     Route::resource('brands', BrandController::class);
 
-    Route::resource('payment-account', 'PaymentAccountController');
+    Route::get('/sell/split-bill/{id}', [SellController::class, 'splitBill'])->name('sell.splitBill');
+    Route::post('/sell/process-split-bill', [SellController::class, 'processSplitBill'])->name('sell.processSplitBill');
+    
+    Route::get('/sells/clear-all-bill', [\App\Http\Controllers\SellController::class, 'clearAllBills'])
+        ->name('sells.clear-all-bill')
+        ->middleware(['auth']);
+    
+    Route::post('/sells/clear-all-bill', [\App\Http\Controllers\SellController::class, 'clearAllBills'])
+        ->name('sells.clear-all-bill-post')
+        ->middleware(['auth']);
+
+    Route::post('/sells/eis-submit-all-bills', [\App\Http\Controllers\SellController::class, 'eisSubmitAllBills'])
+        ->name('sells.eis-submit-all-bills')
+        ->middleware(['auth']);
+
+    Route::get('/sells/check-unpaid-bills', [SellController::class, 'checkUnpaidBills'])
+        ->name('sells.check-unpaid-bills');
+
+    Route::get('/sells/check-unsubmitted-bills', [SellController::class, 'checkUnsubmittedBills'])
+        ->name('sells.check-unsubmitted-bills');
+    
+    //Route::resource('payment-account', 'PaymentAccountController');
 
     Route::resource('tax-rates', TaxRateController::class);
 
@@ -148,6 +172,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/contacts/import', [ContactController::class, 'getImportContacts'])->name('contacts.import');
     Route::post('/contacts/import', [ContactController::class, 'postImportContacts']);
     Route::post('/contacts/check-contacts-id', [ContactController::class, 'checkContactId']);
+
+    Route::post('/contacts/check-tax-number', [ContactController::class, 'checkTaxNumber']);
+
     Route::get('/contacts/customers', [ContactController::class, 'getCustomers']);
     Route::resource('contacts', ContactController::class);
 
@@ -181,6 +208,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/products/get_variation_template', [ProductController::class, 'getVariationTemplate']);
     Route::get('/products/get_variation_value_row', [ProductController::class, 'getVariationValueRow']);
     Route::post('/products/check_product_sku', [ProductController::class, 'checkProductSku']);
+    Route::post('/products/check_product_name', [ProductController::class, 'checkProductName']);
     Route::post('/products/validate_variation_skus', [ProductController::class, 'validateVaritionSkus']); //validates multiple skus at once
     Route::get('/products/quick_add', [ProductController::class, 'quickAdd']);
     Route::post('/products/save_quick_product', [ProductController::class, 'saveQuickProduct']);
@@ -231,7 +259,11 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/pos/get-product-suggestion', [SellPosController::class, 'getProductSuggestion']);
     Route::get('/sells/pos/get-featured-products/{location_id}', [SellPosController::class, 'getFeaturedProducts']);
     Route::get('/reset-mapping', [SellController::class, 'resetMapping']);
+    // pos display screen route
+    Route::get('/customer-display', [SellPosController::class, 'posDisplay'])->name('pos_display');
 
+    Route::get('/pos/variations/bulk', [\App\Http\Controllers\ProductController::class, 'getVariationDetailsBulk']);
+    // end pos display screen route
     Route::resource('pos', SellPosController::class);
 
     Route::resource('roles', RoleController::class);
@@ -317,6 +349,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
     //Expenses...
     Route::resource('expenses', ExpenseController::class);
+    Route::get('import-expense', [ExpenseController::class, 'importExpense']);
+    Route::post('store-import-expense', [ExpenseController::class, 'storeExpenseImport']);
 
     //Transaction payments...
     // Route::get('/payments/opening-balance/{contact_id}', 'TransactionPaymentController@getOpeningBalancePayments');
@@ -436,6 +470,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
         Route::get('/kitchen', [Restaurant\KitchenController::class, 'index']);
         Route::get('/kitchen/mark-as-cooked/{id}', [Restaurant\KitchenController::class, 'markAsCooked']);
+        Route::post('/kitchen/mark-ticket-as-cooked/{id}', [Restaurant\KitchenController::class, 'markTicketAsCooked']);
         Route::post('/refresh-orders-list', [Restaurant\KitchenController::class, 'refreshOrdersList']);
         Route::post('/refresh-line-orders-list', [Restaurant\KitchenController::class, 'refreshLineOrdersList']);
 
@@ -516,4 +551,5 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone'])
         ->name('packing.downloadPdf');
     Route::get('/sells/invoice-url/{id}', [SellPosController::class, 'showInvoiceUrl']);
     Route::get('/show-notification/{id}', [HomeController::class, 'showNotification']);
+    Route::post('/sell/check-invoice-number', [SellController::class, 'checkInvoiceNumber']);
 });

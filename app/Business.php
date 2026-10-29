@@ -36,6 +36,7 @@ class Business extends Model
         'ref_no_prefixes' => 'array',
         'enabled_modules' => 'array',
         'email_settings' => 'array',
+        'eis_settings' => 'array',
         'sms_settings' => 'array',
         'common_settings' => 'array',
         'weighing_scale_setting' => 'array',
@@ -92,6 +93,11 @@ class Business extends Model
     public function subscriptions()
     {
         return $this->hasMany('\Modules\Superadmin\Entities\Subscription');
+    }
+
+    public function eisTerminals()
+    {
+        return $this->hasMany(\Modules\EIS\Models\EisSetting::class, 'business_id');
     }
 
     /**

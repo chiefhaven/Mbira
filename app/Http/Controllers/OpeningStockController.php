@@ -150,6 +150,14 @@ class OpeningStockController extends Controller
             $business_id = $request->session()->get('user.business_id');
             $user_id = $request->session()->get('user.id');
 
+            if (Transaction::where('business_id', $business_id)->where('opening_stock_product_id', $product_id)
+                ->where('source', 'eis_reconciliation')->exists()) {
+                return redirect()->back()->with('status', [
+                    'success' => 0,
+                    'msg' => 'This product has audited EIS stock reconciliations. Use EIS stock reconciliation instead of rewriting its opening stock.',
+                ]);
+            }
+
             $product = Product::where('business_id', $business_id)
                                 ->where('id', $product_id)
                                 ->with(['variations', 'product_tax'])

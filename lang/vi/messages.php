@@ -44,4 +44,7 @@ return [
     'price' => 'Giá',
     'activate' => 'Kích hoạt',
     'deactivate' => 'hủy kích hoạt',
+    'print_detailed' => 'In Chi Tiết',
+    'print_mini' => 'In Mini',
+    'opening' => 'Mở Cửa',
 ];

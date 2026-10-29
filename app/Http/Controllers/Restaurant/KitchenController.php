@@ -8,6 +8,9 @@ use App\Utils\Util;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Services\Sales\RestaurantBillService;
+use App\Services\Sales\SavedSplitException;
+use Illuminate\Support\Facades\DB;
 
 class KitchenController extends Controller
 {
@@ -46,7 +49,33 @@ class KitchenController extends Controller
         
         $orders = $this->restUtil->getAllOrders($business_id, ['line_order_status' => 'received', 'is_kitchen_order' => 1]);
 
-        return view('restaurant.kitchen.index', compact('orders'));
+        $kitchen_tickets = $this->managedKitchenOrders();
+        return view('restaurant.kitchen.index', compact('orders', 'kitchen_tickets'));
+    }
+
+    private function managedKitchenOrders(): array
+    {
+        $user = auth()->user();
+        if (!DB::getSchemaBuilder()->hasTable('restaurant_bills') ||
+            !DB::table('restaurant_bills')->where('business_id', $user->business_id)->exists() ||
+            (!$user->hasRole('Admin#'.$user->business_id) && !$user->can('superadmin') && !$user->can('restaurant.kitchen'))) {
+            return [];
+        }
+        return (new RestaurantBillService(DB::connection()))->kitchenOrders($user);
+    }
+
+    public function markTicketAsCooked(Request $request, $id)
+    {
+        $data = $request->validate(['ticket_id' => 'required|integer|min:1', 'operation_id' => 'required|uuid']);
+        try {
+            (new RestaurantBillService(DB::connection()))->ticket($request->user(), (int) $id, [
+                'ticket_id' => (int) $data['ticket_id'], 'operation_id' => $data['operation_id'],
+                'station' => 'kitchen', 'status' => 'cooked',
+            ]);
+            return response()->json(['success' => true, 'msg' => trans('restaurant.order_successfully_marked_cooked')]);
+        } catch (SavedSplitException $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()], $e->httpStatus);
+        }
     }
 
     /**
@@ -56,6 +85,10 @@ class KitchenController extends Controller
      */
     public function markAsCooked($id)
     {
+        if (DB::getSchemaBuilder()->hasTable('restaurant_bills') &&
+            DB::table('restaurant_bills')->where('transaction_id', $id)->where('business_id', auth()->user()->business_id)->exists()) {
+            return response()->json(['success' => false, 'msg' => trans('restaurant.use_round_ticket')], 409);
+        }
         // if (!auth()->user()->can('sell.update')) {
         //     abort(403, 'Unauthorized action.');
         // }
@@ -113,7 +146,8 @@ class KitchenController extends Controller
 
         $orders = $this->restUtil->getAllOrders($business_id, $filter);
 
-        return view('restaurant.partials.show_orders', compact('orders', 'orders_for'));
+        $kitchen_tickets = $orders_for === 'kitchen' ? $this->managedKitchenOrders() : [];
+        return view('restaurant.partials.show_orders', compact('orders', 'orders_for', 'kitchen_tickets'));
     }
 
     /**

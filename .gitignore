@@ -26,3 +26,15 @@ npm-debug.log
 /public/docs
 /public/js/skins/
 /public/js/icons/
+storage.zip
+vendor.zip
+storage/logs/laravel.log
+*.log
+/storage
+!/storage/
+/storage/*
+!/storage/framework/
+/storage/framework/*
+!/storage/framework/sessions/
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore

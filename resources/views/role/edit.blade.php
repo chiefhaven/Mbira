@@ -61,6 +61,22 @@
                   </label>
                 </div>
               </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'send_payment_received_notification', in_array('send_payment_received_notification', $role_permissions),
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.payment_received_notification' ) }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="checkbox">
+                  <label>
+                    {!! Form::checkbox('permissions[]', 'send_payment_reminder_notification', in_array('send_payment_reminder_notification', $role_permissions),
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.payment_reminder_notification' ) }}
+                  </label>
+                </div>
+              </div>
           </div>
         </div>
         <hr>
@@ -375,7 +391,7 @@
         </div>
         </div>
         <hr>
-        @if(in_array('purchases', $enabled_modules) || in_array('stock_adjustment', $enabled_modules) )
+        @if(in_array('purchases', $enabled_modules))
         <div class="row check_group">
         <div class="col-md-1">
           <h4>@lang( 'role.purchase' )</h4>
@@ -392,7 +408,7 @@
             <div class="checkbox">
               <label>
                 {!! Form::radio('radio_option[purchase_view]', 'purchase.view', in_array('purchase.view', $role_permissions), 
-                [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.view_all_purchase_n_stock_adjustment' ) }}
+                [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.view_all_purchase' ) }}
               </label>
             </div>
           </div>
@@ -400,7 +416,7 @@
             <div class="checkbox">
               <label>
                 {!! Form::radio('radio_option[purchase_view]', 'view_own_purchase', in_array('view_own_purchase', $role_permissions),['class' => 'input-icheck']); !!}
-                {{ __('lang_v1.view_own_purchase_n_stock_adjustment') }}
+                {{ __('lang_v1.view_own_purchase') }}
               </label>
             </div>
           </div>
@@ -464,6 +480,123 @@
         </div>
         <hr>
         @endif
+
+        @if(in_array('stock_adjustment', $enabled_modules))
+        <div class="row check_group">
+        <div class="col-md-1">
+          <h4>@lang( 'role.stock_adjustment' )</h4>
+        </div>
+        <div class="col-md-2">
+          <div class="checkbox">
+              <label>
+                <input type="checkbox" class="check_all input-icheck" > {{ __( 'role.select_all' ) }}
+              </label>
+            </div>
+        </div>
+        <div class="col-md-9">
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::radio('radio_option[stock_adjustment_view]', 'stock_adjustment.view', in_array('stock_adjustment.view', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_adjustment.view' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::radio('radio_option[stock_adjustment_view]', 'view_own_stock_adjustment', in_array('view_own_stock_adjustment', $role_permissions),['class' => 'input-icheck']); !!}
+                {{ __('role.stock_adjustment.view_own') }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stock_adjustment.create', in_array('stock_adjustment.create', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_adjustment.create' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stock_adjustment.update', in_array('stock_adjustment.update', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_adjustment.update' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stock_adjustment.delete', in_array('stock_adjustment.delete', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_adjustment.delete' ) }}
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+        <hr>
+        @endif
+
+        @if(in_array('stock_transfers', $enabled_modules))
+          <div class="row check_group">
+          <div class="col-md-1">
+            <h4>@lang( 'role.stock_transfer' )</h4>
+          </div>
+          <div class="col-md-2">
+            <div class="checkbox">
+                <label>
+                  <input type="checkbox" class="check_all input-icheck" > {{ __( 'role.select_all' ) }}
+                </label>
+              </div>
+          </div>
+          <div class="col-md-9">
+            <div class="col-md-12">
+              <div class="checkbox">
+                <label>
+                  {!! Form::radio('radio_option[stock_transfer_view]', 'stock_transfer.view', in_array('stock_transfer.view', $role_permissions), 
+                  [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_transfer.view' ) }}
+                </label>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="checkbox">
+                <label>
+                  {!! Form::radio('radio_option[stock_transfer_view]', 'stock_transfer.view_own', in_array('stock_transfer.view_own', $role_permissions),['class' => 'input-icheck']); !!}
+                  {{ __('role.stock_transfer.view_own') }}
+                </label>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="checkbox">
+                <label>
+                  {!! Form::checkbox('permissions[]', 'stock_transfer.create', in_array('stock_transfer.create', $role_permissions), 
+                  [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_transfer.create' ) }}
+                </label>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="checkbox">
+                <label>
+                  {!! Form::checkbox('permissions[]', 'stock_transfer.update', in_array('stock_transfer.update', $role_permissions), 
+                  [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_transfer.update' ) }}
+                </label>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="checkbox">
+                <label>
+                    {!! Form::checkbox('permissions[]', 'stock_transfer.delete', in_array('stock_transfer.delete', $role_permissions), 
+                  [ 'class' => 'input-icheck']); !!} {{ __( 'role.stock_transfer.delete' ) }}
+                </label>
+              </div>
+            </div>
+          </div>
+          </div>
+          <hr>
+        @endif
+
         @if(!empty($common_settings['enable_purchase_requisition']))
           <div class="row check_group">
             <div class="col-md-1">
@@ -1651,6 +1784,9 @@
               </div>
             </div>
           </div>
+        @endif
+        @if(in_array('tables', $enabled_modules))
+          @include('role.partials.restaurant_workflow_permissions')
         @endif
         @include('role.partials.module_permissions')
         <div class="row">

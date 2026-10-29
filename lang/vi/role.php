@@ -38,6 +38,22 @@ return [
     'purchase.create' => 'Thêm mua & điều chỉnh cổ phiếu',
     'purchase.update' => 'Chỉnh sửa mua & điều chỉnh cổ phiếu',
     'purchase.delete' => 'Xóa mua & điều chỉnh cổ phiếu',
+    
+    'stock_adjustment.view' => 'Xem điều chỉnh kho',
+    'stock_adjustment.view_own' => 'Xem điều chỉnh kho của riêng mình',
+    'stock_adjustment.create' => 'Thêm điều chỉnh kho',
+    'stock_adjustment.update' => 'Chỉnh sửa điều chỉnh kho',
+    'stock_adjustment.delete' => 'Xóa điều chỉnh kho',
+    'purchase' => 'Mua hàng',
+    'stock_adjustment' => 'Điều chỉnh Kho',
+
+    'stock_transfer' => 'Chuyển kho',
+    'stock_transfer.view' => 'Xem tất cả chuyển kho',
+    'stock_transfer.view_own' => 'Xem chuyển kho của riêng mình',
+    'stock_transfer.create' => 'Thêm chuyển kho',
+    'stock_transfer.update' => 'Chỉnh sửa chuyển kho',
+    'stock_transfer.delete' => 'Xóa chuyển kho',
+
     'sell.view' => 'Xem POS bán',
     'sell.create' => 'Thêm POS bán',
     'sell.update' => 'Chỉnh sửa bán POS',

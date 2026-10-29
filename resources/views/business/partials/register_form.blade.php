@@ -1,4 +1,3 @@
-
 @if(empty($is_admin))
     <h3>@lang('business.business')</h3>
 @endif
@@ -326,18 +325,34 @@
     </div>
 </div>
 <div class="clearfix"></div>
-<div class="col-md-6">
-    @if(!empty($system_settings['superadmin_enable_register_tc']))
-        <div class="form-group">
-            <label>
-                {!! Form::checkbox('accept_tc', 0, false, ['required', 'class' => 'input-icheck']); !!}
-                <u><a class="terms_condition cursor-pointer" data-toggle="modal" data-target="#tc_modal">
-                    @lang('lang_v1.accept_terms_and_conditions') <i></i>
-                </a></u>
-            </label>
+    @if(!empty($system_settings['superadmin_enable_register_tc']) && !empty($is_register))
+        <div class="col-md-6">
+            <div>
+                <label>
+                    {!! Form::checkbox('accept_tc', 0, false, ['required', 'class' => 'input-check-box']); !!}
+                    <a class="terms_condition cursor-pointer" data-toggle="modal" data-target="#tc_modal">
+                        @lang('lang_v1.accept_terms_and_conditions') <i></i>
+                    </a>
+                </label>
+            </div>
+            @include('business.partials.terms_conditions')
         </div>
-        @include('business.partials.terms_conditions')
     @endif
-</div>
+
+    @if(config('constants.enable_recaptcha') && !empty($is_register))
+        <div class="col-md-6">
+            <div class="form-group">
+                <div id="recaptcha-container"></div>
+                @if ($errors->has('g-recaptcha-response'))
+                    <span class="text-danger">{{ $errors->first('g-recaptcha-response') }}</span>
+                @endif
+            </div>
+        </div>
+    @endif
 <div class="clearfix"></div>
 </fieldset>
+@if(config('constants.enable_recaptcha') && !empty($is_register))
+    <script>
+        window.RECAPTCHA_SITE_KEY = "{{ config('constants.google_recaptcha_key') }}";
+    </script>
+@endif

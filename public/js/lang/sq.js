@@ -8,6 +8,7 @@ LANG = {
 "paid_amount_is_more_than_payable": "Shuma e paguar është më shumë se shuma e pagueshme. \ nJu lutemi kontrolloni.",
 "confirm_delete_role": "Ky rol do të fshihet.",
 "sku_already_exists": "SKU tashmë ekziston.",
+'name_already_exists' : 'Një produkt me këtë emër ekziston tashmë',
 "ref_no_already_exists": "Numri i referencës që tashmë është përdorur.",
 "out_of_stock": "Artikuj jashtë magazinës",
 "delete_invoice_confirm": "Kjo vendosje do të fshihet.",
@@ -115,5 +116,33 @@ LANG = {
 'authentication_failed': 'Autentikimi dështoi!',
 'authentication_successfull': 'Autentikimi u krye me sukses',
 'please_enter' : 'Ju lutem shkruani',
-'or_more_characters' : 'ose më shumë karaktere'
+'or_more_characters' : 'ose më shumë karaktere',
+'name_already_exists' : 'Produkti me këtë emër ekziston tashmë',
+// AI Assistance translations
+'use_ai': 'Përdorni AI',
+'image_added_successfully': 'Imazhi u shtua me sukses',
+'fill_required_fields': 'Ju lutemi plotësoni fushat e kërkuara përpara se të përdorni AI',
+'generating_description': 'Duke gjeneruar përshkrimin e produktit...',
+'generating_image': 'Duke gjeneruar imazhin e produktit...',
+'processing': 'Duke procesuar...',
+'use_description': 'Përdorni Përshkrimin',
+'use_image': 'Përdorni Imazhin',
+'submit': 'Dërgo',
+'fill_name_brand_for_image': 'Ju lutemi plotësoni Emrin e Produktit dhe Markën përpara se të gjeneroni imazhin.',
+'fill_name_brand_unit_for_ai': 'Ju lutemi plotësoni Emrin e Produktit, Markën dhe Njësinë përpara se të përdorni AI.',
+'something_went_wrong_try_again': 'Diçka shkoi keq, ju lutemi provoni përsëri',
+ 'invoice_number_already_exists': 'Numri i faturës ekziston tashmë',
+ 'tax_number_already_exists' : 'Ky numër tatimor ekziston tashmë',
+ 'missing_skus' : 'Mungojnë SKU-të',
+ 'each': 'Secili',
+ 'total': 'Total',
+        
+    // Member profile related
+    'diet_plan_applied_to_form_successfully': 'Plani i dietës u aplikua me sukses në formular!',
+    'workout_plan_saved_successfully': 'Plani i stërvitjes u ruajt me sukses!',
+    'workout_plan_applied_to_form_successfully': 'Plani i stërvitjes u aplikua me sukses në formular!',
+
+    'name_length_exceeded': 'Gjatësia totale e Prefiksit, Emrit të Parë, të Mesëm dhe të Mbiemrit nuk mund të kalojë 127 karaktere.',
+    'error': 'Gabim',
+    'ok': 'OK',
 };

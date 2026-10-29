@@ -9,9 +9,12 @@
     </div>
 
     <div class="modal-body">
+      @if(auth()->user()->can('view_cash_register'))
         @include('cash_register.payment_details')
         <hr>
+      @endif
       <div class="row">
+      @if(auth()->user()->can('view_cash_register'))
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!}
@@ -68,7 +71,9 @@
             <p class="help-block">@lang('lang_v1.denomination_add_help_text')</p>
           @endif
         </div>
+      @endif
         <hr>
+
         <div class="col-sm-12">
           <div class="form-group">
             {!! Form::label('closing_note', __( 'cash_register.closing_note' ) . ':') !!}

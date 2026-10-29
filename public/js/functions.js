@@ -524,3 +524,24 @@ function __disable_submit_button(element) {
 function __current_datetime() {
     return moment().format(moment_date_format + ' ' + moment_time_format);
 }
+
+//Converts formatted number string to float (similar to PHP num_uf function)
+function __num_uf(input_number, use_page_currency = false) {
+    var thousand_separator = '';
+    var decimal_separator = '';
+
+    if (use_page_currency && __p_currency_thousand_separator) {
+        thousand_separator = __p_currency_thousand_separator;
+        decimal_separator = __p_currency_decimal_separator;
+    } else {
+        thousand_separator = __currency_thousand_separator;
+        decimal_separator = __currency_decimal_separator;
+    }
+
+    // Remove thousand separators
+    var num = String(input_number || '0').replace(new RegExp('\\' + thousand_separator, 'g'), '');
+    // Replace decimal separator with dot
+    num = num.replace(decimal_separator, '.');
+
+    return parseFloat(num) || 0;
+}

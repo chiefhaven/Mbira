@@ -7,7 +7,7 @@
 		    data-key="{{env('RAZORPAY_KEY_ID')}}"
 		    data-amount="{{$package->price*100}}"
 		    data-buttontext="Pay with Razorpay"
-		    data-name="{{env('APP_NAME')}}"
+		    data-name="{{ config('app.name') }}"
 		    data-description="{{$package->name}}"
 		    data-theme.color="#3c8dbc"
 		></script>

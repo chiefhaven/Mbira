@@ -29,8 +29,16 @@ class AuthServiceProvider extends ServiceProvider
             if (in_array($ability, ['backup', 'superadmin',
                 'manage_modules', ])) {
                 $administrator_list = config('constants.administrator_usernames');
+                $administrator_usernames = collect(explode(',', (string) $administrator_list))
+                    ->map(function ($username) {
+                        return trim(strtolower($username));
+                    })
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
 
-                if (in_array(strtolower($user->username), explode(',', strtolower($administrator_list)))) {
+                if (in_array(strtolower($user->username), $administrator_usernames, true)) {
                     return true;
                 }
             } else {

@@ -145,7 +145,8 @@
             isRTL: isRTL
         });
         // side bar toggle  
-        $(".drop_down").click(function() {
+        $(".drop_down").click(function(event) {
+            event.preventDefault();
             var $chiled = $(this).next(".chiled");
             var svgElement = $(this).find(".svg");
             $(".chiled").not($chiled).slideUp();

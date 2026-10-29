@@ -1,6 +1,7 @@
 @php 
     $colspan = 15;
     $custom_labels = json_decode(session('business.custom_labels'), true);
+    $eis_managed = \App\Services\EisProductPolicy::configured(session('user.business_id'));
 @endphp
 <table class="table table-bordered table-striped ajax_view hide-footer" id="product_table">
     <thead>
@@ -41,17 +42,19 @@
         <tr>
             <td colspan="{{$colspan}}">
             <div style="display: flex; width: 100%;">
+                @if (!$eis_managed)
                 @can('product.delete')
                     {!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'massDestroy']), 'method' => 'post', 'id' => 'mass_delete_form' ]) !!}
                     {!! Form::hidden('selected_rows', null, ['id' => 'selected_rows']); !!}
                     {!! Form::submit(__('lang_v1.delete_selected'), array('class' => 'tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error', 'id' => 'delete-selected')) !!}
                     {!! Form::close() !!}
                 @endcan
+                @endif
 
                 
                     @can('product.update')
                     
-                        @if(config('constants.enable_product_bulk_edit'))
+                        @if(!$eis_managed && config('constants.enable_product_bulk_edit'))
                             &nbsp;
                             {!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'bulkEdit']), 'method' => 'post', 'id' => 'bulk_edit_form' ]) !!}
                             {!! Form::hidden('selected_products', null, ['id' => 'selected_products_for_edit']); !!}
@@ -65,6 +68,7 @@
                     @endcan
                 
                 &nbsp;
+                @if (!$eis_managed)
                 {!! Form::open(['url' => action([\App\Http\Controllers\ProductController::class, 'massDeactivate']), 'method' => 'post', 'id' => 'mass_deactivate_form' ]) !!}
                 {!! Form::hidden('selected_products', null, ['id' => 'selected_products']); !!}
                 {!! Form::submit(__('lang_v1.deactivate_selected'), array('class' => 'tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-warning', 'id' => 'deactivate-selected')) !!}
@@ -74,6 +78,7 @@
                     <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-warning toggle_woocomerce_sync">
                         @lang('lang_v1.woocommerce_sync')
                     </button>
+                @endif
                 @endif
                 </div>
             </td>

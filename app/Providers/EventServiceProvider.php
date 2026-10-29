@@ -27,6 +27,13 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\TransactionPaymentDeleted::class => [
             \App\Listeners\DeleteAccountTransaction::class,
         ],
+
+        \Modules\EIS\Events\SaleCompleted::class => [
+            \Modules\EIS\Listeners\DispatchEisSaleJob::class,
+        ],
+        \App\Events\StockAdjustmentCreatedOrModified::class => [
+            \Modules\EIS\Listeners\QueueStockAdjustmentToEis::class,
+        ],
     ];
 
     /**
@@ -49,4 +56,5 @@ class EventServiceProvider extends ServiceProvider
     {
         return false;
     }
+    
 }

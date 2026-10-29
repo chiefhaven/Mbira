@@ -19,6 +19,7 @@ return [
     'add_contact' => 'Add a new contact',
     'contact_type' => 'Contact type',
     'tax_no' => 'Tax number',
+    'eis_authorization_code' => 'EIS Authorization Code',
     'pay_term' => 'Pay term',
     'pay_term_period' => 'Pay term period',
     'mobile' => 'Mobile',

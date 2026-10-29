@@ -2,6 +2,7 @@
 
 namespace Modules\Superadmin\Http\Controllers;
 
+use App\Business;
 use App\System;
 use App\Utils\BusinessUtil;
 use Illuminate\Http\Request;
@@ -10,6 +11,51 @@ use Illuminate\Routing\Controller;
 
 class SuperadminSettingsController extends Controller
 {
+    public function general(\App\Services\CmsBranding $branding)
+    {
+        if (! auth()->user()->can('superadmin')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('superadmin::superadmin_settings.general', [
+            'branding' => $branding->settings(),
+        ]);
+    }
+
+    public function updateGeneral(Request $request, \App\Services\CmsBranding $branding)
+    {
+        if (! auth()->user()->can('superadmin')) {
+            abort(403, 'Unauthorized action.');
+        }
+        if (config('app.env') === 'demo') {
+            return back()->with('status', ['success' => 0, 'msg' => 'Feature disabled in demo!!']);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:191',
+            'title' => 'nullable|string|max:191',
+            'footer' => 'nullable|string|max:500',
+            'logo' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'compact_logo' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'favicon' => 'nullable|file|mimes:png,ico|max:2048',
+            'remove_logo' => 'sometimes|boolean',
+            'remove_compact_logo' => 'sometimes|boolean',
+            'remove_favicon' => 'sometimes|boolean',
+        ]);
+
+        try {
+            $branding->save($request);
+            $status = ['success' => 1, 'msg' => __('lang_v1.success')];
+        } catch (\Exception $e) {
+            \Log::error('CMS branding could not be saved.', ['exception' => $e]);
+            return back()->withInput()->with('status', [
+                'success' => 0, 'msg' => __('messages.something_went_wrong'),
+            ]);
+        }
+
+        return redirect()->route('superadmin.settings.general')->with('status', $status);
+    }
+
     /**
      * All Utils instance.
      */
@@ -92,6 +138,11 @@ class SuperadminSettingsController extends Controller
             'FLUTTERWAVE_PUBLIC_KEY' => $is_demo ? null : env('FLUTTERWAVE_PUBLIC_KEY'),
             'FLUTTERWAVE_SECRET_KEY' => $is_demo ? null : env('FLUTTERWAVE_SECRET_KEY'),
             'FLUTTERWAVE_ENCRYPTION_KEY' => $is_demo ? null : env('FLUTTERWAVE_ENCRYPTION_KEY'),
+            'ONEKHUSA_BASEURL' => $is_demo ? null : env('ONEKHUSA_BASEURL'),
+            'ONEKHUSA_MERCHANT_ACCOUNT_NUMBER' => $is_demo ? null : env('ONEKHUSA_MERCHANT_ACCOUNT_NUMBER'),
+            'ONEKHUSA_API_SECRET' => $is_demo ? null : env('ONEKHUSA_API_SECRET'),
+            'ONEKHUSA_ORGANISATION_ID' => $is_demo ? null : env('ONEKHUSA_ORGANISATION_ID'),
+            'ONEKHUSA_API_KEY' => $is_demo ? null : env('ONEKHUSA_API_KEY'),
         ];
         $mail_drivers = $this->mailDrivers;
 
@@ -172,6 +223,7 @@ class SuperadminSettingsController extends Controller
                 'PUSHER_APP_CLUSTER', 'GOOGLE_MAP_API_KEY', 'PAYSTACK_SECRET_KEY',
                 'PAYSTACK_PUBLIC_KEY', 'FLUTTERWAVE_PUBLIC_KEY',
                 'FLUTTERWAVE_SECRET_KEY', 'FLUTTERWAVE_ENCRYPTION_KEY', 'MAPBOX_ACCESS_TOKEN',
+                'ONEKHUSA_BASEURL', 'ONEKHUSA_MERCHANT_ACCOUNT_NUMBER', 'ONEKHUSA_API_SECRET', 'ONEKHUSA_ORGANISATION_ID',
             ]);
 
             $env_settings['ALLOW_REGISTRATION'] = ! empty($request->input('ALLOW_REGISTRATION')) ? 'true' : 'false';

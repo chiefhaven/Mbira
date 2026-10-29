@@ -51,19 +51,27 @@
         </div>
     </div>
     <div class="row sms_service_settings @if($sms_service != 'other') hide @endif" data-service="other">
-        <div class="col-xs-3">
+        <div class="col-xs-4">
             <div class="form-group">
             	{!! Form::label('sms_settings_url', 'URL:') !!}
             	{!! Form::text('sms_settings[url]', $sms_settings['url'], ['class' => 'form-control','placeholder' => 'URL', 'id' => 'sms_settings_url']); !!}
             </div>
         </div>
-        <div class="col-xs-3">
+        <div class="col-xs-4">
             <div class="form-group">
                 {!! Form::label('send_to_param_name', __('lang_v1.send_to_param_name') . ':') !!}
-                {!! Form::text('sms_settings[send_to_param_name]', $sms_settings['send_to_param_name'], ['class' => 'form-control','placeholder' => __('lang_v1.send_to_param_name'), 'id' => 'send_to_param_name']); !!}
+                <div class="input-group">
+                    {!! Form::text('sms_settings[send_to_param_name]', !empty($sms_settings['send_to_param_name']) ? $sms_settings['send_to_param_name'] : null, ['class' => 'form-control', 'id' => 'send_to_param_name']); !!}
+                    <div class="input-group-addon">
+                        <select class="" name="sms_settings[send_to_param_type]">
+                            <option value="string" @if (empty($sms_settings['send_to_param_type']) || $sms_settings['send_to_param_type'] == 'string') selected @endif>{{ __('lang_v1.string_default') }}</option>
+                            <option value="array" @if (!empty($sms_settings['send_to_param_type']) && $sms_settings['send_to_param_type'] == 'array') selected @endif>{{ __('lang_v1.array') }}</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-xs-3">
+        <div class="col-xs-4">
             <div class="form-group">
                 {!! Form::label('msg_param_name', __('lang_v1.msg_param_name') . ':') !!}
                 {!! Form::text('sms_settings[msg_param_name]', $sms_settings['msg_param_name'], ['class' => 'form-control','placeholder' => __('lang_v1.msg_param_name'), 'id' => 'msg_param_name']); !!}
@@ -73,6 +81,12 @@
             <div class="form-group">
                 {!! Form::label('request_method', __('lang_v1.request_method') . ':') !!}
                 {!! Form::select('sms_settings[request_method]', ['get' => 'GET', 'post' => 'POST'], $sms_settings['request_method'], ['class' => 'form-control', 'id' => 'request_method']); !!}
+            </div>
+        </div>
+        <div class="col-xs-3">
+            <div class="form-group">
+                {!! Form::label('data_parameter_type', __('lang_v1.data_parameter_type') . ':') !!}
+                {!! Form::select('sms_settings[data_parameter_type]', ['form-data' => 'Form Data', 'json' => 'JSON'], !empty($sms_settings['data_parameter_type']) ? $sms_settings['data_parameter_type'] : 'form-data', ['class' => 'form-control', 'id' => 'data_parameter_type']); !!}
             </div>
         </div>
         <div class="clearfix"></div>

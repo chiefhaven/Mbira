@@ -23,6 +23,33 @@ class BusinessLocation extends Model
         'featured_products' => 'array',
     ];
 
+    public static function creationDefaults($business_id, array $payment_types)
+    {
+        $scheme_id = InvoiceScheme::where('business_id', $business_id)
+            ->where('is_default', 1)->value('id');
+        $layout_id = InvoiceLayout::where('business_id', $business_id)
+            ->where('is_default', 1)->value('id');
+
+        // Payment defaults live on locations; reuse the business's original setup.
+        $payment_settings = static::where('business_id', $business_id)
+            ->orderBy('id')->value('default_payment_accounts');
+        $payment_settings = json_decode($payment_settings ?? '', true);
+        if (! is_array($payment_settings)) {
+            $payment_settings = array_fill_keys(array_keys($payment_types), [
+                'is_enabled' => 1,
+                'account' => null,
+            ]);
+        }
+
+        return [
+            'invoice_scheme_id' => $scheme_id,
+            'sale_invoice_scheme_id' => $scheme_id,
+            'invoice_layout_id' => $layout_id,
+            'sale_invoice_layout_id' => $layout_id,
+            'default_payment_accounts' => array_intersect_key($payment_settings, $payment_types),
+        ];
+    }
+
     /**
      * Return list of locations for a business
      *

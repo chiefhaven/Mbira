@@ -76,9 +76,30 @@ class ApiController extends Controller
     public function getClient()
     {
         $bearerToken = request()->bearerToken();
-        $tokenId = (new \Lcobucci\JWT\Parser())->parse($bearerToken)->getHeader('jti');
-        $client = \Laravel\Passport\Token::find($tokenId)->client;
+        if (empty($bearerToken)) {
+            return null;
+        }
 
-        return $client;
+        $parts = explode('.', $bearerToken);
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        $payload = $parts[1];
+        $payload = str_replace(['-', '_'], ['+', '/'], $payload);
+        $padding = strlen($payload) % 4;
+        if ($padding > 0) {
+            $payload .= str_repeat('=', 4 - $padding);
+        }
+
+        $decodedPayload = json_decode(base64_decode($payload), true);
+        $tokenId = $decodedPayload['jti'] ?? null;
+        if (empty($tokenId)) {
+            return null;
+        }
+
+        $token = \Laravel\Passport\Token::find($tokenId);
+
+        return $token ? $token->client : null;
     }
 }

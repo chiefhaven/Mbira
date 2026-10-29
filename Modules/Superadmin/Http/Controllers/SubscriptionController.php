@@ -5,6 +5,7 @@ namespace Modules\Superadmin\Http\Controllers;
 use App\Business;
 use App\System;
 use App\Utils\ModuleUtil;
+use Illuminate\Console\View\Components\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,8 @@ use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Stripe;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class SubscriptionController extends BaseController
 {
@@ -296,14 +299,11 @@ class SubscriptionController extends BaseController
             'description' => 'Stripe payment',
         ]);
 
-        // "address" => ["city" => $city, "country" => $country, "line1" => $address, "line2" => "", "postal_code" => $zipCode, "state" => $state]
-
         $system_currency = System::getCurrency();
 
         $charge = Charge::create([
-            'amount' => $package->price * 100,
+            'amount' => $package->price,
             'currency' => strtolower($system_currency->code),
-            //"source" => $request->stripeToken,
             'customer' => $customer,
             'metadata' => $metadata,
         ]);
@@ -558,6 +558,235 @@ class SubscriptionController extends BaseController
     }
 
     /**
+     * Step 1: Initiate OneKhusa Payment
+     */
+    public function initiateOneKhusaPayment(Request $request)
+    {
+        try {
+            $request->validate([
+                'package_id' => 'required|integer'
+            ]);
+
+            $package = Package::findOrFail($request->package_id);
+
+            $business_id = $request->session()->get('user.business_id');
+            $user_id = $request->session()->get('user.id');
+            $business = Business::find($business_id);
+            $merchantAccountNumber = config('services.onekhusa.merchant_account_number');
+            $apiKey = config('services.onekhusa.api_key');
+            $apiSecret = config('services.onekhusa.api_secret');
+            $organisationId = config('services.onekhusa.organisation_id');
+            $baseUrl = rtrim(config('services.onekhusa.base_url'), '/');
+            $moduleCode = 'MbiraERP';
+            $uniqueNumber = Str::upper(Str::random(6));
+
+            // Unique reference (this is fine to generate locally)
+            $reference = 'SUB-' . time() . '-' . Str::upper(Str::random(6));
+
+            // Idempotency key (valid format)
+            $idempotencyKey = "{$merchantAccountNumber}-{$moduleCode}-{$uniqueNumber}";
+
+            // Store session BEFORE API call
+            $paymentData = [
+                'package_id' => $package->id,
+                'reference' => $reference,
+                'amount' => $package->price,
+                'business_id' => $business_id,
+                'user_id' => $user_id,
+            ];
+
+            session([
+                "onekhusa_payment_reference" => $paymentData,
+            ]);
+
+            // Get access token
+            $accessToken = $this->getOneKhusaAccessToken();
+
+            if (!$accessToken) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication failed'
+                ]);
+            }
+
+            // Build payload (NO paymentTransactionId here)
+            $payload = [
+                'authentication' => [
+                    'apiKey' => $apiKey,
+                    'apiSecret' => $apiSecret,
+                ],
+                'merchant' => [
+                    'organisationId' => $organisationId,
+                    'merchantAccountNumber' => (int) $merchantAccountNumber,
+                ],
+                'payment' => [
+                    'sourceReferenceNumber' => $reference,
+                    'description' => 'Subscription payment - ' . $package->name,
+                    'amount' => (int) $package->price,
+                ],
+                'route' => [
+                    'successRedirectionUrl' => route('superadmin.onekhusa.success', [
+                        'reference' => $reference
+                    ]),
+                    'failureRedirectionUrl' => route('superadmin.onekhusa.failed'),
+                    'callbackApiUrl' => route('superadmin.onekhusa.webhook'),
+                ],
+            ];
+
+            // Step 1: Initiate RTP
+            $response = Http::timeout(60)
+                ->withHeaders([
+                    'Authorization' => "Bearer $accessToken",
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'X-Idempotency-Key' => $idempotencyKey,
+                ])
+                ->post("$baseUrl/checkout/rtp/initiate", $payload);
+
+            $data = $response->json();
+
+            Log::info('OneKhusa Initiate Response', $data);
+
+            // Step 2: Extract REAL paymentTransactionId from response
+            $paymentTransactionId =
+                $data['paymentTransactionId']
+                ?? $data['data']['paymentTransactionId']
+                ?? null;
+
+            if (!$paymentTransactionId) {
+                Log::error('OneKhusa: Missing paymentTransactionId', $data);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid payment gateway response'
+                ]);
+            }
+
+            // Store full transaction mapping
+            session([
+                "onekhusa_payment_txn_$paymentTransactionId" => array_merge($paymentData, [
+                    'payment_transaction_id' => $paymentTransactionId
+                ])
+            ]);
+
+            // Step 3: Build checkout URL (MANDATORY flow)
+            $checkoutUrl = 'https://checkout.onekhusa.com/requestToPay/initiate?' . http_build_query([
+                'ptid' => $paymentTransactionId
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'payment_url' => $checkoutUrl,
+                'reference' => $reference,
+                'payment_transaction_id' => $paymentTransactionId,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('OneKhusa Initiate Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Step 2: Access token
+     */
+    private function getOneKhusaAccessToken()
+    {
+        try {
+            $baseUrl = rtrim(config('services.onekhusa.base_url'), '/');
+
+            $idempotencyKey = 'TOKEN-' . Str::upper(Str::random(6));
+
+            $response = Http::timeout(60)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'X-Idempotency-Key' => $idempotencyKey,
+                    'Accept-language' => 'en',
+                ])
+                ->post("$baseUrl/account/getAccessToken", [
+                    'apiKey' => config('services.onekhusa.api_key'),
+                    'apiSecret' => config('services.onekhusa.api_secret'),
+                    'organisationId' => config('services.onekhusa.organisation_id'),
+                    'merchantAccountNumber' => (int) config('services.onekhusa.merchant_account_number'),
+                ]);
+
+            $data = $response->json();
+
+            return $data['accessToken'] ?? null;
+        } catch (\Exception $e) {
+            Log::error('OneKhusa Token Error', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Success redirect
+     */
+    public function oneKhusaSuccess(Request $request)
+    {
+        $reference = $request->get('reference');
+        $ptid = $request->get('ptid');
+
+        $paymentData =
+            session("onekhusa_payment_$reference")
+            ?? session("onekhusa_payment_txn_$ptid");
+
+        if (!$paymentData) {
+            return redirect()->back()
+                ->with('status', [
+                    'success' => 0,
+                    'msg' => 'Payment session expired'
+                ]);
+        }
+
+        $this->_add_subscription(
+            $paymentData['business_id'],
+            $paymentData['package_id'],
+            'onekhusa',
+            $paymentData['reference'],
+            $paymentData['user_id']
+        );
+
+        return redirect()
+            ->action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'index'])
+            ->with('status', [
+                'success' => 1,
+                'msg' => 'Payment successful'
+            ]);
+    }
+
+    /**
+     * Failed redirect
+     */
+    public function oneKhusaFailed()
+    {
+        \Log::warning('OneKhusa Payment Failed or Cancelled', request()->all());
+
+        return redirect()
+            ->action([\Modules\Superadmin\Http\Controllers\SubscriptionController::class, 'index'])
+            ->with('status', [
+                'success' => 0,
+                'msg' => 'Payment failed or cancelled'
+            ]);
+    }
+
+    public function oneKhusaWebhook(Request $request)
+    {
+        $payload = $request->all();
+
+        Log::info('OneKhusa Webhook Received', $payload);
+
+    }
+
+    /**
      * Show the specified resource.
      *
      * @return Response
@@ -653,5 +882,46 @@ class SubscriptionController extends BaseController
              })
              ->rawColumns(['package_price', 'action'])
              ->make(true);
+    }
+    
+    /**
+     * Returns available payment gateways
+     */
+    public function _payment_gateways()
+    {
+        $gateways = [];
+        
+        if (env('STRIPE_KEY')) {
+            $gateways['stripe'] = 'Stripe';
+        }
+        
+        if (env('PAYPAL_CLIENT_ID') && env('PAYPAL_SECRET_ID')) {
+            $gateways['paypal'] = 'PayPal';
+        }
+        
+        if (env('RAZORPAY_KEY_ID') && env('RAZORPAY_KEY_SECRET')) {
+            $gateways['razorpay'] = 'Razorpay';
+        }
+        
+        if (env('PAYSTACK_PUBLIC_KEY') && env('PAYSTACK_SECRET_KEY')) {
+            $gateways['paystack'] = 'Paystack';
+        }
+        
+        if (env('FLUTTERWAVE_PUBLIC_KEY') && env('FLUTTERWAVE_SECRET_KEY')) {
+            $gateways['flutterwave'] = 'Flutterwave';
+        }
+        
+        // Add OneKhusa gateway
+        if (env('ONEKHUSA_API_KEY') && env('ONEKHUSA_API_SECRET')) {
+            $gateways['onekhusa'] = 'OneKhusa';
+        }
+        
+        // Offline payment
+        $offline_payment_details = System::getProperty('offline_payment_details');
+        if (!empty($offline_payment_details)) {
+            $gateways['offline'] = 'Offline Payment';
+        }
+        
+        return $gateways;
     }
 }

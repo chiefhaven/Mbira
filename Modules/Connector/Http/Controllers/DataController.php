@@ -39,7 +39,10 @@ class DataController extends Controller
                 $menu->dropdown(
                     __('connector::lang.connector'),
                     function ($sub) {
-                        if (auth()->user()->can('superadmin')) {
+                        $business_id = session()->get('user.business_id');
+                        $can_manage_clients = auth()->user()->can('superadmin') || (bool) app(\App\Utils\ModuleUtil::class)->hasThePermissionInSubscription($business_id, 'connector_module');
+
+                        if ($can_manage_clients) {
                             $sub->url(
                                 action([\Modules\Connector\Http\Controllers\ClientController::class, 'index']),
                                __('connector::lang.clients'),

@@ -2,7 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:api', 'timezone')->prefix('connector/api')->group(function () {
+// The module provider supplies the api group (including throttle:api).
+// This deliberately has no auth:api: it exchanges credentials for a token.
+Route::post('connector/api/desktop-login', [Modules\Connector\Http\Controllers\Api\DesktopLoginController::class, 'login'])
+    ->middleware('throttle:5,1');
+
+Route::middleware(['auth:api', 'timezone', \Modules\Connector\Http\Middleware\ConnectorTill::class])->prefix('connector/api')->group(function () {
+    Route::get('tills', [Modules\Connector\Http\Controllers\Api\TillController::class, 'index']);
+    Route::post('tills', [Modules\Connector\Http\Controllers\Api\TillController::class, 'store']);
     Route::resource('business-location', Modules\Connector\Http\Controllers\Api\BusinessLocationController::class)->only('index', 'show');
 
     Route::resource('contactapi', Modules\Connector\Http\Controllers\Api\ContactController::class)->only('index', 'show', 'store', 'update');
@@ -26,6 +33,10 @@ Route::middleware('auth:api', 'timezone')->prefix('connector/api')->group(functi
     Route::resource('table', Modules\Connector\Http\Controllers\Api\TableController::class)->only('index', 'show');
 
     Route::get('user/loggedin', [Modules\Connector\Http\Controllers\Api\UserController::class, 'loggedin']);
+    Route::get('user/admin-usernames', [Modules\Connector\Http\Controllers\Api\UserController::class, 'adminUsernames']);
+    Route::get('user/admin-users', [Modules\Connector\Http\Controllers\Api\UserController::class, 'adminUsers']);
+    Route::get('admin-usernames', [Modules\Connector\Http\Controllers\Api\UserController::class, 'adminUsernames']);
+    Route::get('admin-users', [Modules\Connector\Http\Controllers\Api\UserController::class, 'adminUsers']);
     Route::post('user-registration', [Modules\Connector\Http\Controllers\Api\UserController::class, 'registerUser']);
     Route::resource('user', Modules\Connector\Http\Controllers\Api\UserController::class)->only('index', 'show');
 
@@ -34,6 +45,24 @@ Route::middleware('auth:api', 'timezone')->prefix('connector/api')->group(functi
     Route::get('payment-accounts', [Modules\Connector\Http\Controllers\Api\CommonResourceController::class, 'getPaymentAccounts']);
 
     Route::get('payment-methods', [Modules\Connector\Http\Controllers\Api\CommonResourceController::class, 'getPaymentMethods']);
+
+    Route::post('admin/migrate-saved-split', [Modules\Connector\Http\Controllers\Api\SplitMigrationController::class, 'migrate'])->middleware('throttle:2,1');
+
+    Route::get('sell/{id}/split-preview', [Modules\Connector\Http\Controllers\Api\SavedSaleSplitController::class, 'preview']);
+    Route::post('sell/{id}/split', [Modules\Connector\Http\Controllers\Api\SavedSaleSplitController::class, 'split']);
+    Route::get('sell/{id}/checkout-preview', [Modules\Connector\Http\Controllers\Api\SavedSaleSplitController::class, 'checkoutPreview']);
+    Route::post('sell/{id}/checkout', [Modules\Connector\Http\Controllers\Api\SavedSaleSplitController::class, 'checkout']);
+    Route::get('sell/{id}/add-items-preview', [Modules\Connector\Http\Controllers\Api\SavedSaleSplitController::class, 'additionsPreview']);
+    Route::post('sell/{id}/add-items', [Modules\Connector\Http\Controllers\Api\SavedSaleSplitController::class, 'addItems']);
+    Route::post('sell/{id}/edit-items', [Modules\Connector\Http\Controllers\Api\SavedSaleSplitController::class, 'editItems']);
+    Route::get('restaurant/{action}', [Modules\Connector\Http\Controllers\Api\RestaurantBillController::class, 'handle'])
+        ->where('action', 'config|board|queue|approvals');
+    Route::post('restaurant/create', [Modules\Connector\Http\Controllers\Api\RestaurantBillController::class, 'handle'])
+        ->defaults('action', 'create');
+    Route::get('restaurant/{action}/{id}', [Modules\Connector\Http\Controllers\Api\RestaurantBillController::class, 'handle'])
+        ->where('action', 'preview');
+    Route::post('restaurant/{action}/{id}', [Modules\Connector\Http\Controllers\Api\RestaurantBillController::class, 'handle'])
+        ->where('action', 'edit|approve|dispatch|transition|ticket|pay|retry-fiscal');
 
     Route::resource('sell', Modules\Connector\Http\Controllers\Api\SellController::class)->only('index', 'store', 'show', 'update', 'destroy');
 

@@ -8,7 +8,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">{{config('app.name', 'ultimatePOS')}}</a>
+      <a class="navbar-brand" href="{{ url('/') }}">
+        @if(config('branding.logo'))
+          <img src="{{ config('branding.logo') }}" alt="{{ config('app.name') }}" style="display: inline-block; max-width: 120px; max-height: 28px; object-fit: contain;">
+        @endif
+        {{ config('app.name', 'ultimatePOS') }}
+      </a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">

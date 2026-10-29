@@ -70,7 +70,7 @@
                             @else
                                 ''
                             @endif">
-                            <a href="#purchases_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-arrow-circle-down" aria-hidden="true"></i> @lang( 'purchase.purchases')</a>
+                            <a href="#purchases_tab" data-toggle="tab" id="purchases-link" aria-expanded="true"><i class="fas fa-arrow-circle-down" aria-hidden="true"></i> @lang( 'purchase.purchases')</a>
                         </li>
                         <li class="
                             @if(!empty($view_type) &&  $view_type == 'stock_report')
@@ -586,6 +586,10 @@ $(document).on('click', '#print_ledger_pdf', function() {
         );
         $('#purchase_list_filter_date_range').on('cancel.daterangepicker', function(ev, picker) {
             $('#purchase_list_filter_date_range').val('');
+            purchase_table.ajax.reload();
+        });
+
+        $('#purchases-link').on('click', function(e) {
             purchase_table.ajax.reload();
         });
     });

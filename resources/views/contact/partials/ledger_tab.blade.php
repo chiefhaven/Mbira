@@ -33,6 +33,9 @@
                 <label class="btn btn-default">
                     <input type="radio" name="ledger_format" value="format_3"> @lang('lang_v1.format_3')
                 </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="ledger_format" value="format_4"> @lang('lang_v1.format_4')
+                </label>
             </div>
             </div>
         </div>

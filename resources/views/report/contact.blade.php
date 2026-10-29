@@ -43,7 +43,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('scr_contact_id', __( 'report.contact' ) . ':') !!}
-                        {!! Form::select('scr_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'id' => 'scr_contact_id', 'placeholder' => __('lang_v1.all')]); !!}
+                        {!! Form::select('scr_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'id' => 'scr_contact_id', 'placeholder' => __('lang_v1.all'), 'style' => 'width:100%']); !!}
                     </div>
                 </div>
 

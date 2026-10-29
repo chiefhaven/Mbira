@@ -31,10 +31,25 @@
         <div class="col-sm-6">
           <div class="form-group">
             {!! Form::label('design', __('lang_v1.design') . ':*') !!}
-              {!! Form::select('design', $designs, 'classic', ['class' => 'form-control']); !!}
+              <select name="design" id="design_select" class="form-control">
+                @foreach($designs as $key => $label)
+                  <option value="{{ $key }}" @if($key === 'classic') selected @endif @if(isset($has_number_formatter) && !$has_number_formatter && $key === 'english-arabic') disabled @endif>
+                    {{ $label }}
+                  </option>
+                @endforeach
+              </select>
               <span class="help-block">
                 @lang('lang_v1.used_for_browser_based_printing')
               </span>
+              @if(isset($has_number_formatter) && !$has_number_formatter)
+                <p class="help-block" style="color:#a94442;">
+                  <i class="fa fa-info-circle"></i>
+                  @lang('lang_v1.english_arabic_requires_intl')
+                </p>
+              @endif
+              <small id="english_arabic_message" style="display: none; color: green; font-size: 12px;">
+                 <i class="fa fa-info-circle"></i> @lang('lang_v1.english_arabic_design_help')
+               </small>
           </div>
 
           <div class="form-group hide" id="columnize-taxes">
@@ -859,20 +874,35 @@
           </div>
         </div>
         <div class="clearfix"></div>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('prev_bal_label', __('invoice.total_due_label') . ' (' . __('lang_v1.all_sales') . '):' ) !!}
             {!! Form::text('prev_bal_label', '', ['class' => 'form-control',
               'placeholder' => __('invoice.total_due_label') ]); !!}
           </div>
         </div>
-        <div class="col-sm-5">
+        <div class="col-sm-4">
           <div class="form-group">
             <div class="checkbox">
               <label>
                 {!! Form::checkbox('show_previous_bal', 1, false, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_previous_bal_due')</label>
                 @show_tooltip(__('lang_v1.previous_bal_due_help'))
               </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-group">
+            {!! Form::label('previous_balance_due_label', __('lang_v1.previous_balance_due') . ':') !!}
+            {!! Form::text('previous_balance_due_label', null, ['class' => 'form-control', 'placeholder' => __('lang_v1.previous_balance_due')]); !!}
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('show_previous_balance_due', 1, false, ['class' => 'input-icheck']); !!} @lang('lang_v1.show_previous_balance_due')</label>
+                @show_tooltip(__('lang_v1.previous_balance_due_help'))
+            </div>
           </div>
         </div>
         <div class="col-sm-3">
@@ -980,10 +1010,22 @@
         <div class="form-group">
             <div class="checkbox">
                 <label>
-                {!! Form::checkbox('common_settings[zatca_qr]', 1, false, ['class' => 'input-icheck']); !!} @lang('lang_v1.zatca_qr')</label>
+                {!! Form::checkbox('common_settings[zatca_qr]', 1, false, ['class' => 'input-icheck', 'id' => 'zatca_qr']); !!} @lang('lang_v1.zatca_qr')</label>
                 @show_tooltip(__('lang_v1.zatca_qr_help'))
             </div>
         </div>
+    </div>
+    <div class="col-sm-4" id="zatca_phase_container" style="display: none;">
+      <div class="form-group">
+        {!! Form::label('zatca_phase', __('lang_v1.zatca_phase') . ':*') !!}
+          {!! Form::select('common_settings[zatca_phase]', [
+            'phase_1' => __('lang_v1.zatca_phase1'),
+            'phase_2' => __('lang_v1.zatca_phase2'),
+          ],$invoice_layout->common_settings['zatca_phase'] ?? null , ['class' => 'form-control', 'id' => 'zatca_phase']); !!}
+            <small id="phase2_message" style="display: none; color: green; font-size: 12px;">
+              {{ __('lang_v1.phase2_message') }}
+          </small>
+      </div>
     </div>
     <div class="clearfix"></div>
     <div class="col-md-12">
@@ -1151,5 +1193,52 @@
             $('.letter_head_input').addClass('hide');
         }
     }
+</script>
+<script>
+  $(document).ready(function () {
+      function toggleZatcaPhase() {
+          if ($('#zatca_qr').is(':checked')) {
+              $('#zatca_phase_container').fadeIn();
+          } else {
+              $('#zatca_phase_container').fadeOut();
+          }
+      }
+
+      function checkPhaseSelection(){
+        if ($('#zatca_phase').val() === 'phase_2') {
+            $('#phase2_message').fadeIn();
+        } else {
+            $('#phase2_message').fadeOut();
+        }
+      }
+
+      function toggleEnglishArabicMessage() {
+          if ($('#design_select').val() === 'english-arabic') {
+              $('#english_arabic_message').fadeIn();
+          } else {
+              $('#english_arabic_message').fadeOut();
+          }
+      }
+
+      // $(document).on('change', '#zatca_qr', function () {
+      //       toggleZatcaPhase();
+      // });
+
+      $('#zatca_qr').on('ifChanged', function(event){
+        //Check if checkbox is checked or not
+        toggleZatcaPhase()
+      });
+
+      $('#zatca_phase').on('change', function () {
+        checkPhaseSelection();
+      });
+
+      $('#design_select').on('change', function () {
+        toggleEnglishArabicMessage();
+      });
+
+      // Check on page load
+      toggleEnglishArabicMessage();
+  });
 </script>
 @endsection

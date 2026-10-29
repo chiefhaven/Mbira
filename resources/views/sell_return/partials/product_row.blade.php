@@ -23,7 +23,7 @@
 		@endif
 		<div class="input-group input-number">
 			<span class="input-group-btn"><button type="button" class="btn btn-default btn-flat quantity-down"><i class="fa fa-minus text-danger"></i></button></span>
-		<input type="text" class="form-control pos_quantity input_number mousetrap" value="{{@num_format($product->quantity_ordered)}}" name="products[{{$row_count}}][quantity]" 
+		<input type="text" class="w-auto form-control pos_quantity input_number mousetrap" value="{{@num_format($product->quantity_ordered)}}" name="products[{{$row_count}}][quantity]" 
 		@if($product->unit_allow_decimal == 1) data-decimal=1 @else data-decimal=0 data-rule-abs_digit="true" data-msg-abs_digit="@lang('lang_v1.decimal_value_not_allowed')" @endif
 		data-rule-required="true" data-msg-required="@lang('validation.custom-messages.this_field_is_required')" >
 		<span class="input-group-btn"><button type="button" class="btn btn-default btn-flat quantity-up"><i class="fa fa-plus text-success"></i></button></span>

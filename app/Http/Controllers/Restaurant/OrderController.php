@@ -74,6 +74,10 @@ class OrderController extends Controller
      */
     public function markAsServed($id)
     {
+        if (\DB::getSchemaBuilder()->hasTable('restaurant_bills') &&
+            \DB::table('restaurant_bills')->where('transaction_id', $id)->where('business_id', auth()->user()->business_id)->exists()) {
+            return response()->json(['success' => false, 'msg' => trans('restaurant.use_round_ticket')], 409);
+        }
         // if (!auth()->user()->can('sell.update')) {
         //     abort(403, 'Unauthorized action.');
         // }

@@ -265,7 +265,7 @@ class ModifierSetsController extends Controller
             //Update variations
             $modifiers_data[$product_variation->id]['variations_edit'] = $variations_edit;
             $modifiers_data[$product_variation->id]['variations'] = $variations;
-            $this->productUtil->updateVariableProductVariations($modifer_set->id, $modifiers_data);
+            $this->productUtil->updateVariableProductVariations($modifer_set->id, $modifiers_data, "with_out_variation");
 
             DB::commit();
 

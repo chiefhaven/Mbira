@@ -9,6 +9,22 @@
     </div>
 
     <div class="modal-body">
+      <div class="form-group">
+        {!! Form::hidden('is_default', 0) !!}
+        <label for="table_is_default">
+          {!! Form::checkbox('is_default', 1, false, ['class' => 'input-icheck', 'id' => 'table_is_default', 'aria-describedby' => 'table_default_help']) !!}
+          @lang('restaurant.default_table')
+        </label>
+        <p class="help-block" id="table_default_help">@lang('restaurant.default_table_help')</p>
+      </div>
+      <div class="form-group">
+        {!! Form::hidden('allow_multiple_orders', 0) !!}
+        <label for="table_allow_multiple_orders">
+          {!! Form::checkbox('allow_multiple_orders', 1, false, ['class' => 'input-icheck', 'id' => 'table_allow_multiple_orders', 'aria-describedby' => 'table_multiple_orders_help']) !!}
+          @lang('restaurant.allow_multiple_orders')
+        </label>
+        <p class="help-block" id="table_multiple_orders_help">@lang('restaurant.allow_multiple_orders_help')</p>
+      </div>
 
       @if(count($business_locations) == 1)
         @php 

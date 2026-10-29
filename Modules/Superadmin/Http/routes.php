@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\Routing\Annotation\Route;
+
 Route::get('/pricing', 'Modules\Superadmin\Http\Controllers\PricingController@index')->name('pricing');
 
 Route::group(['middleware' => ['web', 'auth', 'language', 'AdminSidebarMenu', 'superadmin'], 'prefix' => 'superadmin', 'namespace' => 'Modules\Superadmin\Http\Controllers'], function () {
@@ -41,6 +43,8 @@ Route::group(['middleware' => ['web', 'SetSessionData', 'auth', 'language', 'tim
         Route::get('/subscription/{package_id}/paypal-express-checkout', 'SubscriptionController@paypalExpressCheckout');
 
         Route::get('/subscription/post-flutterwave-payment', 'SubscriptionController@postFlutterwavePaymentCallback');
+
+        Route::get('/subscription/post-onekhusa-payment', 'SubscriptionController@postOneKhusaPaymentCallback');
         
         Route::post('/subscription/pay-stack', 'SubscriptionController@getRedirectToPaystack');
         Route::get('/subscription/post-payment-pay-stack-callback', 'SubscriptionController@postPaymentPaystackCallback');

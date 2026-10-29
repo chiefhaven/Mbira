@@ -21,4 +21,5 @@ class ResTable extends Model
      * @var array
      */
     protected $guarded = ['id'];
+    protected $casts = ['allow_multiple_orders' => 'boolean', 'is_default' => 'boolean'];
 }

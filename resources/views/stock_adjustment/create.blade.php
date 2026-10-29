@@ -64,6 +64,20 @@
             </div>
         @endcomponent
 
+        <div class="row" id="eis_stock_adjustment_reason_group" style="display: none;">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="form-group">
+                    {!! Form::label('eis_adjustment_reason', 'EIS stock adjustment reason:*') !!}
+                    {!! Form::select('eis_adjustment_reason', [], null, [
+                        'class' => 'form-control',
+                        'id' => 'eis_adjustment_reason',
+                        'placeholder' => 'Select a reason returned by EIS',
+                    ]) !!}
+                    <p class="help-block">A current EIS reason is required for locations mapped to an EIS site.</p>
+                </div>
+            </div>
+        </div>
+
         @component('components.widget', ['class' => 'box-solid'])
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2">
@@ -157,6 +171,50 @@
     <script src="{{ asset('js/stock_adjustment.js?v=' . $asset_v) }}"></script>
     <script type="text/javascript">
         __page_leave_confirmation('#stock_adjustment_form');
+        (function () {
+            var locations = @json($eisLocations);
+            var locationSelect = document.getElementById('location_id');
+            var reasonGroup = document.getElementById('eis_stock_adjustment_reason_group');
+            var reasonSelect = document.getElementById('eis_adjustment_reason');
+            var endpoint = @json(route('eis.stock.outbound.reasons', ['locationId' => 0]));
+
+            function loadReasons() {
+                var locationId = locationSelect.value;
+                var enabled = locations.indexOf(Number(locationId)) !== -1;
+                reasonGroup.style.display = enabled ? '' : 'none';
+                reasonSelect.required = enabled;
+                reasonSelect.disabled = !enabled;
+                reasonSelect.innerHTML = '<option value="">Loading EIS reasons…</option>';
+                if (!enabled) {
+                    reasonSelect.innerHTML = '<option value="">Select a reason returned by EIS</option>';
+                    return;
+                }
+                fetch(endpoint.replace('/0/', '/' + locationId + '/'), {
+                    headers: {'Accept': 'application/json'}
+                }).then(function (response) {
+                    return response.json().then(function (body) {
+                        return {ok: response.ok, body: body};
+                    });
+                }).then(function (result) {
+                    reasonSelect.innerHTML = '<option value="">Select a reason returned by EIS</option>';
+                    if (!result.ok || !result.body.success) {
+                        throw new Error(result.body.message || 'EIS reasons are unavailable.');
+                    }
+                    result.body.data.forEach(function (reason) {
+                        var option = document.createElement('option');
+                        option.value = reason;
+                        option.textContent = reason;
+                        reasonSelect.appendChild(option);
+                    });
+                }).catch(function () {
+                    reasonSelect.innerHTML = '<option value="">Reasons unavailable</option>';
+                    reasonSelect.disabled = true;
+                });
+            }
+
+            locationSelect.addEventListener('change', loadReasons);
+            loadReasons();
+        })();
     </script>
 @endsection
 

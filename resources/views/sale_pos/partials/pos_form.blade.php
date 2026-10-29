@@ -46,7 +46,9 @@
 					@endif
 					
 
+                    @if (!\App\Services\EisProductPolicy::configured(session('user.business_id')))
 					<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+                    @endif
 				</span>
 			</div>
 		</div>
@@ -128,7 +130,7 @@
 		{!! Form::hidden('default_price_group', $default_price_group_id, ['id' => 'default_price_group']) !!}
 	@endif
 
-	@if(in_array('types_of_service', $enabled_modules) && !empty($types_of_service))
+	{{--  @if(in_array('types_of_service', $enabled_modules) && !empty($types_of_service))
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">
 				<div class="input-group">
@@ -147,7 +149,7 @@
 			</div>
 		</div>
 		<div class="modal fade types_of_service_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel"></div>
-	@endif
+	@endif  --}}
 
 	@if(!empty($pos_settings['show_invoice_scheme']))
 		@php

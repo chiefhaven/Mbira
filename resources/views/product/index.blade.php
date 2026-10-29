@@ -173,6 +173,7 @@
                                         </svg> @lang('lang_v1.download_excel')
                                     </a>
                                 @endif
+                                @if (!\App\Services\EisProductPolicy::configured(session('user.business_id')))
                                 @can('product.create')
 
                                     <a class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right tw-m-2"
@@ -187,6 +188,7 @@
                                     </a>
                                     <br><br>
                                 @endcan
+                                @endif
                                 @include('product.partials.product_list')
                             </div>
                             @can('stock_report.view')
@@ -217,6 +219,22 @@
         @endif
         @include('product.partials.edit_product_location_modal')
 
+        @if ($canCheckEisProductStatus)
+            <div class="modal fade" id="eis_product_status_modal" tabindex="-1" role="dialog" aria-labelledby="eis_product_status_title">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="eis_product_status_title">EIS product status</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="eis_product_status_message" role="status" aria-live="polite"></div>
+                            <div id="eis_product_status_result" class="table-responsive"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     </section>
     <!-- /.content -->
 
@@ -225,6 +243,35 @@
 @section('javascript')
     <script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
     <script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
+    @if ($canCheckEisProductStatus)
+        @include('eis::shared.result-table')
+        <script>
+            $(document).on('click', 'a.eis-product-status', function(event) {
+                event.preventDefault();
+                var link = $(this);
+                var modal = $('#eis_product_status_modal');
+                link.addClass('disabled').attr('aria-disabled', 'true');
+                $('#eis_product_status_message').attr('class', 'alert alert-info').text('Checking product status with EIS…');
+                $('#eis_product_status_result').empty();
+                modal.modal('show');
+                $.ajax({
+                    url: link.attr('data-status-url'),
+                    method: 'POST',
+                    dataType: 'json',
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+                }).done(function(result) {
+                    $('#eis_product_status_message').attr('class', 'alert alert-success').text('EIS product status received.');
+                    window.EisResultTables.render('#eis_product_status_result', result.data);
+                }).fail(function(xhr) {
+                    var body = xhr.responseJSON || {};
+                    $('#eis_product_status_message').attr('class', 'alert alert-danger')
+                        .text(body.message || 'EIS did not confirm the product status.');
+                }).always(function() {
+                    link.removeClass('disabled').removeAttr('aria-disabled');
+                });
+            });
+        </script>
+    @endif
     <script type="text/javascript">
         $(document).ready(function() {
             product_table = $('#product_table').DataTable({
@@ -265,8 +312,7 @@
                     "orderable": false,
                     "searchable": false
                 }],
-                columns: [
-                    {
+                columns: [{
                         data: 'mass_delete'
                     },
                     {

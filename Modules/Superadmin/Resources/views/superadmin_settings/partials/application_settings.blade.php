@@ -1,16 +1,8 @@
 <div class="pos-tab-content">
     <div class="row">
-    	<div class="col-xs-4">
-            <div class="form-group">
-            	{!! Form::label('APP_NAME', __('superadmin::lang.app_name') . ':') !!}
-            	{!! Form::text('APP_NAME', $default_values['APP_NAME'], ['class' => 'form-control','placeholder' => __('superadmin::lang.app_name')]); !!}
-            </div>
-        </div>
-        <div class="col-xs-4">
-            <div class="form-group">
-            	{!! Form::label('APP_TITLE', __('superadmin::lang.app_title') . ':') !!}
-            	{!! Form::text('APP_TITLE', $default_values['APP_TITLE'], ['class' => 'form-control','placeholder' => __('superadmin::lang.app_title')]); !!}
-            </div>
+        <div class="col-xs-8">
+            <p><a href="{{ route('superadmin.settings.general') }}">@lang('superadmin::lang.general_branding')</a></p>
+            <p class="help-block">@lang('superadmin::lang.branding_help')</p>
         </div>
         <div class="col-xs-4">
             <div class="form-group">

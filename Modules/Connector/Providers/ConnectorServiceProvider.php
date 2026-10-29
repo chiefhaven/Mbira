@@ -8,6 +8,10 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Console\ClientCommand;
 use Laravel\Passport\Console\InstallCommand;
 use Laravel\Passport\Console\KeysCommand;
+use Illuminate\Foundation\Http\Events\RequestHandled;
+use Laravel\Passport\Events\AccessTokenCreated;
+use Modules\Connector\Support\Audit\RecordConnectorAudit;
+use Modules\Connector\Support\Audit\CaptureTokenActor;
 
 class ConnectorServiceProvider extends ServiceProvider
 {
@@ -36,6 +40,9 @@ class ConnectorServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         $this->registerMiddleware($this->app['router']);
+
+        $this->app['events']->listen(RequestHandled::class, [RecordConnectorAudit::class, 'handle']);
+        $this->app['events']->listen(AccessTokenCreated::class, [CaptureTokenActor::class, 'handle']);
 
         /*ADD THIS LINES*/
         $this->commands([

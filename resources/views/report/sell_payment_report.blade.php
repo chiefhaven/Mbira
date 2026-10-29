@@ -43,7 +43,7 @@
                             <span class="input-group-addon">
                                 <i class="fas fa-money-bill-alt"></i>
                             </span>
-                            {!! Form::select('payment_types', $payment_types, null, ['class' => 'form-control select2', 'placeholder' => __('messages.all'), 'required']); !!}
+                            {!! Form::select('payment_types', $payment_types, null, ['class' => 'form-control select2', 'placeholder' => __('messages.all'), 'required', 'style' => 'width:100%']); !!}
                         </div>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-users"></i>
                             </span>
-                            {!! Form::select('customer_group_filter', $customer_groups, null, ['class' => 'form-control select2']); !!}
+                            {!! Form::select('customer_group_filter', $customer_groups, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
                         </div>
                     </div>
                 </div>
@@ -82,6 +82,7 @@
                                 <th>@lang('lang_v1.paid_on')</th>
                                 <th>@lang('sale.amount')</th>
                                 <th>@lang('contact.customer')</th>
+                                <th>@lang('lang_v1.contact_id')</th>
                                 <th>@lang('lang_v1.customer_group')</th>
                                 <th>@lang('lang_v1.payment_method')</th>
                                 <th>@lang('sale.sale')</th>

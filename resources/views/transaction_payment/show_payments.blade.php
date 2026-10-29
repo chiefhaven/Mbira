@@ -132,7 +132,11 @@
                 </div>
             @endif
 
-            @can('send_notification')
+            @php
+                $can_send_payment_received_notification = auth()->user()->can('send_payment_received_notification');
+                $can_send_payment_reminder_notification = auth()->user()->can('send_payment_reminder_notification');
+            @endphp
+            @if($can_send_payment_received_notification || $can_send_payment_reminder_notification)
                 @if($transaction->type == 'purchase')
                     <div class="row no-print">
                         <div class="col-md-12 text-right">
@@ -142,25 +146,29 @@
                     </div>
                     <br>
                 @endif
-                @if($transaction->type == 'sell' || $transaction->type == 'hms_booking')
+                @if($transaction->type == 'sell' || $transaction->type == 'hms_booking' || $transaction->type == 'gym_subscription')
                     <div class="row no-print">
                         <div class="col-md-12 text-right">
-                            <button type="button" class="tw-dw-btn tw-dw-btn-info tw-text-white tw-dw-btn-xs btn-modal" 
-                            data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_received'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_received_notification')</button>
+                            @if($can_send_payment_received_notification)
+                                <button type="button" class="tw-dw-btn tw-dw-btn-info tw-text-white tw-dw-btn-xs btn-modal" 
+                                data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_received'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.payment_received_notification')</button>
+                            @endif
                           
                             @if($transaction->payment_status != 'paid')
                                 &nbsp;
-                                <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-xs btn-modal" data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_reminder'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.send_payment_reminder')</button>
+                                @if($can_send_payment_reminder_notification)
+                                    <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-xs btn-modal" data-href="{{action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $transaction->id,'template_for' => 'payment_reminder'])}}" data-container=".view_modal"><i class="fa fa-envelope"></i> @lang('lang_v1.send_payment_reminder')</button>
+                                @endif
                             @endif
                         </div>
                     </div>
                     <br>
                 @endif
-            @endcan
+            @endif
             @if($transaction->payment_status != 'paid')
                 <div class="row">
                     <div class="col-md-12">
-                        @if((auth()->user()->can('hms.add_booking_payment') && (in_array($transaction->type, ['hms_booking']))) || (auth()->user()->can('purchase.payments') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('sell.payments') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) &&  $transaction->type == 'expense') )
+                        @if((auth()->user()->can('gym.add_subscription_payment') && (in_array($transaction->type, ['gym_subscription']))) || (auth()->user()->can('hms.add_booking_payment') && (in_array($transaction->type, ['hms_booking']))) || (auth()->user()->can('purchase.payments') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('sell.payments') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) &&  $transaction->type == 'expense') )
                             <a href="{{ action([\App\Http\Controllers\TransactionPaymentController::class, 'addPayment'], [$transaction->id]) }}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-primary pull-right add_payment_modal no-print"><i class="fa fa-plus" aria-hidden="true"></i> @lang("purchase.add_payment")</a>
                         @endif
                     </div>
@@ -192,14 +200,14 @@
                                 <td>{{$payment->payment_account->name ?? ''}}</td>
                               @endif
                               <td class="no-print" style="display: flex;">
-                              @if((in_array($transaction->type, ['hms_booking']) && auth()->user()->can('hms.edit_booking_payment')) || (auth()->user()->can('edit_purchase_payment') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('edit_sell_payment') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) && $transaction->type == 'expense') )
+                              @if((in_array($transaction->type, ['gym_subscription']) && auth()->user()->can('gym.edit_gym_subscription_payment')) || (in_array($transaction->type, ['hms_booking']) && auth()->user()->can('hms.edit_booking_payment')) || (auth()->user()->can('edit_purchase_payment') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('edit_sell_payment') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) && $transaction->type == 'expense') )
                                     @if($payment->method != 'advance')
                                         <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info edit_payment" 
                                     data-href="{{action([\App\Http\Controllers\TransactionPaymentController::class, 'edit'], [$payment->id]) }}"><i class="glyphicon glyphicon-edit"></i></button>
                                     @endif
                                 @endif
 
-                                @if((in_array($transaction->type, ['hms_booking']) && auth()->user()->can('hms.delete_booking_payment')) || (auth()->user()->can('delete_purchase_payment') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('delete_sell_payment') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) && $transaction->type == 'expense') )
+                                @if((in_array($transaction->type, ['gym_subscription']) && auth()->user()->can('gym.delete_gym_subscription_payment')) ||(in_array($transaction->type, ['hms_booking']) && auth()->user()->can('hms.delete_booking_payment')) || (auth()->user()->can('delete_purchase_payment') && (in_array($transaction->type, ['purchase', 'purchase_return']))) || (auth()->user()->can('delete_sell_payment') && (in_array($transaction->type, ['sell', 'sell_return']))) || ((auth()->user()->can('all_expense.access') || auth()->user()->can('view_own_expense')) && $transaction->type == 'expense') )
                                     &nbsp; <button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-error delete_payment" 
                                     data-href="{{ action([\App\Http\Controllers\TransactionPaymentController::class, 'destroy'], [$payment->id]) }}"
                                     ><i class="fa fa-trash" aria-hidden="true"></i></button>

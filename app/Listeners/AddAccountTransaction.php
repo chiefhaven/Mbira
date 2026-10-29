@@ -44,7 +44,26 @@ class AddAccountTransaction
 
         // //Create new account transaction
         if (! empty($event->formInput['account_id']) && $event->transactionPayment->method != 'advance') {
-            $type = ! empty($event->transactionPayment->payment_type) ? $event->transactionPayment->payment_type : AccountTransaction::getAccountTransactionType($event->formInput['transaction_type']);
+            $transaction_type = $event->formInput['transaction_type'] ?? null;
+            if (empty($transaction_type) && ! empty($event->transactionPayment->transaction_id)) {
+                $transaction = $event->transactionPayment->transaction()->first();
+                $transaction_type = $transaction?->type;
+            }
+
+            $type = ! empty($event->transactionPayment->payment_type)
+                ? $event->transactionPayment->payment_type
+                : ($transaction_type ? AccountTransaction::getAccountTransactionType($transaction_type) : null);
+
+            if (empty($type)) {
+                \Log::warning('Skipped account transaction creation: missing transaction type for payment.', [
+                    'payment_id' => $event->transactionPayment->id,
+                    'transaction_id' => $event->transactionPayment->transaction_id,
+                    'form_input_keys' => array_keys($event->formInput ?? []),
+                ]);
+
+                return true;
+            }
+
             $account_transaction_data = [
                 'amount' => $event->formInput['amount'],
                 'account_id' => $event->formInput['account_id'],
@@ -56,13 +75,19 @@ class AddAccountTransaction
             ];
 
             //If change return then set type as debit
-            if ($event->formInput['transaction_type'] == 'sell' && isset($event->formInput['is_return']) && $event->formInput['is_return'] == 1) {
+            if (($transaction_type ?? null) == 'sell' && isset($event->formInput['is_return']) && $event->formInput['is_return'] == 1) {
                 $account_transaction_data['type'] = 'debit';
             }
 
-            if ($event->formInput['transaction_type'] == 'hms_booking' && isset($event->formInput['is_return']) && $event->formInput['is_return'] == 1) {
+            if (($transaction_type ?? null) == 'hms_booking' && isset($event->formInput['is_return']) && $event->formInput['is_return'] == 1) {
                 $account_transaction_data['type'] = 'debit';
             }
+
+            if (($transaction_type ?? null) == 'gym_subscription' && isset($event->formInput['is_return']) && $event->formInput['is_return'] == 1) {
+                $account_transaction_data['type'] = 'debit';
+            }
+
+            
 
             AccountTransaction::createAccountTransaction($account_transaction_data);
         }

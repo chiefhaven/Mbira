@@ -109,7 +109,7 @@ class AccountController extends Controller
                                 '<button data-href="{{action(\'App\Http\Controllers\AccountController@edit\',[$id])}}" data-container=".account_model" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary btn-modal"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                                 <a href="{{action(\'App\Http\Controllers\AccountController@show\',[$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-warning btn-xs"><i class="fa fa-book"></i> @lang("account.account_book")</a>&nbsp;
                                 @if($is_closed == 0)
-                                <button data-href="{{action(\'App\Http\Controllers\AccountController@getFundTransfer\',[$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-info btn-modal" data-container=".view_modal"><i class="fa fa-exchange"></i> @lang("account.fund_transfer")</button>
+                                <button data-href="{{action(\'App\Http\Controllers\AccountController@getFundTransfer\',[$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-info btn-modal" data-container=".view_modal"><i class="fas fa-calculator"></i> @lang("account.fund_transfer")</button>
 
                                 <button data-href="{{action(\'App\Http\Controllers\AccountController@getDeposit\',[$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-success btn-modal" data-container=".view_modal"><i class="fas fa-money-bill-alt"></i> @lang("account.deposit")</button>
 

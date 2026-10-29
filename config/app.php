@@ -15,6 +15,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'ultimatePOS'),
+    'title' => env('APP_TITLE', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -191,6 +192,7 @@ return [
         App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\ModuleAssetServiceProvider::class,
 
         Collective\Html\HtmlServiceProvider::class,
         //Yajra\Datatables\DatatablesServiceProvider::class,

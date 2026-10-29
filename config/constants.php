@@ -11,29 +11,14 @@ return [
 
     'langs' => [
         'en' => ['full_name' => 'English', 'short_name' => 'English'],
-        'es' => ['full_name' => 'Spanish - Español', 'short_name' => 'Spanish'],
-        'sq' => ['full_name' => 'Albanian - Shqip', 'short_name' => 'Albanian'],
-        'hi' => ['full_name' => 'Hindi - हिंदी', 'short_name' => 'Hindi'],
-        'nl' => ['full_name' => 'Dutch', 'short_name' => 'Dutch'],
-        'fr' => ['full_name' => 'French - Français', 'short_name' => 'French'],
-        'de' => ['full_name' => 'German - Deutsch', 'short_name' => 'German'],
-        'ar' => ['full_name' => 'Arabic - العَرَبِيَّة', 'short_name' => 'Arabic'],
-        'tr' => ['full_name' => 'Turkish - Türkçe', 'short_name' => 'Turkish'],
-        'id' => ['full_name' => 'Indonesian', 'short_name' => 'Indonesian'],
-        'ps' => ['full_name' => 'Pashto', 'short_name' => 'Pashto'],
-        'pt' => ['full_name' => 'Portuguese', 'short_name' => 'Portuguese'],
-        'vi' => ['full_name' => 'Vietnamese', 'short_name' => 'Vietnamese'],
-        'ce' => ['full_name' => 'Chinese', 'short_name' => 'Chinese'],
-        'ro' => ['full_name' => 'Romanian', 'short_name' => 'Romanian'],
-        'lo' => ['full_name' => 'Lao', 'short_name' => 'Lao'],
     ],
-    'langs_rtl' => ['ar'],
+    'langs_rtl' => ['ar', 'he'],
     'non_utf8_languages' => ['ar', 'hi', 'ps'],
 
     'document_size_limit' => '5000000', //in Bytes,
     'image_size_limit' => '5000000', //in Bytes
 
-    'asset_version' => 600,
+    'asset_version' => 611,
 
     'disable_purchase_in_other_currency' => true,
 
@@ -47,17 +32,22 @@ return [
     'currency_exchange_rate' => 1,
     'orders_refresh_interval' => 600, //Auto refresh interval on Kitchen and Orders page in seconds,
 
+    'pos_recent_transactions_display_limit' => env('POS_RECENT_TRANSACTIONS_DISPLAY_LIMIT', 10), //Controls how many recent transactions are shown in POS recent transactions list default is 10
+
     'default_date_format' => 'm/d/Y', //Default date format to be used if session is not set. All valid formats can be found on https://www.php.net/manual/en/function.date.php
 
     'new_notification_count_interval' => 60, //Interval to check for new notifications in seconds;Default is 60sec
 
     'administrator_usernames' => env('ADMINISTRATOR_USERNAMES'),
+    'SHOW_REPAIR_STATUS_LOGIN_SCREEN' => env('SHOW_REPAIR_STATUS_LOGIN_SCREEN', true),
     'allow_registration' => env('ALLOW_REGISTRATION', true),
     'app_title' => env('APP_TITLE'),
 
     'google_recaptcha_key' => env('GOOGLE_RECAPTCHA_KEY'),
     'google_recaptcha_secret' => env('GOOGLE_RECAPTCHA_SECRET'),
     'enable_recaptcha' => env('ENABLE_RECAPTCHA', false),
+    // Enable disposable email validation (public registration)
+    'do_not_allow_disposable_email' => env('DO_NOT_ALLOW_DISPOSABLE_EMAIL', false),
     
     'mpdf_temp_path' => storage_path('app/pdf'), //Temporary path used by mpdf
 

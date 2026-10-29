@@ -41,7 +41,9 @@ class AppServiceProvider extends ServiceProvider
         //force https
         $url = parse_url(config('app.url'));
 
-        
+        if ($url['scheme'] == 'https') {
+            \URL::forceScheme('https');
+        }
 
         if (request()->has('lang')) {
             \App::setLocale(request()->get('lang'));

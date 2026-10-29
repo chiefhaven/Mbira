@@ -1,5 +1,5 @@
-<details class="tw-dw-dropdown" style="margin: 10px;">
-    <summary class="tw-bg-transparent tw-text-white tw-font-medium tw-text-sm md:tw-text-base select-none">
+<details class="tw-dw-dropdown tw-dw-dropdown-end" style="margin: 10px;">
+    <summary class="tw-bg-transparent tw-text-gray-800 tw-font-medium tw-text-sm md:tw-text-base select-none">
         {{ isset($_GET['lang']) ? config('constants.langs')[$_GET['lang']]['full_name'] : config('constants.langs')[config('app.locale')]['full_name'] }}
     </summary>
     <ul

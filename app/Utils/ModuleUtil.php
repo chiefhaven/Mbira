@@ -53,15 +53,41 @@ class ModuleUtil extends Util
      * @param  string  $function_name
      * @return array
      */
-    public function getModuleData($function_name, $arguments = null)
+    public function getModuleData($function_name, $arguments = null, $get_data_from_modules = [])
     {
         $modules = Module::toCollection()->toArray();
 
-        $installed_modules = [];
+        // Batch-load all module versions in a single query instead of querying individually
+        $version_keys = [];
+        $module_name_map = [];
         foreach ($modules as $module => $details) {
-            if ($this->isModuleInstalled($details['name'])) {
+            if (Module::has($details['name'])) {
+                $version_key = strtolower($details['name']).'_version';
+                $version_keys[] = $version_key;
+                $module_name_map[$version_key] = $details;
+            }
+        }
+
+        // Fetch all module versions in one query
+        $module_versions = [];
+        if (!empty($version_keys)) {
+            $module_versions = System::getProperties($version_keys, true);
+        }
+
+        // Check which modules are installed using the batch-loaded data
+        $installed_modules = [];
+        foreach ($module_name_map as $version_key => $details) {
+            $module_version = isset($module_versions[$version_key]) ? $module_versions[$version_key] : null;
+            if (!empty($module_version)) {
                 $installed_modules[] = $details;
             }
+        }
+
+         // If specific module names are provided, filter the installed modules
+        if (!empty($get_data_from_modules) && is_array($get_data_from_modules)) {
+            $installed_modules = array_filter($installed_modules, function ($module) use ($get_data_from_modules) {
+                return in_array($module['name'], $get_data_from_modules);
+            });
         }
 
         $data = [];
@@ -206,11 +232,15 @@ class ModuleUtil extends Util
         }
     }
 
-    public function countBusinessLocation($business_id)
+    public function countBusinessLocation($business_id, $is_active = null)
     {
-        $count = BusinessLocation::where('business_id', $business_id)
-                                ->count();
+        $query = BusinessLocation::where('business_id', $business_id);
 
+        if (! empty($is_active)) {
+            $query->where('is_active', $is_active);
+        }
+
+        $count = $query->count();
         return $count;
     }
 
@@ -223,7 +253,7 @@ class ModuleUtil extends Util
         return $count;
     }
 
-    public function countProducts($business_id, $start_dt, $end_dt)
+    public function countProducts($business_id, $start_dt, $end_dt, $is_active = null)
     {
         $query = Product::where('business_id', $business_id);
 
@@ -231,9 +261,55 @@ class ModuleUtil extends Util
             $query->whereBetween('created_at', [$start_dt, $end_dt]);
         }
 
+        if (! empty($is_active)) {
+            $query->where('is_active', $is_active);
+        }
+    
+
         $count = $query->count();
 
         return $count;
+    }
+
+    /**
+     * Check if business can subscribe to a package based on current resource counts
+     *
+     * @param  object  $package
+     * @param  int  $business_id
+     * @return array ['success' => bool, 'msg' => string]
+     */
+    public function checkPackageLimitsBeforeSubscription($package, $business_id)
+    {
+        // Check user limit
+        if ($package->user_count > 0) {
+            $current_user_count = $this->countUsers($business_id);
+            if ($current_user_count > $package->user_count) {
+                return [
+                    'success' => false,
+                    'msg' => __('superadmin::lang.cannot_subscribe_package_users', [
+                        'package_limit' => $package->user_count,
+                        'current_count' => $current_user_count
+                    ])
+                ];
+            }
+        }
+
+        //Check location limit
+        if ($package->location_count > 0) {
+            $current_location_count = $this->countBusinessLocation($business_id, true);
+            if ($current_location_count > $package->location_count) {
+                return [
+                    'success' => false,
+                    'msg' => __('superadmin::lang.cannot_subscribe_package_location', [
+                        'package_limit' => $package->location_count,
+                        'current_count' => $current_location_count
+                    ])
+                ];
+            }
+        }
+
+    
+        return ['success' => true, 'msg' => ''];
     }
 
     public function countInvoice($business_id, $start_dt, $end_dt)

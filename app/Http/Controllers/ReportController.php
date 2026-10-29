@@ -374,7 +374,7 @@ class ReportController extends Controller
                     if ($row->enable_stock) {
                         $stock = $row->stock ? $row->stock : 0;
 
-                        return  '<span class="current_stock" data-orig-value="'.(float) $stock.'" data-unit="'.$row->unit.'"> '.$this->transactionUtil->num_f($stock, false, null, true).'</span>'.' '.$row->unit;
+                        return  '<span class="current_stock" data-is_quantity="true" data-orig-value="'.(float) $stock.'" data-unit="'.$row->unit.'"> '.$this->transactionUtil->num_f($stock, false, null, true).'</span>'.' '.$row->unit;
                     } else {
                         return '--';
                     }
@@ -411,7 +411,7 @@ class ReportController extends Controller
                         $total_transfered = (float) $row->total_transfered;
                     }
 
-                    return '<span class="total_transfered" data-orig-value="'.$total_transfered.'" data-unit="'.$row->unit.'" >'.$this->transactionUtil->num_f($total_transfered, false, null, true).'</span> '.$row->unit;
+                    return '<span class="total_transfered" data-is_quantity="true" data-orig-value="'.$total_transfered.'" data-unit="'.$row->unit.'" >'.$this->transactionUtil->num_f($total_transfered, false, null, true).'</span> '.$row->unit;
                 })
 
                 ->editColumn('total_adjusted', function ($row) {
@@ -420,7 +420,7 @@ class ReportController extends Controller
                         $total_adjusted = (float) $row->total_adjusted;
                     }
 
-                    return '<span class="total_adjusted" data-orig-value="'.$total_adjusted.'" data-unit="'.$row->unit.'" >'.$this->transactionUtil->num_f($total_adjusted, false, null, true).'</span> '.$row->unit;
+                    return '<span data-is_quantity="true" class="total_adjusted" data-orig-value="'.$total_adjusted.'" data-unit="'.$row->unit.'" >'.$this->transactionUtil->num_f($total_adjusted, false, null, true).'</span> '.$row->unit;
                 })
                 ->editColumn('unit_price', function ($row) use ($allowed_selling_price_group) {
                     $html = '';
@@ -810,7 +810,13 @@ class ReportController extends Controller
                     if ($type == 'sell') {
                         foreach ($row->sell_lines as $sell_line) {
                             if ($sell_line->tax_id == $tax['id']) {
-                                $tax_amount += ($sell_line->item_tax * ($sell_line->quantity - $sell_line->quantity_returned));
+
+                                // $tax_amount += ($sell_line->item_tax * ($sell_line->quantity - 
+                                // $sell_line->quantity_returned));
+
+                                $tax_for_one = $sell_line->quantity > 0 ? $sell_line->line_total_tax / $sell_line->quantity : 0;
+                                $tax_amount += ($tax_for_one * ($sell_line->quantity - $sell_line->quantity_returned));
+                                
                             }
 
                             //break group tax
@@ -1196,8 +1202,9 @@ class ReportController extends Controller
 
                     return '<span data-orig-value="'.$total.'" >'.$this->transactionUtil->num_f($total, true).'</span>';
                 })
-                ->addColumn('action', '<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@show\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max btn-modal" 
-                    data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@getCloseRegister\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error tw-w-max btn-modal" 
+
+                ->addColumn('action', '@if(auth()->user()->can("view_cash_register"))<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@show\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max btn-modal" 
+                    data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>@endif @if($status != "close" && auth()->user()->can("close_cash_register"))<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@getCloseRegister\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error tw-w-max btn-modal" 
                         data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
                 ->filterColumn('user_name', function ($query, $keyword) {
                     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
@@ -1863,6 +1870,7 @@ class ReportController extends Controller
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
                 ->with('transaction.payment_lines')
+                ->whereNull('parent_sell_line_id')
                 ->select(
                     'p.name as product_name',
                     'p.type as product_type',
@@ -1872,6 +1880,8 @@ class ReportController extends Controller
                     'v.name as variation_name',
                     'v.sub_sku',
                     'c.name as customer',
+                    'c.mobile as contact_no',
+                    'c.email as contact_email',
                     'c.supplier_business_name',
                     'c.contact_id',
                     't.id as transaction_id',
@@ -2069,6 +2079,8 @@ class ReportController extends Controller
                     'v.name as variation_name',
                     'v.sub_sku',
                     'c.name as customer',
+                    'c.mobile as contact_no',
+                    'c.email as contact_email',
                     'c.supplier_business_name',
                     't.id as transaction_id',
                     't.invoice_no',
@@ -2454,25 +2466,50 @@ class ReportController extends Controller
             })
                 ->leftjoin('contacts as c', 't.contact_id', '=', 'c.id')
                 ->leftjoin('customer_groups AS CG', 'c.customer_group_id', '=', 'CG.id')
+
+            
+            //     DB::raw("IF(transaction_payments.transaction_id IS NULL, 
+            //     (SELECT c.name FROM transactions as ts
+            //     JOIN contacts as c ON ts.contact_id=c.id 
+            //     WHERE ts.id=(
+            //             SELECT tps.transaction_id FROM transaction_payments as tps
+            //             WHERE tps.parent_id=transaction_payments.id LIMIT 1
+            //         )
+            //     ),
+            //     (SELECT CONCAT(COALESCE(CONCAT(c.supplier_business_name, '<br>'), ''), c.name) FROM transactions as ts JOIN
+            //         contacts as c ON ts.contact_id=c.id
+            //         WHERE ts.id=t.id 
+            //     )
+            // ) as customer")
+            // remove above line from select and below join becouse customer search not work
+            
+                ->leftJoin(DB::raw("(
+                    SELECT 
+                        tp.id as payment_id, 
+                        IF(tp.transaction_id IS NULL, 
+                            (SELECT c.name 
+                             FROM transactions as ts
+                             JOIN contacts as c ON ts.contact_id = c.id 
+                             WHERE ts.id = (
+                                SELECT tps.transaction_id 
+                                FROM transaction_payments as tps 
+                                WHERE tps.parent_id = tp.id 
+                                LIMIT 1
+                             )
+                            ), 
+                            CONCAT(COALESCE(CONCAT(c.supplier_business_name, '<br>'), ''), c.name)
+                        ) as customer_name
+                    FROM transaction_payments tp
+                    LEFT JOIN transactions t ON tp.transaction_id = t.id
+                    LEFT JOIN contacts c ON t.contact_id = c.id
+                ) as customer_subquery"), 'transaction_payments.id', '=', 'customer_subquery.payment_id')              
                 ->where('transaction_payments.business_id', $business_id)
                 ->where(function ($q) use ($business_id, $contact_filter1, $contact_filter2, $parent_payment_query_part) {
                     $q->whereRaw("(transaction_payments.transaction_id IS NOT NULL AND t.type IN ('sell', 'opening_balance') $parent_payment_query_part $contact_filter1)")
                         ->orWhereRaw("EXISTS(SELECT * FROM transaction_payments as tp JOIN transactions ON tp.transaction_id = transactions.id WHERE transactions.type IN ('sell', 'opening_balance') AND transactions.business_id = $business_id AND tp.parent_id=transaction_payments.id $contact_filter2)");
                 })
                 ->select(
-                    DB::raw("IF(transaction_payments.transaction_id IS NULL, 
-                                (SELECT c.name FROM transactions as ts
-                                JOIN contacts as c ON ts.contact_id=c.id 
-                                WHERE ts.id=(
-                                        SELECT tps.transaction_id FROM transaction_payments as tps
-                                        WHERE tps.parent_id=transaction_payments.id LIMIT 1
-                                    )
-                                ),
-                                (SELECT CONCAT(COALESCE(CONCAT(c.supplier_business_name, '<br>'), ''), c.name) FROM transactions as ts JOIN
-                                    contacts as c ON ts.contact_id=c.id
-                                    WHERE ts.id=t.id 
-                                )
-                            ) as customer"),
+                    'customer_subquery.customer_name as customer',
                     'transaction_payments.amount',
                     'transaction_payments.is_return',
                     'method',
@@ -2481,6 +2518,7 @@ class ReportController extends Controller
                     'transaction_payments.document',
                     'transaction_payments.transaction_no',
                     't.invoice_no',
+                    'c.contact_id',
                     't.id as transaction_id',
                     'cheque_number',
                     'card_transaction_number',
@@ -3159,6 +3197,19 @@ class ReportController extends Controller
                 ->groupBy('sale.contact_id');
         }
 
+        if ($by == 'service_staff') {
+            $query->join('users as U', function ($join) {
+                $join->on(DB::raw("COALESCE(transaction_sell_lines.res_service_staff_id, sale.res_waiter_id)"), '=', 'U.id');
+            })
+            ->where('U.is_enable_service_staff_pin', 1)
+            ->addSelect(
+                "U.first_name as f_name",
+                "U.last_name as l_name",
+                "U.surname as surname"
+            )
+            ->groupBy('U.id');
+        }        
+
         $datatable = Datatables::of($query);
 
         if (in_array($by, ['invoice'])) {
@@ -3210,6 +3261,11 @@ class ReportController extends Controller
         if ($by == 'customer') {
             $datatable->editColumn('customer', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$customer}}');
             $raw_columns[] = 'customer';
+        }
+
+        if($by == 'service_staff'){
+            $datatable->editColumn('staff_name', '{{$surname}} {{$f_name}} {{$l_name}}');
+            $raw_columns[] = 'staff_name';
         }
 
         if ($by == 'invoice') {
@@ -3783,6 +3839,7 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
+                ->whereNull('parent_sell_line_id')
                 ->select(
                     'c.name as customer',
                     'c.supplier_business_name',
@@ -3810,8 +3867,8 @@ class ReportController extends Controller
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
             if (! empty($start_date) && ! empty($end_date)) {
-                $query->where('t.transaction_date', '>=', $start_date)
-                    ->where('t.transaction_date', '<=', $end_date);
+                $query->whereDate('t.transaction_date', '>=', $start_date)
+                    ->whereDate('t.transaction_date', '<=', $end_date);
             }
 
             $permitted_locations = auth()->user()->permitted_locations();

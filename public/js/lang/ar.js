@@ -118,4 +118,32 @@ LANG = {
     'authentication_successfull': 'نجاح التوثيق',
     'please_enter' : 'الرجاء إدخال',
     'or_more_characters' : 'أو أكثر من الأحرف',
+    'name_already_exists': 'يوجد منتج بهذا الاسم بالفعل',
+    // AI Assistance translations
+    'use_ai': 'استخدام الذكاء الاصطناعي',
+    'image_added_successfully': 'تم إضافة الصورة بنجاح',
+    'fill_required_fields': 'يرجى ملء الحقول المطلوبة قبل استخدام الذكاء الاصطناعي',
+    'generating_description': 'إنشاء وصف المنتج...',
+    'generating_image': 'إنشاء صورة المنتج...',
+    'processing': 'جاري المعالجة...',
+    'use_description': 'استخدام الوصف',
+    'use_image': 'استخدام الصورة',
+    'submit': 'إرسال',
+    'fill_name_brand_for_image': 'يرجى ملء اسم المنتج والعلامة التجارية قبل إنشاء الصورة.',
+    'fill_name_brand_unit_for_ai': 'يرجى ملء اسم المنتج والعلامة التجارية والوحدة قبل استخدام الذكاء الاصطناعي.',
+    'something_went_wrong_try_again': 'حدث خطأ، يرجى المحاولة مرة أخرى',
+    'invoice_number_already_exists': 'رقم الفاتورة موجود بالفعل',
+    'tax_number_already_exists' : 'رقم الضريبة هذا موجود بالفعل',
+    'missing_skus' : 'أكواد SKU مفقودة',
+    'each': 'كل',
+    'total': 'المجموع',
+        
+    // Member profile related
+    'diet_plan_applied_to_form_successfully': 'تم تطبيق خطة النظام الغذائي على النموذج بنجاح!',
+    'workout_plan_saved_successfully': 'تم حفظ خطة التمرين بنجاح!',
+    'workout_plan_applied_to_form_successfully': 'تم تطبيق خطة التمرين على النموذج بنجاح!',
+
+    'name_length_exceeded': 'إجمالي طول البادئة والاسم الأول والأوسط والأخير لا يمكن أن يتجاوز 127 حرفًا.',
+    'error': 'خطأ',
+    'ok': 'موافق',
 };

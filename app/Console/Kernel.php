@@ -4,7 +4,9 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-
+use Illuminate\Support\Facades\Log;
+use Modules\EIS\Jobs\DispatchAllUnsubmittedSalesJob;
+use Modules\EIS\Jobs\SyncEISConfigurationJob;
 class Kernel extends ConsoleKernel
 {
     /**
@@ -31,7 +33,26 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('pos:autoSendPaymentReminder')->dailyAt('8:00');
 
-        }
+            $schedule->command('pos:generateRecurringExpense')->dailyAt('02:00');
+
+            // Schedule the EIS configuration sync job
+            $schedule->job(new SyncEISConfigurationJob())
+                ->hourly()
+                ->name('eis-configuration-sync')
+                ->withoutOverlapping(300)
+                ->onFailure(function () {
+                    Log::error('EIS Configuration Sync Job Scheduler Failure');
+            });
+
+            // Schedule the EIS fallback through the queue to avoid blocking the scheduler.
+            $schedule->job(new DispatchAllUnsubmittedSalesJob())
+                ->hourly()
+                ->name('eis-sale-submission')
+                ->withoutOverlapping(300)
+                ->onFailure(function () {
+                    Log::error('EIS Sale submission schedule failed');
+                }
+            );
 
         if ($env === 'demo') {
             //IMPORTANT NOTE: This command will delete all business details and create dummy business, run only in demo server.
@@ -40,8 +61,9 @@ class Kernel extends ConsoleKernel
                     //->everyThirtyMinutes()
                     ->emailOutputTo($email);
         }
+    
+        }
     }
-
     /**
      * Register the Closure based commands for the application.
      *

@@ -183,6 +183,24 @@ $(document).ready(function() {
                         },
                     },
                 },
+                name: {
+                    remote: {
+                        url: '/products/check_product_name',
+                        type: 'post',
+                        data: {
+                            name: function() {
+                                return $('#name').val();
+                            },
+                            product_id: function() {
+                                if ($('#product_id').length > 0) {
+                                    return $('#product_id').val();
+                                } else {
+                                    return '';
+                                }
+                            },
+                        },
+                    },
+                },
                 expiry_period: {
                     required: {
                         depends: function(element) {
@@ -198,6 +216,9 @@ $(document).ready(function() {
             messages: {
                 sku: {
                     remote: LANG.sku_already_exists,
+                },
+                name: {
+                    remote: LANG.name_already_exists,
                 },
             },
         });
@@ -699,4 +720,54 @@ $(document).on('click', 'button.apply-all', function(){
         element.val(val);
         element.change();
     });
+});
+
+// Variation image upload preview handler
+$(document).on('change', '.variation-file-input', function() {
+    var $input = $(this);
+    var $container = $input.closest('.variation-image-upload');
+    var $preview = $container.find('.variation-image-preview');
+    var $badge = $container.find('.image-count-badge');
+    var $btn = $container.find('.variation-upload-btn');
+    var files = this.files;
+    
+    // Clear previous previews
+    $preview.empty();
+    
+    if (files && files.length > 0) {
+        // Show badge with count
+        $badge.text(files.length).show();
+        $btn.removeClass('tw-dw-btn-primary').addClass('tw-dw-btn-success');
+        
+        // Show preview container
+        $preview.show();
+        
+        // Create preview for each file (max 4 shown)
+        var maxPreview = Math.min(files.length, 4);
+        for (var i = 0; i < maxPreview; i++) {
+            var file = files[i];
+            if (file.type.match('image.*')) {
+                var reader = new FileReader();
+                reader.onload = (function(file) {
+                    return function(e) {
+                        var $thumb = $('<div class="preview-thumb" style="display: inline-block; position: relative; margin: 2px;">' +
+                            '<img src="' + e.target.result + '" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">' +
+                            '</div>');
+                        $preview.append($thumb);
+                    };
+                })(file);
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Show +N if more than 4 files
+        if (files.length > 4) {
+            $preview.append('<span style="display: inline-block; padding: 10px; font-size: 12px; color: #666;">+' + (files.length - 4) + ' more</span>');
+        }
+    } else {
+        // No files selected - reset
+        $badge.hide();
+        $btn.removeClass('tw-dw-btn-success').addClass('tw-dw-btn-primary');
+        $preview.hide();
+    }
 });

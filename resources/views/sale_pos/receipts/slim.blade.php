@@ -12,11 +12,11 @@
         <div class="ticket">
         	@if(empty($receipt_details->letter_head))
 				@if(!empty($receipt_details->logo))
-					<div class="text-box centered">
-						<img style="max-height: 100px; width: auto;" src="{{$receipt_details->logo}}" alt="Logo">
+					<div class="text-box centered receipt-logo">
+						<img src="{{$receipt_details->logo}}" alt="Logo">
 					</div>
 				@endif
-				<div class="text-box">
+				<div class="text-box receipt-header">
 				<!-- Logo -->
 				<p class="centered">
 					<!-- Header text -->
@@ -68,30 +68,35 @@
 					@endif
 
 					@if(!empty($receipt_details->tax_info1))
-						<br><b>{{ $receipt_details->tax_label1 }}</b> {{ $receipt_details->tax_info1 }}
+						<br><span class="tax-id"><b>{{ $receipt_details->tax_label1 }}</b> {{ $receipt_details->tax_info1 }}</span>
 					@endif
 
 					@if(!empty($receipt_details->tax_info2))
-						<b>{{ $receipt_details->tax_label2 }}</b> {{ $receipt_details->tax_info2 }}
+						<span class="tax-id"><b>{{ $receipt_details->tax_label2 }}</b> {{ $receipt_details->tax_info2 }}</span>
 					@endif
 				@endif
-					<!-- Title of receipt -->
-					@if(!empty($receipt_details->invoice_heading))
-						<br/><span class="sub-headings">{!! $receipt_details->invoice_heading !!}</span>
-					@endif
 				</p>
 				</div>
+				<!-- Title of receipt -->
+				@if(!empty($receipt_details->invoice_heading))
+					<div class="receipt-title">{!! $receipt_details->invoice_heading !!}</div>
+				@endif
 				@if(!empty($receipt_details->letter_head))
 					<div class="text-box">
 						<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
 					</div>
 				@endif
-			<div class="border-top textbox-info">
+			<div class="textbox-info receipt-meta-first">
 				<p class="f-left"><strong>{!! $receipt_details->invoice_no_prefix !!}</strong></p>
 				<p class="f-right">
 					{{$receipt_details->invoice_no}}
 				</p>
 			</div>
+			@if(!empty($receipt_details->eis_invoice_number))
+				<div class="textbox-info receipt-eis-number">
+					@include('sale_pos.receipts.partial.eis_invoice_number')
+				</div>
+			@endif
 			<div class="textbox-info">
 				<p class="f-left"><strong>{!! $receipt_details->date_label !!}</strong></p>
 				<p class="f-right">
@@ -233,19 +238,16 @@
 				</div>
 			@endif
 
-	        <!-- customer info -->
-	        <div class="textbox-info">
-	        	<p style="vertical-align: top;"><strong>
-	        		{{$receipt_details->customer_label ?? ''}}
-	        	</strong></p>
-
-	        	<p>
-	        		@if(!empty($receipt_details->customer_info))
-	        			<div class="bw">
-						{!! $receipt_details->customer_info !!}
-						</div>
-					@endif
-	        	</p>
+			<!-- customer info -->
+			<div class="textbox-info receipt-customer">
+				<p><strong>
+					{{$receipt_details->customer_label ?? ''}}
+				</strong></p>
+				@if(!empty($receipt_details->customer_info))
+					<div class="bw">
+					{!! $receipt_details->customer_info !!}
+					</div>
+				@endif
 	        </div>
 			
 			@if(!empty($receipt_details->client_id_label))
@@ -359,7 +361,7 @@
 					</p>
 				</div>
 			@endif
-            <table style="margin-top: 25px !important" class="border-bottom width-100 table-f-12 mb-10">
+            <table class="receipt-items width-100 table-f-12">
                 <thead class="border-bottom-dotted">
                     <tr>
                         <th class="serial_number">#</th>
@@ -392,7 +394,7 @@
 	                        	{{$loop->iteration}}
 	                        </td>
 	                        <td class="description">
-	                        	{{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
+								{{$line['name']}}
 	                        	@if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif @if(!empty($line['cat_code'])), {{$line['cat_code']}}@endif
 	                        	@if(!empty($line['product_custom_fields'])), {{$line['product_custom_fields']}} @endif
 	                        	@if(!empty($line['product_description']))
@@ -481,12 +483,6 @@
 							@endforeach
 						@endif
                     @endforeach
-                    <tr>
-                    	<td @if(!empty($receipt_details->item_discount_label)) colspan="6" @else colspan="5" @endif>&nbsp;</td>
-                    	@if(!empty($receipt_details->discounted_unit_price_label))
-    					<td></td>
-    					@endif
-                    </tr>
                 </tbody>
             </table>
 			@if(!empty($receipt_details->total_quantity_label))
@@ -615,7 +611,7 @@
 					</div>
 				@endif
 
-				<div class="flex-box">
+				<div class="flex-box grand-total">
 					<p class="width-50 text-right sub-headings">
 						{!! $receipt_details->total_label !!}
 					</p>
@@ -662,7 +658,16 @@
 						</p>
 					</div>
 				@endif
-
+				@if(!empty($receipt_details->total_previous_due))
+					<div class="flex-box">
+						<p class="width-50 text-right">
+							{!! $receipt_details->total_previous_due_label !!}
+						</p>
+						<p class="width-50 text-right">
+							{{$receipt_details->total_previous_due}}
+						</p>
+					</div>
+				@endif
 				@if(!empty($receipt_details->all_due))
 					<div class="flex-box">
 						<p class="width-50 text-right">
@@ -673,14 +678,14 @@
 						</p>
 					</div>
 				@endif
+				
 			@endif
-            <div class="border-bottom width-100">&nbsp;</div>
-            @if(empty($receipt_details->hide_price) && !empty($receipt_details->tax_summary_label) )
-	            <!-- tax -->
-	            @if(!empty($receipt_details->taxes))
-	            	<table class="border-bottom width-100 table-f-12">
-	            		<tr>
-	            			<th colspan="2" class="text-center">{{$receipt_details->tax_summary_label}}</th>
+			@if(empty($receipt_details->hide_price) && !empty($receipt_details->tax_summary_label) )
+				<!-- tax -->
+				@if(!empty($receipt_details->taxes))
+					<table class="receipt-tax-summary width-100 table-f-12">
+						<tr>
+							<th colspan="2" class="text-center">{{$receipt_details->tax_summary_label}}</th>
 	            		</tr>
 	            		@foreach($receipt_details->taxes as $key => $val)
 	            			<tr>
@@ -693,26 +698,27 @@
             @endif
 
             @if(!empty($receipt_details->additional_notes))
-	            <p class="centered">
+	            <p class="centered receipt-notes">
 	            	{!! nl2br($receipt_details->additional_notes) !!}
 	            </p>
             @endif
 
+            <div class="receipt-footer">
             {{-- Barcode --}}
 			@if($receipt_details->show_barcode)
-				<br/>
-				<img class="center-block" src="data:image/png;base64,{{DNS1D::getBarcodePNG($receipt_details->invoice_no, 'C128', 2,30,array(39, 48, 54), true)}}">
+				<img class="center-block receipt-barcode" src="data:image/png;base64,{{DNS1D::getBarcodePNG($receipt_details->invoice_no, 'C128', 2,30,array(39, 48, 54), true)}}">
 			@endif
 
 			@if($receipt_details->show_qr_code && !empty($receipt_details->qr_code_text))
-				<img class="center-block mt-5" src="data:image/png;base64,{{DNS2D::getBarcodePNG($receipt_details->qr_code_text, 'QRCODE')}}">
+				<img class="center-block receipt-qr" src="data:image/png;base64,{{DNS2D::getBarcodePNG($receipt_details->qr_code_text, 'QRCODE')}}">
 			@endif
 			
 			@if(!empty($receipt_details->footer_text))
-				<p class="centered">
+				<p class="centered receipt-footer-text">
 					{!! $receipt_details->footer_text !!}
 				</p>
 			@endif
+            </div>
 			
         </div>
         <!-- <button id="btnPrint" class="hidden-print">Print</button>
@@ -721,144 +727,174 @@
 </html>
 
 <style type="text/css">
-.f-8 {
-	font-size: 8px !important;
+.ticket {
+	--receipt-ink: #000;
+	--receipt-muted: #444;
+	width: 100%;
+	max-width: 80mm;
+	margin: 0 auto;
+	padding: 4px 2px;
+	color: var(--receipt-ink);
+	background: #fff;
+	font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+	font-size: 12px;
+	line-height: 1.35;
+	font-variant-numeric: tabular-nums;
 }
-body {
-	color: #000000;
+.ticket * { box-sizing: border-box; }
+.ticket p { margin: 0; }
+.ticket img { max-width: 100%; height: auto; }
+.ticket .f-8 { font-size: 8px !important; }
+.ticket .centered { text-align: center; }
+.ticket .text-right { text-align: right; }
+.ticket .text-center { text-align: center; }
+.ticket .width-100 { width: 100%; }
+.ticket .bw { word-break: break-word; overflow-wrap: anywhere; }
+.ticket .text-box { width: 100%; }
+
+/* Header */
+.ticket .receipt-logo { margin-bottom: 6px; }
+.ticket .receipt-logo img { max-height: 80px; width: auto; display: inline-block; }
+.ticket .receipt-header { color: var(--receipt-muted); font-size: 11px; }
+.ticket .headings {
+	display: inline-block;
+	color: var(--receipt-ink);
+	font-size: 17px;
+	font-weight: 800;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	margin-bottom: 2px;
 }
-@media print {
-	* {
-    	font-size: 12px;
-    	font-family: 'Times New Roman';
-    	word-break: break-all;
-	}
-	.f-8 {
-		font-size: 8px !important;
-	}
-	
-.headings{
-	font-size: 16px;
-	font-weight: 700;
+.ticket .tax-id { display: inline-block; margin: 0 3px; color: var(--receipt-ink); }
+.ticket .eis-legal-marker {
+	display: block;
+	margin: 0 0 6px;
+	color: var(--receipt-ink);
+	font-size: 10px !important;
+	font-weight: 700 !important;
+	letter-spacing: .12em;
+	line-height: 1.4 !important;
+	text-align: center;
 	text-transform: uppercase;
 	white-space: nowrap;
 }
+.ticket .eis-legal-marker + br { display: none; }
+.ticket .receipt-footer-text .eis-legal-marker { margin: 8px 0 0; }
+.ticket .receipt-title {
+	margin: 10px 0 8px;
+	text-align: center;
+	font-size: 13px;
+	font-weight: 800;
+	letter-spacing: .18em;
+	text-transform: uppercase;
+}
+.ticket .sub-headings { font-size: 13px !important; font-weight: 700 !important; }
 
-.sub-headings{
-	font-size: 15px !important;
-	font-weight: 700 !important;
+/* Meta rows */
+.ticket .textbox-info {
+	clear: both;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 2px 0;
 }
+.ticket .textbox-info::after { content: none; }
+.ticket .textbox-info p.f-left,
+.ticket .textbox-info p.f-right { float: none; }
+.ticket .textbox-info p.f-left { flex: 0 0 auto; color: var(--receipt-muted); }
+.ticket .textbox-info p.f-left strong { font-weight: 600; }
+.ticket .textbox-info p.f-right { flex: 1 1 auto; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
+.ticket .textbox-info > p.centered { flex: 1 1 100%; }
+.ticket .receipt-meta-first { margin-top: 2px; }
+.ticket .receipt-eis-number { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.ticket .receipt-eis-number br { display: none; }
+.ticket .receipt-eis-number > span { display: contents; }
+.ticket .receipt-eis-number strong { flex: 0 0 auto; color: var(--receipt-muted); font-weight: 600; }
+.ticket .receipt-customer {
+	display: block;
+	margin-top: 6px;
+}
+.ticket .receipt-customer strong { color: var(--receipt-muted); font-weight: 600; }
 
-.border-top{
-    border-top: 1px solid #242424;
-}
-.border-bottom{
-	border-bottom: 1px solid #242424;
-}
-
-.border-bottom-dotted{
-	border-bottom: 1px dotted darkgray;
-}
-
-td.serial_number, th.serial_number{
-	width: 5%;
-    max-width: 5%;
-}
-
-td.description,
-th.description {
-    width: 35%;
-    max-width: 35%;
-}
-
-td.quantity,
-th.quantity {
-    width: 15%;
-    max-width: 15%;
-    word-break: break-all;
-}
-td.unit_price, th.unit_price{
-	width: 25%;
-    max-width: 25%;
-    word-break: break-all;
-}
-
-td.price,
-th.price {
-    width: 20%;
-    max-width: 20%;
-    word-break: break-all;
-}
-
-.centered {
-    text-align: center;
-    align-content: center;
-}
-
-.ticket {
-    width: 100%;
-    max-width: 100%;
-}
-
-img {
-    max-width: inherit;
-    width: auto;
-}
-
-    .hidden-print,
-    .hidden-print * {
-        display: none !important;
-    }
-}
-.table-info {
-	width: 100%;
-}
-.table-info tr:first-child td, .table-info tr:first-child th {
-	padding-top: 8px;
-}
-.table-info th {
+/* Items */
+.ticket table { border-collapse: collapse; }
+.ticket .receipt-items { margin: 10px 0 6px; border-bottom: 1px dashed var(--receipt-ink); }
+.ticket .receipt-items thead th {
+	padding: 5px 2px;
+	border-bottom: 1px dashed var(--receipt-ink);
+	font-size: 10px !important;
+	font-weight: 700;
+	letter-spacing: .06em;
+	text-transform: uppercase;
 	text-align: left;
 }
-.table-info td {
-	text-align: right;
-}
-.logo {
-	float: left;
-	width:35%;
-	padding: 10px;
-}
+.ticket .receipt-items thead th.text-right { text-align: right; }
+.ticket .receipt-items tbody td { padding: 4px 2px; vertical-align: top; }
+.ticket .receipt-items td.description { font-weight: 600; }
+.ticket .receipt-items td.description small,
+.ticket .receipt-items td.description .f-8 { font-weight: 400; color: var(--receipt-muted); }
+.ticket .table-f-12 th, .ticket .table-f-12 td { font-size: 12px; word-break: break-word; }
+.ticket td.serial_number, .ticket th.serial_number { width: 6%; color: var(--receipt-muted); }
+.ticket td.description, .ticket th.description { width: 36%; }
+.ticket td.quantity, .ticket th.quantity { width: 14%; }
+.ticket td.unit_price, .ticket th.unit_price { width: 22%; }
+.ticket td.price, .ticket th.price { width: 22%; }
 
-.text-with-image {
-	float: left;
-	width:65%;
-}
-.text-box {
-	width: 100%;
-	height: auto;
-}
-
-.textbox-info {
-	clear: both;
-}
-.textbox-info p {
-	margin-bottom: 0px
-}
-.flex-box {
+/* Totals */
+.ticket .flex-box {
 	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
 	width: 100%;
+	padding: 2px 0;
 }
-.flex-box p {
-	width: 50%;
-	margin-bottom: 0px;
-	white-space: nowrap;
+.ticket .flex-box p { width: 50%; margin: 0; white-space: nowrap; }
+.ticket .flex-box p:first-child { color: var(--receipt-muted); }
+.ticket .flex-box p:last-child { font-weight: 600; color: var(--receipt-ink); }
+.ticket .flex-box.grand-total { margin: 4px 0 6px; }
+.ticket .flex-box.grand-total p {
+	color: var(--receipt-ink);
+	font-size: 16px !important;
+	font-weight: 800 !important;
+	text-transform: uppercase;
 }
 
-.table-f-12 th, .table-f-12 td {
-	font-size: 12px;
-	word-break: break-word;
-}
+/* Tax summary */
+.ticket .receipt-tax-summary { margin: 8px 0; }
+.ticket .receipt-tax-summary th { padding: 4px 2px; font-size: 10px !important; letter-spacing: .06em; text-transform: uppercase; }
+.ticket .receipt-tax-summary td { padding: 2px; }
+.ticket .receipt-tax-summary td.right { text-align: right; font-weight: 600; }
 
-.bw {
-	word-break: break-word;
+/* Footer */
+.ticket .receipt-notes { margin: 8px 0; color: var(--receipt-muted); font-size: 11px; }
+.ticket .receipt-footer {
+	margin-top: 10px;
+	text-align: center;
+}
+.ticket .receipt-footer img { display: block; margin: 6px auto; }
+.ticket .receipt-barcode { max-width: 90%; }
+.ticket .receipt-qr { width: 120px; max-width: 60%; image-rendering: pixelated; }
+.ticket .receipt-footer-text { margin-top: 6px; font-size: 11px; color: var(--receipt-muted); }
+
+/* Legacy helpers still used by layout options */
+.table-info { width: 100%; }
+.table-info tr:first-child td, .table-info tr:first-child th { padding-top: 8px; }
+.table-info th { text-align: left; }
+.table-info td { text-align: right; }
+.logo { float: left; width: 35%; padding: 10px; }
+.text-with-image { float: left; width: 65%; }
+
+@media print {
+	.ticket {
+		--receipt-muted: #000;
+		max-width: 100%;
+		padding: 0;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+	.ticket, .ticket * { font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+	.ticket tr, .ticket .flex-box, .ticket .receipt-footer img { page-break-inside: avoid; break-inside: avoid; }
+	.hidden-print, .hidden-print * { display: none !important; }
 }
 </style>

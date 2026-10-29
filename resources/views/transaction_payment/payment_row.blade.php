@@ -3,6 +3,9 @@
 
     {!! Form::open(['url' => action([\App\Http\Controllers\TransactionPaymentController::class, 'store']), 'method' => 'post', 'id' => 'transaction_payment_add_form', 'files' => true ]) !!}
     {!! Form::hidden('transaction_id', $transaction->id); !!}
+    @if(!empty($saved_split_operation_id))
+      {!! Form::hidden('saved_split_operation_id', $saved_split_operation_id); !!}
+    @endif
     @if(!empty($transaction->location))
       {!! Form::hidden('default_payment_accounts', $transaction->location->default_payment_accounts, ['id' => 'default_payment_accounts']); !!}
     @endif
@@ -91,7 +94,7 @@
               <span class="input-group-addon">
                 <i class="fas fa-money-bill-alt"></i>
               </span>
-              {!! Form::text("amount", @num_format($payment_line->amount), ['class' => 'form-control input_number payment_amount', 'required', 'placeholder' => 'Amount', 'data-rule-max-value' => $payment_line->amount, 'data-msg-max-value' => __('lang_v1.max_amount_to_be_paid_is', ['amount' => $amount_formated])]); !!}
+              {!! Form::text("amount", @num_format($payment_line->amount), ['class' => 'form-control input_number payment_amount', 'required', 'placeholder' => 'Amount', 'data-rule-max-value' => number_format($payment_line->amount, session('business.currency_precision', 2), '.', ''), 'data-msg-max-value' => __('lang_v1.max_amount_to_be_paid_is', ['amount' => $amount_formated])]); !!}
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@
 
     <div class="modal-body">
       @lang('superadmin::lang.subscription_expired_modal_content', 
-      ['app_name' => env('APP_NAME')])
+      ['app_name' => config('app.name')])
     </div>
 
     <div class="modal-footer">

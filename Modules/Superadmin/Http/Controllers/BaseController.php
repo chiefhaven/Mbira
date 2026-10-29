@@ -51,6 +51,11 @@ class BaseController extends Controller
             $gateways['flutterwave'] = 'Flutterwave';
         }
 
+        //check if ONEKHUSA is configured or not
+        if (env('ONEKHUSA_BASEURL') && env('ONEKHUSA_MERCHANT_ACCOUNT_NUMBER') && env('ONEKHUSA_API_SECRET') && env('ONEKHUSA_ORGANISATION_ID') && env('ONEKHUSA_API_KEY')) {
+            $gateways['onekhusa'] = 'ONEKHUSA';
+        }
+
         // check if offline payment is enabled or not
         $is_offline_payment_enabled = System::getProperty('enable_offline_payment');
 

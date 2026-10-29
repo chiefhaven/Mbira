@@ -20,7 +20,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-user"></i>
                             </span>
-                            {!! Form::select('customer_id', $customers, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'gst_report_customer_filter']); !!}
+                            {!! Form::select('customer_id', $customers, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'gst_report_customer_filter', 'style' => 'width:100%']); !!}
                         </div>
                     </div>
                 </div>
@@ -35,42 +35,44 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped" 
-                id="gst_sales_report" style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>@lang('sale.invoice_no')</th>
-                            <th>@lang('sale.customer_name')</th>
-                            <th>@lang('lang_v1.gstin_of_cutomer')<br><small>{{__('contact.tax_no')}}</small></th>
-                            <th>@lang('lang_v1.invoice_date')</th>
-                            <th>@lang('lang_v1.hsn_code') <br><small>{{__( 'category.code' )}}</small></th>
-                            <th>GST%</th>
-                            <th>@lang('sale.qty')</th>
-                            <th>@lang('sale.unit_price')</th>
-                            <th>@lang('sale.discount')</th>
-                            <th>@lang('lang_v1.taxable_value')</th>
-                            @foreach($taxes as $tax)
-                                <th>
-                                    {{$tax['name']}}
-                                </th>
-                            @endforeach
-                            <th>@lang('sale.total')</th>
-                        </tr>
-                    </thead>
-                    <tfoot>
-                        <tr class="bg-gray font-17 footer-total text-center">
-                            <td colspan="9"><strong>@lang('sale.total'):</strong></td>
-                            <td class="total_taxable_value"></td>
-                            @foreach($taxes as $tax)
-                                <td class="tax_{{$tax['id']}}_total">
-                                </td>
-                            @endforeach
-                            <td class="line_total"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+            @component('components.widget', ['class' => 'box-primary'])
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" 
+                    id="gst_sales_report" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>@lang('sale.invoice_no')</th>
+                                <th>@lang('sale.customer_name')</th>
+                                <th>@lang('lang_v1.gstin_of_cutomer')<br><small>{{__('contact.tax_no')}}</small></th>
+                                <th>@lang('lang_v1.invoice_date')</th>
+                                <th>@lang('lang_v1.hsn_code') <br><small>{{__( 'category.code' )}}</small></th>
+                                <th>GST%</th>
+                                <th>@lang('sale.qty')</th>
+                                <th>@lang('sale.unit_price')</th>
+                                <th>@lang('sale.discount')</th>
+                                <th>@lang('lang_v1.taxable_value')</th>
+                                @foreach($taxes as $tax)
+                                    <th>
+                                        {{$tax['name']}}
+                                    </th>
+                                @endforeach
+                                <th>@lang('sale.total')</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="bg-gray font-17 footer-total text-center">
+                                <td colspan="9"><strong>@lang('sale.total'):</strong></td>
+                                <td class="total_taxable_value"></td>
+                                @foreach($taxes as $tax)
+                                    <td class="tax_{{$tax['id']}}_total">
+                                    </td>
+                                @endforeach
+                                <td class="line_total"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            @endcomponent
         </div>
     </div>
 </section>

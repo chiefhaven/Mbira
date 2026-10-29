@@ -42,6 +42,10 @@ class EssentialsLeaveController extends Controller
                 'name' => __('essentials::lang.approved'),
                 'class' => 'bg-green',
             ],
+            'rejected' => [
+                'name' => __('essentials::lang.rejected'),
+                'class' => 'bg-red',
+            ],
             'cancelled' => [
                 'name' => __('essentials::lang.cancelled'),
                 'class' => 'bg-red',

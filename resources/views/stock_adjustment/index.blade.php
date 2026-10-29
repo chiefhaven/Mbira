@@ -15,7 +15,7 @@
     @component('components.widget', ['class' => 'box-primary', 'title' => __('stock_adjustment.all_stock_adjustments')])
         @slot('tool')
             <div class="box-tools">
-                @if(auth()->user()->can('purchase.create'))
+                @if(auth()->user()->can('stock_adjustment.create'))
                     <a class="tw-dw-btn tw-bg-gradient-to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right"
                         href="{{action([\App\Http\Controllers\StockAdjustmentController::class, 'create'])}}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"

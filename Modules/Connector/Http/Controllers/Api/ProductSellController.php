@@ -385,10 +385,13 @@ class ProductSellController extends ApiController
         }
 
         if (! empty($filters['product_ids'])) {
-            $query->whereIn('id', $filters['product_ids']);
+            $query->whereIn('products.id', $filters['product_ids']);
         }
 
-        $query->groupBy('products.id');
+        // Only the custom-location join can multiply product rows.
+        if (! empty($filters['location_custom_field_1'])) {
+            $query->groupBy('products.id');
+        }
 
         if (! empty($search)) {
             $query->where(function ($query) use ($search) {
@@ -678,6 +681,15 @@ class ProductSellController extends ApiController
                 if ($user->hasAnyPermission(['view_commission_agent_sell', 'access_commission_agent_shipping'])) {
                     $q->orWhere('transactions.commission_agent', $user->id);
                 }
+
+                if (! $user->hasAnyPermission([
+                    'view_own_sell_only',
+                    'access_own_shipping',
+                    'view_commission_agent_sell',
+                    'access_commission_agent_shipping',
+                ])) {
+                    $q->whereRaw('1 = 0');
+                }
             });
         }
 
@@ -756,18 +768,18 @@ class ProductSellController extends ApiController
 
             if (empty($payment_status_arr)) {
                 if (auth()->user()->can('view_overdue_sells_only')) {
-                    $sells->OverDue();
+                    $query->OverDue();
                 }
             } else {
                 if (auth()->user()->can('view_overdue_sells_only')) {
-                    $sells->where(function ($q) use ($payment_status_arr) {
+                    $query->where(function ($q) use ($payment_status_arr) {
                         $q->whereIn('transactions.payment_status', $payment_status_arr)
                         ->orWhere(function ($qr) {
                             $qr->OverDue();
                         });
                     });
                 } else {
-                    $sells->whereIn('transactions.payment_status', $payment_status_arr);
+                    $query->whereIn('transactions.payment_status', $payment_status_arr);
                 }
             }
         }

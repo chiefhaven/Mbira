@@ -83,13 +83,14 @@
 				@endif
 			<div class="border-top textbox-info">
 				<p class="f-left"><strong>{!! $receipt_details->invoice_no_prefix !!}</strong></p>
-				<p class="f-right">
+				<p class="f-left">
 					{{$receipt_details->invoice_no}}
 				</p>
 			</div>
+			@include('sale_pos.receipts.partial.eis_invoice_number')
 			<div class="textbox-info">
 				<p class="f-left"><strong>{!! $receipt_details->date_label !!}</strong></p>
-				<p class="f-right">
+				<p class="f-left">
 					{{$receipt_details->invoice_date}}
 				</p>
 			</div>
@@ -632,6 +633,16 @@
 					</div>
 				@endif
 
+				@if(!empty($receipt_details->total_previous_due))
+					<div class="flex-box">
+						<p class="width-50 text-left">
+							{!! $receipt_details->total_previous_due_label !!}
+						</p>
+						<p class="width-50 text-right">
+							{{$receipt_details->total_previous_due}}
+						</p>
+					</div>
+				@endif
 				@if(!empty($receipt_details->all_due))
 					<div class="flex-box">
 						<p class="width-50 text-left">

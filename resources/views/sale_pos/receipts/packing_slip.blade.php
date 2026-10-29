@@ -65,6 +65,7 @@
 			@endif
 
 			{{$receipt_details->invoice_no}}
+			@include('sale_pos.receipts.partial.eis_invoice_number')
 		</p>
 		<!-- Date-->
 		@if(!empty($receipt_details->date_label))

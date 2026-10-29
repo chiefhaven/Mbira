@@ -151,6 +151,7 @@
                                     <th>@lang('contact.name')</th>
                                     <th>@lang('business.email')</th>
                                     <th>@lang('contact.tax_no')</th>
+                                    <th>@lang('contact.eis_authorization_code')</th>
                                     <th>@lang('contact.pay_term')</th>
                                     <th>@lang('account.opening_balance')</th>
                                     <th>@lang('lang_v1.advance_balance')</th>
@@ -164,6 +165,7 @@
                                     <th>@lang('user.name')</th>
                                     <th>@lang('business.email')</th>
                                     <th>@lang('contact.tax_no')</th>
+                                    <th>@lang('contact.eis_authorization_code')</th>
                                     <th>@lang('lang_v1.credit_limit')</th>
                                     <th>@lang('contact.pay_term')</th>
                                     <th>@lang('account.opening_balance')</th>
@@ -215,6 +217,7 @@
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 text-center footer-total">
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

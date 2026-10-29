@@ -13,6 +13,16 @@ class TransactionSellLine extends Model
      */
     protected $guarded = ['id'];
 
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            \App\Services\Sales\SavedSaleWriteGuard::model($model);
+        });
+        static::deleting(function ($model) {
+            \App\Services\Sales\SavedSaleWriteGuard::model($model);
+        });
+    }
+
     public function transaction()
     {
         return $this->belongsTo(\App\Transaction::class);
