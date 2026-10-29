@@ -1,9 +1,9 @@
 <div class="block-29 my-lg-5 px-4 px-sm-5 container space-between-blocks overflow-hidden px-xxl-4">
     <div class="row justify-content-center px-lg-5">
         <div class="col-lg-8 mx-auto mb-3 mb-lg-0">
-            <h4 class="block-29__title m-0">
+            <h2 class="block-29__title m-0">
                 Automate your business Today.
-            </h4>
+            </h2>
             <p class="block-29__paragraph mt-3">
                 Talk to one of our product experts. We’re here to help you get started for your business.
             </p>

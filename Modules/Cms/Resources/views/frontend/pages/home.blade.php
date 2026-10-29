@@ -37,7 +37,10 @@
         $cta_btn['link'] = $__site_details['btns']['cta']['link'] ?? route('business.getRegister');
     }
 @endphp
-@includeIf('cms::frontend.layouts.home_header')
+@section('body_class', 'cms-home')
+@section('css')
+    <link rel="stylesheet" href="{{ asset('modules/cms/css/homepage.css?v=' . $asset_v) }}">
+@endsection
 @section('meta')
     <meta name="description" content="{{$page->meta_description}}">
 @endsection
@@ -45,6 +48,8 @@
 @php
     $page_meta = $page->pageMeta->keyBy('meta_key');
 @endphp
+@includeIf('cms::frontend.layouts.home_header')
+<main id="main-content">
 <!------------------------------>
 <!--Features---------------->
 <!------------------------------>
@@ -74,9 +79,5 @@
 <!--FAQ---------------->
 <!------------------------------>
 @includeIf('cms::frontend.pages.partials.faq', ['faqs' => $faqs ?? []])
-@endsection
-@section('javascript')
-<script type="text/javascript">
-    new Sticky("[sticky]");
-</script>
+</main>
 @endsection

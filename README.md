@@ -6,6 +6,19 @@ Ultimate POS is a POS application by [Ultimate Fosters](http://ultimatefosters.c
 You will find installation guide and documentation in the downloaded zip file.
 Also, For complete updated documentation of the ultimate pos please visit online [documentation guide](http://ultimatefosters.com/ultimate-pos/).
 
+### CMS homepage assets
+
+After restoring or deploying an installation with the CMS module, run
+`php artisan module:publish Cms` to publish its CSS, JavaScript, and images.
+The generated assets under `public/modules/cms` are not tracked in Git.
+If the homepage is unstyled and requests to `/modules/cms/css/cms.css` return
+404, run this command and refresh the browser.
+
+The CMS homepage uses the MbiraERP royal-blue, navy, and gold palette in
+`Modules/Cms/Resources/assets/css/homepage.css`. Its styles are scoped to
+`.cms-home` so other CMS pages retain their existing theme. After changing
+CMS assets, run the publishing command again; no Node build is required.
+
 ## Service staff location permissions
 
 Service staff lookups use existing `web` permissions for `location.<id>` or

@@ -3,9 +3,10 @@
         <div class="container">
             <!-- HEADER -->
             <div class="col-lg-9 mx-auto text-center px-0 mb-5">
-                <h1 class="block__title--big mb-3">
+                <p class="cms-eyebrow">Growing together</p>
+                <h2 class="block__title--big mb-3">
                     {{$statistics['tagline'] ?? ''}}
-                </h1>
+                </h2>
                 <p class="block__paragraph--big mb-0 mx-3">
                     {{$statistics['description'] ?? ''}}
                 </p>

@@ -1,10 +1,13 @@
 <div class="fixed-nav-container">
-    <nav class="hero-nav position-relative container mx-auto px-0">
+    <nav class="hero-nav position-relative container mx-auto px-0" aria-label="Main navigation">
         <ul class="nav w-100 list-unstyled align-items-center p-0">
             <li class="hero-nav__item">
-                <a href="{{url('/')}}">
+                <a href="{{url('/')}}" class="cms-brand" aria-label="{{ config('app.name') }} home">
                     <img class="hero-nav__logo" src="{{$__logo_url}}" 
                         change-src-onscroll="{{$__logo_url}}" alt="logo" loading="lazy">
+                    @if(!empty($is_homepage))
+                        <span class="cms-brand-name">{{ config('app.name') }}</span>
+                    @endif
                 </a>
                 <!-- Don't remove this empty span -->
                 <span class="mx-2"></span>
@@ -55,7 +58,7 @@
                             @endif
                             @if(count($__pages) > 0)
                                 <li class="hero-nav__item hero-nav__item--with-dropdown">
-                                    <span class="hero-nav__link" tabindex="1" role="button">
+                                    <span class="hero-nav__link" tabindex="0" role="button">
                                         <span class="flex-grow-1 me-2">
                                             Pages
                                         </span>
@@ -101,7 +104,7 @@
                         </ul>
                     </li>
                 </ul>
-                <button close-nav-menu="" class="ft-menu__close-btn animated">
+                <button close-nav-menu="" class="ft-menu__close-btn animated" type="button" aria-label="Close navigation">
                     <svg class="bi bi-x" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z" clip-rule="evenodd"></path>
                         <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z" clip-rule="evenodd"></path>
@@ -109,7 +112,7 @@
                 </button>
             </li>
             <li class="hero-nav__item d-lg-none d-flex flex-row-reverse">
-                <button open-nav-menu="" class="text-center px-2">
+                <button open-nav-menu="" class="text-center px-2" type="button" aria-label="Open navigation" aria-controls="hero-menu" aria-expanded="false">
                     <i class="fas fa-bars"></i>
                 </button>
             </li>

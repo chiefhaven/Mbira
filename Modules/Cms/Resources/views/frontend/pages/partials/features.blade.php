@@ -11,12 +11,13 @@
 @if(!empty($feature))
     <div class="block-1 space-between-blocks" data-sticky-container="" id="features">
         <div class="container">
-            <div class="row justify-content-center flex-column-reverse flex-lg-row px-2 mx-auto" id="block__container">
+            <div class="row justify-content-center flex-column flex-lg-row px-2 mx-auto" id="block__container">
                 <div class="col-lg-4 col-xl-6 mb-5 pe-lg-5">
-                    <div sticky="" data-margin-top="30px">
-                        <h1 class="block__title--big mb-3">
+                    <div>
+                        <p class="cms-eyebrow">Built for your everyday</p>
+                        <h2 class="block__title--big mb-3">
                             {{$feature['title'] ?? ''}}
-                        </h1>
+                        </h2>
                         <p class="block__paragraph--big mb-5">
                             {!!$feature['description'] ?? ''!!}
                         </p>
