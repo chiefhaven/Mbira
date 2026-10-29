@@ -17,10 +17,11 @@
     @include('layouts.partials.css')
 
     @include('layouts.partials.extracss_auth')
+    @yield('public_css')
 
 </head>
 
-<body class="hold-transition" style="height: auto;">
+<body class="hold-transition @yield('body_class')" style="height: auto;">
     @if (session('status'))
         <input type="hidden" id="status_span" data-status="{{ session('status.success') }}"
             data-msg="{{ session('status.msg') }}">

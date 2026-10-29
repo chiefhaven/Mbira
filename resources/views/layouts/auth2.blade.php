@@ -17,6 +17,7 @@
     @include('layouts.partials.css')
 
     @include('layouts.partials.extracss_auth')
+    @yield('public_css')
 
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -26,7 +27,7 @@
 
 </head>
 
-<body class="pace-done @if(request()->segment(1) == 'login') login-viewport @endif" data-new-gr-c-s-check-loaded="14.1172.0" data-gr-ext-installed="" cz-shortcut-listen="true">
+<body class="pace-done @yield('body_class') @if(request()->segment(1) == 'login') login-viewport @endif" data-new-gr-c-s-check-loaded="14.1172.0" data-gr-ext-installed="" cz-shortcut-listen="true">
     @inject('request', 'Illuminate\Http\Request')
     @if (session('status') && session('status.success'))
         <input type="hidden" id="status_span" data-status="{{ session('status.success') }}"
@@ -35,6 +36,9 @@
     <div class="container-fluid">
         <div class="row eq-height-row">
             <div class="col-md-12 col-sm-12 col-xs-12 right-col tw-pb-10 tw-px-5 @if($request->segment(1) == 'login') login-brand-page @else tw-pt-20 @endif">
+                @if($request->segment(1) == 'login')
+                    @include('layouts.partials.public-navigation')
+                @else
                 <div class="row">
                     {{-- <div
                         class="lg:tw-w-16 md:tw-h-16 tw-w-12 tw-h-12 tw-flex tw-items-center tw-justify-center tw-mx-auto tw-overflow-hidden tw-bg-white tw-rounded-full tw-p-0.5 tw-mb-4">
@@ -96,6 +100,7 @@
 
                     </div>
                 </div>
+                @endif
                 @yield('content')
             </div>
         </div>
@@ -109,6 +114,7 @@
     <script src="{{ asset('js/login.js?v=' . $asset_v) }}"></script>
 
     @yield('javascript')
+    @yield('public_javascript')
 
     <script type="text/javascript">
         $(document).ready(function() {

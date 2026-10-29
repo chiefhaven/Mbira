@@ -10,11 +10,13 @@
         $navbar_btn['link'] = $__site_details['btns']['navbar']['link'] ?? route('business.getRegister');
     }
 @endphp
-@includeIf('cms::frontend.layouts.header')
+@section('body_class', 'cms-home cms-contact mbira-public')
 @section('meta')
     <meta name="description" content="{{$page->meta_description}}">
 @endsection
 @section('css')
+<link rel="stylesheet" href="{{ asset('modules/cms/css/homepage.css?v=' . $asset_v) }}">
+<link rel="stylesheet" href="{{ asset('brand-public.css?v=' . $asset_v) }}">
 <style type="text/css">
     .error{
         color: #e55151 !important;
@@ -28,10 +30,11 @@
 </style>
 @endsection
 @section('content')
+@includeIf('cms::frontend.layouts.header', ['is_homepage' => true])
 <!------------------------------>
 <!--Section Name---------------->
 <!------------------------------>
-<div class="block-27 space-between-blocks">
+<main class="block-27 space-between-blocks">
     @php
         $bg_img_url = asset('modules/cms/img/contact.jpg');
         if(!empty($page->feature_image_url)) {
@@ -48,22 +51,27 @@
             <div class="col-lg-6 px-4 px-xl-5 py-3 text-center">
                 <form class="contact-form text-center" id="contact_form">
                     <div class="contact-form__header mb-5">
-                        <h6 class="contact-form__title mb-3">
+                        <p class="cms-eyebrow">Let's talk business</p>
+                        <h1 class="contact-form__title mb-3">
                             {{$page->title ?? 'Contact Us'}}
-                        </h6>
-                        <p class="contact-form__paragraph mb-0 mx-auto">
+                        </h1>
+                        <div class="contact-form__paragraph mb-0 mx-auto">
                             {!!
                                 $page->content ?? "We're happy to receive your message. Ask us anything, we'll respond as soon as possible."
                             !!}
-                        </p>
+                        </div>
                     </div>
                     <div class="alert mt-4 alert-primary enquire_response_alert" role="alert" style="display:none;">
                         <span class="enquire_response"></span>
                     </div>
-                    <input type="text" name="name" class="contact-form__input" placeholder="Full Name" required>
-                    <input type="number" name="mobile" class="contact-form__input" placeholder="Mobile" required>
-                    <input type="email" name="email" class="contact-form__input" placeholder="Email" required>
-                    <textarea class="contact-form__input" name="message" placeholder="Message" required></textarea>
+                    <label for="contact-name">Full name</label>
+                    <input id="contact-name" type="text" name="name" class="contact-form__input" placeholder="Your full name" autocomplete="name" required>
+                    <label for="contact-mobile">Phone number</label>
+                    <input id="contact-mobile" type="tel" name="mobile" class="contact-form__input" placeholder="Your phone number" autocomplete="tel" required>
+                    <label for="contact-email">Email address</label>
+                    <input id="contact-email" type="email" name="email" class="contact-form__input" placeholder="you@company.com" autocomplete="email" required>
+                    <label for="contact-message">How can we help?</label>
+                    <textarea id="contact-message" name="message" class="contact-form__input" placeholder="Tell us a little about your business..." rows="4" required></textarea>
                     <button id="submit-btn" class="btn btn-primary w-100">
                         SEND MESSAGE
                     </button>
@@ -123,7 +131,7 @@
                         </ul>
                     @endif
                 </div>
-            </div>
+            </main>
         @endif
     </div>
 </div>
@@ -158,6 +166,15 @@
                                 $(".enquire_response_alert").css({ 'display' : '' });
                                 $(".enquire_response").text(result.msg);
                             }
+                        },
+                        error: function(xhr) {
+                            $(".enquire_response_alert").show();
+                            $(".enquire_response").text(xhr.responseJSON && xhr.responseJSON.message
+                                ? xhr.responseJSON.message
+                                : "We couldn't send your message. Please try again.");
+                        },
+                        complete: function() {
+                            $("#submit-btn").attr('disabled', false);
                         }
                     });
                 }

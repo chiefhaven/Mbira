@@ -1,5 +1,9 @@
 @extends('layouts.auth2')
 @section('title', __('lang_v1.login'))
+@section('body_class', 'mbira-public brand-login')
+@section('public_css')
+    <link rel="stylesheet" href="{{ asset('brand-public.css?v=' . $asset_v) }}">
+@endsection
 @inject('request', 'Illuminate\Http\Request')
 @section('content')
     @php
@@ -30,6 +34,20 @@
     <div class="login-shell">
         <div class="login-grid">
             <div class="login-side-panel">
+                <div class="brand-login-intro">
+                    <span class="brand-eyebrow">Your business. Connected.</span>
+                    <h2>One workspace.<br>More possibilities.</h2>
+                    <p>Bring your sales, inventory, and business insights together with {{ config('app.name') }}.</p>
+                    <div class="brand-workspace" aria-hidden="true">
+                        <div class="brand-workspace-top"><span></span><span></span><span></span></div>
+                        <div class="brand-workspace-body">
+                            <span class="brand-workspace-label">YOUR WORKSPACE</span>
+                            <div class="brand-workspace-tiles"><span>Sales</span><span>Inventory</span><span>Insights</span></div>
+                            <div class="brand-chart"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                        </div>
+                    </div>
+                    <p class="brand-login-note">Less switching. More doing.</p>
+                </div>
                 @if (config('app.env') == 'demo')
                     @component('components.widget', [
                         'class' => 'box-primary login-demo-widget',
@@ -140,8 +158,8 @@
                                 <input
                                     class="tw-border tw-border-[#D1D5DA] tw-outline-none tw-h-12 tw-bg-transparent tw-rounded-lg tw-px-3 tw-font-medium tw-text-black placeholder:tw-text-gray-500 placeholder:tw-font-medium"
                                     id="password" type="password" name="password" value="{{ $password }}" required
-                                    placeholder="@lang('lang_v1.password')" />
-                                <button type="button" id="show_hide_icon" class="show_hide_icon" style="position: absolute; top:48px;right:5px;">
+                                    autocomplete="current-password" placeholder="@lang('lang_v1.password')" />
+                                <button type="button" id="show_hide_icon" class="show_hide_icon" aria-label="Show or hide password" aria-controls="password" aria-pressed="false">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye tw-w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                         <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
@@ -174,3 +192,14 @@
         </div>
     </div>
 @stop
+
+@section('public_javascript')
+<script>
+    document.getElementById('show_hide_icon').addEventListener('click', function() {
+        var passwordInput = document.getElementById('password');
+        var showPassword = passwordInput.type === 'password';
+        passwordInput.type = showPassword ? 'text' : 'password';
+        this.setAttribute('aria-pressed', showPassword ? 'true' : 'false');
+    });
+</script>
+@endsection

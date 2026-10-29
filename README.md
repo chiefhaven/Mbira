@@ -19,6 +19,10 @@ The CMS homepage uses the MbiraERP royal-blue, navy, and gold palette in
 `.cms-home` so other CMS pages retain their existing theme. After changing
 CMS assets, run the publishing command again; no Node build is required.
 
+Pricing, login, and contact page styling is shared in `public/brand-public.css`
+and scoped to `.mbira-public`. Contact also reuses the CMS homepage theme.
+Package, authentication, and contact form endpoints remain unchanged.
+
 ## Service staff location permissions
 
 Service staff lookups use existing `web` permissions for `location.<id>` or
