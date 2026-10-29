@@ -23,6 +23,13 @@ Pricing, login, and contact page styling is shared in `public/brand-public.css`
 and scoped to `.mbira-public`. Contact also reuses the CMS homepage theme.
 Package, authentication, and contact form endpoints remain unchanged.
 
+Home, pricing, contact, and login share `layouts.partials.public-navigation`:
+the brand stays left and links stay right, with a right-aligned mobile menu.
+Public pricing cards keep prices and signup actions visible while plan
+features open in a scrollable modal; subscription screens retain their full feature lists.
+All four pages use `layouts.partials.public-footer`, including navigation,
+configured social links, copyright, and any custom branding footer text.
+
 ## Service staff location permissions
 
 Service staff lookups use existing `web` permissions for `location.<id>` or

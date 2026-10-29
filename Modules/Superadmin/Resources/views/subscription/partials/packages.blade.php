@@ -13,7 +13,15 @@
 			
 			<!-- /.box-header -->
 			<div class="box-body text-center">
-
+                @if(!empty($compact))
+                    <button type="button" class="brand-package-features" data-toggle="modal"
+                        data-target="#plan-features-modal" data-plan-name="{{ $package->name }}"
+                        data-features-id="plan-features-{{ $package->id }}" aria-haspopup="dialog">
+                        View plan features
+                    </button>
+                    <template id="plan-features-{{ $package->id }}">
+                        <div class="brand-package-feature-list">
+                @endif
 				<i class="fa fa-check text-success"></i>
 				@if($package->location_count == 0)
 					@lang('superadmin::lang.unlimited')
@@ -70,6 +78,10 @@
 					<br/><br/>
 				@endif
 				
+                @if(!empty($compact))
+                        </div>
+                    </template>
+                @endif
 				<h3 class="text-center">
 				@php
 					$interval_type = !empty($intervals[$package->interval]) ? $intervals[$package->interval] : __('lang_v1.' . $package->interval);

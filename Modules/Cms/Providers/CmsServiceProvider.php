@@ -23,7 +23,7 @@ class CmsServiceProvider extends ServiceProvider
         $this->registerFactories();
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
-        view::composer(['cms::frontend.layouts.navbar', 'cms::frontend.layouts.footer'], function ($view) {
+        view::composer(['cms::frontend.layouts.navbar', 'cms::frontend.layouts.footer', 'layouts.partials.public-navigation'], function ($view) {
             $__blog_count = CmsPage::getPagesCount('blog');
             $__pages = CmsPage::getEnabledPages('page');
 
@@ -36,7 +36,7 @@ class CmsServiceProvider extends ServiceProvider
             $view->with(compact('__blog_count', '__pages', '__logo_url'));
         });
 
-        view::composer(['cms::frontend.layouts.app', 'cms::frontend.pages.contact_us', 'cms::frontend.pages.home'], function ($view) {
+        view::composer(['cms::frontend.layouts.app', 'cms::frontend.pages.contact_us', 'cms::frontend.pages.home', 'layouts.partials.public-navigation', 'layouts.partials.public-footer'], function ($view) {
             $__site_details = CmsSiteDetail::getSiteDetails();
             $view->with(compact('__site_details'));
         });

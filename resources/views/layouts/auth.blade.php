@@ -32,7 +32,7 @@
     @endif
 
     @yield('content')
-    @include('layouts.partials.branding-public-footer')
+    @include('layouts.partials.branding-public-footer', ['public_footer' => request()->routeIs('pricing')])
 
     @include('layouts.partials.javascripts')
     <!-- Scripts -->

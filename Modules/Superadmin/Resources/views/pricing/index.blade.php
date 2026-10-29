@@ -23,7 +23,7 @@
             </div>
 
             <div class="box-body brand-package-grid">
-                @include('superadmin::subscription.partials.packages', ['action_type' => 'register'])
+                @include('superadmin::subscription.partials.packages', ['action_type' => 'register', 'compact' => true])
             </div>
         </div>
     </div>
@@ -35,11 +35,34 @@
         @endif
     </div>
 </main>
+<div class="modal fade brand-features-modal" id="plan-features-modal" tabindex="-1" role="dialog"
+    aria-labelledby="plan-features-title">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="@lang('messages.close')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h2 class="modal-title" id="plan-features-title"></h2>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@lang('messages.close')</button>
+            </div>
+        </div>
+    </div>
+</div>
 @stop
 
 @section('javascript')
 <script type="text/javascript">
     $(document).ready(function(){
+        $('#plan-features-modal').off('show.bs.modal.planFeatures').on('show.bs.modal.planFeatures', function(event) {
+            var trigger = event.relatedTarget;
+            var features = document.getElementById(trigger.getAttribute('data-features-id'));
+            $(this).find('.modal-title').text(trigger.getAttribute('data-plan-name') + ' - Plan features');
+            $(this).find('.modal-body').html(features.innerHTML);
+        });
         $('#change_lang').change( function(){
             window.location = "{{ route('pricing') }}?lang=" + $(this).val();
         });

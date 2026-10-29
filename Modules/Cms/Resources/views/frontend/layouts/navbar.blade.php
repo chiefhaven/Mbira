@@ -1,3 +1,6 @@
+@if(!empty($is_homepage))
+    @include('layouts.partials.public-navigation')
+@else
 <div class="fixed-nav-container">
     <nav class="hero-nav position-relative container mx-auto px-0" aria-label="Main navigation">
         <ul class="nav w-100 list-unstyled align-items-center p-0">
@@ -119,3 +122,4 @@
         </ul>
     </nav>
 </div>
+@endif

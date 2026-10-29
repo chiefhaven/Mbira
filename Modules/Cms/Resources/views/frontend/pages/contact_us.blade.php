@@ -64,14 +64,24 @@
                     <div class="alert mt-4 alert-primary enquire_response_alert" role="alert" style="display:none;">
                         <span class="enquire_response"></span>
                     </div>
-                    <label for="contact-name">Full name</label>
-                    <input id="contact-name" type="text" name="name" class="contact-form__input" placeholder="Your full name" autocomplete="name" required>
-                    <label for="contact-mobile">Phone number</label>
-                    <input id="contact-mobile" type="tel" name="mobile" class="contact-form__input" placeholder="Your phone number" autocomplete="tel" required>
-                    <label for="contact-email">Email address</label>
-                    <input id="contact-email" type="email" name="email" class="contact-form__input" placeholder="you@company.com" autocomplete="email" required>
-                    <label for="contact-message">How can we help?</label>
-                    <textarea id="contact-message" name="message" class="contact-form__input" placeholder="Tell us a little about your business..." rows="4" required></textarea>
+                    <div class="brand-contact-fields">
+                        <div>
+                            <label for="contact-name">Full name</label>
+                            <input id="contact-name" type="text" name="name" class="contact-form__input" placeholder="Your full name" autocomplete="name" required>
+                        </div>
+                        <div>
+                            <label for="contact-mobile">Phone number</label>
+                            <input id="contact-mobile" type="tel" name="mobile" class="contact-form__input" placeholder="Your phone number" autocomplete="tel" required>
+                        </div>
+                        <div class="brand-contact-wide">
+                            <label for="contact-email">Email address</label>
+                            <input id="contact-email" type="email" name="email" class="contact-form__input" placeholder="you@company.com" autocomplete="email" required>
+                        </div>
+                        <div class="brand-contact-wide">
+                            <label for="contact-message">How can we help?</label>
+                            <textarea id="contact-message" name="message" class="contact-form__input" placeholder="Tell us a little about your business..." rows="3" required></textarea>
+                        </div>
+                    </div>
                     <button id="submit-btn" class="btn btn-primary w-100">
                         SEND MESSAGE
                     </button>
@@ -131,10 +141,10 @@
                         </ul>
                     @endif
                 </div>
-            </main>
+            </div>
         @endif
     </div>
-</div>
+</main>
 @endsection
 @section('javascript')
 <script type="text/javascript">

@@ -37,9 +37,10 @@
         $cta_btn['link'] = $__site_details['btns']['cta']['link'] ?? route('business.getRegister');
     }
 @endphp
-@section('body_class', 'cms-home')
+@section('body_class', 'cms-home mbira-public')
 @section('css')
     <link rel="stylesheet" href="{{ asset('modules/cms/css/homepage.css?v=' . $asset_v) }}">
+    <link rel="stylesheet" href="{{ asset('brand-public.css?v=' . $asset_v) }}">
 @endsection
 @section('meta')
     <meta name="description" content="{{$page->meta_description}}">

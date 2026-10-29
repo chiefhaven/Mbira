@@ -107,7 +107,7 @@
     </div>
 
 
-    @include('layouts.partials.branding-public-footer')
+    @include('layouts.partials.branding-public-footer', ['public_footer' => request()->is('login')])
     @include('layouts.partials.javascripts')
 
     <!-- Scripts -->

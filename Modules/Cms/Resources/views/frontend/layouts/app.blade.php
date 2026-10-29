@@ -57,7 +57,11 @@
             @includeIf('cms::components.chat_widget.chat_widget')
         @endif
 
-        @includeIf('cms::frontend.layouts.footer')
+        @if(str_contains($__env->yieldContent('body_class'), 'mbira-public'))
+            @include('layouts.partials.public-footer')
+        @else
+            @includeIf('cms::frontend.layouts.footer')
+        @endif
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://unpkg.com/tua-body-scroll-lock"></script>

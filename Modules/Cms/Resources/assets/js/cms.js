@@ -1,5 +1,6 @@
 
-/* Hero Menu & Dropdown's JavaScript */
+/* Legacy CMS pages use the hero navigation. */
+if (document.querySelector(".hero-nav")) {
 var showDropdown = function(e) {
     e.currentTarget.classList.add("hero-nav__item--show-dropdown");
 };
@@ -148,3 +149,4 @@ window.onscroll = function(e) {
     nav.classList.remove("hero-nav--is-sticky");
     }
 };
+}
