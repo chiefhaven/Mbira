@@ -39,6 +39,16 @@ Future Sass builds include that weight too. CMS pages retain their existing
 Font Awesome CDN stylesheet.
 Run `php tests/Standalone/icon_font_checks.php` to check local font dependencies.
 
+### Checkbox and radio images
+
+The iCheck plugin hides native checkbox/radio controls and renders their states
+using `public/images/vendor/icheck/skins/square/blue.png` and `blue@2x.png`.
+Both images are tracked in Git and must be deployed alongside `vendor.css`.
+A missing sprite makes these controls appear invisible; the `@2x` image is
+required on high-density screens. Other generated image directories remain
+ignored. Run `php tests/Standalone/checkbox_asset_checks.php` to verify these
+dependencies without a database.
+
 ### CMS homepage assets
 
 After restoring or deploying an installation with the CMS module, run
