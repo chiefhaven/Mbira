@@ -27,6 +27,17 @@ and publish CMS assets as described below. Verify `/css/tailwind/app.css`,
 content type from the production hostname, then hard-refresh the browser.
 Clearing Laravel or browser caches cannot fix missing files (HTTP 404).
 
+### Icon fonts
+
+The compiled vendor stylesheet uses Font Awesome Free 5.15.4 solid and brand
+fonts at `public/fonts/vendor/@fortawesome/fontawesome-free/webfa-*`.
+These distributable fonts, regular fonts, and their license are tracked in Git.
+Deploy the entire directory: CSS without its font files produces missing icons.
+Shared backend/auth/guest layouts also load `public/css/icon-fonts.css` to enable
+the regular (`far`) icon weight, omitted from the original compiled stylesheet.
+Future Sass builds include that weight too. CMS pages retain their existing
+Font Awesome CDN stylesheet.
+
 ### CMS homepage assets
 
 After restoring or deploying an installation with the CMS module, run

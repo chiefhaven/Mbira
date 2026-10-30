@@ -1,0 +1,35 @@
+/*!
+ * Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com
+ * Fonts: SIL OFL 1.1; Code: MIT. See ../fonts/vendor/@fortawesome/fontawesome-free/LICENSE.txt.
+ */
+@font-face {
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-weight: 900;
+    font-display: block;
+    src: url("../fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.woff2?v=5.15.4") format("woff2"),
+        url("../fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.woff?v=5.15.4") format("woff");
+}
+
+@font-face {
+    font-family: "Font Awesome 5 Brands";
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("../fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.woff2?v=5.15.4") format("woff2"),
+        url("../fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.woff?v=5.15.4") format("woff");
+}
+
+@font-face {
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("../fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.woff2?v=5.15.4") format("woff2"),
+        url("../fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.woff?v=5.15.4") format("woff");
+}
+
+.far {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 400;
+}

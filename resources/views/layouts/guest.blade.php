@@ -17,6 +17,7 @@
     <link href="{{ asset('css/tailwind/app.css?v='.$asset_v) }}" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/vendor.css?v='.$asset_v) }}">
+    @include('layouts.partials.icon-fonts')
 
     <!-- app css -->
     <link rel="stylesheet" href="{{ asset('css/app.css?v='.$asset_v) }}">
