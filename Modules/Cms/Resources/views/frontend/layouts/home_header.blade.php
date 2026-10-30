@@ -8,7 +8,6 @@
     <!------------------------------>
         <div class="cms-hero-layout">
         <div class="hero__body px-0">
-            <p class="cms-eyebrow"><span class="cms-status-dot" aria-hidden="true"></span> Your business. Connected.</p>
             <h1 class="hero__title mb-4">
                 {{$page->title}}
             </h1>

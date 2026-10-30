@@ -48,35 +48,15 @@
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
-    gap: 10px;
-    color: var(--brand-navy);
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.045em;
     text-decoration: none;
 }
 
-.mbira-public .brand-monogram {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #3655ff, #101e78);
-    color: #fff;
-    font-size: 26px;
-    font-weight: 800;
-}
-
-.mbira-public .brand-monogram > span {
-    position: absolute;
-    right: 7px;
-    top: 7px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--brand-gold);
+.mbira-public .brand-header-logo {
+    display: block;
+    width: auto;
+    max-width: min(200px, 48vw);
+    height: 48px;
+    object-fit: contain;
 }
 
 .mbira-public .brand-navigation-links {
@@ -1034,6 +1014,254 @@
 
     .brand-login .login-brand-page .login-shell {
         padding-inline: 16px;
+    }
+}
+
+.brand-register-page .right-col {
+    padding: 0 0 20px;
+}
+
+.brand-register-page .brand-registration {
+    width: calc(100% - 48px);
+    max-width: 1000px;
+    margin: 22px auto;
+}
+
+.brand-register-page .brand-registration-heading {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.brand-register-page .brand-registration-heading .brand-eyebrow {
+    margin-bottom: 8px;
+}
+
+.brand-register-page .brand-registration-heading h1 {
+    margin: 0 0 8px;
+    color: var(--brand-ink);
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+}
+
+.brand-register-page .brand-registration-heading > p:last-child {
+    margin: 0;
+    color: var(--brand-muted);
+    font-size: 14px;
+}
+
+.brand-register-page .brand-registration-card {
+    padding: 22px;
+    border: 1px solid var(--brand-border);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 16px 44px #101e7808;
+}
+
+.brand-register-page .wizard > .steps > ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.brand-register-page .wizard > .steps > ul > li {
+    width: auto;
+    float: none;
+}
+
+.brand-register-page .wizard > .steps a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid var(--brand-border);
+    border-radius: 10px;
+    background: #f5f7fd;
+    color: var(--brand-muted);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.brand-register-page .wizard > .steps .number {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: #e7ebff;
+    color: var(--brand-navy);
+    font-size: 13px;
+}
+
+.brand-register-page .wizard > .steps .current a {
+    border-color: var(--brand-blue);
+    background: var(--brand-blue);
+    color: #fff;
+}
+
+.brand-register-page .wizard > .steps .current .number {
+    background: var(--brand-gold);
+}
+
+.brand-register-page .wizard > .steps .done a {
+    color: var(--brand-navy);
+    background: #eef1ff;
+}
+
+.brand-register-page .wizard > .content {
+    min-height: 0;
+    margin: 18px 0 0;
+    overflow: visible;
+    border-radius: 0;
+}
+
+.brand-register-page .wizard > .content > .body {
+    position: static;
+    float: none;
+    width: 100%;
+    height: auto;
+    padding: 0;
+}
+
+.brand-register-page .wizard fieldset > legend {
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--brand-border);
+    color: var(--brand-navy);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.brand-register-page .wizard .form-group {
+    margin-bottom: 12px;
+}
+
+.brand-register-page .wizard .form-group > label {
+    margin: 0 0 5px;
+    color: var(--brand-ink);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.brand-register-page .wizard .form-control,
+.brand-register-page .select2-container--default .select2-selection--single {
+    min-height: 40px;
+    height: 40px;
+    border: 1px solid #d5dced;
+    border-radius: 8px;
+    background: #fafbff;
+    color: var(--brand-ink);
+    box-shadow: none;
+    font-size: 13px;
+}
+
+.brand-register-page .wizard .input-group-addon {
+    border-color: #d5dced;
+    border-radius: 8px 0 0 8px;
+    background: #eef1ff;
+    color: var(--brand-blue);
+}
+
+.brand-register-page .wizard .input-group .form-control {
+    border-radius: 0 8px 8px 0;
+}
+
+.brand-register-page .select2-container {
+    max-width: 100%;
+}
+
+.brand-register-page .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px;
+    color: var(--brand-ink);
+}
+
+.brand-register-page .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+
+.brand-register-page .wizard input[type="file"] {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px;
+    border: 1px dashed #c1cbea;
+    border-radius: 8px;
+    color: var(--brand-muted);
+    font-size: 12px;
+}
+
+.brand-register-page .wizard > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin-top: 12px;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--brand-border);
+    background: #fff;
+}
+
+.brand-register-page .wizard > .actions a {
+    min-height: 44px;
+    padding: 10px 22px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--brand-blue);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.brand-register-page .wizard > .actions .disabled a {
+    background: #f0f2f8;
+    color: #69758e;
+}
+
+.brand-register-page .wizard label.error,
+.brand-register-page .wizard .help-block {
+    color: #ad2535;
+    font-size: 12px;
+}
+
+.brand-register-page .brand-registration-signin {
+    margin: 16px 0 0;
+    color: var(--brand-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+.brand-register-page .brand-registration-signin a {
+    color: var(--brand-blue);
+    font-weight: 650;
+}
+
+@media (max-width: 767px) {
+    .brand-register-page .brand-registration {
+        width: calc(100% - 32px);
+        margin-top: 18px;
+    }
+
+    .brand-register-page .brand-registration-card {
+        padding: 16px;
+    }
+
+    .brand-register-page .wizard > .steps > ul {
+        gap: 6px;
+    }
+
+    .brand-register-page .wizard > .steps a {
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 4px;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    .brand-register-page .wizard fieldset > [class*="col-"] {
+        padding-right: 0;
+        padding-left: 0;
     }
 }
 

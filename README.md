@@ -19,16 +19,21 @@ The CMS homepage uses the MbiraERP royal-blue, navy, and gold palette in
 `.cms-home` so other CMS pages retain their existing theme. After changing
 CMS assets, run the publishing command again; no Node build is required.
 
-Pricing, login, and contact page styling is shared in `public/brand-public.css`
+Pricing, login, registration, and contact page styling is shared in `public/brand-public.css`
 and scoped to `.mbira-public`. Contact also reuses the CMS homepage theme.
 Package, authentication, and contact form endpoints remain unchanged.
 
 Home, pricing, contact, and login share `layouts.partials.public-navigation`:
 the brand stays left and links stay right, with a right-aligned mobile menu.
+The header displays the Superadmin Branding logo without a separate app name,
+falling back to the default logo only when no branding logo is configured.
+The public header has no language selector; the default application locale is English.
 Public pricing cards keep prices and signup actions visible while plan
 features open in a scrollable modal; subscription screens retain their full feature lists.
-All four pages use `layouts.partials.public-footer`, including navigation,
+These pages also use `layouts.partials.public-footer`, including navigation,
 configured social links, copyright, and any custom branding footer text.
+Registration retains its existing three-step wizard, validation, package selection,
+and registration-enabled setting. Styling does not enable public registration.
 
 ## Service staff location permissions
 

@@ -36,7 +36,7 @@
     <div class="container-fluid">
         <div class="row eq-height-row">
             <div class="col-md-12 col-sm-12 col-xs-12 right-col tw-pb-10 tw-px-5 @if($request->segment(1) == 'login') login-brand-page @else tw-pt-20 @endif">
-                @if($request->segment(1) == 'login')
+                @if($request->is('login', 'business/register'))
                     @include('layouts.partials.public-navigation')
                 @else
                 <div class="row">
@@ -107,7 +107,7 @@
     </div>
 
 
-    @include('layouts.partials.branding-public-footer', ['public_footer' => request()->is('login')])
+    @include('layouts.partials.branding-public-footer', ['public_footer' => request()->is('login', 'business/register')])
     @include('layouts.partials.javascripts')
 
     <!-- Scripts -->

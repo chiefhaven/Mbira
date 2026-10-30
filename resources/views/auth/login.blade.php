@@ -35,7 +35,6 @@
         <div class="login-grid">
             <div class="login-side-panel">
                 <div class="brand-login-intro">
-                    <span class="brand-eyebrow">Your business. Connected.</span>
                     <h2>One workspace.<br>More possibilities.</h2>
                     <p>Bring your sales, inventory, and business insights together with {{ config('app.name') }}.</p>
                     <div class="brand-workspace" aria-hidden="true">

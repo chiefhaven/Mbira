@@ -1,7 +1,6 @@
 <nav class="brand-navigation" id="public-navigation" aria-label="Main navigation">
-    <a class="brand-wordmark" href="{{ url('/') }}">
-        <span class="brand-monogram" aria-hidden="true">M<span></span></span>
-        <span>{{ config('app.name') }}</span>
+    <a class="brand-wordmark" href="{{ url('/') }}" aria-label="{{ config('app.name') }} home">
+        <img class="brand-header-logo" src="{{ config('branding.logo') ?: asset('img/logo-small.png') }}" alt="{{ config('app.name') }}">
     </a>
     <button class="brand-menu-toggle" type="button" aria-controls="public-navigation-links" aria-expanded="false">Menu <span aria-hidden="true">&#9776;</span></button>
     <div class="brand-navigation-links" id="public-navigation-links">
@@ -39,16 +38,8 @@
         @if(!empty($__site_details['btns']['navbar']['text']))
             <a class="brand-register" href="{{ $__site_details['btns']['navbar']['link'] ?? route('business.getRegister') }}">{{ $__site_details['btns']['navbar']['text'] }}</a>
         @elseif(config('constants.allow_registration'))
-            <a class="brand-register" href="{{ route('business.getRegister', request()->filled('lang') ? ['lang' => request('lang')] : []) }}">@lang('business.register')</a>
+            <a class="brand-register" href="{{ route('business.getRegister') }}">@lang('business.register')</a>
         @endif
-        <details class="brand-language">
-            <summary>{{ config('constants.langs.' . request('lang', config('app.locale')) . '.full_name') }}</summary>
-            <ul>
-                @foreach(config('constants.langs') as $language_code => $language)
-                    <li><a href="{{ request()->fullUrlWithQuery(['lang' => $language_code]) }}" lang="{{ $language_code }}">{{ $language['full_name'] }}</a></li>
-                @endforeach
-            </ul>
-        </details>
     </div>
 </nav>
 <script>
