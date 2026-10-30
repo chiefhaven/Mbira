@@ -1,5 +1,198 @@
-.brand-register-page .brand-verification {
-    max-width: 580px;
+.brand-register-page.brand-verification-page .brand-verification {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    max-width: 940px;
+    margin: 36px auto;
+    border: 1px solid var(--brand-border);
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 20px 60px #101e780c;
+    overflow: hidden;
+}
+
+.brand-verification-intro {
+    padding: 38px 30px;
+    background: linear-gradient(145deg, #f0f3ff, #f8f9ff);
+    border-right: 1px solid var(--brand-border);
+}
+
+.brand-verification-intro .brand-eyebrow {
+    color: var(--brand-blue);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.brand-verification-intro h2 {
+    margin: 14px 0;
+    color: var(--brand-navy);
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
+}
+
+.brand-verification-description,
+.brand-verification-security {
+    color: var(--brand-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.brand-verification-steps {
+    display: grid;
+    gap: 22px;
+    margin: 30px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.brand-verification-steps li {
+    display: flex;
+    gap: 12px;
+    color: var(--brand-muted);
+}
+
+.brand-verification-steps li > span {
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+    height: 32px;
+    border: 1px solid #d5dcf4;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.brand-verification-steps [aria-current] > span {
+    border-color: var(--brand-gold);
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+}
+
+.brand-verification-steps strong {
+    color: var(--brand-ink);
+    font-size: 14px;
+}
+
+.brand-verification-steps p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.brand-verification-security {
+    margin: 0;
+    padding-top: 20px;
+    border-top: 1px solid #dce2f7;
+    font-size: 12px;
+}
+
+.brand-verification-panel {
+    min-width: 0;
+    padding: 38px 32px 26px;
+}
+
+.brand-verification-page .brand-registration-heading {
+    text-align: left;
+}
+
+.brand-verification-page .brand-registration-heading h1 {
+    font-size: clamp(24px, 3vw, 28px);
+}
+
+.brand-verification-page .brand-registration-heading > p:last-child {
+    line-height: 1.6;
+}
+
+.brand-verification-page .brand-registration-card {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.brand-verification-page .brand-registration-signin {
+    margin: 24px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--brand-border);
+    font-size: 13px;
+}
+
+.brand-verification-page .alert,
+.brand-verification-unavailable {
+    padding: 14px;
+    border: 1px solid var(--brand-border);
+    border-radius: 10px;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.brand-verification-page .brand-verification-sent {
+    background: #edf8f3 !important;
+    border-color: #cee9db;
+    color: #236449 !important;
+}
+
+.brand-verification-page .brand-verification-unavailable {
+    background: #fff9e6;
+    border-color: #f2dfa0;
+    color: #6b5100;
+}
+
+.brand-verification-page .brand-otp-input {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-align: center;
+}
+
+.brand-verification-page .brand-verification-form input {
+    min-height: 50px;
+    font-size: 16px;
+}
+
+.brand-verification-page .brand-verification-form .brand-otp-input {
+    font-size: 24px;
+}
+
+.brand-verification-page .brand-verification-form button {
+    min-height: 48px;
+    transition: background 150ms ease;
+}
+
+.brand-verification-page .brand-verification-form button:hover {
+    background: var(--brand-navy);
+}
+
+@media (max-width: 700px) {
+    .brand-register-page.brand-verification-page .brand-verification {
+        grid-template-columns: minmax(0, 1fr);
+        margin: 20px auto;
+    }
+
+    .brand-verification-intro {
+        padding: 22px;
+        border-right: 0;
+        border-bottom: 1px solid var(--brand-border);
+    }
+
+    .brand-verification-intro h2 {
+        margin-bottom: 0;
+        font-size: 26px;
+    }
+
+    .brand-verification-description,
+    .brand-verification-steps,
+    .brand-verification-security {
+        display: none;
+    }
+
+    .brand-verification-panel {
+        padding: 24px 20px;
+    }
 }
 
 .brand-verification-form {

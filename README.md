@@ -100,6 +100,11 @@ Run `php tests/Standalone/cms_seo_checks.php` for isolated SEO checks.
 
 ### Self-registration verification
 
+The contact verification screen uses a responsive blue-and-gold setup panel,
+with distinct contact-entry, code-entry, error and unavailable states. Mobile
+layouts collapse the introductory panel while retaining the form and step label.
+Its stylesheet URL is content-versioned so deployments refresh the design.
+
 Before the business wizard, self-registration requires a verified email address
 or Malawi phone number. Configure **Superadmin Settings > Registration
 verification**: email uses the application's **Email (SMTP)** settings, and SMS

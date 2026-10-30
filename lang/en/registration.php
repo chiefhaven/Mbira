@@ -1,6 +1,20 @@
 <?php
 
 return [
+    'get_started' => 'GET STARTED',
+    'workspace_intro' => 'Your next chapter starts here.',
+    'setup_intro' => 'One workspace for your sales, stock and business insights.',
+    'setup_steps' => 'Registration steps',
+    'step_one' => 'STEP 1 OF 3',
+    'step_contact' => 'Start with an email or Malawi phone number.',
+    'step_business' => 'Set up your business',
+    'step_business_hint' => 'Add your business and account details.',
+    'step_ready' => 'Make it yours',
+    'step_ready_hint' => 'Complete registration and get started.',
+    'security_note' => 'A one-time code helps keep your registration secure.',
+    'check_messages' => 'Check your messages',
+    'contact_placeholder' => 'you@example.com or +265 991 234 567',
+    'already_registered' => 'Already have an account?',
     'verify_title' => 'Verify your contact',
     'verify_intro' => 'Enter your email or Malawi phone number before setting up your business.',
     'contact' => 'Email or phone number',
