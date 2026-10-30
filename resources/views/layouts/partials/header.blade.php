@@ -234,32 +234,39 @@
 
 
 
-                <details class="tw-dw-dropdown tw-relative tw-inline-block tw-text-left">
-                    <summary data-toggle="popover"
+                @php
+                    $profile_user = Auth::user();
+                    $profile_name = trim($profile_user->first_name.' '.$profile_user->last_name) ?: $profile_user->username;
+                    $profile_initials = mb_strtoupper(mb_substr($profile_user->first_name ?: $profile_user->username, 0, 1).mb_substr($profile_user->last_name ?? '', 0, 1));
+                    $profile_photo = $profile_user->media ? $profile_user->media->display_url : null;
+                @endphp
+                <details id="header-user-profile" class="tw-relative tw-inline-block tw-text-left">
+                    <summary aria-label="{{ __('lang_v1.my_profile') }}: {{ $profile_name }}"
                         class="tw-dw-m-1 tw-inline-flex tw-transition-all tw-ring-1 tw-ring-white/10 tw-cursor-pointer tw-duration-200 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-text-white hover:tw-text-white tw-gap-1">
-                        <span class="tw-hidden md:tw-block">{{ Auth::User()->first_name }} {{ Auth::User()->last_name }}</span>
-
-                        <svg  xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="tw-size-5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" /></svg>
-
-                        
-                        
+                        <span class="header-profile-avatar" aria-hidden="true">
+                            @if($profile_photo)
+                                <img src="{{ $profile_photo }}" alt="">
+                            @else
+                                {{ $profile_initials }}
+                            @endif
+                        </span>
+                        <span class="header-profile-name">{{ $profile_name }}</span>
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
                     </summary>
 
-                    <ul class="tw-p-2 tw-w-48 tw-absolute tw-right-0 tw-z-10 tw-mt-2 tw-origin-top-right tw-bg-white tw-rounded-lg tw-shadow-lg tw-ring-1 tw-ring-gray-200 focus:tw-outline-none"
-                        role="menu" tabindex="-1">
-                        <div class="tw-px-4 tw-pt-3 tw-pb-1" role="none">
-                            <p class="tw-text-sm" role="none">
+                    <ul class="header-profile-links tw-p-2 tw-w-48 tw-absolute tw-right-0 tw-z-10 tw-mt-2 tw-origin-top-right tw-bg-white tw-rounded-lg tw-shadow-lg tw-ring-1 tw-ring-gray-200 focus:tw-outline-none">
+                        <li class="tw-px-4 tw-pt-3 tw-pb-1">
+                            <p class="tw-text-sm">
                                 @lang('lang_v1.signed_in_as')
                             </p>
-                            <p class="tw-text-sm tw-font-medium tw-text-gray-900 tw-truncate" role="none">
-                                {{ Auth::User()->first_name }} {{ Auth::User()->last_name }}
+                            <p class="tw-text-sm tw-font-medium tw-text-gray-900 tw-truncate">
+                                {{ $profile_name }}
                             </p>
-                        </div>
+                        </li>
 
                         <li>
                             <a href="{{ action([\App\Http\Controllers\UserController::class, 'getProfile']) }}"
-                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
-                                role="menuitem" tabindex="-1">
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100">
                                 <svg aria-hidden="true" class="tw-w-5 tw-h-5" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" fill="none"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -268,13 +275,19 @@
                                     <path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
                                     <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
                                 </svg>
-                                @lang('lang_v1.profile')
+                                @lang('lang_v1.my_profile')
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('home') }}"
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100">
+                                <svg aria-hidden="true" class="tw-w-5 tw-h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m3 10 9-7 9 7v11h-7v-7h-4v7H3z"/></svg>
+                                @lang('home.dashboard')
                             </a>
                         </li>
                         <li>
                             <a href="{{ action([\App\Http\Controllers\Auth\LoginController::class, 'logout']) }}"
-                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
-                                role="menuitem" tabindex="-1">
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100">
                                 <svg aria-hidden="true" class="tw-w-5 tw-h-5" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" fill="none"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -290,6 +303,31 @@
                     </ul>
                 </details>
             </div>
+            <style>
+                #header-user-profile { z-index: 1050; }
+                #header-user-profile > summary { gap: 8px; min-height: 44px; list-style: none; }
+                #header-user-profile > summary::-webkit-details-marker { display: none; }
+                #header-user-profile .header-profile-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0; overflow: hidden; border-radius: 50%; background: #fff; color: #101e78; font-weight: 700; }
+                #header-user-profile .header-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+                #header-user-profile .header-profile-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                #header-user-profile .header-profile-links { width: min(240px, calc(100vw - 32px)); list-style: none; }
+                #header-user-profile a:focus-visible, #header-user-profile > summary:focus-visible { outline: 2px solid #ffc400; outline-offset: 2px; }
+                @media (max-width: 480px) { #header-user-profile .header-profile-name { max-width: 88px; } }
+            </style>
+            <script>
+                (function () {
+                    var profile = document.getElementById('header-user-profile');
+                    document.addEventListener('click', function (event) {
+                        if (!profile.contains(event.target)) profile.open = false;
+                    });
+                    profile.addEventListener('keydown', function (event) {
+                        if (event.key === 'Escape') {
+                            profile.open = false;
+                            profile.querySelector('summary').focus();
+                        }
+                    });
+                })();
+            </script>
         </div>
     </div>
 </div>

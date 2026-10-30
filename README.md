@@ -79,6 +79,12 @@ Run `php -d error_reporting=22527 tests/Standalone/registration_otp_checks.php`
 for isolated verification, expiry, retry, delivery-failure, and gate checks;
 the test sends no real emails or SMS.
 
+## Backend profile menu
+
+The backend navbar profile menu shows the user's uploaded profile photo, or
+local initials when no photo is set, alongside their name. It links to My Profile,
+Dashboard, and Sign Out, and closes on Escape or an outside click.
+
 ## Service staff location permissions
 
 Service staff lookups use existing `web` permissions for `location.<id>` or
