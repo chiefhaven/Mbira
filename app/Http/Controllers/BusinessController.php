@@ -109,13 +109,15 @@ class BusinessController extends Controller
         }
 
         $accounting_methods = $this->businessUtil->allAccountingMethods();
-        $package_id = request()->package;
+        $package_id = request()->session()->get('registration_package', request()->package);
+        $verified_contact = request()->attributes->get('verified_registration_contact');
 
         $system_settings = System::getProperties(['superadmin_enable_register_tc', 'superadmin_register_tc'], true);
 
         return view('business.register', compact(
             'currencies',
             'registration_defaults',
+            'verified_contact',
             'timezone_list',
             'months',
             'accounting_methods',
@@ -231,6 +233,8 @@ class BusinessController extends Controller
             Permission::create(['name' => 'location.'.$new_location->id]);
 
             DB::commit();
+            app(\App\Services\RegistrationOtp::class)->consume($request->session());
+            $request->session()->forget('registration_package');
 
             //Module function to be called after after business is created
             if (config('app.env') != 'demo') {
@@ -261,7 +265,7 @@ class BusinessController extends Controller
                 'msg' => __('messages.something_went_wrong'),
             ];
 
-            return back()->with('status', $output)->withInput();
+            return back()->with('status', $output)->withInput($request->except(['password', 'confirm_password']));
         }
     }
 

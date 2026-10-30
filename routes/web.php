@@ -79,10 +79,16 @@ Route::middleware(['setData'])->group(function () {
         return redirect()->route('login');
     });
 
-    Auth::routes();
+    Auth::routes(['register' => false]);
+    Route::get('/register', function () {
+        return redirect()->route('business.getRegister');
+    })->name('register');
 
-    Route::get('/business/register', [BusinessController::class, 'getRegister'])->name('business.getRegister');
-    Route::post('/business/register', [BusinessController::class, 'postRegister'])->name('business.postRegister');
+    Route::get('/business/register/verify', [\App\Http\Controllers\RegistrationVerificationController::class, 'show'])->name('business.verifyContact');
+    Route::post('/business/register/otp/send', [\App\Http\Controllers\RegistrationVerificationController::class, 'send'])->middleware('throttle:10,1')->name('business.sendRegistrationOtp');
+    Route::post('/business/register/otp/verify', [\App\Http\Controllers\RegistrationVerificationController::class, 'verify'])->middleware('throttle:30,1')->name('business.verifyRegistrationOtp');
+    Route::get('/business/register', [BusinessController::class, 'getRegister'])->middleware(\App\Http\Middleware\EnsureRegistrationContactVerified::class)->name('business.getRegister');
+    Route::post('/business/register', [BusinessController::class, 'postRegister'])->middleware(\App\Http\Middleware\EnsureRegistrationContactVerified::class)->name('business.postRegister');
     Route::post('/business/register/check-username', [BusinessController::class, 'postCheckUsername'])->name('business.postCheckUsername');
     Route::post('/business/register/check-email', [BusinessController::class, 'postCheckEmail'])->name('business.postCheckEmail');
 

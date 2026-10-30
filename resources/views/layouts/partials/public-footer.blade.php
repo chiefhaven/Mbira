@@ -1,21 +1,21 @@
 <footer class="brand-footer">
     <div class="brand-footer-inner">
         <div class="brand-footer-identity">
-            <a href="{{ url('/') }}" class="brand-footer-name">{{ config('app.name') }}</a>
+            <a href="{{ request()->getBaseUrl() ?: '/' }}" class="brand-footer-name">{{ config('app.name') }}</a>
             <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
         </div>
         <nav class="brand-footer-links" aria-label="Footer navigation">
-            <a href="{{ url('/') }}">Home</a>
+            <a href="{{ request()->getBaseUrl() ?: '/' }}">Home</a>
             @if(Route::has('pricing') && config('app.env') != 'demo')
-                <a href="{{ route('pricing') }}">@lang('superadmin::lang.pricing')</a>
+                <a href="{{ route('pricing', [], false) }}">@lang('superadmin::lang.pricing')</a>
             @endif
             @if(Route::has('cms.contact.us'))
-                <a href="{{ route('cms.contact.us') }}">Contact us</a>
+                <a href="{{ route('cms.contact.us', [], false) }}">Contact us</a>
             @endif
             @if(Auth::check())
-                <a href="{{ route('home') }}">@lang('cms::lang.dashboard')</a>
+                <a href="{{ route('home', [], false) }}">@lang('cms::lang.dashboard')</a>
             @else
-                <a href="{{ route('login') }}">@lang('business.sign_in')</a>
+                <a href="{{ route('login', [], false) }}">@lang('business.sign_in')</a>
             @endif
         </nav>
         @if(!empty($__site_details['follow_us']))

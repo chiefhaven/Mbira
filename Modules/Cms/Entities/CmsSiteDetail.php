@@ -47,6 +47,9 @@ class CmsSiteDetail extends Model
 
     public static function createOrUpdateSiteDetails($site_details)
     {
+        if (isset($site_details['btns'])) {
+            $site_details['btns'] = \Modules\Cms\Utils\CmsUtil::relativeButtons($site_details['btns']);
+        }
         foreach ($site_details as $key => $site_detail) {
             CmsSiteDetail::updateOrCreate(['site_key' => $key], ['site_value' => json_encode($site_detail)]);
         }
@@ -68,7 +71,10 @@ class CmsSiteDetail extends Model
         }
 
         if (isset($row->site_value) && ! empty($row->site_value)) {
-            return json_decode($row->site_value, true);
+            $value = json_decode($row->site_value, true);
+
+            return $key === 'btns' && is_array($value)
+                ? \Modules\Cms\Utils\CmsUtil::relativeButtons($value) : $value;
         }
 
         return null;
@@ -82,6 +88,9 @@ class CmsSiteDetail extends Model
         if (! empty($site_details)) {
             foreach ($site_details as $site_key => $site_value) {
                 $details[$site_key] = json_decode($site_value, true);
+                if ($site_key === 'btns' && is_array($details[$site_key])) {
+                    $details[$site_key] = \Modules\Cms\Utils\CmsUtil::relativeButtons($details[$site_key]);
+                }
             }
         }
 

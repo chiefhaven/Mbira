@@ -5,7 +5,7 @@
     <nav class="hero-nav position-relative container mx-auto px-0" aria-label="Main navigation">
         <ul class="nav w-100 list-unstyled align-items-center p-0">
             <li class="hero-nav__item">
-                <a href="{{url('/')}}" class="cms-brand" aria-label="{{ config('app.name') }} home">
+                <a href="{{ request()->getBaseUrl() ?: '/' }}" class="cms-brand" aria-label="{{ config('app.name') }} home">
                     <img class="hero-nav__logo" src="{{$__logo_url}}" 
                         change-src-onscroll="{{$__logo_url}}" alt="logo" loading="lazy">
                     @if(!empty($is_homepage))
@@ -22,7 +22,7 @@
                             <li class="flex-grow-1">
                                 <ul class="nav nav--lg-side flex-column-reverse flex-lg-row-reverse list-unstyled align-items-center p-0">
                                     <li class="hero-nav__item">
-                                        <a href="{{ $navbar_btn['link'] }}" target="_blank" 
+                                        <a href="{{ $navbar_btn['link'] }}"
                                             class="btn btn-primary">
                                             {{$navbar_btn['text']}}
                                         </a>
@@ -32,7 +32,7 @@
                             {{-- If already loggedin show dashboard link --}}
                             @if(Auth::check())
                                 <li class="hero-nav__item">
-                                    <a href="{{ route('home') }}" class="hero-nav__link">
+                                    <a href="{{ route('home', [], false) }}" class="hero-nav__link">
                                         <strong>
                                             @lang('cms::lang.dashboard')
                                         </strong>
@@ -43,7 +43,7 @@
                             @if (Route::has('login'))
                                 @if(!Auth::check())
                                     <li class="hero-nav__item">
-                                        <a href="{{ route('login') }}" class="hero-nav__link">
+                                        <a href="{{ route('login', [], false) }}" class="hero-nav__link">
                                             <strong>
                                                 @lang('lang_v1.login')
                                             </strong>
@@ -54,7 +54,7 @@
 
                             @if($__blog_count >= 1)
                                 <li class="hero-nav__item">
-                                    <a href="{{action([\Modules\Cms\Http\Controllers\CmsController::class, 'getBlogList'])}}" class="hero-nav__link">
+                                    <a href="{{action([\Modules\Cms\Http\Controllers\CmsController::class, 'getBlogList'], [], false)}}" class="hero-nav__link">
                                         {{__('cms::lang.blogs')}}
                                     </a>
                                 </li>
@@ -73,7 +73,7 @@
                                         <div class="row flex-wrap">
                                             <div class="col-lg-12">
                                                 @foreach($__pages as $page)
-                                                    <a href="{{ action([\Modules\Cms\Http\Controllers\CmsPageController::class, 'showPage'], ['page' => $page->slug]) }}" class="dropdown__link">
+                                                    <a href="{{ action([\Modules\Cms\Http\Controllers\CmsPageController::class, 'showPage'], ['page' => $page->slug], false) }}" class="dropdown__link">
                                                         <!-- Don't remove this empty "span" -->
                                                         <span class="mx-2"></span>
                                                         <!-- ------------------------------ -->
@@ -90,17 +90,17 @@
                                 </li>
                             @endif
                             <li class="hero-nav__item">
-                                <a href="{{route('cms.contact.us')}}" class="hero-nav__link">Contact us</a>
+                                <a href="{{route('cms.contact.us', [], false)}}" class="hero-nav__link">Contact us</a>
                             </li>
                             @if(Route::has('pricing') && config('app.env') != 'demo')
                                 <li class="hero-nav__item">
-                                    <a href="{{ action([\Modules\Superadmin\Http\Controllers\PricingController::class, 'index']) }}" class="hero-nav__link">
+                                    <a href="{{ action([\Modules\Superadmin\Http\Controllers\PricingController::class, 'index'], [], false) }}" class="hero-nav__link">
                                         @lang('superadmin::lang.pricing')
                                     </a>
                                 </li>
                             @endif
                             <li class="hero-nav__item">
-                                <a href="{{ url('/') }}" class="hero-nav__link">
+                                <a href="{{ request()->getBaseUrl() ?: '/' }}" class="hero-nav__link">
                                    Home
                                 </a>
                             </li>

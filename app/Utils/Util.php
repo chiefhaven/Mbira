@@ -419,7 +419,7 @@ class Util
         Config::set('nexmo.api_secret', $sms_settings['nexmo_secret']);
 
         // $nexmo = app('Nexmo\Client');
-        $client = new Client();
+        $client = new Client(!empty($data['require_delivery_confirmation']) ? ['timeout' => 20, 'connect_timeout' => 5] : []);
 
         $headers = [
             'Content-Type' => 'application/json',
@@ -439,6 +439,12 @@ class Util
             $request = new \GuzzleHttp\Psr7\Request('POST', 'https://rest.nexmo.com/sms/json', $headers, $body);
             
             $response = $client->sendAsync($request)->wait();
+            if (!empty($data['require_delivery_confirmation'])) {
+                $result = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+                if (!isset($result['messages'][0]['status']) || (string) $result['messages'][0]['status'] !== '0') {
+                    throw new \RuntimeException('SMS provider rejected the message.');
+                }
+            }
         }
     }
 
@@ -514,7 +520,7 @@ class Util
             $request_data[$sms_settings['param_10']] = $sms_settings['param_val_10'];
         }
 
-        $client = new Client();
+        $client = new Client(!empty($data['require_delivery_confirmation']) ? ['timeout' => 20, 'connect_timeout' => 5] : []);
 
         $headers = [];
         if (! empty($sms_settings['header_1'])) {

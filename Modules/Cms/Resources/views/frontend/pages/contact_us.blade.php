@@ -2,12 +2,12 @@
 @section('title', 'Contact us')
 @php
     $navbar_btn['text'] = 'Try For Free';
-    $navbar_btn['link'] = route('business.getRegister');
+    $navbar_btn['link'] = route('business.getRegister', [], false);
     if(isset($__site_details['btns']) && isset($__site_details['btns']['navbar']) && !empty($__site_details['btns']['navbar']['text'])) {
         $navbar_btn['text'] = $__site_details['btns']['navbar']['text'] ?? 'Try For Free';
     }
     if(isset($__site_details['btns']) && isset($__site_details['btns']['navbar']) && !empty($__site_details['btns']['navbar']['link'])) {
-        $navbar_btn['link'] = $__site_details['btns']['navbar']['link'] ?? route('business.getRegister');
+        $navbar_btn['link'] = $__site_details['btns']['navbar']['link'] ?? route('business.getRegister', [], false);
     }
 @endphp
 @section('body_class', 'cms-home cms-contact mbira-public')
@@ -163,7 +163,7 @@
                     $.ajax({
                         method: 'POST',
                         dataType: "json",
-                        url: "{{route('cms.submit.contact.form')}}",
+                        url: "{{route('cms.submit.contact.form', [], false)}}",
                         data:data,
                         success: function(result){
                             $("#submit-btn").attr('disabled', false);

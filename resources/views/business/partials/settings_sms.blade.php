@@ -2,6 +2,20 @@
     $sms_service = isset($sms_settings['sms_service']) ? $sms_settings['sms_service'] : 'other';
 @endphp
 <div class="pos-tab-content">
+    @if(!empty($registration_sms))
+        <h3>@lang('registration.settings_title')</h3>
+        <p>@lang('registration.settings_intro')</p>
+        <p class="help-block">@lang('registration.settings_hint')</p>
+        <input type="hidden" name="registration_otp_settings" value="1">
+        <input type="hidden" name="registration_otp_email_enabled" value="0">
+        <input type="hidden" name="registration_otp_sms_enabled" value="0">
+        <div class="checkbox">
+            <label>{!! Form::checkbox('registration_otp_email_enabled', 1, ($settings['registration_otp_email_enabled'] ?? '0') === '1') !!} @lang('registration.email_enabled')</label>
+        </div>
+        <div class="checkbox">
+            <label>{!! Form::checkbox('registration_otp_sms_enabled', 1, ($settings['registration_otp_sms_enabled'] ?? '0') === '1') !!} @lang('registration.sms_enabled')</label>
+        </div>
+    @endif
     <div class="row">
         <div class="col-xs-3">
             <div class="form-group">
@@ -262,6 +276,7 @@
         </div>
         <div class="clearfix"></div>
         <hr>
+        @if(empty($registration_sms))
         <div class="col-md-8 col-xs-12">
             <div class="form-group">
                 <div class="input-group">
@@ -272,6 +287,6 @@
                 </div>
             </div>
         </div>
-
+        @endif
     </div>
 </div>

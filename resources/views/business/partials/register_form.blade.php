@@ -65,7 +65,11 @@
         <span class="input-group-addon">
             <i class="fa fa-phone"></i>
         </span>
-        {!! Form::text('mobile', null, ['class' => 'form-control','placeholder' => !empty($is_register) ? '+265 ...' : __('lang_v1.business_telephone')]); !!}
+        @if(($verified_contact['channel'] ?? null) === 'sms')
+            <input type="text" name="mobile" id="mobile" class="form-control" value="{{ $verified_contact['contact'] }}" readonly>
+        @else
+            {!! Form::text('mobile', null, ['class' => 'form-control','placeholder' => !empty($is_register) ? '+265 ...' : __('lang_v1.business_telephone')]); !!}
+        @endif
     </div>
     </div>
 </div>
@@ -296,7 +300,11 @@
             <span class="input-group-addon">
                 <i class="fa fa-envelope"></i>
             </span>
-            {!! Form::text('email', null, ['class' => 'form-control','placeholder' => __('business.email'), 'required']); !!}
+            @if(($verified_contact['channel'] ?? null) === 'email')
+                <input type="email" name="email" id="email" class="form-control" value="{{ $verified_contact['contact'] }}" readonly required>
+            @else
+                {!! Form::text('email', null, ['class' => 'form-control','placeholder' => __('business.email'), 'required']); !!}
+            @endif
         </div>
     </div>
 </div>

@@ -14,6 +14,15 @@
 
 <!-- Main content -->
 <section class="content">
+    @if($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     @include('layouts.partials.search_settings')
     <br>
     {!! Form::open(['action' => '\Modules\Superadmin\Http\Controllers\SuperadminSettingsController@update', 'method' => 'put']) !!}
@@ -31,6 +40,7 @@
                         <a href="#" class="list-group-item text-center">@lang('superadmin::lang.cron')</a>
                         <a href="#" class="list-group-item text-center">@lang('superadmin::lang.pusher_settings')</a>
                         <a href="#" class="list-group-item text-center">@lang('superadmin::lang.additional_js_css')</a>
+                        <a href="#" class="list-group-item text-center">@lang('registration.settings_title')</a>
                     </div>
                 </div>
                 <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 pos-tab">
@@ -42,6 +52,7 @@
                     @include('superadmin::superadmin_settings.partials.cron')
                     @include('superadmin::superadmin_settings.partials.pusher_setting')
                     @include('superadmin::superadmin_settings.partials.additional_js_css')
+                    @include('business.partials.settings_sms', ['sms_settings' => $registration_sms_settings, 'registration_sms' => true])
                 </div>
             </div>
             <!--  </pos-tab-container> -->

@@ -28,7 +28,7 @@
                             class="blog-img" 
                             loading="lazy">
                         <div class="card-body">
-                            <a href="{{action([\Modules\Cms\Http\Controllers\CmsController::class, 'viewBlog'], ['id' => $blog->id, 'slug' => $blog->slug])}}" class="text-decoration-none text-dark">
+                            <a href="{{action([\Modules\Cms\Http\Controllers\CmsController::class, 'viewBlog'], ['id' => $blog->id, 'slug' => $blog->slug], false)}}" class="text-decoration-none text-dark">
                                 <h4>
                                     {{$blog->title}}
                                 </h4>
@@ -42,7 +42,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <a type="button" class="hero__btn btn btn-secondary mb-2 mb-lg-0 mx-1 mx-lg-2"
-                                        href="{{action([\Modules\Cms\Http\Controllers\CmsController::class, 'viewBlog'], ['id' => $blog->id, 'slug' => $blog->slug])}}">
+                                        href="{{action([\Modules\Cms\Http\Controllers\CmsController::class, 'viewBlog'], ['id' => $blog->id, 'slug' => $blog->slug], false)}}">
                                         Read more
                                     </a>
                                 </div>

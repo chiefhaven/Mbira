@@ -34,6 +34,9 @@ class Handler extends ExceptionHandler
         'current_password',
         'password',
         'password_confirmation',
+        'confirm_password',
+        'otp',
+        'sms_settings',
     ];
 
     /**

@@ -2,39 +2,39 @@
     <!-- button options -->
     @php
         $navbar_btn['text'] = 'Try For Free';
-        $navbar_btn['link'] = route('business.getRegister');
+        $navbar_btn['link'] = route('business.getRegister', [], false);
         if(isset($details['btns']) && isset($details['btns']['navbar']) && !empty($details['btns']['navbar']['text'])) {
             $navbar_btn['text'] = $details['btns']['navbar']['text'] ?? 'Try For Free';
         }
         if(isset($details['btns']) && isset($details['btns']['navbar']) && !empty($details['btns']['navbar']['link'])) {
-            $navbar_btn['link'] = $details['btns']['navbar']['link'] ?? route('business.getRegister');
+            $navbar_btn['link'] = $details['btns']['navbar']['link'] ?? route('business.getRegister', [], false);
         }
 
         $hero_btn['text'] = 'Start your Free Trial';
-        $hero_btn['link'] = route('business.getRegister');
+        $hero_btn['link'] = route('business.getRegister', [], false);
         if(isset($details['btns']) && isset($details['btns']['hero']) && !empty($details['btns']['hero']['text'])) {
             $hero_btn['text'] = $details['btns']['hero']['text'] ?? 'Start your Free Trial';
         }
         if(isset($details['btns']) && isset($details['btns']['hero']) && !empty($details['btns']['hero']['link'])) {
-            $hero_btn['link'] = $details['btns']['hero']['link'] ?? route('business.getRegister');
+            $hero_btn['link'] = $details['btns']['hero']['link'] ?? route('business.getRegister', [], false);
         }
 
         $industry_btn['text'] = 'Get Started';
-        $industry_btn['link'] = route('business.getRegister');
+        $industry_btn['link'] = route('business.getRegister', [], false);
         if(isset($details['btns']) && isset($details['btns']['industry']) && !empty($details['btns']['industry']['text'])) {
             $industry_btn['text'] = $details['btns']['industry']['text'] ?? 'Get Started';
         }
         if(isset($details['btns']) && isset($details['btns']['industry']) && !empty($details['btns']['industry']['link'])) {
-            $industry_btn['link'] = $details['btns']['industry']['link'] ?? route('business.getRegister');
+            $industry_btn['link'] = $details['btns']['industry']['link'] ?? route('business.getRegister', [], false);
         }
 
         $cta_btn['text'] = 'Try Now';
-        $cta_btn['link'] = route('business.getRegister');
+        $cta_btn['link'] = route('business.getRegister', [], false);
         if(isset($details['btns']) && isset($details['btns']['cta']) && !empty($details['btns']['cta']['text'])) {
             $cta_btn['text'] = $details['btns']['cta']['text'] ?? 'Try Now';
         }
         if(isset($details['btns']) && isset($details['btns']['cta']) && !empty($details['btns']['cta']['link'])) {
-            $cta_btn['link'] = $details['btns']['cta']['link'] ?? route('business.getRegister');
+            $cta_btn['link'] = $details['btns']['cta']['link'] ?? route('business.getRegister', [], false);
         }
     @endphp
     <div class="row">

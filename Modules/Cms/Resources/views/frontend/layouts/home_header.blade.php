@@ -19,7 +19,7 @@
                     {{$hero_btn['text']}}
                     <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
                 </a>
-                <a class="btn btn-secondary" href="{{ route('cms.contact.us') }}">Talk to our team</a>
+                <a class="btn btn-secondary" href="{{ route('cms.contact.us', [], false) }}">Talk to our team</a>
             </div>
             <div class="cms-hero-topics" aria-label="Business tools">
                 <span><i class="fas fa-check" aria-hidden="true"></i> Sales &amp; invoicing</span>

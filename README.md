@@ -28,6 +28,13 @@ the brand stays left and links stay right, with a right-aligned mobile menu.
 The header displays the Superadmin Branding logo without a separate app name,
 falling back to the default logo only when no branding logo is configured.
 The public header has no language selector; the default application locale is English.
+CMS navigation, page/blog links, and signup buttons use root-relative URLs.
+CMS button settings are application destinations: existing absolute links are
+normalized on read and new saves persist relative paths, including removal of
+the legacy `/public` prefix. Query strings and fragments are preserved, and
+subdirectory deployments use the current request base. Social media, email,
+and telephone links retain their external destinations.
+Run `php tests/Standalone/cms_relative_links_checks.php` for isolated coverage.
 Public pricing cards keep prices and signup actions visible while plan
 features open in a scrollable modal; subscription screens retain their full feature lists.
 These pages also use `layouts.partials.public-footer`, including navigation,
@@ -39,6 +46,38 @@ only Malawi, Malawian Kwacha (MWK), and the Africa/Blantyre time zone.
 Server-side validation rejects other values. Registration uses +265 phone-number
 hints; specific address and phone details remain user-entered. Existing records
 are not migrated; saving these settings explicitly applies the Malawi-only options.
+
+### Self-registration verification
+
+Before the business wizard, self-registration requires a verified email address
+or Malawi phone number. Configure **Superadmin Settings > Registration
+verification**: email uses the application's **Email (SMTP)** settings, and SMS
+reuses the **Business Settings > SMS** fields (Nexmo, Twilio, or a custom HTTP
+gateway). Both channels start disabled until configured. Registration SMS
+credentials are encrypted in the system settings and never copied to tenant
+businesses. Log, array, and fallback mail transports cannot deliver registration
+codes. Custom SMS gateways must return an HTTP error when they reject a message;
+Nexmo response status is also checked.
+
+Codes contain 6 digits, expire after 5 minutes, and allow at most 5 guesses.
+Resends wait 60 seconds; delivery is limited to 5 requests per contact per hour
+and 10 per IP per hour. Failed delivery attempts also count toward those limits.
+Verification has an additional IP limit of 30 attempts per 10 minutes.
+OTP hashes and single-use proofs use the server cache; use a persistent cache
+with atomic lock support (file or Redis), shared across nodes if load balanced.
+Do not use the array/null cache driver in production.
+
+A verified contact is locked into the wizard and checked again on submission.
+Verification expires after 30 minutes and is consumed after a successful
+registration. Package selection survives the verification step. Changing a
+contact requires a new code. This flow does not change `ALLOW_REGISTRATION`,
+and Superadmin-created businesses do not require a self-registration OTP.
+The legacy `/register` URL redirects to this flow; its generic registration
+POST is disabled so it cannot bypass verification.
+
+Run `php -d error_reporting=22527 tests/Standalone/registration_otp_checks.php`
+for isolated verification, expiry, retry, delivery-failure, and gate checks;
+the test sends no real emails or SMS.
 
 ## Service staff location permissions
 

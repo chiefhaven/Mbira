@@ -2,39 +2,39 @@
 @section('title', 'Home')
 @php
     $navbar_btn['text'] = 'Try For Free';
-    $navbar_btn['link'] = route('business.getRegister');
+    $navbar_btn['link'] = route('business.getRegister', [], false);
     if(isset($__site_details['btns']) && isset($__site_details['btns']['navbar']) && !empty($__site_details['btns']['navbar']['text'])) {
         $navbar_btn['text'] = $__site_details['btns']['navbar']['text'] ?? 'Try For Free';
     }
     if(isset($__site_details['btns']) && isset($__site_details['btns']['navbar']) && !empty($__site_details['btns']['navbar']['link'])) {
-        $navbar_btn['link'] = $__site_details['btns']['navbar']['link'] ?? route('business.getRegister');
+        $navbar_btn['link'] = $__site_details['btns']['navbar']['link'] ?? route('business.getRegister', [], false);
     }
 
     $hero_btn['text'] = 'Start your Free Trial';
-    $hero_btn['link'] = route('business.getRegister');
+    $hero_btn['link'] = route('business.getRegister', [], false);
     if(isset($__site_details['btns']) && isset($__site_details['btns']['hero']) && !empty($__site_details['btns']['hero']['text'])) {
         $hero_btn['text'] = $__site_details['btns']['hero']['text'] ?? 'Start your Free Trial';
     }
     if(isset($__site_details['btns']) && isset($__site_details['btns']['hero']) && !empty($__site_details['btns']['hero']['link'])) {
-        $hero_btn['link'] = $__site_details['btns']['hero']['link'] ?? route('business.getRegister');
+        $hero_btn['link'] = $__site_details['btns']['hero']['link'] ?? route('business.getRegister', [], false);
     }
 
     $industry_btn['text'] = 'Get Started';
-    $industry_btn['link'] = route('business.getRegister');
+    $industry_btn['link'] = route('business.getRegister', [], false);
     if(isset($__site_details['btns']) && isset($__site_details['btns']['industry']) && !empty($__site_details['btns']['industry']['text'])) {
         $industry_btn['text'] = $__site_details['btns']['industry']['text'] ?? 'Get Started';
     }
     if(isset($__site_details['btns']) && isset($__site_details['btns']['industry']) && !empty($__site_details['btns']['industry']['link'])) {
-        $industry_btn['link'] = $__site_details['btns']['industry']['link'] ?? route('business.getRegister');
+        $industry_btn['link'] = $__site_details['btns']['industry']['link'] ?? route('business.getRegister', [], false);
     }
 
     $cta_btn['text'] = 'Try Now';
-    $cta_btn['link'] = route('business.getRegister');
+    $cta_btn['link'] = route('business.getRegister', [], false);
     if(isset($__site_details['btns']) && isset($__site_details['btns']['cta']) && !empty($__site_details['btns']['cta']['text'])) {
         $cta_btn['text'] = $__site_details['btns']['cta']['text'] ?? 'Try Now';
     }
     if(isset($__site_details['btns']) && isset($__site_details['btns']['cta']) && !empty($__site_details['btns']['cta']['link'])) {
-        $cta_btn['link'] = $__site_details['btns']['cta']['link'] ?? route('business.getRegister');
+        $cta_btn['link'] = $__site_details['btns']['cta']['link'] ?? route('business.getRegister', [], false);
     }
 @endphp
 @section('body_class', 'cms-home mbira-public')

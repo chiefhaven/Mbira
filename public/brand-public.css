@@ -1,3 +1,80 @@
+.brand-register-page .brand-verification {
+    max-width: 580px;
+}
+
+.brand-verification-form {
+    display: grid;
+    gap: 10px;
+}
+
+.brand-verification-form label {
+    color: var(--brand-ink);
+    font-weight: 650;
+}
+
+.brand-verification-form input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--brand-border);
+    border-radius: 8px;
+    background: #fafbff;
+    color: var(--brand-ink);
+}
+
+.brand-verification-form button {
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--brand-blue);
+    color: #fff;
+    font-weight: 650;
+}
+
+.brand-verification-hint,
+.brand-verified-contact {
+    color: var(--brand-muted);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.brand-code-form {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--brand-border);
+}
+
+.brand-code-form summary {
+    color: var(--brand-blue);
+    cursor: pointer;
+    font-weight: 650;
+}
+
+.brand-code-form[open] summary {
+    margin-bottom: 14px;
+}
+
+.brand-verified-contact a {
+    color: var(--brand-blue);
+    margin-left: 8px;
+}
+
+.brand-register-page .brand-verified-contact + .wizard > .content {
+    max-height: max(120px, calc(100dvh - 490px));
+}
+
+html.brand-auth-root {
+    min-height: 100%;
+    background: #f5f7fd;
+    color-scheme: light;
+}
+
+.brand-auth-root > body.mbira-public {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
 .mbira-public {
     --brand-blue: #2e49ed;
     --brand-navy: #101e78;

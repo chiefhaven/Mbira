@@ -13,6 +13,12 @@
             <p>Set up your business workspace with {{ config('app.name') }}.</p>
         </header>
         <div class="brand-registration-card">
+            @if(!empty($verified_contact))
+                <p class="brand-verified-contact">
+                    {{ __('registration.verified', ['contact' => $verified_contact['contact']]) }}
+                    <a href="{{ route('business.verifyContact', ['change' => 1]) }}">@lang('registration.change_contact')</a>
+                </p>
+            @endif
             @if($errors->any())
                 <div class="alert alert-danger" role="alert">
                     <ul>
