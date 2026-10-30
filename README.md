@@ -6,6 +6,26 @@ Ultimate POS is a POS application by [Ultimate Fosters](http://ultimatefosters.c
 You will find installation guide and documentation in the downloaded zip file.
 Also, For complete updated documentation of the ultimate pos please visit online [documentation guide](http://ultimatefosters.com/ultimate-pos/).
 
+### Git-pull deployments: required styles
+
+The distributable styles in `public/css/app.css`, `public/css/vendor.css`,
+`public/css/rtl.css`, and `public/css/tailwind/app.css`, plus the Bootstrap
+Glyphicons and Ionicons files in `public/fonts`, must be committed and deployed
+with the application. They are intentionally exempt from `.gitignore` so a
+Git-pull deployment includes the styles used by login, registration, and the
+backend. `public/css/init.css` remains an ignored intermediate build output.
+
+Do not delete `public/css` during deployment. The existing Mix production build
+generates vendor/RTL styles but does **not** recreate `app.css` or the distributed
+Tailwind stylesheet; running `npm run production` alone is not a full restore.
+Commit updated distributable styles whenever they change.
+
+After pulling a release containing these assets, run `php artisan view:clear`
+and publish CMS assets as described below. Verify `/css/tailwind/app.css`,
+`/css/vendor.css`, and `/css/app.css` each return HTTP 200 with a `text/css`
+content type from the production hostname, then hard-refresh the browser.
+Clearing Laravel or browser caches cannot fix missing files (HTTP 404).
+
 ### CMS homepage assets
 
 After restoring or deploying an installation with the CMS module, run
