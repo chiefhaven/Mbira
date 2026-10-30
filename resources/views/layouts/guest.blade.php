@@ -42,6 +42,7 @@
 
     <!-- jQuery 2.2.3 -->
     <script src="{{ asset('js/vendor.js?v=' . $asset_v) }}"></script>
+    @include('layouts.partials.form-submission-guard')
     <script src="{{ asset('js/functions.js?v=' . $asset_v) }}"></script>
     @yield('javascript')
 </body>

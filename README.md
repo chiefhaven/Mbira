@@ -185,6 +185,22 @@ Run `php -d error_reporting=22527 tests/Standalone/registration_otp_checks.php`
 for isolated verification, expiry, retry, delivery-failure, and gate checks;
 the test sends no real emails or SMS.
 
+## Form submission protection
+
+Shared application, authentication, guest, CMS and Accounting layouts load
+`public/js/form-submission-guard.js`. Valid native form submissions disable
+submit controls until navigation; AJAX and fetch requests initiated by form
+handlers restore controls on completion, including failures. Repeated clicks,
+Enter submissions and programmatic native submits are blocked while pending.
+Invalid/cancelled submissions and remote field validation do not lock the form.
+Existing disabled states and native form payloads are preserved; returning via
+browser Back restores navigation-locked controls.
+
+Custom workflows that launch requests later (for example after an asynchronous
+confirmation dialog) must retain their own busy handling. Standalone pages
+outside the shared layouts must include the shared guard partial after jQuery.
+Run `node tests/Standalone/form_submission_guard_checks.js` for isolated checks.
+
 ## Backend profile menu
 
 The backend navbar profile menu shows the user's uploaded profile photo, or

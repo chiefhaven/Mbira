@@ -70,6 +70,7 @@
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+        @include('layouts.partials.form-submission-guard')
         <script src="{{ \Modules\Cms\Utils\CmsUtil::assetUrl('js/cms.js') }}"></script>
 
         <!-- Google analytics code -->
