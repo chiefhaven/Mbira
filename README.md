@@ -22,6 +22,9 @@ CMS assets, run the publishing command again; no Node build is required.
 Pricing, login, registration, and contact page styling is shared in `public/brand-public.css`
 and scoped to `.mbira-public`. Contact also reuses the CMS homepage theme.
 Package, authentication, and contact form endpoints remain unchanged.
+The public repair-status lookup also uses the shared light layout, navigation,
+footer, and constrained Branding logo. Its search options and results remain
+unchanged; failed requests show inline feedback and re-enable the search button.
 
 Home, pricing, contact, and login share `layouts.partials.public-navigation`:
 the brand stays left and links stay right, with a right-aligned mobile menu.

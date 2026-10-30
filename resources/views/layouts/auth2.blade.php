@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" @if(request()->is('login', 'business/register*')) class="brand-auth-root" data-theme="light" @endif>
+<html lang="{{ app()->getLocale() }}" @if(request()->is('login', 'business/register*', 'repair-status')) class="brand-auth-root" data-theme="light" @endif>
 
 <head>
     <meta charset="utf-8">
@@ -35,7 +35,7 @@
     <div class="container-fluid">
         <div class="row eq-height-row">
             <div class="col-md-12 col-sm-12 col-xs-12 right-col tw-pb-10 tw-px-5 @if($request->segment(1) == 'login') login-brand-page @else tw-pt-20 @endif">
-                @if($request->is('login', 'business/register*'))
+                @if($request->is('login', 'business/register*', 'repair-status'))
                     @include('layouts.partials.public-navigation')
                 @else
                 <div class="row">
@@ -106,7 +106,7 @@
     </div>
 
 
-    @include('layouts.partials.branding-public-footer', ['public_footer' => request()->is('login', 'business/register*')])
+    @include('layouts.partials.branding-public-footer', ['public_footer' => request()->is('login', 'business/register*', 'repair-status')])
     @include('layouts.partials.javascripts')
 
     <!-- Scripts -->

@@ -64,6 +64,40 @@
     max-height: max(120px, calc(100dvh - 490px));
 }
 
+.brand-repair-page .brand-repair-search {
+    max-width: 580px;
+    margin: 0 auto 24px;
+}
+
+.brand-repair-page .brand-verification-form select {
+    height: 44px;
+    border: 1px solid var(--brand-border);
+    border-radius: 8px;
+    background: #fafbff;
+    color: var(--brand-ink);
+}
+
+.brand-repair-page #repair-search-feedback {
+    margin: 0;
+    color: #ad2535;
+}
+
+.brand-repair-page button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.brand-repair-page .repair_status_details {
+    overflow-wrap: anywhere;
+}
+
+.brand-repair-page .repair_status_details .box {
+    border: 1px solid var(--brand-border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--brand-ink);
+}
+
 html.brand-auth-root {
     min-height: 100%;
     background: #f5f7fd;
