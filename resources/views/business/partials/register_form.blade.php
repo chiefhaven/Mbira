@@ -60,7 +60,7 @@
 <div class="clearfix"></div>
 <div class="col-md-6">
     <div class="form-group">
-    {!! Form::label('mobile', __('lang_v1.business_telephone') . ':') !!}
+    {!! Form::label('mobile', __('lang_v1.business_telephone') . (!empty($is_register) ? ':*' : ':')) !!}
     <div class="input-group">
         <span class="input-group-addon">
             <i class="fa fa-phone"></i>
@@ -68,7 +68,7 @@
         @if(($verified_contact['channel'] ?? null) === 'sms')
             <input type="text" name="mobile" id="mobile" class="form-control" value="{{ $verified_contact['contact'] }}" readonly>
         @else
-            {!! Form::text('mobile', null, ['class' => 'form-control','placeholder' => !empty($is_register) ? '+265 ...' : __('lang_v1.business_telephone')]); !!}
+            {!! Form::text('mobile', null, array_merge(['class' => 'form-control','placeholder' => !empty($is_register) ? '+265 ...' : __('lang_v1.business_telephone')], !empty($is_register) ? ['required', 'maxlength' => 50] : [])); !!}
         @endif
     </div>
     </div>

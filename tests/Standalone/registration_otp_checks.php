@@ -69,6 +69,18 @@ $capsule->getConnection()->getSchemaBuilder()->create('system', function (Bluepr
     $table->string('key')->unique();
     $table->text('value')->nullable();
 });
+$capsule->schema()->create('users', function (Blueprint $table) {
+    $table->increments('id');
+    $table->string('email')->nullable();
+    $table->string('contact_number')->nullable();
+    $table->string('alt_number')->nullable();
+    $table->softDeletes();
+});
+$capsule->schema()->create('business_locations', function (Blueprint $table) {
+    $table->increments('id');
+    $table->string('mobile')->nullable();
+    $table->string('alternate_number')->nullable();
+});
 Facade::setFacadeApplication($app);
 Facade::clearResolvedInstances();
 $routes = new RouteCollection();
@@ -248,7 +260,7 @@ $passed = false;
 $response = $gate->handle($prepareRequest('POST', ['email' => 'changed@example.test', 'password' => 'private', 'confirm_password' => 'private']), $next);
 $check(!$passed && $response->isRedirect(), 'Cannot replace verified email on POST.');
 $check(!isset($s->getOldInput()['password'], $s->getOldInput()['confirm_password']), 'Passwords are not flashed on mismatch.');
-$gate->handle($prepareRequest('POST', ['email' => 'gate@example.test']), $next);
+$gate->handle($prepareRequest('POST', ['email' => 'gate@example.test', 'mobile' => '0991234567']), $next);
 $check($passed, 'Matching verified contact proceeds.');
 $passed = false;
 $config->set('constants.allow_registration', false);
@@ -395,6 +407,53 @@ $client->shouldReceive('post')->once()->withArgs(function ($endpoint, $options) 
     return true;
 })->andReturn(new GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], '{"status":"success"}'));
 (new RegistrationOtpDelivery(new App\Utils\BusinessUtil()))->send('sms', '+265991234567', '654321');
+$reset();
+$contacts = new App\Services\RegistrationContacts();
+$capsule->table('users')->insert(['email' => ' Registered@Example.test ', 'contact_number' => '(0991) 234-567', 'deleted_at' => '2026-01-01']);
+$capsule->table('business_locations')->insert(['alternate_number' => '+265 882 123 456']);
+$beforeDuplicateSends = count($delivery->sent);
+$reject(fn () => $otp->send($session(), 'registered@example.test', '127.0.0.1'), 'contact', 'registration.contact_registered');
+$reject(fn () => $otp->send($session(), '+265991234567', '127.0.0.1'), 'contact', 'registration.contact_registered');
+$reject(fn () => $otp->send($session(), '0882 123 456', '127.0.0.1'), 'contact', 'registration.contact_registered');
+$check(count($delivery->sent) === $beforeDuplicateSends, 'Duplicate contacts rejected before delivery.');
+foreach (['+265991234567', '0991 234 567', '991234567', '00265991234567'] as $storedPhone) {
+    $capsule->table('users')->update(['contact_number' => $storedPhone]);
+    $reject(fn () => $contacts->assertAvailable('sms', '0991234567'), 'contact', 'registration.contact_registered');
+}
+$reject(fn () => $contacts->phone('+260971234567'), 'mobile', 'registration.malawi_phone_required');
+$reject(fn () => $contacts->phone('not-a-phone'), 'mobile', 'registration.malawi_phone_required');
+$check($contacts->phone('0882123456') === '+265882123456', 'Normalize valid Malawi phone.');
+$late = $session();
+$otp->send($late, 'late@example.test', '127.0.0.1');
+$lateCode = $code();
+$capsule->table('users')->insert(['email' => 'late@example.test']);
+$reject(fn () => $otp->verify($late, $lateCode, '127.0.0.1'), 'contact', 'registration.contact_registered');
+$reject(fn () => $contacts->registration(Request::create('/', 'POST', ['email' => 'new@example.test']), fn () => true), 'mobile');
+$reject(fn () => $contacts->registration(Request::create('/', 'POST', [
+    'email' => 'new@example.test', 'mobile' => '+260971234567',
+]), fn () => true), 'mobile');
+$reject(fn () => $contacts->registration(Request::create('/', 'POST', [
+    'email' => 'registered@example.test', 'mobile' => '0992123456',
+]), fn () => true), 'email');
+$reject(fn () => $contacts->registration(Request::create('/', 'POST', [
+    'email' => 'new@example.test', 'mobile' => '0992123456', 'alternate_number' => '0882123456',
+]), fn () => true), 'alternate_number');
+$freshRequest = Request::create('/', 'POST', ['email' => 'NEW@example.test', 'mobile' => '0992123456']);
+$contacts->registration($freshRequest, function () use ($check, $freshRequest, $contacts) {
+    $check($freshRequest->input('mobile') === '+265992123456' && $freshRequest->input('email') === 'new@example.test', 'Final registration normalizes both contacts.');
+    $blocked = false;
+    try {
+        $contacts->registration(Request::create('/', 'POST', [
+            'email' => 'new@example.test', 'mobile' => '0993123456',
+        ]), fn () => true);
+    } catch (ValidationException $e) {
+        $blocked = isset($e->errors()['contact']);
+    }
+    $check($blocked, 'Concurrent registrations cannot reuse a locked email.');
+
+    return true;
+});
+
 Carbon::setTestNow();
 Mockery::close();
 echo "PASS: {$checks} registration OTP checks (no real delivery or live data).".PHP_EOL;

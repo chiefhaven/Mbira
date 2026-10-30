@@ -73,6 +73,7 @@ class RegistrationOtp
         if (!in_array($normalized['channel'], $this->delivery->channels(), true)) {
             throw ValidationException::withMessages(['contact' => __('registration.unavailable')]);
         }
+        app(RegistrationContacts::class)->assertAvailable($normalized['channel'], $normalized['contact']);
         $this->locked($session, function () use ($session, $normalized, $ip) {
             $state = $this->state($session);
             if ($state && $state['sent_at'] + 60 > now()->timestamp) {
@@ -125,6 +126,7 @@ class RegistrationOtp
             if (!$state || $state['expires_at'] <= now()->timestamp || !empty($state['verified_until'])) {
                 throw ValidationException::withMessages(['otp' => __('registration.expired')]);
             }
+            app(RegistrationContacts::class)->assertAvailable($state['channel'], $state['contact']);
             if ($state['attempts'] >= 5) {
                 throw ValidationException::withMessages(['otp' => __('registration.attempts')]);
             }

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'contact_registered' => 'This email address or phone number is already registered. Please sign in instead.',
+    'malawi_phone_required' => 'Registration is currently available only with a valid Malawi phone number (+265).',
     'workspace_label' => 'BUILD YOUR WORKSPACE',
     'workspace_hint' => 'Bring your business to life with :app. Start with the essentials below.',
     'required_fields' => 'Fields marked * are required.',

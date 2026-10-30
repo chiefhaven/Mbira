@@ -38,7 +38,9 @@ class EnsureRegistrationContactVerified
             }
             $request->attributes->set('verified_registration_contact', $contact);
 
-            return $next($request);
+            return $request->isMethod('post')
+                ? app(\App\Services\RegistrationContacts::class)->registration($request, fn () => $next($request))
+                : $next($request);
         };
 
         // Keep the proof single-use even when two registration POSTs arrive together.

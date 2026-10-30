@@ -1,10 +1,11 @@
-## About Ultimate POS
+## About MbiraERP
 
-Ultimate POS is a POS application by [Ultimate Fosters](http://ultimatefosters.com), a brand of [The Web Fosters](http://thewebfosters.com).
+MbiraERP is a business management and POS application maintained by HavenPlus.
 
 ## Installation & Documentation
-You will find installation guide and documentation in the downloaded zip file.
-Also, For complete updated documentation of the ultimate pos please visit online [documentation guide](http://ultimatefosters.com/ultimate-pos/).
+Use the installation guide included with your distribution for initial setup.
+The sections below document MbiraERP deployment, public pages, registration,
+and related configuration. Contact HavenPlus support for assistance.
 
 ### Git-pull deployments: required styles
 
@@ -105,6 +106,24 @@ Run `php tests/Standalone/cms_seo_checks.php` for isolated SEO checks.
 
 ### Self-registration verification
 
+#### Registration contacts
+
+Public registration does not block visitors by IP country. No GeoLite2 database
+or MaxMind PHP extension is required. After deploying removal of the country
+gate, run `php artisan route:clear` and `php artisan config:clear` on cPanel to
+remove cached references to the old middleware and configuration.
+
+Email OTP remains available, but completing registration requires a valid Malawi
+phone number. Optional alternate phone numbers must also be Malawi numbers.
+Numbers are saved in E.164 (+265) form. Existing email addresses (case-insensitive)
+and phone numbers are rejected before sending OTP, when verifying it, and on
+final submission. Checks cover all user accounts (including deleted accounts),
+user contact/alternate numbers, and business-location mobile/alternate numbers,
+including common local and international formatting. Final public submissions
+lock normalized contacts across sessions to prevent concurrent reuse; use the
+shared persistent atomic-lock cache described below. Administrator forms are
+not changed, and no existing contacts are migrated.
+
 The contact verification screen uses a responsive blue-and-gold setup panel,
 with distinct contact-entry, code-entry, error and unavailable states. Mobile
 layouts collapse the introductory panel while retaining the form and step label.
@@ -117,8 +136,7 @@ reuses the **Business Settings > SMS** fields (Nexmo, Twilio, or a custom HTTP
 gateway). Both channels start disabled until configured. Registration SMS
 credentials are encrypted in the system settings and never copied to tenant
 businesses. Log, array, and fallback mail transports cannot deliver registration
-codes. Custom SMS gateways must return an HTTP error when they reject a message;
-Nexmo response status is also checked. Custom SMS OTP requests reject redirects,
+codes. Nexmo response status is checked. Custom SMS OTP requests reject redirects,
 HTML/login responses, malformed JSON, and JSON `status: error/failed/failure/fail`
 or `success: false` even when the gateway returns HTTP 200. Other custom
 gateway formats must reject failed requests with HTTP errors. Acceptance by
@@ -187,8 +205,8 @@ coverage of missing definitions, guard/tenant isolation and direct/role grants.
 
 ## Security Vulnerabilities
 
-If you discover a security vulnerability within ultimate POS, please send an e-mail to support at thewebfosters@gmail.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within MbiraERP, please contact HavenPlus support. All security vulnerabilities will be promptly addressed.
 
 ## License
 
-The Ultimate POS software is licensed under the [Codecanyon license](https://codecanyon.net/licenses/standard).
+The MbiraERP software is licensed under the [Codecanyon license](https://codecanyon.net/licenses/standard).
