@@ -7,6 +7,16 @@ use Modules\Cms\Entities\CmsPage;
 
 class CmsUtil extends Util
 {
+    public static function assetUrl(string $asset): string
+    {
+        if (!isset(\Modules\Cms\Http\Controllers\CmsAssetController::ASSETS[$asset])) {
+            throw new \InvalidArgumentException('Unknown CMS asset.');
+        }
+        $path = dirname(__DIR__).'/Resources/assets/'.$asset;
+
+        return asset('modules/cms/'.$asset).'?v='.substr(hash_file('sha256', $path), 0, 12);
+    }
+
     public static function relativeButtonLink(string $link): string
     {
         $link = trim($link);

@@ -15,7 +15,7 @@
     <meta name="description" content="{{$page->meta_description}}">
 @endsection
 @section('css')
-<link rel="stylesheet" href="{{ asset('modules/cms/css/homepage.css?v=' . $asset_v) }}">
+<link rel="stylesheet" href="{{ \Modules\Cms\Utils\CmsUtil::assetUrl('css/homepage.css') }}">
 <link rel="stylesheet" href="{{ asset('brand-public.css?v=' . $asset_v) }}">
 <style type="text/css">
     .error{

@@ -18,7 +18,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
         <!-- Your Custom CSS file that will include your blocks CSS -->
-        <link rel="stylesheet" type="text/css" href="{{ asset('modules/cms/css/cms.css?v=' . $asset_v) }}">
+        <link rel="stylesheet" type="text/css" href="{{ \Modules\Cms\Utils\CmsUtil::assetUrl('css/cms.css') }}">
         <script src="https://unpkg.com/tua-body-scroll-lock"></script>
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -71,7 +71,7 @@
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-        <script src="{{ asset('modules/cms/js/cms.js?v=' . $asset_v) }}"></script>
+        <script src="{{ \Modules\Cms\Utils\CmsUtil::assetUrl('js/cms.js') }}"></script>
 
         <!-- Google analytics code -->
         @if(!empty($__site_details['google_analytics']))

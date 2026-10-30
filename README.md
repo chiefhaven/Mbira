@@ -11,8 +11,13 @@ Also, For complete updated documentation of the ultimate pos please visit online
 After restoring or deploying an installation with the CMS module, run
 `php artisan module:publish Cms` to publish its CSS, JavaScript, and images.
 The generated assets under `public/modules/cms` are not tracked in Git.
-If the homepage is unstyled and requests to `/modules/cms/css/cms.css` return
-404, run this command and refresh the browser.
+When published copies are missing, `/modules/cms/...` falls back to the module's
+tracked source files through an explicit six-file allowlist. No other module
+files can be served by that route. CSS/JS URLs include a source-content hash
+to invalidate browser caches when those files change. Publishing remains
+recommended so the web server can serve assets directly without PHP.
+Run `php tests/Standalone/cms_asset_checks.php` to test the fallback independently
+of published assets.
 
 The CMS homepage uses the MbiraERP royal-blue, navy, and gold palette in
 `Modules/Cms/Resources/assets/css/homepage.css`. Its styles are scoped to

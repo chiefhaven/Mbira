@@ -39,7 +39,7 @@
 @endphp
 @section('body_class', 'cms-home mbira-public')
 @section('css')
-    <link rel="stylesheet" href="{{ asset('modules/cms/css/homepage.css?v=' . $asset_v) }}">
+    <link rel="stylesheet" href="{{ \Modules\Cms\Utils\CmsUtil::assetUrl('css/homepage.css') }}">
     <link rel="stylesheet" href="{{ asset('brand-public.css?v=' . $asset_v) }}">
 @endsection
 @section('meta')

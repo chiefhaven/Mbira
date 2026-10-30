@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/', [Modules\Cms\Http\Controllers\CmsController::class, 'index']);
+Route::get('modules/cms/{asset}', [Modules\Cms\Http\Controllers\CmsAssetController::class, 'show'])
+    ->where('asset', 'css/(?:cms|homepage)\.css|js/cms\.js|img/(?:contact\.jpg|default\.png|home\.png)')
+    ->name('cms.asset');
 Route::get('c/page/{page}', [Modules\Cms\Http\Controllers\CmsPageController::class, 'showPage']);
 Route::get('c/blogs', [Modules\Cms\Http\Controllers\CmsController::class, 'getBlogList']);
 Route::get('c/blog/{slug}-{id}', [Modules\Cms\Http\Controllers\CmsController::class, 'viewBlog']);
