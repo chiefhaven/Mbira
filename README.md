@@ -37,6 +37,7 @@ Shared backend/auth/guest layouts also load `public/css/icon-fonts.css` to enabl
 the regular (`far`) icon weight, omitted from the original compiled stylesheet.
 Future Sass builds include that weight too. CMS pages retain their existing
 Font Awesome CDN stylesheet.
+Run `php tests/Standalone/icon_font_checks.php` to check local font dependencies.
 
 ### CMS homepage assets
 
