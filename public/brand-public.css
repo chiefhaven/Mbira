@@ -125,15 +125,20 @@ html.brand-auth-root {
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
+    width: clamp(120px, 30vw, 200px);
+    height: 48px;
+    overflow: hidden;
     text-decoration: none;
 }
 
 .mbira-public .brand-header-logo {
     display: block;
-    width: auto;
-    max-width: min(200px, 48vw);
-    height: 48px;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
     object-fit: contain;
+    object-position: left center;
 }
 
 .mbira-public .brand-navigation-links {
