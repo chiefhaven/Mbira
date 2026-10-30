@@ -20,7 +20,7 @@
                 <span class="input-group-addon">
                     <i class="fas fa-money-bill-alt"></i>
                 </span>
-                {!! Form::select('purchase_currency_id', $currencies, $business->purchase_currency_id, ['class' => 'form-control select2', 'placeholder' => __('business.currency'), 'required', 'style' => 'width:100% !important']); !!}
+                {!! Form::select('purchase_currency_id', $currencies, $business->purchase_currency_id, ['class' => 'form-control select2', 'required', 'style' => 'width:100% !important']); !!}
             </div>
         </div>
     </div>

@@ -1114,8 +1114,11 @@
 
 .brand-register-page .wizard > .content {
     min-height: 0;
+    max-height: max(160px, calc(100dvh - 440px));
     margin: 18px 0 0;
-    overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
     border-radius: 0;
 }
 

@@ -35,7 +35,7 @@
         <span class="input-group-addon">
             <i class="fas fa-money-bill-alt"></i>
         </span>
-        {!! Form::select('currency_id', $currencies, '', ['class' => 'form-control select2_register','placeholder' => __('business.currency_placeholder'), 'required']); !!}
+        {!! Form::select('currency_id', $currencies, $registration_defaults['currency_id'] ?? $currencies->keys()->first(), ['class' => 'form-control select2_register', 'required']); !!}
     </div>
     </div>
 </div>
@@ -65,7 +65,7 @@
         <span class="input-group-addon">
             <i class="fa fa-phone"></i>
         </span>
-        {!! Form::text('mobile', null, ['class' => 'form-control','placeholder' => __('lang_v1.business_telephone')]); !!}
+        {!! Form::text('mobile', null, ['class' => 'form-control','placeholder' => !empty($is_register) ? '+265 ...' : __('lang_v1.business_telephone')]); !!}
     </div>
     </div>
 </div>
@@ -77,7 +77,7 @@
             <span class="input-group-addon">
                 <i class="fa fa-phone"></i>
             </span>
-            {!! Form::text('alternate_number', null, ['class' => 'form-control','placeholder' => __('business.alternate_number')]); !!}
+            {!! Form::text('alternate_number', null, ['class' => 'form-control','placeholder' => !empty($is_register) ? '+265 ...' : __('business.alternate_number')]); !!}
         </div>
     </div>
 </div>
@@ -91,7 +91,7 @@
         <span class="input-group-addon">
             <i class="fa fa-globe"></i>
         </span>
-        {!! Form::text('country', null, ['class' => 'form-control','placeholder' => __('business.country'), 'required']); !!}
+        {!! Form::select('country', ['Malawi' => 'Malawi'], 'Malawi', ['class' => 'form-control', 'required']); !!}
     </div>
     </div>
 </div>
@@ -149,7 +149,7 @@
             <span class="input-group-addon">
                 <i class="fas fa-clock"></i>
             </span>
-            {!! Form::select('time_zone', $timezone_list, config('app.timezone'), ['class' => 'form-control select2_register','placeholder' => __('business.time_zone'), 'required']); !!}
+            {!! Form::select('time_zone', $timezone_list, 'Africa/Blantyre', ['class' => 'form-control select2_register', 'required']); !!}
         </div>
     </div>
 </div>

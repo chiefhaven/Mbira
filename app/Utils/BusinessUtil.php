@@ -14,6 +14,7 @@ use App\Printer;
 use App\Unit;
 use App\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use App\VariationLocationDetails;
 
@@ -138,13 +139,14 @@ class BusinessUtil extends Util
     }
 
     /**
-     * Gives a list of all currencies
+     * Gives the supported Malawi currency options.
      *
      * @return array
      */
     public function allCurrencies()
     {
         $currencies = Currency::select('id', DB::raw("concat(country, ' - ',currency, '(', code, ') ') as info"))
+                ->where('code', 'MWK')
                 ->orderBy('country')
                 ->pluck('info', 'id');
 
@@ -152,21 +154,22 @@ class BusinessUtil extends Util
     }
 
     /**
-     * Gives a list of all timezone
+     * Gives the supported Malawi time zone.
      *
      * @return array
      */
     public function allTimeZones()
     {
-        $datetime = new \DateTimeZone('EDT');
+        return ['Africa/Blantyre' => 'Africa/Blantyre'];
+    }
 
-        $timezones = $datetime->listIdentifiers();
-        $timezone_list = [];
-        foreach ($timezones as $timezone) {
-            $timezone_list[$timezone] = $timezone;
-        }
-
-        return $timezone_list;
+    public static function malawiSettingsRules(): array
+    {
+        return [
+            'country' => ['required', Rule::in(['Malawi'])],
+            'currency_id' => ['required', Rule::exists('currencies', 'id')->where('code', 'MWK')],
+            'time_zone' => ['required', Rule::in(['Africa/Blantyre'])],
+        ];
     }
 
     /**

@@ -265,6 +265,8 @@ class BusinessController extends BaseController
             abort(403, 'Unauthorized action.');
         }
 
+        $request->validate(\App\Utils\BusinessUtil::malawiSettingsRules());
+
         try {
             DB::beginTransaction();
 

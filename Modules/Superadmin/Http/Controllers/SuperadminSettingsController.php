@@ -180,6 +180,12 @@ class SuperadminSettingsController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $malawi_rules = \App\Utils\BusinessUtil::malawiSettingsRules();
+        $request->validate([
+            'app_currency_id' => $malawi_rules['currency_id'],
+            'invoice_business_country' => $malawi_rules['country'],
+        ]);
+
         try {
 
             //Disable .ENV settings in demo

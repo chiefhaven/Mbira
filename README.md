@@ -34,6 +34,11 @@ These pages also use `layouts.partials.public-footer`, including navigation,
 configured social links, copyright, and any custom branding footer text.
 Registration retains its existing three-step wizard, validation, package selection,
 and registration-enabled setting. Styling does not enable public registration.
+Registration and backend business, location, and Superadmin settings support
+only Malawi, Malawian Kwacha (MWK), and the Africa/Blantyre time zone.
+Server-side validation rejects other values. Registration uses +265 phone-number
+hints; specific address and phone details remain user-entered. Existing records
+are not migrated; saving these settings explicitly applies the Malawi-only options.
 
 ## Service staff location permissions
 

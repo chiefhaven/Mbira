@@ -32,7 +32,7 @@ $(document).ready(function() {
             onStepChanged: function(event, currentIndex, priorIndex) {
                 // Render reCAPTCHA on last step
                 if (currentIndex === 2 && !recaptchaRendered) { // change 2 to your last step index
-                    if (typeof grecaptcha !== 'undefined') {
+                    if (document.getElementById('recaptcha-container') && typeof grecaptcha !== 'undefined') {
                         grecaptcha.render('recaptcha-container', {
                             'sitekey': window.RECAPTCHA_SITE_KEY
                         });

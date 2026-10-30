@@ -14,7 +14,6 @@ use App\Utils\ModuleUtil;
 use App\Utils\RestaurantUtil;
 use Modules\EIS\Services\EisSubscriptionAccess;
 use Carbon\Carbon;
-use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -96,6 +95,12 @@ class BusinessController extends Controller
 
         $currencies = $this->businessUtil->allCurrencies();
 
+        $registration_defaults = [
+            'country' => 'Malawi',
+            'currency_id' => Currency::where('code', 'MWK')->firstOrFail()->id,
+            'time_zone' => 'Africa/Blantyre',
+        ];
+
         $timezone_list = $this->businessUtil->allTimeZones();
 
         $months = [];
@@ -110,6 +115,7 @@ class BusinessController extends Controller
 
         return view('business.register', compact(
             'currencies',
+            'registration_defaults',
             'timezone_list',
             'months',
             'accounting_methods',
@@ -128,6 +134,8 @@ class BusinessController extends Controller
         if (! config('constants.allow_registration')) {
             return redirect('/');
         }
+
+        $request->validate(BusinessUtil::malawiSettingsRules());
 
         try {
             $validator = $request->validate(
@@ -292,11 +300,7 @@ class BusinessController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
-        $timezone_list = [];
-        foreach ($timezones as $timezone) {
-            $timezone_list[$timezone] = $timezone;
-        }
+        $timezone_list = $this->businessUtil->allTimeZones();
 
         $business_id = request()->session()->get('user.business_id');
         $business = Business::where('id', $business_id)->first();
@@ -368,6 +372,13 @@ class BusinessController extends Controller
         if (! auth()->user()->can('business_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
+
+        $malawi_rules = BusinessUtil::malawiSettingsRules();
+        $request->validate([
+            'currency_id' => $malawi_rules['currency_id'],
+            'time_zone' => $malawi_rules['time_zone'],
+            'purchase_currency_id' => ['sometimes', 'nullable', $malawi_rules['currency_id'][1]],
+        ]);
 
         try {
             $notAllowed = $this->businessUtil->notAllowedInDemo();

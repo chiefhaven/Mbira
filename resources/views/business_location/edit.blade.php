@@ -53,7 +53,7 @@
                 <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('country', __( 'business.country' ) . ':*') !!}
-                        {!! Form::text('country', $location->country, ['class' => 'form-control', 'placeholder' => __( 'business.country'), 'required' ]); !!}
+                        {!! Form::select('country', ['Malawi' => 'Malawi'], 'Malawi', ['class' => 'form-control', 'required' ]); !!}
                     </div>
                 </div>
                 <div class="clearfix"></div>

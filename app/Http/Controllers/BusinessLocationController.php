@@ -157,6 +157,8 @@ class BusinessLocationController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $request->validate(['country' => \App\Utils\BusinessUtil::malawiSettingsRules()['country']]);
+
         try {
             $business_id = $request->session()->get('user.business_id');
 
@@ -281,6 +283,8 @@ class BusinessLocationController extends Controller
         if (! auth()->user()->can('business_settings.access')) {
             abort(403, 'Unauthorized action.');
         }
+
+        $request->validate(['country' => \App\Utils\BusinessUtil::malawiSettingsRules()['country']]);
 
         try {
             $input = $request->only(['name', 'landmark', 'city', 'state', 'country',
