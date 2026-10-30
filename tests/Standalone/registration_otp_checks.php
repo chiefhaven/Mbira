@@ -326,6 +326,75 @@ try {
     } catch (RuntimeException $e) {
         $check($e->getMessage() === 'Registration SMS provider is not configured.', 'False SMS result is explicitly rejected.');
     }
+$customSettings = $settings;
+$customSettings['sms_settings'] = [
+    'sms_service' => 'other',
+    'url' => 'https://gateway.example.test/api/http/sms/send',
+    'send_to_param_name' => 'recipient',
+    'msg_param_name' => 'message',
+];
+$realDelivery->saveSettings($customSettings);
+$responses = [
+    new GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], '{"status":"error","message":"The recipient field is required."}'),
+    new GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], '{"success":false}'),
+    new GuzzleHttp\Psr7\Response(302, ['Location' => '/login']),
+    new GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/html'], '<html>Login</html>'),
+    new GuzzleHttp\Psr7\Response(200, [], '{"status":"failed"}'),
+    new GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], '{"broken"'),
+];
+foreach ($responses as $response) {
+    $smsUtil->shouldReceive('sendSms')->once()->andReturn($response);
+    try {
+        $realDelivery->send('sms', '+265991234567', '654321');
+        throw new LogicException('Rejected custom gateway response was accepted.');
+    } catch (RuntimeException | JsonException $e) {
+        $check(true, 'Custom gateway failure does not report success.');
+    }
+}
+$smsUtil->shouldReceive('sendSms')->once()->andReturn(
+    new GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], '{"status":"success","data":{"status":"queued"}}')
+);
+$realDelivery->send('sms', '+265991234567', '654321');
+$check(true, 'Gateway acceptance response succeeds.');
+Cache::flush();
+$smsUtil->shouldReceive('sendSms')->once()->andReturn($responses[0]);
+$failedSession = $session();
+$reject(fn () => (new RegistrationOtp($realDelivery))->send($failedSession, '+265991234567', '127.0.0.1'), 'contact', 'registration.delivery_failed');
+$check((new RegistrationOtp($realDelivery))->state($failedSession) === null, 'Rejected gateway request creates no sent-code challenge.');
+$check(!str_contains(json_encode($logs), 'recipient field'), 'Gateway response bodies are not logged.');
+$customSettings['sms_settings'] += [
+    'request_method' => 'post',
+    'data_parameter_type' => 'json',
+    'send_to_param_type' => 'string',
+    'header_1' => 'Accept',
+    'header_val_1' => 'application/json',
+    'header_2' => 'Content-Type',
+    'header_val_2' => 'application/json',
+    'param_1' => 'api_token',
+    'param_val_1' => 'fake-test-token',
+    'param_2' => 'sender_id',
+    'param_val_2' => 'Mbira',
+    'param_3' => 'type',
+    'param_val_3' => 'plain',
+];
+$realDelivery->saveSettings($customSettings);
+$client = Mockery::mock('overload:GuzzleHttp\Client');
+$client->shouldReceive('__construct')->once()->with(['timeout' => 20, 'connect_timeout' => 5]);
+$client->shouldReceive('post')->once()->withArgs(function ($endpoint, $options) use ($check) {
+    $check($endpoint === 'https://gateway.example.test/api/http/sms/send', 'Configured endpoint is used.');
+    $check($options['json'] === [
+        'recipient' => '+265991234567',
+        'message' => __('registration.message', ['app' => config('app.name'), 'code' => '654321']),
+        'api_token' => 'fake-test-token',
+        'sender_id' => 'Mbira',
+        'type' => 'plain',
+    ], 'MbiraNotify JSON request uses documented recipient/message/token/sender/type fields.');
+    $check($options['headers'] === ['Accept' => 'application/json', 'Content-Type' => 'application/json'], 'JSON headers are sent.');
+    $check($options['allow_redirects'] === false, 'OTP does not follow gateway login redirects.');
+
+    return true;
+})->andReturn(new GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/json'], '{"status":"success"}'));
+(new RegistrationOtpDelivery(new App\Utils\BusinessUtil()))->send('sms', '+265991234567', '654321');
 Carbon::setTestNow();
 Mockery::close();
 echo "PASS: {$checks} registration OTP checks (no real delivery or live data).".PHP_EOL;

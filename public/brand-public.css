@@ -1577,6 +1577,204 @@ html.brand-auth-root {
     }
 }
 
+.brand-business-signup .brand-registration {
+    max-width: 1040px;
+    margin-top: 28px;
+}
+
+.brand-business-signup .brand-registration-heading {
+    margin-bottom: 24px;
+}
+
+.brand-business-signup .brand-registration-heading .brand-eyebrow {
+    color: var(--brand-blue);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.brand-business-signup .brand-registration-card {
+    padding: 26px 30px 20px;
+    border-radius: 22px;
+    border-top: 4px solid var(--brand-gold);
+    box-shadow: 0 18px 60px #101e780c;
+}
+
+.brand-business-signup .brand-verified-contact {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 1px solid #d5e8e0;
+    border-radius: 12px;
+    background: #f1f9f5;
+    color: #236449;
+}
+
+.brand-business-signup .brand-verified-contact > span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+.brand-business-signup .brand-contact-check {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #dcefe5;
+    font-weight: 800;
+}
+
+.brand-business-signup .brand-verified-contact a {
+    margin-left: 0;
+    font-size: 12px;
+}
+
+.brand-business-signup .brand-registration-required {
+    margin: 0 0 12px;
+    color: var(--brand-muted);
+    font-size: 12px;
+}
+
+.brand-business-signup .wizard > .steps a {
+    min-height: 58px;
+    border: 1px solid var(--brand-border);
+    background: #f7f8fc;
+    border-radius: 12px;
+}
+
+.brand-business-signup .wizard > .steps .current a {
+    border-color: #cbd4ff;
+    background: #edf1ff;
+    color: var(--brand-navy);
+    box-shadow: inset 0 -3px var(--brand-blue);
+}
+
+.brand-business-signup .wizard > .steps .number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #e6eaf5;
+}
+
+.brand-business-signup .wizard > .steps .current .number {
+    background: var(--brand-blue);
+    color: #fff;
+}
+
+.brand-business-signup .wizard > .steps .done .number {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+}
+
+.brand-business-signup .wizard > .content {
+    max-height: none;
+    overflow: visible;
+    padding: 0 4px;
+    background: #fff;
+    scrollbar-gutter: auto;
+}
+
+.brand-business-signup .wizard fieldset > legend {
+    padding: 6px 0 14px;
+    margin-bottom: 18px;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+}
+
+.brand-business-signup .wizard .form-group {
+    margin-bottom: 18px;
+}
+
+.brand-business-signup .wizard .form-group > label {
+    margin-bottom: 7px;
+    font-size: 13px;
+}
+
+.brand-business-signup .wizard .form-control,
+.brand-business-signup .select2-container--default .select2-selection--single {
+    height: 44px;
+    min-height: 44px;
+    background: #fff;
+    font-size: 14px;
+}
+
+.brand-business-signup .wizard .form-control:focus {
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 3px #2e49ed12;
+}
+
+.brand-business-signup .wizard .form-control[readonly] {
+    background: #f4f6fb;
+}
+
+.brand-business-signup .wizard .input-group-addon {
+    min-width: 42px;
+    background: #f3f5fd;
+    color: #7481a7;
+}
+
+.brand-business-signup .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 42px;
+}
+
+.brand-business-signup .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 42px;
+}
+
+.brand-business-signup .wizard > .actions {
+    position: static;
+    padding-top: 16px;
+    margin-top: 16px;
+}
+
+.brand-business-signup .wizard > .actions a {
+    min-width: 110px;
+    text-align: center;
+}
+
+.brand-business-signup .wizard > .actions a[href="#previous"] {
+    background: #eff2fa;
+    color: var(--brand-navy);
+}
+
+.brand-business-signup .wizard > .actions a[href="#finish"] {
+    background: var(--brand-navy);
+}
+
+.brand-business-signup .wizard .form-control.error {
+    border-color: #ad2535;
+    background: #fffafb;
+}
+
+@media (max-width: 767px) {
+    .brand-business-signup .brand-registration-card {
+        padding: 18px 16px 14px;
+    }
+
+    .brand-business-signup .brand-registration-heading h1 {
+        font-size: 25px;
+    }
+
+    .brand-business-signup .brand-registration-heading > p:last-child {
+        line-height: 1.6;
+    }
+
+    .brand-business-signup .wizard > .steps a {
+        min-height: 78px;
+        justify-content: center;
+        line-height: 1.3;
+    }
+
+    .brand-business-signup .wizard .form-control {
+        font-size: 16px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .mbira-public *,
     .mbira-public *::before,

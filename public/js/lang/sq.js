@@ -112,7 +112,7 @@ LANG = {
 "last_year": "Vitin e kaluar", 
 "last_financial_year": "Viti i fundit financiar", 
 "this_month_last_year": "Këtë muaj vitin e kaluar", 
-'enter_pin_here': 'Vendosni PIN-in këtu',
+'enter_pin_here': 'Vendosni Password-in këtu',
 'authentication_failed': 'Autentikimi dështoi!',
 'authentication_successfull': 'Autentikimi u krye me sukses',
 'please_enter' : 'Ju lutem shkruani',

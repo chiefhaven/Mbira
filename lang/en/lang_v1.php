@@ -236,7 +236,7 @@ return [
     'welcome_back' => 'Welcome Back',
     'register' => 'Register',
     'username' => 'Username',
-    'password' => 'PIN',
+    'password' => 'Password',
     'remember_me' => 'Remember Me',
     'forgot_your_password' => 'Forgot Your Password?',
     'reset_password' => 'Reset Password',

@@ -522,6 +522,12 @@ class Util
 
         $client = new Client(!empty($data['require_delivery_confirmation']) ? ['timeout' => 20, 'connect_timeout' => 5] : []);
 
+        if (!empty($data['require_delivery_confirmation'])) {
+            $options = ['allow_redirects' => false];
+        } else {
+            $options = [];
+        }
+
         $headers = [];
         if (! empty($sms_settings['header_1'])) {
             $headers[$sms_settings['header_1']] = $sms_settings['header_val_1'];
@@ -533,7 +539,6 @@ class Util
             $headers[$sms_settings['header_3']] = $sms_settings['header_val_3'];
         }
 
-        $options = [];
         if (! empty($headers)) {
             $options['headers'] = $headers;
         }

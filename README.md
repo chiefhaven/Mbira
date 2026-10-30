@@ -69,6 +69,11 @@ These pages also use `layouts.partials.public-footer`, including navigation,
 configured social links, copyright, and any custom branding footer text.
 Registration retains its existing three-step wizard, validation, package selection,
 and registration-enabled setting. Styling does not enable public registration.
+The post-verification business wizard has a gold-accented workspace card,
+verified-contact banner and blue step navigation. All fields in the active step
+remain visible with normal page scrolling, without an inner scroll area or
+height cap. Wizard actions follow the fields. Styling is scoped to public signup;
+shared administrator forms are unchanged. The stylesheet is content-versioned.
 Registration and backend business, location, and Superadmin settings support
 only Malawi, Malawian Kwacha (MWK), and the Africa/Blantyre time zone.
 Server-side validation rejects other values. Registration uses +265 phone-number
@@ -113,7 +118,34 @@ gateway). Both channels start disabled until configured. Registration SMS
 credentials are encrypted in the system settings and never copied to tenant
 businesses. Log, array, and fallback mail transports cannot deliver registration
 codes. Custom SMS gateways must return an HTTP error when they reject a message;
-Nexmo response status is also checked.
+Nexmo response status is also checked. Custom SMS OTP requests reject redirects,
+HTML/login responses, malformed JSON, and JSON `status: error/failed/failure/fail`
+or `success: false` even when the gateway returns HTTP 200. Other custom
+gateway formats must reject failed requests with HTTP errors. Acceptance by
+SMTP or an SMS API does not guarantee delivery; check the provider's delivery
+reports for rejected/queued messages.
+
+Registration uses the SMS fields in **Superadmin Settings > Registration
+verification**, not an individual business's SMS settings. For MbiraNotify's
+`/api/http/sms/send` endpoint, configure the Other service as follows:
+
+| Setting | Value |
+| --- | --- |
+| URL | `https://mbiranotify.havenplustechnologies.co.mw/api/http/sms/send` |
+| Method / data type | POST / JSON |
+| Send-to parameter / type | `recipient` / String |
+| Message parameter | `message` |
+| Header 1 | `Accept` = `application/json` |
+| Header 2 | `Content-Type` = `application/json` |
+| Parameter 1 | `api_token` = your gateway token |
+| Parameter 2 | `sender_id` = your gateway-approved sender |
+| Parameter 3 | `type` = `plain` |
+
+Enable SMS OTP and save. `to` is not a valid recipient parameter for this
+gateway. Enter credentials only in the authenticated settings form.
+Never paste API tokens or verification codes into logs or
+support messages. Email delivery uses the separate SMTP configuration; on cPanel
+check **Track Delivery**, including rejection and deferral details.
 
 Codes contain 6 digits, expire after 5 minutes, and allow at most 5 guesses.
 Resends wait 60 seconds; delivery is limited to 5 requests per contact per hour

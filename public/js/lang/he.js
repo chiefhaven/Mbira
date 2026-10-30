@@ -135,7 +135,7 @@ LANG = {
     'not_connected_to_a_network': 'אין חיבור לרשת',
     'skus_already_exists': 'ה-SKU :sku כבר קיים',
     'copied_to_clipboard': 'הועתק ללוח',
-    'enter_pin_here': 'הזן PIN כאן',
+    'enter_pin_here': 'הזן Password כאן',
     'authentication_failed': 'האימות נכשל!',
     'authentication_successfull': 'האימות הצליח',
     'please_enter': 'נא להזין ',

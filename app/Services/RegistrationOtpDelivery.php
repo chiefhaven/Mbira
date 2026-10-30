@@ -107,6 +107,31 @@ class RegistrationOtpDelivery
         if ($result === false) {
             throw new \RuntimeException('Registration SMS provider is not configured.');
         }
+        if (($settings['sms_service'] ?? 'other') === 'other') {
+            $this->assertCustomSmsAccepted($result);
+        }
+    }
+
+    private function assertCustomSmsAccepted($response): void
+    {
+        if (!$response instanceof \Psr\Http\Message\ResponseInterface ||
+            $response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            throw new \RuntimeException('Registration SMS gateway did not accept the request.');
+        }
+
+        $body = trim((string) $response->getBody());
+        $contentType = strtolower($response->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'text/html') || str_starts_with($body, '<')) {
+            throw new \RuntimeException('Registration SMS gateway returned an HTML page instead of an API response.');
+        }
+        if (str_contains($contentType, 'json') || str_starts_with($body, '{') || str_starts_with($body, '[')) {
+            $result = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            $status = is_array($result) ? ($result['status'] ?? null) : null;
+            if ((is_string($status) && in_array(strtolower($status), ['error', 'failed', 'failure', 'fail'], true)) ||
+                (is_array($result) && ($result['success'] ?? null) === false)) {
+                throw new \RuntimeException('Registration SMS gateway rejected the message.');
+            }
+        }
     }
 
     private function assertEmailConfigured(array $mailSettings = []): void

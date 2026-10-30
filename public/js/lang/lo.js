@@ -132,7 +132,7 @@ LANG = {
 'settings': 'ການຕັ້ງຄ່າ',
 'advance_payment_cannot_be_more_than_once': 'ການຈ່າຍເງິນລ່ວງໜ້າບໍ່ສາມາດເລືອກໄດ້ຫຼາຍກວ່າໜຶ່ງຄັ້ງ',
 'not_connected_to_a_network': 'ທ່ານບໍ່ໄດ້ເຊື່ອມຕໍ່ກັບເຄືອຂ່າຍ,',
-'enter_pin_here': 'ໃສ່ລະຫັດ PIN ທີ່ນີ້',
+'enter_pin_here': 'ໃສ່ລະຫັດ Password ທີ່ນີ້',
 'authentication_failed': 'ການກວດສອບບໍ່ສຳເລັດ!',
 'authentication_successfull': 'ການກວດສອບສົບຜົນສຳເລັດ',
 'please_enter' : 'ກະລຸນາປ້ອນ',

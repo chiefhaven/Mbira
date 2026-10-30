@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'workspace_label' => 'BUILD YOUR WORKSPACE',
+    'workspace_hint' => 'Bring your business to life with :app. Start with the essentials below.',
+    'required_fields' => 'Fields marked * are required.',
     'get_started' => 'GET STARTED',
     'workspace_intro' => 'Your next chapter starts here.',
     'setup_intro' => 'One workspace for your sales, stock and business insights.',

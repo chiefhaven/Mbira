@@ -112,7 +112,7 @@ LANG = {
 "last_year": "L'année dernière", 
 "last_financial_year": "Dernier exercice", 
 "this_month_last_year": "Ce mois l'année dernière",
-'enter_pin_here': 'Entrez le code PIN ici',
+'enter_pin_here': 'Entrez le code Password ici',
 'authentication_failed': "Échec de l'authentification !",
 'authentication_successfull': 'Authentification réussie',
 'please_enter' : 'Veuillez entrer',
