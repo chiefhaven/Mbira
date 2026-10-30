@@ -10,7 +10,7 @@ and related configuration. Contact HavenPlus support for assistance.
 ### Git-pull deployments: required styles
 
 The distributable styles in `public/css/app.css`, `public/css/vendor.css`,
-`public/css/rtl.css`, and `public/css/tailwind/app.css`, plus the Bootstrap
+`public/css/rtl.css`, and `public/css/tailwind/app.css`, plus the Bootstra p
 Glyphicons and Ionicons files in `public/fonts`, must be committed and deployed
 with the application. They are intentionally exempt from `.gitignore` so a
 Git-pull deployment includes the styles used by login, registration, and the
