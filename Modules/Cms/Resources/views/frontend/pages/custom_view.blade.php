@@ -1,9 +1,6 @@
 @extends('cms::frontend.layouts.app')
 @section('title', $page->title)
 @includeIf('cms::frontend.layouts.header')
-@section('meta')
-    <meta name="description" content="{{$page->meta_description}}">
-@endsection
 @section('content')
 <div class="article-block space-between-blocks">
     <div class="container col-xxl-10 px-xxl-0">

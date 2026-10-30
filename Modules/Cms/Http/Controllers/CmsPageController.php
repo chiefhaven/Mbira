@@ -108,6 +108,9 @@ class CmsPageController extends Controller
         $title = str_replace('-', ' ', $page_title);
 
         $page = CmsPage::where('title', $title)
+                    ->where('type', 'page')
+                    ->whereNull('layout')
+                    ->where('is_enabled', 1)
                     ->first();
 
         if (empty($page)) {

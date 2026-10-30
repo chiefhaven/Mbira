@@ -11,9 +11,6 @@
     }
 @endphp
 @section('body_class', 'cms-home cms-contact mbira-public')
-@section('meta')
-    <meta name="description" content="{{$page->meta_description}}">
-@endsection
 @section('css')
 <link rel="stylesheet" href="{{ \Modules\Cms\Utils\CmsUtil::assetUrl('css/homepage.css') }}">
 <link rel="stylesheet" href="{{ asset('brand-public.css?v=' . $asset_v) }}">

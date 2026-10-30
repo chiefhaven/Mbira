@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/', [Modules\Cms\Http\Controllers\CmsController::class, 'index']);
+Route::get('sitemap.xml', [Modules\Cms\Http\Controllers\SeoController::class, 'sitemap'])->name('cms.sitemap');
+Route::get('robots.txt', [Modules\Cms\Http\Controllers\SeoController::class, 'robots'])->name('cms.robots');
 Route::get('modules/cms/{asset}', [Modules\Cms\Http\Controllers\CmsAssetController::class, 'show'])
     ->where('asset', 'css/(?:cms|homepage)\.css|js/cms\.js|img/(?:contact\.jpg|default\.png|home\.png)')
     ->name('cms.asset');

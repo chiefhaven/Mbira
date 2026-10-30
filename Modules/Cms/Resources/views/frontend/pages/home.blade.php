@@ -42,9 +42,6 @@
     <link rel="stylesheet" href="{{ \Modules\Cms\Utils\CmsUtil::assetUrl('css/homepage.css') }}">
     <link rel="stylesheet" href="{{ asset('brand-public.css?v=' . $asset_v) }}">
 @endsection
-@section('meta')
-    <meta name="description" content="{{$page->meta_description}}">
-@endsection
 @section('content')
 @php
     $page_meta = $page->pageMeta->keyBy('meta_key');

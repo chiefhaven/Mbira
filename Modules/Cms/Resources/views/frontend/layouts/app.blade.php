@@ -10,7 +10,7 @@
             {!!$__site_details['meta_tags']!!}
         @endif
 
-        @yield('meta')
+        @include('cms::frontend.seo.metadata')
 
         <!-- font awesome 5 free -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"/>
@@ -22,7 +22,6 @@
         <script src="https://unpkg.com/tua-body-scroll-lock"></script>
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>@yield('title') | {{config('app.name', 'ultimatePOS')}}</title>
         <!-- custom css code -->
         @if(!empty($__site_details['custom_css']))
             {!!$__site_details['custom_css']!!}

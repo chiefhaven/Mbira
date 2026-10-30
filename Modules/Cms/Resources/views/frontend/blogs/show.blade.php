@@ -1,8 +1,5 @@
 @extends('cms::frontend.layouts.app')
 @section('title', $blog->title)
-@section('meta')
-    <meta name="description" content="{{$blog->meta_description}}">
-@endsection
 @section('content')
 @includeIf('cms::frontend.layouts.header')
     <div class="article-block space-between-blocks">
