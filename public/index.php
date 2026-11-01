@@ -5,6 +5,10 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Autoload diagnostics must be logged, not prepended to HTML or JSON responses.
+ini_set('log_errors', '1');
+ini_set('display_errors', '0');
+
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance

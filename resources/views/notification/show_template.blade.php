@@ -136,23 +136,12 @@
 </div><!-- /.modal-dialog -->
 
 <script type="text/javascript">
-// Fix for not updating textarea value on modal
-  // CKEDITOR.on('instanceReady', function(){
-  //    $.each( CKEDITOR.instances, function(instance) {
-  //     CKEDITOR.instances[instance].on("change", function(e) {
-  //         for ( instance in CKEDITOR.instances )
-  //         CKEDITOR.instances[instance].updateElement();
-  //     });
-  //    });
-  // });
-
-  if (_.isNull(tinyMCE.activeEditor)) {
-        tinymce.init({
-            selector: 'textarea#email_body',
-        });
-    }
-    
   $(document).ready(function(){
+    var modal = $('#send_notification_form').closest('.view_modal');
+    // Bootstrap does not emit shown again when replacing an already-open modal.
+    if (modal.hasClass('in')) {
+      init_notification_email_editor(modal);
+    }
     //initialize iCheck
     $('input[type="checkbox"].input-icheck, input[type="radio"].input-icheck').iCheck({
       checkboxClass: 'icheckbox_square-blue',

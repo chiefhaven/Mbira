@@ -2693,12 +2693,27 @@ function getTotalUnreadNotifications(){
     }
 }
 
-$(document).on('shown.bs.modal', '.view_modal', function (e) {
-    if ($(this).find('#email_body').length) {
-        tinymce.init({
-            selector: 'textarea#email_body',
-        });
+function init_notification_email_editor(modal) {
+    var email_body = $(modal).find('textarea#email_body')[0];
+    if (!email_body) {
+        return;
     }
+
+    var editor = tinymce.get(email_body.id);
+    if (editor && editor.getElement() === email_body) {
+        return;
+    }
+    // Replacing an open modal leaves the previous editor attached to a detached field.
+    if (editor) {
+        editor.remove();
+    }
+    tinymce.init({
+        target: email_body,
+    });
+}
+
+$(document).on('shown.bs.modal', '.view_modal', function (e) {
+    init_notification_email_editor(this);
 });
 $(document).on('hidden.bs.modal', '.view_modal', function (e) {
     if ($(this).find('#email_body').length) {

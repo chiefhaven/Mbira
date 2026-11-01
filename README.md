@@ -228,6 +228,18 @@ confirmation dialog) must retain their own busy handling. Standalone pages
 outside the shared layouts must include the shared guard partial after jQuery.
 Run `node tests/Standalone/form_submission_guard_checks.js` for isolated checks.
 
+## Payment reminder email editor
+
+Payment reminders and other notification modals initialize the email editor for
+the current email body field, including when replacing an already-open payment
+modal. Stale editors from previous modal contents are removed; reopening a
+notification displays its current template without changing other editors.
+The web entrypoint logs early PHP diagnostics instead of displaying them before
+the HTML doctype, which would put the page in quirks mode and prevent TinyMCE
+from starting.
+Run `node tests/Standalone/notification_email_editor_checks.js` for isolated
+modal replacement, reopen, and editor initialization checks.
+
 ## Backend profile menu
 
 The backend navbar profile menu shows the user's uploaded profile photo, or
