@@ -18,14 +18,33 @@ class EventServiceProvider extends ServiceProvider
         // ],
         \App\Events\TransactionPaymentAdded::class => [
             \App\Listeners\AddAccountTransaction::class,
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handlePaymentAdded',
         ],
 
         \App\Events\TransactionPaymentUpdated::class => [
             \App\Listeners\UpdateAccountTransaction::class,
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handlePaymentUpdated',
         ],
 
         \App\Events\TransactionPaymentDeleted::class => [
             \App\Listeners\DeleteAccountTransaction::class,
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handlePaymentDeleted',
+        ],
+
+        \App\Events\SellCreatedOrModified::class => [
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handleSale',
+        ],
+
+        \App\Events\PurchaseCreatedOrModified::class => [
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handlePurchase',
+        ],
+
+        \App\Events\ExpenseCreatedOrModified::class => [
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handleExpense',
+        ],
+
+        'eloquent.deleted: App\\Transaction' => [
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handleTransactionDeleted',
         ],
 
         \Modules\EIS\Events\SaleCompleted::class => [

@@ -422,14 +422,20 @@ class TransactionController extends Controller
                 $existing_deposit = AccountingAccountsTransaction::where('transaction_id', $id)
                                         ->where('map_type', 'deposit_to')
                                         ->first();
-                $default_payment_account = !empty($existing_payment) ? AccountingAccount::find($existing_payment->accounting_account_id) : null;
-                $default_deposit_to = !empty($existing_deposit) ? AccountingAccount::find($existing_deposit->accounting_account_id) : null;
+                $default_payment_account = !empty($existing_payment) ? AccountingAccount::where('business_id', $business_id)->find($existing_payment->accounting_account_id) : null;
+                $default_deposit_to = !empty($existing_deposit) ? AccountingAccount::where('business_id', $business_id)->find($existing_deposit->accounting_account_id) : null;
 
                 return view('accounting::transactions.map')
                         ->with(compact('transaction', 'type', 'default_payment_account', 'default_deposit_to'));
             } elseif(in_array($type, ['purchase_payment', 'sell_payment'])){
                 $transaction_payment = TransactionPayment::where('id', $id)->where('business_id', $business_id)
+                                    ->whereNull('parent_id')
+                                    ->where('method', '!=', 'advance')
                                     ->firstorFail();
+                $expectedTransactionType = $type === 'sell_payment' ? 'sell' : 'purchase';
+                Transaction::where('business_id', $business_id)
+                    ->where('type', $expectedTransactionType)
+                    ->findOrFail($transaction_payment->transaction_id);
                 
                 $existing_payment = AccountingAccountsTransaction::where('transaction_payment_id', $id)
                                     ->where('map_type', 'payment_account')
@@ -437,8 +443,8 @@ class TransactionController extends Controller
                 $existing_deposit = AccountingAccountsTransaction::where('transaction_payment_id', $id)
                                     ->where('map_type', 'deposit_to')
                                     ->first();
-                $default_payment_account = !empty($existing_payment) ? AccountingAccount::find($existing_payment->accounting_account_id) : null;
-                $default_deposit_to = !empty($existing_deposit) ? AccountingAccount::find($existing_deposit->accounting_account_id) : null;
+                $default_payment_account = !empty($existing_payment) ? AccountingAccount::where('business_id', $business_id)->find($existing_payment->accounting_account_id) : null;
+                $default_deposit_to = !empty($existing_deposit) ? AccountingAccount::where('business_id', $business_id)->find($existing_deposit->accounting_account_id) : null;
 
                 return view('accounting::transactions.map')
                             ->with(compact('transaction_payment', 'type', 'default_payment_account', 'default_deposit_to'));
@@ -460,8 +466,8 @@ class TransactionController extends Controller
                 $existing_deposit = AccountingAccountsTransaction::where('transaction_id', $id)
                                         ->where('map_type', 'deposit_to')
                                         ->first();
-                $default_payment_account = !empty($existing_payment) ? AccountingAccount::find($existing_payment->accounting_account_id) : null;
-                $default_deposit_to = !empty($existing_deposit) ? AccountingAccount::find($existing_deposit->accounting_account_id) : null;
+                $default_payment_account = !empty($existing_payment) ? AccountingAccount::where('business_id', $business_id)->find($existing_payment->accounting_account_id) : null;
+                $default_deposit_to = !empty($existing_deposit) ? AccountingAccount::where('business_id', $business_id)->find($existing_deposit->accounting_account_id) : null;
 
                 return view('accounting::transactions.map')
                         ->with(compact('transaction', 'type', 'default_payment_account', 'default_deposit_to'));
@@ -471,134 +477,96 @@ class TransactionController extends Controller
 
     public function saveMap(Request $request){
         $business_id = request()->session()->get('user.business_id');
-        
+
         if (!(auth()->user()->can('superadmin') || 
             $this->moduleUtil->hasThePermissionInSubscription($business_id, 'accounting_module')) || 
             !(auth()->user()->can('accounting.map_transactions')) ) {
             abort(403, 'Unauthorized action.');
         }
 
-        try {
-            if (request()->ajax()) {
-                DB::beginTransaction();
+        $validated = $request->validate([
+            'type' => 'required|in:sell,purchase,sell_payment,purchase_payment',
+            'id' => 'required|integer',
+            'payment_account' => 'required|integer|different:deposit_to',
+            'deposit_to' => 'required|integer',
+        ]);
 
-                $type = $request->get('type');
-                $id = $request->get('id');
-                $user_id = request()->session()->get('user.id');
+        $accountIds = [(int) $validated['payment_account'], (int) $validated['deposit_to']];
+        $accounts = AccountingAccount::where('business_id', $business_id)
+            ->where('status', 'active')
+            ->whereIn('id', $accountIds)
+            ->count();
 
-                $deposit_to = $request->get('deposit_to');
-                $payment_account = $request->get('payment_account');
-
-                if($type == 'sell'){
-                    $transaction = Transaction::where('business_id', $business_id)->where('id', $id)->firstorFail();
-
-                    //$payment_account will increase = sales = credit
-                    $payment_data = [
-                            'accounting_account_id'=> $payment_account, 
-                            'transaction_id' => $id,
-                            'transaction_payment_id' => null,
-                            'amount' => $transaction->final_total,
-                            'type' => 'credit',
-                            'sub_type' => $type,
-                            'map_type' => 'payment_account',
-                            'created_by' => $user_id,
-                            'operation_date' => \Carbon::now(),
-                        ];
-
-                    //Deposit to will increase = debit
-                    $deposit_data = [
-                            'accounting_account_id'=> $deposit_to, 
-                            'transaction_id' => $id,
-                            'transaction_payment_id' => null,
-                            'amount' => $transaction->final_total,
-                            'type' => 'debit',
-                            'sub_type' => $type,
-                            'map_type' => 'deposit_to',
-                            'created_by' => $user_id,
-                            'operation_date' => \Carbon::now(),
-                        ];
-                    
-                } elseif(in_array($type, ['purchase_payment', 'sell_payment'])){
-                    $transaction_payment = TransactionPayment::where('id', $id)->where('business_id', $business_id)
-                                    ->firstorFail();
-
-                    //$payment_account will increase = sales = credit
-                    $payment_data = [
-                        'accounting_account_id'=> $payment_account,
-                        'transaction_id' => null,
-                        'transaction_payment_id' => $id,
-                        'amount' => $transaction_payment->amount,
-                        'type' => 'credit',
-                        'sub_type' => $type,
-                        'map_type' => 'payment_account',
-                        'created_by' => $user_id,
-                        'operation_date' => \Carbon::now(),
-                    ];
-
-                    //Deposit to will increase = debit
-                    $deposit_data = [
-                            'accounting_account_id'=> $deposit_to,
-                            'transaction_id' => null,
-                            'transaction_payment_id' => $id,
-                            'amount' => $transaction_payment->amount,
-                            'type' => 'debit',
-                            'sub_type' => $type,
-                            'map_type' => 'deposit_to',
-                            'created_by' => $user_id,
-                            'operation_date' => \Carbon::now(),
-                        ];
-                }elseif($type == 'purchase'){
-                    $transaction = Transaction::where('business_id', $business_id)->where('id', $id)->firstorFail();
-
-                    //$payment_account will increase = sales = credit
-                    $payment_data = [
-                            'accounting_account_id'=> $payment_account, 
-                            'transaction_id' => $id,
-                            'transaction_payment_id' => null,
-                            'amount' => $transaction->final_total,
-                            'type' => 'credit',
-                            'sub_type' => $type,
-                            'map_type' => 'payment_account',
-                            'created_by' => $user_id,
-                            'operation_date' => \Carbon::now(),
-                        ];
-
-                    //Deposit to will increase = debit
-                    $deposit_data = [
-                            'accounting_account_id'=> $deposit_to, 
-                            'transaction_id' => $id,
-                            'transaction_payment_id' => null,
-                            'amount' => $transaction->final_total,
-                            'type' => 'debit',
-                            'sub_type' => $type,
-                            'map_type' => 'deposit_to',
-                            'created_by' => $user_id,
-                            'operation_date' => \Carbon::now(),
-                        ];
-                    
-                }
-
-                AccountingAccountsTransaction::updateOrCreateMapTransaction($payment_data);
-                AccountingAccountsTransaction::updateOrCreateMapTransaction($deposit_data);
-                
-                DB::commit();
-
-                $output = ['success' => true,
-                            'msg' => __("lang_v1.updated_success")
-                        ];
-            }
-        } catch (\Exception $e) {
-            print_r($e->getMessage());exit;
-            DB::rollBack();
-
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-
-            $output = ['success' => false,
-                'msg' => __("messages.something_went_wrong")
-            ];
+        if ($accounts !== 2) {
+            abort(422, 'Select two active accounting accounts belonging to this business.');
         }
 
-        return $output;
+        $type = $validated['type'];
+        $id = (int) $validated['id'];
+        $transactionId = null;
+        $transactionPaymentId = null;
+
+        if (in_array($type, ['sell', 'purchase'], true)) {
+            $transaction = Transaction::where('business_id', $business_id)
+                ->where('type', $type)
+                ->findOrFail($id);
+            $amount = $transaction->final_total;
+            $operationDate = $transaction->transaction_date;
+            $transactionId = (int) $transaction->id;
+        } else {
+            $payment = TransactionPayment::where('business_id', $business_id)
+                ->whereNull('parent_id')
+                ->where('method', '!=', 'advance')
+                ->findOrFail($id);
+            $expectedTransactionType = $type === 'sell_payment' ? 'sell' : 'purchase';
+            $transaction = Transaction::where('business_id', $business_id)
+                ->where('type', $expectedTransactionType)
+                ->findOrFail($payment->transaction_id);
+            $amount = $payment->amount;
+            $operationDate = $payment->paid_on;
+            $transactionPaymentId = (int) $payment->id;
+        }
+
+        if (empty($operationDate)) {
+            abort(422, 'The source transaction has no posting date.');
+        }
+
+        $entries = app(\Modules\Accounting\Services\AccrualPostingService::class)
+            ->buildMappingEntries(
+                $type,
+                $amount,
+                $transactionId,
+                $transactionPaymentId,
+                $accountIds[0],
+                $accountIds[1],
+                (int) request()->session()->get('user.id'),
+                \Carbon\Carbon::parse($operationDate)->toDateTimeString()
+            );
+
+        try {
+            DB::transaction(function () use ($entries) {
+                foreach ($entries as $entry) {
+                    AccountingAccountsTransaction::updateOrCreateMapTransaction($entry);
+                }
+            });
+
+            return [
+                'success' => true,
+                'msg' => __('lang_v1.updated_success'),
+            ];
+        } catch (\Throwable $e) {
+            \Log::error('Accounting transaction mapping failed.', [
+                'business_id' => $business_id,
+                'type' => $validated['type'],
+                'source_id' => $validated['id'],
+                'exception' => $e,
+            ]);
+
+            return [
+                'success' => false,
+                'msg' => __('messages.something_went_wrong'),
+            ];
+        }
     }
 
 

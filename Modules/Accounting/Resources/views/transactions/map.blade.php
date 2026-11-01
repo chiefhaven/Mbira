@@ -25,16 +25,30 @@
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
-                {!! Form::label('payment_account', __('accounting::lang.payment_account') . ':*' ) !!}
-                {!! Form::select('payment_account', !is_null($default_payment_account) ? [$default_payment_account->id => $default_payment_account->name] : [], $default_payment_account->id ?? null, ['class' => 'form-control accounts-dropdown','placeholder' => __('accounting::lang.payment_account'), 'required' => 'required']); !!}
+                @php
+                    $paymentAccountLabel = [
+                        'sell' => __('accounting::lang.income'),
+                        'purchase' => __('accounting::lang.inventory') . ' / ' . __('accounting::lang.expenses'),
+                        'sell_payment' => __('accounting::lang.accounts_receivable'),
+                        'purchase_payment' => __('accounting::lang.accounts_payable'),
+                    ][$type] ?? __('accounting::lang.payment_account');
+                    $depositToLabel = [
+                        'sell' => __('accounting::lang.accounts_receivable'),
+                        'purchase' => __('accounting::lang.accounts_payable'),
+                        'sell_payment' => __('accounting::lang.bank'),
+                        'purchase_payment' => __('accounting::lang.bank'),
+                    ][$type] ?? __('accounting::lang.deposit_to');
+                @endphp
+                {!! Form::label('payment_account', $paymentAccountLabel . ':*' ) !!}
+                {!! Form::select('payment_account', !is_null($default_payment_account) ? [$default_payment_account->id => $default_payment_account->name] : [], $default_payment_account->id ?? null, ['class' => 'form-control accounts-dropdown','placeholder' => $paymentAccountLabel, 'required' => 'required']); !!}
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="form-group">
-                {!! Form::label('deposit_to', __('accounting::lang.deposit_to') . ':*' ) !!}
+                {!! Form::label('deposit_to', $depositToLabel . ':*' ) !!}
                 {!! Form::select('deposit_to', !is_null($default_deposit_to) ? 
-                    [$default_deposit_to->id => $default_deposit_to->name] : [], $default_deposit_to->id ?? null, ['class' => 'form-control accounts-dropdown','placeholder' => __('accounting::lang.deposit_to'), 'required' => 'required']); !!}
+                    [$default_deposit_to->id => $default_deposit_to->name] : [], $default_deposit_to->id ?? null, ['class' => 'form-control accounts-dropdown','placeholder' => $depositToLabel, 'required' => 'required']); !!}
             </div>
         </div>
     </div>

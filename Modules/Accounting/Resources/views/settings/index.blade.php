@@ -62,6 +62,49 @@
                                     </div>
                                 </div>
                             </div>
+                            <hr>
+                            <h4>Automatic accounting postings</h4>
+                            <p>When enabled, new or changed finalized sales, received purchases, expenses, and related payments are posted automatically. Existing transactions are not backfilled.</p>
+                            <div class="checkbox">
+                                <label>
+                                    {!! Form::checkbox('auto_posting_enabled', 1, !empty($accounting_settings['auto_posting_enabled'])) !!}
+                                    Enable automatic postings for this business
+                                </label>
+                            </div>
+                            @php
+                                $auto_accounts = $accounting_settings['auto_posting_accounts'] ?? [];
+                                $auto_account_roles = [
+                                    'receivables' => 'Accounts receivable (asset)',
+                                    'sales' => 'Sales income',
+                                    'payables' => 'Accounts payable (liability)',
+                                    'inventory' => 'Inventory (asset)',
+                                    'cost_of_goods_sold' => 'Cost of goods sold (expense)',
+                                    'output_tax' => 'Output tax payable (liability)',
+                                    'input_tax' => 'Recoverable input tax (asset)',
+                                    'expenses' => 'General expense account',
+                                    'clearing' => 'Cash/bank clearing (asset)',
+                                ];
+                            @endphp
+                            <div class="row">
+                                @foreach($auto_account_roles as $role => $label)
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            {!! Form::label('auto_posting_accounts_'.$role, $label.':') !!}
+                                            {!! Form::select('auto_posting_accounts['.$role.']', $auto_posting_accounts, $auto_accounts[$role] ?? null, [
+                                                'class' => 'form-control select2',
+                                                'style' => 'width:100%',
+                                                'placeholder' => 'Select an accounting account',
+                                            ]) !!}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    {!! Form::checkbox('auto_posting_purchase_tax_recoverable', 1, !empty($accounting_settings['auto_posting_purchase_tax_recoverable'])) !!}
+                                    Treat purchase and expense tax as recoverable input tax
+                                </label>
+                            </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group pull-right">
