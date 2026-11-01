@@ -36,6 +36,21 @@ class Form extends Element {
 const forms = [];
 const listeners = {};
 const windowListeners = {};
+const timers = new Map();
+let timerId = 0;
+function setTimeout(callback, delay) {
+    timerId++;
+    timers.set(timerId, { callback, delay });
+    return timerId;
+}
+function clearTimeout(id) {
+    timers.delete(id);
+}
+function fireTimers() {
+    const pending = [...timers.values()];
+    timers.clear();
+    pending.forEach(timer => timer.callback());
+}
 let prefilter;
 let dispatchHandler = () => {};
 let fetchResolve;
@@ -57,7 +72,7 @@ const document = {
     querySelectorAll: () => forms
 };
 vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname, '../../public/js/form-submission-guard.js'), 'utf8'), {
-    window, document, HTMLFormElement: Form, WeakMap, WeakSet, Promise
+    window, document, HTMLFormElement: Form, WeakMap, WeakSet, Promise, setTimeout, clearTimeout
 });
 
 function form() {
@@ -182,6 +197,48 @@ async function main() {
     await assert.rejects(failedFetch, /Network failed/);
     await Promise.resolve();
     assert.equal(failing.elements[0].disabled, false, 'Fetch failures restore controls without hiding errors');
+
+    const stalled = form();
+    listeners.submit(event(stalled));
+    await Promise.resolve();
+    assert.equal(stalled.elements[0].disabled, true);
+    assert.equal(timers.size, 1, 'Navigation locks schedule a release');
+    assert.equal([...timers.values()][0].delay, 15000, 'Same-window navigations use the long release');
+    fireTimers();
+    assert.equal(stalled.elements[0].disabled, false, 'Failed/stalled navigation re-enables controls');
+    const retry = event(stalled);
+    listeners.submit(retry);
+    assert.notEqual(retry.defaultPrevented, true, 'Released forms accept a retry');
+    await Promise.resolve();
+    windowListeners.pageshow();
+
+    const download = form();
+    download.setAttribute('target', '_blank');
+    listeners.submit(event(download));
+    await Promise.resolve();
+    assert.equal(download.elements[0].disabled, true);
+    assert.equal([...timers.values()][0].delay, 2000, 'Foreign-target submissions release quickly');
+    fireTimers();
+    assert.equal(download.elements[0].disabled, false, 'Download/new-tab submissions re-enable controls');
+
+    const mixed = form();
+    listeners.submit(event(mixed));
+    const finishMixed = request();
+    await Promise.resolve();
+    fireTimers();
+    assert.equal(mixed.elements[0].disabled, true, 'Pending requests keep controls locked after release');
+    finishMixed();
+    await Promise.resolve();
+    assert.equal(mixed.elements[0].disabled, false, 'AJAX completion restores after navigation release');
+
+    const unloading = form();
+    listeners.submit(event(unloading));
+    await Promise.resolve();
+    windowListeners.pagehide();
+    assert.equal(timers.size, 0, 'Actual unloads cancel the release timer');
+    windowListeners.pageshow();
+    assert.equal(unloading.elements[0].disabled, false, 'Returning via Back still restores controls');
+
     console.log('PASS: form submission guard checks (no dependencies or network).');
 }
 

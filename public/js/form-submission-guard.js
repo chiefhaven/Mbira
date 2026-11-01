@@ -5,6 +5,8 @@
         return;
     }
 
+    var NAVIGATION_RELEASE_MS = 15000;
+    var FOREIGN_TARGET_RELEASE_MS = 2000;
     var states = new WeakMap();
     var activeForm = null;
     var activeControl = null;
@@ -14,7 +16,7 @@
 
     function state(form) {
         if (!states.has(form)) {
-            states.set(form, { pending: 0, navigating: false, controls: [], busy: null });
+            states.set(form, { pending: 0, navigating: false, controls: [], busy: null, timer: null });
         }
         return states.get(form);
     }
@@ -84,6 +86,40 @@
         }
     }
 
+    function releaseDelay(form, control) {
+        // getAttribute avoids DOM clobbering by fields named "target".
+        var target = (control && control.getAttribute && control.getAttribute('formtarget')) ||
+            form.getAttribute('target') || '';
+        target = String(target).toLowerCase();
+        if (target === '' || target === '_self' || target === '_top' || target === '_parent') {
+            return NAVIGATION_RELEASE_MS;
+        }
+        // Submissions into another tab/window never unload this page.
+        return FOREIGN_TARGET_RELEASE_MS;
+    }
+
+    function cancelRelease(form) {
+        var current = state(form);
+        if (current.timer !== null) {
+            clearTimeout(current.timer);
+            current.timer = null;
+        }
+    }
+
+    function navigate(form, control) {
+        var current = state(form);
+        current.navigating = true;
+        lock(form, control);
+        cancelRelease(form);
+        // Downloads, new tabs, cancelled unloads and unreachable servers leave
+        // the page alive; release the lock so failed processes can be retried.
+        current.timer = setTimeout(function () {
+            current.timer = null;
+            current.navigating = false;
+            restore(form);
+        }, releaseDelay(form, control));
+    }
+
     function context(form, control, callback) {
         var previousForm = activeForm;
         var previousControl = activeControl;
@@ -139,8 +175,7 @@
         // Wait until validation and submit handlers decide whether navigation occurs.
         Promise.resolve().then(function () {
             if (!event.defaultPrevented && !state(form).navigating) {
-                state(form).navigating = true;
-                lock(form, event.submitter);
+                navigate(form, event.submitter);
             }
         });
     }, true);
@@ -151,8 +186,7 @@
         }
         // Serialize the native submitter/fields before disabling controls.
         nativeSubmit.call(this);
-        state(this).navigating = true;
-        lock(this);
+        navigate(this);
     };
 
     var $ = window.jQuery;
@@ -238,9 +272,20 @@
         };
     }
 
+    window.addEventListener('pagehide', function () {
+        // The page is actually unloading; stop release timers so a bfcache
+        // resume does not fire them before pageshow restores the forms.
+        document.querySelectorAll('form').forEach(function (form) {
+            if (states.has(form)) {
+                cancelRelease(form);
+            }
+        });
+    });
+
     window.addEventListener('pageshow', function () {
         document.querySelectorAll('form').forEach(function (form) {
             if (states.has(form)) {
+                cancelRelease(form);
                 state(form).navigating = false;
                 restore(form);
             }

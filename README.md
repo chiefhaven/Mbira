@@ -215,6 +215,11 @@ submit controls until navigation; AJAX and fetch requests initiated by form
 handlers restore controls on completion, including failures. Repeated clicks,
 Enter submissions and programmatic native submits are blocked while pending.
 Invalid/cancelled submissions and remote field validation do not lock the form.
+If a navigation lock never results in the page unloading (failed/cancelled
+navigation, unreachable server, file-download response, or a submission into a
+new tab via `target`/`formtarget`), the controls are re-enabled automatically —
+after about 2 seconds for foreign-target submissions and 15 seconds otherwise —
+so a failed process can always be retried.
 Existing disabled states and native form payloads are preserved; returning via
 browser Back restores navigation-locked controls.
 
