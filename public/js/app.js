@@ -383,7 +383,11 @@ $(document).ready(function() {
             { data: 'name', name: 'name' },
             { data: 'email', name: 'email' },
             { data: 'tax_number', name: 'tax_number' },
-            { data: 'authorization_code', name: 'contacts.authorization_code', defaultContent: '' },
+        ];
+        if ($('#eis_auth_col').length) {
+            columns.push({ data: 'authorization_code', name: 'contacts.authorization_code', defaultContent: '' });
+        }
+        Array.prototype.push.apply(columns, [
             { data: 'pay_term', name: 'pay_term', searchable: false, orderable: false },
             { data: 'opening_balance', name: 'opening_balance', searchable: false },
             { data: 'balance', name: 'balance', searchable: false },
@@ -402,7 +406,7 @@ $(document).ready(function() {
             { data: 'custom_field8', name: 'custom_field8'},
             { data: 'custom_field9', name: 'custom_field9'},
             { data: 'custom_field10', name: 'custom_field10'},
-        ];
+        ]);
     } else if (contact_table_type == 'customer') {
         var columns = [
             { data: 'action', searchable: false, orderable: false },
@@ -411,13 +415,17 @@ $(document).ready(function() {
             { data: 'name', name: 'name' },
             { data: 'email', name: 'email' },
             { data: 'tax_number', name: 'tax_number' },
-            { data: 'authorization_code', name: 'contacts.authorization_code', defaultContent: '' },
+        ];
+        if ($('#eis_auth_col').length) {
+            columns.push({ data: 'authorization_code', name: 'contacts.authorization_code', defaultContent: '' });
+        }
+        Array.prototype.push.apply(columns, [
             { data: 'credit_limit', name: 'credit_limit' },
             { data: 'pay_term', name: 'pay_term', searchable: false, orderable: false },
             { data: 'opening_balance', name: 'opening_balance', searchable: false },
             { data: 'balance', name: 'balance', searchable: false },
             { data: 'created_at', name: 'contacts.created_at' }
-        ];
+        ]);
 
         if ($('#rp_col').length) {
             columns.push({ data: 'total_rp', name: 'total_rp' });

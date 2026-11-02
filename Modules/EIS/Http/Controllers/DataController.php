@@ -24,8 +24,7 @@ class DataController extends Controller
         $user = auth()->user();
         $businessId = session()->get('user.business_id');
         if (!$user || !$businessId
-            || (!$user->can('superadmin')
-                && !app(EisSubscriptionAccess::class)->allows((int) $businessId))) {
+            || !app(EisSubscriptionAccess::class)->allows((int) $businessId)) {
             return;
         }
 

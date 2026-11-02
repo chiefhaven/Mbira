@@ -641,6 +641,11 @@ class BusinessController extends Controller
      */
     public function activateEISTerminal(Request $request)
     {
+        $business_id = $request->session()->get('user.business_id');
+        if (!app(EisSubscriptionAccess::class)->allows((int) $business_id)) {
+            abort(403, 'The active package does not include the EIS module.');
+        }
+
         $base_url = config('services.eis.base_url');
 
         try {

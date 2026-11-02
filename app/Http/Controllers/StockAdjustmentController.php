@@ -170,9 +170,12 @@ class StockAdjustmentController extends Controller
         if ($permitted !== 'all') {
             $locationQuery->whereIn('id', $permitted);
         }
-        $eisLocations = EisSetting::where('business_id', $business_id)
-            ->whereIn('location_id', $locationQuery->select('id'))
-            ->distinct()->pluck('location_id')->map(fn ($id) => (int) $id)->values();
+        $eisLocations = collect();
+        if (app(\Modules\EIS\Services\EisSubscriptionAccess::class)->allows((int) $business_id)) {
+            $eisLocations = EisSetting::where('business_id', $business_id)
+                ->whereIn('location_id', $locationQuery->select('id'))
+                ->distinct()->pluck('location_id')->map(fn ($id) => (int) $id)->values();
+        }
 
         return view('stock_adjustment.create')
                 ->with(compact('business_locations', 'eisLocations'));
@@ -455,6 +458,11 @@ class StockAdjustmentController extends Controller
         if ($permitted !== 'all' && !in_array($locationId, array_map('intval', (array) $permitted), true)) {
             abort(403);
         }
+
+        if (!app(\Modules\EIS\Services\EisSubscriptionAccess::class)->allows($businessId)) {
+            return null;
+        }
+
         $settings = EisSetting::where('business_id', $businessId)
             ->where('location_id', $locationId)->get();
         if ($settings->isEmpty()) {

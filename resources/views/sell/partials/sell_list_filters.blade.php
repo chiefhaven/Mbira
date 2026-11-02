@@ -23,7 +23,7 @@
     </div>
 </div>
 @endif
-@if(empty($only) || in_array('eis_void_status', $only))
+@if((empty($only) || in_array('eis_void_status', $only)) && \App\Services\EisProductPolicy::configured(session('user.business_id')))
 <div class="col-md-3">
     <div class="form-group">
         {!! Form::label('sell_list_filter_eis_void_status', 'EIS void status:') !!}

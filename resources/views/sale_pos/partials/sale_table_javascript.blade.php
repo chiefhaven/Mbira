@@ -1,4 +1,7 @@
 <script type="text/javascript">
+@php
+    $canUseEis = $canUseEis ?? \App\Services\EisProductPolicy::configured(session('user.business_id'));
+@endphp
 $(document).ready( function(){
 
 //Date range as a button
@@ -78,8 +81,10 @@ sell_table = $('#sell_table').DataTable({
             { data: 'invoice_no', name: 'invoice_no'},
             { data: 'added_by', name: 'u.first_name'},
             { data: 'payment_status', name: 'payment_status'},
+            @if ($canUseEis)
             { data: 'eis_status', name: 'eis_status'},
             { data: 'eis_void_status', name: 'eis_void_status', orderable: false, searchable: false},
+            @endif
             { data: 'payment_methods', orderable: false, "searchable": false},
             { data: 'final_total', name: 'final_total'},
             { data: 'total_paid', name: 'total_paid', "searchable": false},
@@ -123,7 +128,7 @@ sell_table = $('#sell_table').DataTable({
             $('.payment_method_count').html(__count_status(data, 'payment_methods'));
         },
         createdRow: function( row, data, dataIndex ) {
-            $( row ).find('td:eq(7)').attr('class', 'clickable_td');
+            $( row ).find('td:eq({{ $canUseEis ? 7 : 5 }})').attr('class', 'clickable_td');
         }
     });
     

@@ -244,6 +244,7 @@
         </div>
 
         
+        @if (app(\Modules\EIS\Services\EisSubscriptionAccess::class)->allows((int) session('user.business_id')))
         <div class="col-md-4">
           <div class="form-group">
               {!! Form::label('authorization_code', __('contact.eis_authorization_code') . ':') !!}
@@ -255,6 +256,7 @@
               </div>
           </div>
         </div>
+        @endif
 
         <div class="col-md-4 opening_balance">
           <div class="form-group">

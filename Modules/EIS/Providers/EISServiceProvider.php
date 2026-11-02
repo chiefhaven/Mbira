@@ -100,6 +100,9 @@ class EISServiceProvider extends ServiceProvider
             return new OfflineSignatureService();
         });
 
+        // Subscription access memoizes per business for the request lifetime.
+        $this->app->singleton(\Modules\EIS\Services\EisSubscriptionAccess::class);
+
     }
 
     /**

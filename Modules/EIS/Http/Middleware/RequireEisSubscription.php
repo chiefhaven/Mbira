@@ -15,10 +15,8 @@ class RequireEisSubscription
             $user = auth('api')->user();
         }
 
-        if ($user && $user->can('superadmin')) {
-            return $next($request);
-        }
-
+        // The business entitlement is authoritative: even superadmins are
+        // denied when the active package does not include the EIS module.
         $businessId = $user->business_id
             ?? $request->route('businessId')
             ?? $request->input('business_id');

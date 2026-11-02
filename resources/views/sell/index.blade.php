@@ -73,7 +73,9 @@
                             <th>@lang('lang_v1.contact_no')</th>
                             <th>@lang('sale.location')</th>
                             <th>@lang('sale.payment_status')</th>
-                            <th>EIS void status</th>
+                            @if ($canUseEis)
+                                <th>EIS void status</th>
+                            @endif
                             <th>@lang('lang_v1.payment_method')</th>
                             <th>@lang('sale.total_amount')</th>
                             <th>@lang('sale.total_paid')</th>
@@ -101,7 +103,9 @@
                         <tr class="bg-gray font-17 footer-total text-center">
                             <td colspan="6"><strong>@lang('sale.total'):</strong></td>
                             <td class="footer_payment_status_count"></td>
-                            <td></td>
+                            @if ($canUseEis)
+                                <td></td>
+                            @endif
                             <td class="payment_method_count"></td>
                             <td class="footer_sale_total"></td>
                             <td class="footer_total_paid"></td>
@@ -190,7 +194,9 @@
                         d.location_id = $('#sell_list_filter_location_id').val();
                         d.customer_id = $('#sell_list_filter_customer_id').val();
                         d.payment_status = $('#sell_list_filter_payment_status').val();
+                        @if ($canUseEis)
                         d.eis_void_status = $('#sell_list_filter_eis_void_status').val();
+                        @endif
                         d.created_by = $('#created_by').val();
                         d.sales_cmsn_agnt = $('#sales_cmsn_agnt').val();
                         d.service_staffs = $('#service_staffs').val();
@@ -247,12 +253,14 @@
                         data: 'payment_status',
                         name: 'payment_status'
                     },
+                    @if ($canUseEis)
                     {
                         data: 'eis_void_status',
                         name: 'eis_void_status',
                         orderable: false,
                         searchable: false
                     },
+                    @endif
                     {
                         data: 'payment_methods',
                         orderable: false,
@@ -404,8 +412,10 @@
             });
         });
     </script>
-    @include('sell.partials.eis_void_tools_javascript')
-    @include('sell.partials.eis_sale_sync_javascript')
+    @if ($canUseEis)
+        @include('sell.partials.eis_void_tools_javascript')
+        @include('sell.partials.eis_sale_sync_javascript')
+    @endif
     @if ($canUseEis && auth()->user()->can('sell.delete'))
         @include('eis::shared.result-table')
         @include('sell.partials.eis_cancel_receipt_javascript')

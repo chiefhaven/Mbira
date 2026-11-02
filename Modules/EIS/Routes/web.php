@@ -9,12 +9,23 @@ use Modules\EIS\Http\Controllers\StockToolsController;
 use Modules\EIS\Http\Controllers\ProductStatusController;
 
 Route::prefix('eis')->middleware('auth')->group(function () {
+    // Module installation is superadmin-only (enforced in the controller) and
+    // must stay reachable even when no business holds an EIS package.
     Route::get('install', [\Modules\EIS\Http\Controllers\InstallController::class, 'index'])
-        ->withoutMiddleware(\Modules\EIS\Http\Middleware\EnforceTerminalBusiness::class);
+        ->withoutMiddleware([
+            \Modules\EIS\Http\Middleware\EnforceTerminalBusiness::class,
+            \Modules\EIS\Http\Middleware\RequireEisSubscription::class,
+        ]);
     Route::get('install/update', [\Modules\EIS\Http\Controllers\InstallController::class, 'update'])
-        ->withoutMiddleware(\Modules\EIS\Http\Middleware\EnforceTerminalBusiness::class);
+        ->withoutMiddleware([
+            \Modules\EIS\Http\Middleware\EnforceTerminalBusiness::class,
+            \Modules\EIS\Http\Middleware\RequireEisSubscription::class,
+        ]);
     Route::get('install/uninstall', [\Modules\EIS\Http\Controllers\InstallController::class, 'uninstall'])
-        ->withoutMiddleware(\Modules\EIS\Http\Middleware\EnforceTerminalBusiness::class);
+        ->withoutMiddleware([
+            \Modules\EIS\Http\Middleware\EnforceTerminalBusiness::class,
+            \Modules\EIS\Http\Middleware\RequireEisSubscription::class,
+        ]);
 });
 
 Route::prefix('eis/stock/tools')->middleware('auth')->name('eis.stock.tools.')->group(function () {

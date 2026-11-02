@@ -2,6 +2,9 @@
 @section('title', __( 'sale.list_pos'))
 
 @section('content')
+@php
+    $canUseEis = \App\Services\EisProductPolicy::configured(session('user.business_id'));
+@endphp
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
@@ -30,12 +33,14 @@
                             </svg> @lang('messages.add')
                         </a>
                 </div>  --}}
+                @if ($canUseEis)
                 <div class="box-tools tw-mr-2">
                     <a class="submit-all-bills-btn tw-bg-gradient-to-r tw-dw-btn tw-from-green-600 tw-to-green-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right mr-2"
                     href="{{ route('sells.eis-submit-all-bills') }}" >
                         <i class="fa fa-cash"></i> @lang('lang_v1.submit_to_eis')
                     </a>
                 </div>
+                @endif
                 <div class="box-tools tw-mr-2">
                     <a class="clear-all-bills-btn tw-bg-gradient-to-r tw-dw-btn tw-from-green-600 tw-to-green-500 tw-font-bold tw-text-white tw-border-none tw-rounded-full pull-right mr-2"
                     href="{{ route('sells.clear-all-bill') }}" >
@@ -77,8 +82,10 @@
 @section('javascript')
 @include('sale_pos.partials.sale_table_javascript')
 @include('sale_pos.partials.clear_bills_javascript')
-@include('sale_pos.partials.eis_submit_bills_javascript')
-@include('sell.partials.eis_void_tools_javascript')
-@include('sell.partials.eis_sale_sync_javascript')
+@if (\App\Services\EisProductPolicy::configured(session('user.business_id')))
+    @include('sale_pos.partials.eis_submit_bills_javascript')
+    @include('sell.partials.eis_void_tools_javascript')
+    @include('sell.partials.eis_sale_sync_javascript')
+@endif
 <script src="{{ asset('js/payment.js?v=' . $asset_v) }}"></script>
 @endsection

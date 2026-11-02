@@ -368,7 +368,7 @@ class SellController extends Controller
                                 }
                             }
 
-                            if (auth()->user()->can('business_settings.access')) {
+                            if ($canUseEis && auth()->user()->can('business_settings.access')) {
                                 $fiscalSale = $row->relationLoaded('eisSale') ? $row->eisSale : null;
                                 $eisInvoiceNumber = $fiscalSale ? $fiscalSale->getRawOriginal('fiscal_invoice_number') : null;
                                 if ($fiscalSale && in_array($fiscalSale->status, ['pending', 'failed', 'submitted'], true)
@@ -1493,6 +1493,13 @@ class SellController extends Controller
             ], 400);
         }
 
+        if (!app(\Modules\EIS\Services\EisSubscriptionAccess::class)->allows((int) $business_id)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'The active package does not include the EIS module.'
+            ], 403);
+        }
+
         $count = Transaction::with('eisSale')
             ->where('business_id', $business_id)
             ->whereIn('location_id', $this->eisPermittedLocationIds((int) $business_id))
@@ -1523,6 +1530,13 @@ class SellController extends Controller
                     'success' => false,
                     'error' => 'Business ID not found in session'
                 ], 400);
+            }
+
+            if (!app(\Modules\EIS\Services\EisSubscriptionAccess::class)->allows((int) $business_id)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'The active package does not include the EIS module.'
+                ], 403);
             }
 
             $transactionIds = Transaction::where('business_id', $business_id)

@@ -1,5 +1,6 @@
 @php
     $custom_labels = json_decode(session('business.custom_labels'), true);
+    $canUseEis = $canUseEis ?? \App\Services\EisProductPolicy::configured(session('user.business_id'));
 @endphp
 <table class="table table-bordered table-striped ajax_view" id="sell_table">
     <thead>
@@ -9,8 +10,10 @@
             <th>@lang('sale.invoice_no')</th>
             <th>@lang('lang_v1.added_by')</th>
             <th>@lang('sale.payment_status')</th>
-            <th>@lang('sale.eis_status')</th>
-            <th>EIS void status</th>
+            @if ($canUseEis)
+                <th>@lang('sale.eis_status')</th>
+                <th>EIS void status</th>
+            @endif
             <th>@lang('lang_v1.payment_method')</th>
             <th>@lang('sale.total_amount')</th>
             <th>@lang('sale.total_paid')</th>
@@ -34,8 +37,10 @@
         <tr class="bg-gray font-17 footer-total text-center">
             <td colspan="4"><strong>@lang('sale.total'):</strong></td>
             <td class="footer_payment_status_count"></td>
-            <td></td>
-            <td></td>
+            @if ($canUseEis)
+                <td></td>
+                <td></td>
+            @endif
             <td class="payment_method_count"></td>
             <td class="footer_sale_total"></td>
             <td class="footer_total_paid"></td>

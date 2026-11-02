@@ -10,19 +10,20 @@ class EisSubscriptionAccess
 {
     private ?bool $superadminInstalled = null;
 
+    /** @var array<int, bool> */
+    private array $memo = [];
+
     public function allows(int $businessId): bool
     {
         if ($businessId <= 0) {
             return false;
         }
 
-        if (app()->bound('auth')) {
-            $user = auth()->user();
-            if ($user && $user->can('superadmin')) {
-                return true;
-            }
-        }
+        return $this->memo[$businessId] ??= $this->resolve($businessId);
+    }
 
+    private function resolve(int $businessId): bool
+    {
         if (!class_exists('Module') || !is_callable(['Module', 'has'])) {
             return true;
         }

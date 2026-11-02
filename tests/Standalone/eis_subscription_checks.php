@@ -143,11 +143,24 @@ try {
 
 $request = Request::create('/eis/terminals');
 $request->setUserResolver(fn () => new class {
+    public $business_id = 3;
+    public function can(string $permission): bool { return $permission === 'superadmin'; }
+});
+try {
+    $middleware->handle($request, fn () => 'unexpected');
+    throw new RuntimeException('A superadmin on a business without the EIS package must be denied');
+} catch (Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+    eisSubscriptionCheck($exception->getStatusCode() === 403, 'Superadmins follow their business package entitlement');
+}
+
+$request = Request::create('/eis/terminals');
+$request->setUserResolver(fn () => new class {
+    public $business_id = 4;
     public function can(string $permission): bool { return $permission === 'superadmin'; }
 });
 eisSubscriptionCheck(
     $middleware->handle($request, fn () => 'allowed') === 'allowed',
-    'Superadmins retain EIS access independent of business subscriptions'
+    'Superadmins on a business with the EIS entitlement retain access'
 );
 
 echo 'PASS: '.$checks." EIS subscription entitlement checks.\n";

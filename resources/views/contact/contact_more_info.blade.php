@@ -2,10 +2,12 @@
     $custom_labels = json_decode(session('business.custom_labels'), true);
 @endphp
 
+@if (app(\Modules\EIS\Services\EisSubscriptionAccess::class)->allows((int) session('user.business_id')))
 <strong><i class="fa fa-key margin-r-5"></i> @lang('contact.eis_authorization_code')</strong>
 <p class="text-muted">
     {{ $contact->authorization_code ?? '' }}
 </p>
+@endif
 
 @if(!empty($contact->custom_field1))
     <strong>{{ $custom_labels['contact']['custom_field_1'] ?? __('lang_v1.contact_custom_field1') }}</strong>

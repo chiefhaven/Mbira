@@ -146,12 +146,17 @@
                             <tr>
                                 <th class="tw-w-full">@lang('messages.action')</th>
                                 <th>@lang('lang_v1.contact_id')</th>
+                                @php
+                                    $canUseEisAuthCode = app(\Modules\EIS\Services\EisSubscriptionAccess::class)->allows((int) session('user.business_id'));
+                                @endphp
                                 @if ($type == 'supplier')
                                     <th>@lang('business.business_name')</th>
                                     <th>@lang('contact.name')</th>
                                     <th>@lang('business.email')</th>
                                     <th>@lang('contact.tax_no')</th>
-                                    <th>@lang('contact.eis_authorization_code')</th>
+                                    @if ($canUseEisAuthCode)
+                                        <th id="eis_auth_col">@lang('contact.eis_authorization_code')</th>
+                                    @endif
                                     <th>@lang('contact.pay_term')</th>
                                     <th>@lang('account.opening_balance')</th>
                                     <th>@lang('lang_v1.advance_balance')</th>
@@ -165,7 +170,9 @@
                                     <th>@lang('user.name')</th>
                                     <th>@lang('business.email')</th>
                                     <th>@lang('contact.tax_no')</th>
-                                    <th>@lang('contact.eis_authorization_code')</th>
+                                    @if ($canUseEisAuthCode)
+                                        <th id="eis_auth_col">@lang('contact.eis_authorization_code')</th>
+                                    @endif
                                     <th>@lang('lang_v1.credit_limit')</th>
                                     <th>@lang('contact.pay_term')</th>
                                     <th>@lang('account.opening_balance')</th>
@@ -223,7 +230,9 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
+                                @if ($canUseEisAuthCode)
+                                    <td></td>
+                                @endif
                                 <td @if ($type == 'supplier') colspan="6"
                             @elseif($type == 'customer')
                                 @if ($reward_enabled)
