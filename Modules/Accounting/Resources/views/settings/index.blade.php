@@ -64,7 +64,7 @@
                             </div>
                             <hr>
                             <h4>Automatic accounting postings</h4>
-                            <p>When enabled, new or changed finalized sales, received purchases, expenses, and related payments are posted automatically. Existing transactions are not backfilled.</p>
+                            <p>When enabled, new or changed finalized sales, received purchases, expenses, finalized payroll, and related payments are posted automatically. Existing transactions are not backfilled.</p>
                             <div class="checkbox">
                                 <label>
                                     {!! Form::checkbox('auto_posting_enabled', 1, !empty($accounting_settings['auto_posting_enabled'])) !!}
@@ -82,6 +82,7 @@
                                     'output_tax' => 'Output tax payable (liability)',
                                     'input_tax' => 'Recoverable input tax (asset)',
                                     'expenses' => 'General expense account',
+                                    'payroll_expenses' => 'Payroll expenses (optional; defaults to general expense)',
                                     'clearing' => 'Cash/bank clearing (asset)',
                                 ];
                             @endphp
@@ -91,6 +92,37 @@
                                         <div class="form-group">
                                             {!! Form::label('auto_posting_accounts_'.$role, $label.':') !!}
                                             {!! Form::select('auto_posting_accounts['.$role.']', $auto_posting_accounts, $auto_accounts[$role] ?? null, [
+                                                'class' => 'form-control select2',
+                                                'style' => 'width:100%',
+                                                'placeholder' => 'Select an accounting account',
+                                            ]) !!}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <hr>
+                            <h4>Asset accounting</h4>
+                            <p>Linked owned assets are reclassified from inventory when their purchase bill is received. Monthly depreciation is posted only by the reviewed depreciation run.</p>
+                            <div class="checkbox">
+                                <label>
+                                    {!! Form::checkbox('auto_posting_assets_enabled', 1, !empty($accounting_settings['auto_posting_assets_enabled'])) !!}
+                                    Enable linked asset and reviewed depreciation postings
+                                </label>
+                            </div>
+                            @php
+                                $asset_auto_accounts = $accounting_settings['auto_posting_asset_accounts'] ?? [];
+                                $asset_auto_account_roles = [
+                                    'fixed_assets' => 'Fixed assets',
+                                    'accumulated_depreciation' => 'Accumulated depreciation',
+                                    'depreciation_expense' => 'Depreciation expense',
+                                ];
+                            @endphp
+                            <div class="row">
+                                @foreach($asset_auto_account_roles as $role => $label)
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            {!! Form::label('auto_posting_asset_accounts_'.$role, $label.':') !!}
+                                            {!! Form::select('auto_posting_asset_accounts['.$role.']', $auto_posting_accounts, $asset_auto_accounts[$role] ?? null, [
                                                 'class' => 'form-control select2',
                                                 'style' => 'width:100%',
                                                 'placeholder' => 'Select an accounting account',

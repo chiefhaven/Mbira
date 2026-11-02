@@ -37,6 +37,8 @@ class SyncAccounting extends Command
                     $query->where('type', 'purchase')->where('status', 'received');
                 })->orWhere(function ($query) {
                     $query->where('type', 'expense')->where('status', 'final');
+                })->orWhere(function ($query) {
+                    $this->whereEligiblePayroll($query);
                 });
             });
         $total = (clone $query)->count();
@@ -52,6 +54,8 @@ class SyncAccounting extends Command
                     $query->where('transactions.type', 'purchase')->where('transactions.status', 'received');
                 })->orWhere(function ($query) {
                     $query->where('transactions.type', 'expense')->where('transactions.status', 'final');
+                })->orWhere(function ($query) {
+                    $this->whereEligiblePayroll($query);
                 });
             })
             ->count();
@@ -84,5 +88,25 @@ class SyncAccounting extends Command
 
         $this->info("Processed {$processed} eligible transactions for business {$businessId}.");
         return self::SUCCESS;
+    }
+
+    private function whereEligiblePayroll($query): void
+    {
+        $query->where('transactions.type', 'payroll')
+            ->where('transactions.status', 'final')
+            ->where(function ($query) {
+                $query->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('essentials_payroll_group_transactions as payroll_links')
+                        ->whereColumn('payroll_links.transaction_id', 'transactions.id');
+                })->orWhereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('essentials_payroll_group_transactions as payroll_links')
+                        ->join('essentials_payroll_groups as payroll_groups', 'payroll_groups.id', '=', 'payroll_links.payroll_group_id')
+                        ->whereColumn('payroll_links.transaction_id', 'transactions.id')
+                        ->whereColumn('payroll_groups.business_id', 'transactions.business_id')
+                        ->where('payroll_groups.status', 'final');
+                });
+            });
     }
 }

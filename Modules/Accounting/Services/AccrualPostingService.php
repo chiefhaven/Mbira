@@ -7,6 +7,7 @@ use App\Transaction;
 use App\TransactionPayment;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Modules\AssetManagement\Entities\Asset;
 use Modules\Accounting\Entities\AccountingAccount;
 use Modules\Accounting\Entities\AccountingAccountsTransaction;
 use RuntimeException;
@@ -131,6 +132,238 @@ class AccrualPostingService
         foreach ($payments as $payment) {
             $this->syncPayment($payment, $deleted, $deleted ? $transaction : null);
         }
+
+        if ($transaction->type === 'purchase' && DB::connection()->getSchemaBuilder()->hasColumn('assets', 'purchase_transaction_id')) {
+            Asset::where('business_id', $transaction->business_id)
+                ->where('purchase_transaction_id', $transaction->id)
+                ->orderBy('id')
+                ->get()
+                ->each(function (Asset $asset) {
+                    $this->syncAssetAcquisition($asset);
+                });
+        }
+    }
+
+    public function syncAssetAcquisition(Asset $asset, bool $deleted = false): void
+    {
+        $businessId = (int) $asset->business_id;
+        $sourceType = 'asset_acquisition';
+        $hasDepreciationHistory = DB::connection()->getSchemaBuilder()->hasTable('accounting_asset_depreciation_postings')
+            && DB::table('accounting_asset_depreciation_postings')
+                ->where('business_id', $businessId)
+                ->where('asset_id', $asset->id)
+                ->exists();
+        if ($deleted && $this->sourceExists($businessId, $sourceType, (int) $asset->id)
+            && $this->sourceIsPosted($businessId, $sourceType, (int) $asset->id)) {
+            throw new RuntimeException("Capitalized asset {$asset->asset_code} cannot be deleted; record a disposal instead.");
+        }
+
+        $settings = $this->settingsForBusiness($businessId);
+        $enabled = !empty($settings['auto_posting_enabled'])
+            && !empty($settings['auto_posting_assets_enabled']);
+        if (!$enabled && $hasDepreciationHistory
+            && $this->sourceIsPosted($businessId, $sourceType, (int) $asset->id)) {
+            return;
+        }
+        $purchase = !empty($asset->purchase_transaction_id)
+            ? Transaction::where('business_id', $businessId)
+                ->where('type', 'purchase')
+                ->find($asset->purchase_transaction_id)
+            : null;
+        $lines = [];
+        $status = 'inactive';
+
+        if ($enabled && !$deleted) {
+            $this->assertSourceTrackerReady();
+            $accounts = $this->validatedAccounts($businessId, $settings);
+            $assetAccounts = $this->validatedAssetAccounts($businessId, $settings);
+
+            if ($asset->purchase_type === 'owned' && $purchase !== null && $purchase->status === 'received') {
+                $amount = round((float) $asset->quantity * (float) $asset->unit_price, 4);
+                $netBillAmount = round((float) $purchase->final_total - (float) $purchase->tax_amount, 4);
+                $otherAssetAmount = (float) DB::table('assets')
+                    ->where('business_id', $businessId)
+                    ->where('purchase_transaction_id', $purchase->id)
+                    ->where('id', '!=', $asset->id)
+                    ->sum(DB::raw('quantity * unit_price'));
+
+                if ($amount <= 0 || round($otherAssetAmount + $amount, 4) > $netBillAmount) {
+                    throw new RuntimeException("Asset {$asset->asset_code} exceeds the net value of purchase bill #{$purchase->id}.");
+                }
+
+                $lines = [
+                    $this->line($assetAccounts['fixed_assets'], $amount, 'debit', 'asset_capitalization'),
+                    $this->line($accounts['inventory'], $amount, 'credit', 'asset_inventory_reclassification'),
+                ];
+                $status = 'posted';
+            }
+        }
+
+        if ($hasDepreciationHistory && $status !== 'posted') {
+            throw new RuntimeException("Asset {$asset->asset_code} has depreciation history and cannot be unlinked from an active received purchase bill.");
+        }
+        if ($hasDepreciationHistory) {
+            $source = $this->sourceSnapshot($businessId, $sourceType, (int) $asset->id);
+            $previousCapitalization = collect($source['lines'] ?? [])
+                ->firstWhere('map_type', 'asset_capitalization');
+            $previousTransactionId = !empty($previousCapitalization['ledger_id'])
+                ? DB::table('accounting_accounts_transactions')->where('id', $previousCapitalization['ledger_id'])->value('transaction_id')
+                : null;
+            if ($previousCapitalization === null
+                || (int) $previousTransactionId !== (int) $purchase->id
+                || abs((float) $previousCapitalization['amount'] - (float) $lines[0]['amount']) > 0.0001) {
+                throw new RuntimeException("Asset {$asset->asset_code} acquisition value and purchase bill cannot change after depreciation has been posted.");
+            }
+        }
+
+        if ($enabled || $this->sourceExists($businessId, $sourceType, (int) $asset->id)) {
+            $this->syncSource(
+                $businessId,
+                $sourceType,
+                (int) $asset->id,
+                $lines,
+                $purchase !== null ? $purchase->transaction_date : ($asset->purchase_date ?: now()),
+                (int) $asset->created_by,
+                $deleted ? 'deleted' : $status,
+                $purchase !== null ? (int) $purchase->id : null,
+                null
+            );
+        }
+    }
+
+    public function assertAssetPostingReady(int $businessId): void
+    {
+        $this->assertBusinessReady($businessId);
+        $settings = $this->settingsForBusiness($businessId);
+        if (empty($settings['auto_posting_assets_enabled'])) {
+            throw new RuntimeException("Asset accounting is not enabled for business {$businessId}.");
+        }
+
+        $this->validatedAssetAccounts($businessId, $settings);
+        if (!DB::connection()->getSchemaBuilder()->hasTable('accounting_asset_depreciation_postings')) {
+            throw new RuntimeException('Apply the Accounting asset-depreciation migration before running depreciation.');
+        }
+        if (!DB::connection()->getSchemaBuilder()->hasTable('assets')
+            || !DB::connection()->getSchemaBuilder()->hasColumn('assets', 'purchase_transaction_id')) {
+            throw new RuntimeException('Apply the Asset Management purchase-link migration before running depreciation.');
+        }
+    }
+
+    public function assetDepreciationCandidates(int $businessId, string $period): array
+    {
+        $periodStart = \Carbon\Carbon::createFromFormat('Y-m-d', $period)->startOfMonth();
+        $periodEnd = $periodStart->copy()->endOfMonth();
+        $candidates = [];
+
+        $assets = Asset::where('business_id', $businessId)
+            ->where('purchase_type', 'owned')
+            ->whereNotNull('purchase_transaction_id')
+            ->whereDate('purchase_date', '<=', $periodEnd->toDateString())
+            ->where('depreciation', '>', 0)
+            ->orderBy('id')
+            ->get();
+
+        foreach ($assets as $asset) {
+            $purchase = Transaction::where('business_id', $businessId)
+                ->where('type', 'purchase')
+                ->where('status', 'received')
+                ->find($asset->purchase_transaction_id);
+            if ($purchase === null || !$this->sourceIsPosted($businessId, 'asset_acquisition', (int) $asset->id)) {
+                continue;
+            }
+
+            $alreadyPosted = DB::table('accounting_asset_depreciation_postings')
+                ->where('business_id', $businessId)
+                ->where('asset_id', $asset->id)
+                ->whereDate('period', $periodStart->toDateString())
+                ->exists();
+            if ($alreadyPosted) {
+                continue;
+            }
+
+            $assetCost = round((float) $asset->quantity * (float) $asset->unit_price, 4);
+            $previousDepreciation = (float) DB::table('accounting_asset_depreciation_postings')
+                ->where('business_id', $businessId)
+                ->where('asset_id', $asset->id)
+                ->where('period', '<', $periodStart->toDateString())
+                ->sum('amount');
+            $remainingBasis = round(max(0, $assetCost - $previousDepreciation), 4);
+            $amount = round(min((float) $asset->depreciation, $remainingBasis), 4);
+
+            if ($amount > 0) {
+                $candidates[] = [
+                    'asset' => $asset,
+                    'purchase' => $purchase,
+                    'period' => $periodStart->toDateString(),
+                    'amount' => $amount,
+                ];
+            }
+        }
+
+        return $candidates;
+    }
+
+    public function postAssetDepreciation(array $candidate): bool
+    {
+        $asset = $candidate['asset'];
+        $purchase = $candidate['purchase'];
+        $businessId = (int) $asset->business_id;
+        $settings = $this->settingsForBusiness($businessId);
+        $this->assertAssetPostingReady($businessId);
+        $assetAccounts = $this->validatedAssetAccounts($businessId, $settings);
+        $periodStart = \Carbon\Carbon::parse($candidate['period'])->startOfMonth();
+        $operationDate = $periodStart->copy()->endOfMonth()->toDateTimeString();
+
+        return DB::transaction(function () use ($asset, $purchase, $businessId, $candidate, $assetAccounts, $periodStart, $operationDate) {
+            DB::table('business')->where('id', $businessId)->lockForUpdate()->first();
+            $alreadyPosted = DB::table('accounting_asset_depreciation_postings')
+                ->where('business_id', $businessId)
+                ->where('asset_id', $asset->id)
+                ->whereDate('period', $periodStart->toDateString())
+                ->exists();
+            if ($alreadyPosted) {
+                return false;
+            }
+
+            $priorAmount = (float) DB::table('accounting_asset_depreciation_postings')
+                ->where('business_id', $businessId)
+                ->where('asset_id', $asset->id)
+                ->where('period', '<', $periodStart->toDateString())
+                ->sum('amount');
+            $basis = round((float) $asset->quantity * (float) $asset->unit_price, 4);
+            $amount = round(min((float) $candidate['amount'], max(0, $basis - $priorAmount)), 4);
+            if ($amount <= 0) {
+                return false;
+            }
+
+            $postingId = DB::table('accounting_asset_depreciation_postings')->insertGetId([
+                'business_id' => $businessId,
+                'asset_id' => $asset->id,
+                'period' => $periodStart->toDateString(),
+                'amount' => number_format($amount, 4, '.', ''),
+                'created_by' => $asset->created_by,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $lines = [
+                $this->line($assetAccounts['depreciation_expense'], $amount, 'debit', 'asset_depreciation_expense'),
+                $this->line($assetAccounts['accumulated_depreciation'], $amount, 'credit', 'asset_accumulated_depreciation'),
+            ];
+
+            $this->syncSource(
+                $businessId,
+                'asset_depreciation',
+                (int) $postingId,
+                $lines,
+                $operationDate,
+                (int) $asset->created_by,
+                'posted',
+                (int) $purchase->id,
+                null
+            );
+
+            return true;
+        });
     }
 
     public function syncPayment(TransactionPayment $payment, bool $deleted = false, ?Transaction $sourceTransaction = null): void
@@ -228,7 +461,7 @@ class AccrualPostingService
 
             $grossWages = round($gross + $deductionTotal, 4);
             return $this->withoutZeroLines([
-                $this->line($accounts['expenses'], $grossWages, 'debit', 'payroll_expense'),
+                $this->line($accounts['payroll_expenses'], $grossWages, 'debit', 'payroll_expense'),
                 $this->line($accounts['payables'], $grossWages, 'credit', 'payroll_payable'),
             ]);
         }
@@ -257,17 +490,6 @@ class AccrualPostingService
             return $this->withoutZeroLines($lines);
         }
 
-        private function payrollGroupIsFinal(Transaction $transaction): bool
-        {
-            $status = DB::table('essentials_payroll_group_transactions as payroll_links')
-                ->join('essentials_payroll_groups as payroll_groups', 'payroll_groups.id', '=', 'payroll_links.payroll_group_id')
-                ->where('payroll_links.transaction_id', $transaction->id)
-                ->where('payroll_groups.business_id', $transaction->business_id)
-                ->value('payroll_groups.status');
-
-            return $status === null || $status === 'final';
-        }
-
         $expenseAccount = $transaction->type === 'purchase' ? 'inventory' : 'expenses';
         $taxAccount = !empty($settings['auto_posting_purchase_tax_recoverable']) ? 'input_tax' : null;
         $expenseNet = $taxAccount === null ? $gross : $net;
@@ -281,6 +503,17 @@ class AccrualPostingService
         }
 
         return $this->withoutZeroLines($lines);
+    }
+
+    private function payrollGroupIsFinal(Transaction $transaction): bool
+    {
+        $status = DB::table('essentials_payroll_group_transactions as payroll_links')
+            ->join('essentials_payroll_groups as payroll_groups', 'payroll_groups.id', '=', 'payroll_links.payroll_group_id')
+            ->where('payroll_links.transaction_id', $transaction->id)
+            ->where('payroll_groups.business_id', $transaction->business_id)
+            ->value('payroll_groups.status');
+
+        return $status === null || $status === 'final';
     }
 
     private function saleCost(int $transactionId): float
@@ -466,6 +699,37 @@ class AccrualPostingService
             ->exists();
     }
 
+    private function sourceIsPosted(int $businessId, string $sourceType, int $sourceId): bool
+    {
+        $snapshot = $this->sourceSnapshot($businessId, $sourceType, $sourceId);
+
+        return is_array($snapshot) && ($snapshot['status'] ?? null) === 'posted';
+    }
+
+    private function sourceSnapshot(int $businessId, string $sourceType, int $sourceId): ?array
+    {
+        $source = DB::table('accounting_source_postings')
+            ->where('business_id', $businessId)
+            ->where('source_type', $sourceType)
+            ->where('source_id', $sourceId)
+            ->value('snapshot');
+
+        if ($source === null) {
+            return null;
+        }
+
+        try {
+            $snapshot = json_decode($source, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new RuntimeException("Accounting source snapshot for {$sourceType} #{$sourceId} is invalid.", 0, $exception);
+        }
+        if (!is_array($snapshot)) {
+            throw new RuntimeException("Accounting source snapshot for {$sourceType} #{$sourceId} is invalid.");
+        }
+
+        return $snapshot;
+    }
+
     private function settingsForBusiness(int $businessId): array
     {
         if (array_key_exists($businessId, $this->settingsCache)) {
@@ -507,6 +771,9 @@ class AccrualPostingService
             'expenses' => 'expenses',
             'clearing' => 'asset',
         ];
+        if (!empty($configured['payroll_expenses'])) {
+            $expectedTypes['payroll_expenses'] = 'expenses';
+        }
         $accounts = [];
         foreach ($expectedTypes as $key => $type) {
             $accounts[$key] = (int) ($configured[$key] ?? 0);
@@ -514,6 +781,9 @@ class AccrualPostingService
 
         if (count(array_unique($accounts)) !== count($expectedTypes)) {
             throw new RuntimeException('Automatic accounting requires a different account for each posting role.');
+        }
+        if (!isset($accounts['payroll_expenses'])) {
+            $accounts['payroll_expenses'] = (int) ($configured['expenses'] ?? 0);
         }
 
         $cacheKey = $businessId . ':' . hash('sha256', json_encode($accounts, JSON_THROW_ON_ERROR));
@@ -535,6 +805,42 @@ class AccrualPostingService
         }
 
         $this->accountCache[$cacheKey] = $accounts;
+
+        return $accounts;
+    }
+
+    private function validatedAssetAccounts(int $businessId, array $settings): array
+    {
+        $configured = $settings['auto_posting_asset_accounts'] ?? [];
+        $expectedTypes = [
+            'fixed_assets' => 'asset',
+            'accumulated_depreciation' => 'asset',
+            'depreciation_expense' => 'expenses',
+        ];
+        $accounts = [];
+        foreach ($expectedTypes as $key => $type) {
+            $accounts[$key] = (int) ($configured[$key] ?? 0);
+        }
+
+        $generalAccounts = array_map('intval', array_values($settings['auto_posting_accounts'] ?? []));
+        if (count(array_unique($accounts)) !== count($expectedTypes)
+            || count(array_unique(array_merge(array_values($accounts), $generalAccounts)))
+                !== count($accounts) + count($generalAccounts)) {
+            throw new RuntimeException('Automatic asset accounting requires distinct fixed-asset, accumulated-depreciation, and depreciation-expense accounts.');
+        }
+
+        $records = AccountingAccount::where('business_id', $businessId)
+            ->where('status', 'active')
+            ->whereIn('id', array_values($accounts))
+            ->get(['id', 'account_primary_type'])
+            ->keyBy('id');
+
+        foreach ($expectedTypes as $key => $type) {
+            $account = $records->get($accounts[$key]);
+            if ($account === null || $account->account_primary_type !== $type) {
+                throw new RuntimeException("Automatic asset accounting is not configured with a valid {$key} account.");
+            }
+        }
 
         return $accounts;
     }

@@ -5,12 +5,14 @@ namespace Modules\AssetManagement\Http\Controllers;
 use App\BusinessLocation;
 use App\Category;
 use App\Media;
+use App\Transaction;
 use App\Utils\ModuleUtil;
 use App\Utils\Util;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Modules\AssetManagement\Entities\Asset;
 use Modules\AssetManagement\Entities\AssetTransaction;
 use Modules\AssetManagement\Entities\AssetWarranty;
@@ -266,9 +268,10 @@ class AssetController extends Controller
             $business_locations = BusinessLocation::forDropdown($business_id);
 
             $purchase_types = $this->purchaseTypes;
+            $purchase_transactions = $this->purchaseBillDropdown($business_id);
 
             return view('assetmanagement::asset.create')
-                ->with(compact('asset_category', 'business_locations', 'purchase_types'));
+                ->with(compact('asset_category', 'business_locations', 'purchase_types', 'purchase_transactions'));
         }
     }
 
@@ -290,14 +293,20 @@ class AssetController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $this->validatePurchaseBillLink($request, $business_id);
+
         try {
             $input = $request->only('asset_code', 'name', 'quantity', 'model',
                 'serial_no', 'category_id', 'location_id', 'purchase_date',
-                'unit_price', 'depreciation', 'is_allocatable', 'description', 'purchase_type');
+                'unit_price', 'depreciation', 'is_allocatable', 'description', 'purchase_type',
+                'purchase_transaction_id');
 
             $input['business_id'] = $business_id;
             $input['created_by'] = request()->session()->get('user.id');
             $input['is_allocatable'] = ! empty($input['is_allocatable']) ? 1 : 0;
+            $input['purchase_transaction_id'] = !empty($input['purchase_transaction_id'])
+                ? (int) $input['purchase_transaction_id']
+                : null;
 
             DB::beginTransaction();
 
@@ -326,6 +335,7 @@ class AssetController extends Controller
             }
 
             $asset = Asset::create($input);
+            event(new \Modules\AssetManagement\Events\AssetCreatedOrModified($asset));
 
             //upload media
             if ($request->has('image')) {
@@ -412,9 +422,10 @@ class AssetController extends Controller
             $business_locations = BusinessLocation::forDropdown($business_id);
 
             $purchase_types = $this->purchaseTypes;
+            $purchase_transactions = $this->purchaseBillDropdown($business_id, (int) $asset->purchase_transaction_id);
 
             return view('assetmanagement::asset.edit')
-                ->with(compact('asset_category', 'business_locations', 'asset', 'purchase_types'));
+                ->with(compact('asset_category', 'business_locations', 'asset', 'purchase_types', 'purchase_transactions'));
         }
     }
 
@@ -437,11 +448,17 @@ class AssetController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $this->validatePurchaseBillLink($request, $business_id, (int) $id);
+
         try {
             $input = $request->only('name', 'quantity', 'model',
                         'category_id', 'location_id', 'purchase_date', 'unit_price', 'depreciation',
-                        'is_allocatable', 'description', 'purchase_type', 'serial_no');
+                        'is_allocatable', 'description', 'purchase_type', 'serial_no',
+                        'purchase_transaction_id');
             $input['is_allocatable'] = ! empty($input['is_allocatable']) ? 1 : 0;
+            $input['purchase_transaction_id'] = !empty($input['purchase_transaction_id'])
+                ? (int) $input['purchase_transaction_id']
+                : null;
 
             DB::beginTransaction();
 
@@ -465,6 +482,7 @@ class AssetController extends Controller
                         ->findOrfail($id);
 
             $asset->update($input);
+            event(new \Modules\AssetManagement\Events\AssetCreatedOrModified($asset));
 
             //update existing warranties
             $edited_warranty_ids = [];
@@ -558,6 +576,7 @@ class AssetController extends Controller
                 $asset = Asset::where('business_id', $business_id)
                             ->findOrfail($id);
 
+                event(new \Modules\AssetManagement\Events\AssetCreatedOrModified($asset, true));
                 $asset->delete();
                 $asset->media()->delete();
 
@@ -645,5 +664,74 @@ class AssetController extends Controller
         return view('assetmanagement::asset.dashboard')
                 ->with(compact('total_assets_allocated', 'asset_allocation_by_category',
                     'is_admin', 'total_assets', 'assets_by_category', 'expiring_assets', 'total_assets_allocated_for_all_users'));
+    }
+
+    private function purchaseBillDropdown(int $businessId, ?int $includeTransactionId = null): array
+    {
+        $query = Transaction::where('business_id', $businessId)
+            ->where('type', 'purchase')
+            ->where(function ($query) use ($includeTransactionId) {
+                $query->where('status', 'received');
+                if ($includeTransactionId !== null) {
+                    $query->orWhere('id', $includeTransactionId);
+                }
+            })
+            ->orderByDesc('transaction_date')
+            ->get(['id', 'ref_no', 'transaction_date']);
+
+        return $query->mapWithKeys(function ($transaction) {
+            return [
+                $transaction->id => sprintf(
+                    '%s - %s (#%s)',
+                    $transaction->ref_no ?: 'Purchase',
+                    \Carbon\Carbon::parse($transaction->transaction_date)->format('Y-m-d'),
+                    $transaction->id
+                ),
+            ];
+        })->all();
+    }
+
+    private function validatePurchaseBillLink(Request $request, int $businessId, ?int $assetId = null): void
+    {
+        $purchaseTransactionId = $request->input('purchase_transaction_id');
+        if (empty($purchaseTransactionId)) {
+            return;
+        }
+
+        if ($request->input('purchase_type') !== 'owned') {
+            throw ValidationException::withMessages([
+                'purchase_transaction_id' => 'Only owned assets can be linked to a purchase bill for capitalization.',
+            ]);
+        }
+
+        $purchase = Transaction::where('business_id', $businessId)
+            ->where('type', 'purchase')
+            ->where('status', 'received')
+            ->whereKey($purchaseTransactionId)
+            ->first();
+        if ($purchase === null) {
+            throw ValidationException::withMessages([
+                'purchase_transaction_id' => 'Select a received purchase bill from this business.',
+            ]);
+        }
+
+        $amount = round(
+            (float) $this->commonUtil->num_uf($request->input('quantity'))
+                * (float) $this->commonUtil->num_uf($request->input('unit_price')),
+            4
+        );
+        $otherAssets = DB::table('assets')
+            ->where('business_id', $businessId)
+            ->where('purchase_transaction_id', $purchase->id);
+        if ($assetId !== null) {
+            $otherAssets->where('id', '!=', $assetId);
+        }
+        $otherAmount = (float) $otherAssets->sum(DB::raw('quantity * unit_price'));
+        $billNetAmount = round((float) $purchase->final_total - (float) $purchase->tax_amount, 4);
+        if ($amount <= 0 || round($otherAmount + $amount, 4) > $billNetAmount) {
+            throw ValidationException::withMessages([
+                'purchase_transaction_id' => 'Linked asset values cannot exceed the purchase bill net amount.',
+            ]);
+        }
     }
 }

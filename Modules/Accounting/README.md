@@ -27,15 +27,33 @@ while the payment clears the receivable/payable. The payment must not be mapped
 to the income or expense account again.
 
 Automatic posting is opt-in per business in Accounting settings. Once enabled,
-final sales and expenses, received purchases, and eligible related payments are
-posted to the active ledger using that business's selected accounts. Recoverable
-purchase/expense tax and sale cost of goods sold are posted separately. Changed
-sources create reversing entries before replacements; repeated events are
-idempotent. Enabling automation does not backfill existing transactions.
+final sales and expenses, received purchases, finalized HRM payroll, and eligible
+related payments are posted to the active ledger using that business's selected
+accounts. Payroll expense uses gross wages (net pay plus recorded deductions);
+payroll can use a dedicated expense account, falling back to the general expense
+account when no payroll-specific account is configured.
+payroll payments clear the payable, leaving withheld deductions in the selected
+payables account. Recoverable purchase/expense tax and sale cost of goods sold
+are posted separately. Changed sources create reversing entries before
+replacements; repeated events are idempotent. Enabling automation does not
+backfill existing transactions.
+
+Asset accounting has a separate opt-in and separate account mappings. Link an
+owned asset to a received purchase bill in Asset Management; its quantity times
+unit price is reclassified from inventory to fixed assets, and the linked value
+cannot exceed the bill's net total. Rented and leased assets are not capitalized.
+The existing asset `depreciation` value is treated as a fixed monthly amount.
+Review a proposed period using
+`php artisan accounting:assets-depreciation <business_id> YYYY-MM --dry-run`;
+remove `--dry-run` only after review to post. The run is idempotent and caps
+cumulative depreciation at the linked asset cost. Asset depreciation is not
+automatically backfilled. Assets with posted depreciation cannot be deleted or
+unlinked from their received purchase bill until an asset-disposal workflow is
+available, preventing removal of accounting history without a disposal entry.
 Apply the source-postings migration before enabling automation; the tracker must
 use a transactional table so reversals and replacement entries commit together.
-To backfill eligible finalized sales, received purchases, expenses, and their
-payments for a single configured business, run
+To backfill eligible finalized sales, received purchases, expenses, payroll, and
+their payments for a single configured business, run
 `php artisan accounting:sync <business_id> --dry-run` to review the count, then
 run `php artisan accounting:sync <business_id>`. The command is tenant-scoped,
 chunked, and safe to rerun; drafts, orders, and return documents are not included.

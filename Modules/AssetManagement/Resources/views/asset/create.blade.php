@@ -71,6 +71,11 @@
                     {!! Form::label('purchase_type', __('assetmanagement::lang.purchase_type') . ':' )!!}
                     {!! Form::select('purchase_type', $purchase_types, null, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'style' => 'width: 100%;']); !!}
                 </div>
+                <div class="col-md-4">
+                    {!! Form::label('purchase_transaction_id', 'Received purchase bill:') !!}
+                    {!! Form::select('purchase_transaction_id', $purchase_transactions, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'style' => 'width: 100%;']); !!}
+                    <p class="help-block">Link an owned asset to its bill to reclassify its value from inventory to fixed assets.</p>
+                </div>
                 <div class="clearfix"></div>
                 <div class="col-md-4">
                     <div class="form-group">

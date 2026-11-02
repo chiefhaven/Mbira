@@ -10,6 +10,8 @@ use App\Transaction;
 use App\TransactionPayment;
 use Modules\Accounting\Entities\AccountingAccountsTransaction;
 use Modules\Accounting\Services\AccrualPostingService;
+use Modules\Accounting\Utils\AccountingUtil;
+use Modules\AssetManagement\Entities\Asset;
 
 $checks = 0;
 
@@ -21,6 +23,13 @@ function verifyAccountingTrial(bool $condition, string $message): void
         throw new RuntimeException('FAIL: ' . $message);
     }
 }
+
+$balanceFormula = (new AccountingUtil())->balanceFormula('AA', 'AAT');
+verifyAccountingTrial(
+    strpos($balanceFormula, "AA.account_primary_type='expenses'") !== false
+        && strpos($balanceFormula, "AA.account_primary_type='expense'") === false,
+    'HavenPlus chart balances recognize the expenses account type'
+);
 
 $capsule = new Capsule(new Container());
 $capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']);
@@ -69,6 +78,10 @@ $db->table('accounting_accounts')->insert([
     ['id' => 184, 'business_id' => $businessId, 'status' => 'active', 'account_primary_type' => 'asset'],
     ['id' => 183, 'business_id' => $businessId, 'status' => 'active', 'account_primary_type' => 'expenses'],
     ['id' => 181, 'business_id' => $businessId, 'status' => 'active', 'account_primary_type' => 'asset'],
+    ['id' => 90, 'business_id' => $businessId, 'status' => 'active', 'account_primary_type' => 'expenses'],
+    ['id' => 29, 'business_id' => $businessId, 'status' => 'active', 'account_primary_type' => 'asset'],
+    ['id' => 83, 'business_id' => $businessId, 'status' => 'active', 'account_primary_type' => 'asset'],
+    ['id' => 89, 'business_id' => $businessId, 'status' => 'active', 'account_primary_type' => 'expenses'],
 ]);
 $service = new AccrualPostingService();
 $scenarios = [
@@ -149,8 +162,41 @@ foreach ([
         $table->string('status');
         $table->decimal('final_total', 22, 4);
         $table->decimal('tax_amount', 22, 4)->default(0);
+        $table->text('essentials_deductions')->nullable();
         $table->dateTime('transaction_date');
         $table->integer('created_by');
+    },
+    'essentials_payroll_groups' => function (Blueprint $table) {
+        $table->increments('id');
+        $table->integer('business_id');
+        $table->string('status');
+    },
+    'essentials_payroll_group_transactions' => function (Blueprint $table) {
+        $table->integer('payroll_group_id');
+        $table->integer('transaction_id');
+    },
+    'assets' => function (Blueprint $table) {
+        $table->increments('id');
+        $table->integer('business_id');
+        $table->string('asset_code');
+        $table->string('name');
+        $table->decimal('quantity', 22, 4);
+        $table->decimal('unit_price', 22, 4);
+        $table->decimal('depreciation', 22, 4)->nullable();
+        $table->string('purchase_type')->nullable();
+        $table->integer('purchase_transaction_id')->nullable();
+        $table->date('purchase_date')->nullable();
+        $table->integer('created_by');
+    },
+    'accounting_asset_depreciation_postings' => function (Blueprint $table) {
+        $table->increments('id');
+        $table->integer('business_id');
+        $table->integer('asset_id');
+        $table->date('period');
+        $table->decimal('amount', 22, 4);
+        $table->integer('created_by');
+        $table->timestamps();
+        $table->unique(['business_id', 'asset_id', 'period'], 'asset_depreciation_period_unique');
     },
     'transaction_payments' => function (Blueprint $table) {
         $table->increments('id');
@@ -208,6 +254,12 @@ $db->table('business')->insert([
     'accounting_settings' => json_encode([
         'auto_posting_enabled' => true,
         'auto_posting_accounts' => $autoPostingAccounts,
+        'auto_posting_assets_enabled' => true,
+        'auto_posting_asset_accounts' => [
+            'fixed_assets' => 29,
+            'accumulated_depreciation' => 83,
+            'depreciation_expense' => 89,
+        ],
         'auto_posting_purchase_tax_recoverable' => true,
     ]),
 ]);
@@ -442,6 +494,204 @@ verifyAccountingTrial(
     "{$businessName}: customer refunds debit receivables and credit clearing"
 );
 
+$db->table('essentials_payroll_groups')->insert([
+    ['id' => 10, 'business_id' => $businessId, 'status' => 'final'],
+    ['id' => 11, 'business_id' => $businessId, 'status' => 'draft'],
+]);
+$db->table('essentials_payroll_group_transactions')->insert([
+    ['payroll_group_id' => 10, 'transaction_id' => 706],
+    ['payroll_group_id' => 11, 'transaction_id' => 707],
+]);
+$db->table('transactions')->insert([
+    [
+        'id' => 706,
+        'business_id' => $businessId,
+        'type' => 'payroll',
+        'status' => 'final',
+        'final_total' => 90,
+        'tax_amount' => 0,
+        'essentials_deductions' => json_encode(['deduction_amounts' => [10]]),
+        'transaction_date' => '2026-10-20 12:00:00',
+        'created_by' => 7,
+    ],
+    [
+        'id' => 707,
+        'business_id' => $businessId,
+        'type' => 'payroll',
+        'status' => 'final',
+        'final_total' => 80,
+        'tax_amount' => 0,
+        'essentials_deductions' => json_encode(['deduction_amounts' => [5]]),
+        'transaction_date' => '2026-10-20 12:00:00',
+        'created_by' => 7,
+    ],
+]);
+$service->syncTransaction(Transaction::findOrFail(706));
+$payrollLines = $db->table('accounting_accounts_transactions')->where('transaction_id', 706)->get();
+verifyAccountingTrial(
+    $payrollLines->count() === 2
+        && (float) $payrollLines->where('accounting_account_id', 183)->where('type', 'debit')->sum('amount') === 100.0
+        && (float) $payrollLines->where('accounting_account_id', 180)->where('type', 'credit')->sum('amount') === 100.0,
+    "{$businessName}: payroll defaults to the general expense account when no dedicated role is configured"
+);
+$settings = json_decode($db->table('business')->where('id', $businessId)->value('accounting_settings'), true);
+$settings['auto_posting_accounts']['payroll_expenses'] = 90;
+$db->table('business')->where('id', $businessId)->update([
+    'accounting_settings' => json_encode($settings),
+]);
+$service = new AccrualPostingService();
+$service->syncTransaction(Transaction::findOrFail(706));
+$payrollReclassification = $db->table('accounting_accounts_transactions')
+    ->where('transaction_id', 706)
+    ->where('map_type', 'auto_reversal:payroll_expense')
+    ->get();
+$currentPayrollExpense = $db->table('accounting_accounts_transactions')
+    ->where('transaction_id', 706)
+    ->where('accounting_account_id', 90)
+    ->where('map_type', 'auto:payroll_expense')
+    ->get();
+verifyAccountingTrial(
+    $payrollReclassification->count() === 1,
+    "{$businessName}: changing the payroll expense role creates a reversal"
+);
+verifyAccountingTrial(
+    (int) $payrollReclassification->first()->accounting_account_id === 183
+        && $payrollReclassification->first()->type === 'credit'
+        && (float) $payrollReclassification->first()->amount === 100.0,
+    "{$businessName}: payroll reclassification reverses the prior general expense debit"
+);
+verifyAccountingTrial(
+    $currentPayrollExpense->count() === 1
+        && (int) $currentPayrollExpense->first()->accounting_account_id === 90
+        && $currentPayrollExpense->first()->type === 'debit',
+    "{$businessName}: changing the payroll expense role reverses and reposts payroll to the dedicated account"
+);
+$db->table('transaction_payments')->insert([
+    'id' => 804,
+    'business_id' => $businessId,
+    'transaction_id' => 706,
+    'parent_id' => null,
+    'method' => 'bank_transfer',
+    'amount' => 90,
+    'is_return' => false,
+    'paid_on' => '2026-10-20 13:00:00',
+    'created_by' => 7,
+]);
+$service->syncPayment(TransactionPayment::findOrFail(804));
+$payrollPaymentLines = $db->table('accounting_accounts_transactions')->where('transaction_payment_id', 804)->get();
+verifyAccountingTrial(
+    $payrollPaymentLines->count() === 2
+        && (float) $payrollPaymentLines->where('accounting_account_id', 180)->where('type', 'debit')->sum('amount') === 90.0
+        && (float) $payrollPaymentLines->where('accounting_account_id', 181)->where('type', 'credit')->sum('amount') === 90.0,
+    "{$businessName}: payroll payments settle the employee payable"
+);
+$service->syncTransaction(Transaction::findOrFail(707));
+verifyAccountingTrial(
+    $db->table('accounting_accounts_transactions')->where('transaction_id', 707)->count() === 0,
+    "{$businessName}: draft payroll groups are not posted"
+);
+$db->table('essentials_payroll_groups')->where('id', 11)->update(['status' => 'final']);
+$service->syncTransaction(Transaction::findOrFail(707));
+verifyAccountingTrial(
+    $db->table('accounting_accounts_transactions')->where('transaction_id', 707)->count() === 2,
+    "{$businessName}: finalized payroll groups can be posted"
+);
+
+$db->table('transactions')->insert([
+    'id' => 708,
+    'business_id' => $businessId,
+    'type' => 'purchase',
+    'status' => 'received',
+    'final_total' => 2000,
+    'tax_amount' => 0,
+    'transaction_date' => '2026-10-21 12:00:00',
+    'created_by' => 7,
+]);
+$assetPurchase = Transaction::findOrFail(708);
+$service->syncTransaction($assetPurchase);
+$db->table('assets')->insert([
+    'id' => 1,
+    'business_id' => $businessId,
+    'asset_code' => 'HP-FA-001',
+    'name' => 'Office equipment',
+    'quantity' => 2,
+    'unit_price' => 500,
+    'depreciation' => 300,
+    'purchase_type' => 'owned',
+    'purchase_transaction_id' => 708,
+    'purchase_date' => '2026-10-21',
+    'created_by' => 7,
+]);
+$asset = Asset::findOrFail(1);
+$service->syncAssetAcquisition($asset);
+$assetAcquisitionLines = $db->table('accounting_accounts_transactions')
+    ->where('transaction_id', 708)
+    ->where('map_type', 'like', 'auto:asset_%')
+    ->get();
+verifyAccountingTrial(
+    $assetAcquisitionLines->count() === 2
+        && (float) $assetAcquisitionLines->where('accounting_account_id', 29)->where('type', 'debit')->sum('amount') === 1000.0
+        && (float) $assetAcquisitionLines->where('accounting_account_id', 51)->where('type', 'credit')->sum('amount') === 1000.0,
+    "{$businessName}: linked asset acquisition reclassifies inventory to fixed assets"
+);
+$depreciationCandidates = $service->assetDepreciationCandidates($businessId, '2026-10-01');
+verifyAccountingTrial(
+    count($depreciationCandidates) === 1 && $depreciationCandidates[0]['amount'] === 300.0,
+    "{$businessName}: monthly depreciation preview includes linked, capitalized assets"
+);
+verifyAccountingTrial(
+    $service->postAssetDepreciation($depreciationCandidates[0]),
+    "{$businessName}: monthly depreciation posts on the first reviewed run"
+);
+$depreciationLines = $db->table('accounting_accounts_transactions')
+    ->where('transaction_id', 708)
+    ->whereIn('map_type', ['auto:asset_depreciation_expense', 'auto:asset_accumulated_depreciation'])
+    ->get();
+verifyAccountingTrial(
+    $depreciationLines->count() === 2
+        && (float) $depreciationLines->where('accounting_account_id', 89)->where('type', 'debit')->sum('amount') === 300.0
+        && (float) $depreciationLines->where('accounting_account_id', 83)->where('type', 'credit')->sum('amount') === 300.0
+        && $service->assetDepreciationCandidates($businessId, '2026-10-01') === [],
+    "{$businessName}: depreciation expense and accumulated depreciation post once"
+);
+$monthlyAmounts = [];
+foreach (['2026-11-01', '2026-12-01', '2027-01-01'] as $period) {
+    $monthlyCandidate = $service->assetDepreciationCandidates($businessId, $period);
+    $monthlyAmounts[] = $monthlyCandidate[0]['amount'] ?? 0;
+    if (!empty($monthlyCandidate)) {
+        $service->postAssetDepreciation($monthlyCandidate[0]);
+    }
+}
+verifyAccountingTrial(
+    $monthlyAmounts === [300.0, 300.0, 100.0]
+        && $service->assetDepreciationCandidates($businessId, '2027-02-01') === []
+        && (float) $db->table('accounting_asset_depreciation_postings')->where('asset_id', 1)->sum('amount') === 1000.0,
+    "{$businessName}: monthly depreciation is idempotent and capped at asset cost"
+);
+$changedAsset = clone $asset;
+$changedAsset->unit_price = 400;
+$assetValueChangeBlocked = false;
+try {
+    $service->syncAssetAcquisition($changedAsset);
+} catch (RuntimeException $exception) {
+    $assetValueChangeBlocked = true;
+}
+verifyAccountingTrial(
+    $assetValueChangeBlocked,
+    "{$businessName}: acquisition value cannot change after depreciation has been posted"
+);
+$ledgerCountBeforeAssetDelete = $db->table('accounting_accounts_transactions')->count();
+$assetDeletionBlocked = false;
+try {
+    $service->syncAssetAcquisition($asset, true);
+} catch (RuntimeException $exception) {
+    $assetDeletionBlocked = true;
+}
+verifyAccountingTrial(
+    $assetDeletionBlocked && $db->table('accounting_accounts_transactions')->count() === $ledgerCountBeforeAssetDelete,
+    "{$businessName}: assets with depreciation history cannot be deleted without disposal"
+);
+
 $db->table('business')->where('id', $businessId)->update([
     'accounting_settings' => json_encode([
         'auto_posting_enabled' => false,
@@ -450,6 +700,15 @@ $db->table('business')->where('id', $businessId)->update([
     ]),
 ]);
 $service = new AccrualPostingService();
+$ledgerCountBeforeDisabledAssetSync = $db->table('accounting_accounts_transactions')
+    ->where('map_type', 'like', 'auto:asset_%')
+    ->count();
+$service->syncAssetAcquisition($asset);
+verifyAccountingTrial(
+    $db->table('accounting_accounts_transactions')->where('map_type', 'like', 'auto:asset_%')->count()
+        === $ledgerCountBeforeDisabledAssetSync,
+    "{$businessName}: disabling new asset automation preserves posted acquisition and depreciation history"
+);
 $service->syncTransaction(Transaction::findOrFail(704));
 $disabledSaleLines = $db->table('accounting_accounts_transactions')->where('transaction_id', 704)->get();
 verifyAccountingTrial(

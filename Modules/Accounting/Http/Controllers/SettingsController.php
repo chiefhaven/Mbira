@@ -131,6 +131,7 @@ class SettingsController extends Controller
             'transfer_prefix' => 'nullable|string|max:100',
             'auto_posting_enabled' => 'nullable|boolean',
             'auto_posting_purchase_tax_recoverable' => 'nullable|boolean',
+            'auto_posting_assets_enabled' => 'nullable|boolean',
             'auto_posting_accounts' => 'nullable|array',
             'auto_posting_accounts.receivables' => 'required_if:auto_posting_enabled,1|nullable|integer',
             'auto_posting_accounts.sales' => 'required_if:auto_posting_enabled,1|nullable|integer',
@@ -140,14 +141,30 @@ class SettingsController extends Controller
             'auto_posting_accounts.output_tax' => 'required_if:auto_posting_enabled,1|nullable|integer',
             'auto_posting_accounts.input_tax' => 'required_if:auto_posting_enabled,1|nullable|integer',
             'auto_posting_accounts.expenses' => 'required_if:auto_posting_enabled,1|nullable|integer',
+            'auto_posting_accounts.payroll_expenses' => 'nullable|integer',
             'auto_posting_accounts.clearing' => 'required_if:auto_posting_enabled,1|nullable|integer',
+            'auto_posting_asset_accounts' => 'nullable|array',
+            'auto_posting_asset_accounts.fixed_assets' => 'required_if:auto_posting_assets_enabled,1|nullable|integer',
+            'auto_posting_asset_accounts.accumulated_depreciation' => 'required_if:auto_posting_assets_enabled,1|nullable|integer',
+            'auto_posting_asset_accounts.depreciation_expense' => 'required_if:auto_posting_assets_enabled,1|nullable|integer',
         ]);
 
         $autoPostingEnabled = $request->boolean('auto_posting_enabled');
+        $autoPostingAssetsEnabled = $request->boolean('auto_posting_assets_enabled');
         $autoPostingAccountIds = array_filter(
             array_map('intval', $validated['auto_posting_accounts'] ?? []),
             fn ($id) => $id > 0
         );
+        $autoPostingAssetAccountIds = array_filter(
+            array_map('intval', $validated['auto_posting_asset_accounts'] ?? []),
+            fn ($id) => $id > 0
+        );
+
+        if ($autoPostingAssetsEnabled && !$autoPostingEnabled) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'auto_posting_assets_enabled' => 'Enable automatic Accounting postings before enabling asset postings.',
+            ]);
+        }
 
         if ($autoPostingEnabled) {
             if (!Schema::hasTable('accounting_source_postings')) {
@@ -179,6 +196,9 @@ class SettingsController extends Controller
                 'expenses' => 'expenses',
                 'clearing' => 'asset',
             ];
+            if (!empty($autoPostingAccountIds['payroll_expenses'])) {
+                $expectedTypes['payroll_expenses'] = 'expenses';
+            }
             $accounts = AccountingAccount::where('business_id', $business_id)
                 ->where('status', 'active')
                 ->whereIn('id', $autoPostingAccountIds)
@@ -197,6 +217,44 @@ class SettingsController extends Controller
             if (count(array_unique($autoPostingAccountIds)) !== count($expectedTypes)) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'auto_posting_accounts' => 'Each automatic posting role must use a distinct account.',
+                ]);
+            }
+        }
+
+        if ($autoPostingAssetsEnabled) {
+            if (!Schema::hasColumn('assets', 'purchase_transaction_id')
+                || !Schema::hasTable('accounting_asset_depreciation_postings')) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'auto_posting_assets_enabled' => 'Apply the pending Asset Management and Accounting asset-posting migrations before enabling asset postings.',
+                ]);
+            }
+
+            $expectedAssetTypes = [
+                'fixed_assets' => 'asset',
+                'accumulated_depreciation' => 'asset',
+                'depreciation_expense' => 'expenses',
+            ];
+            $assetAccounts = AccountingAccount::where('business_id', $business_id)
+                ->where('status', 'active')
+                ->whereIn('id', $autoPostingAssetAccountIds)
+                ->get(['id', 'account_primary_type'])
+                ->keyBy('id');
+
+            foreach ($expectedAssetTypes as $key => $type) {
+                if (!isset($assetAccounts[$autoPostingAssetAccountIds[$key] ?? 0])
+                    || $assetAccounts[$autoPostingAssetAccountIds[$key]]->account_primary_type !== $type) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'auto_posting_asset_accounts.' . $key => 'Select an active account of the required type for this business.',
+                    ]);
+                }
+            }
+
+            $generalAccountIds = array_values($autoPostingAccountIds);
+            if (count(array_unique($autoPostingAssetAccountIds)) !== count($expectedAssetTypes)
+                || count(array_unique(array_merge($autoPostingAssetAccountIds, $generalAccountIds)))
+                    !== count($autoPostingAssetAccountIds) + count($generalAccountIds)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'auto_posting_asset_accounts' => 'Each asset posting role must use a distinct account not used by another automatic posting role.',
                 ]);
             }
         }
@@ -222,6 +280,8 @@ class SettingsController extends Controller
             $input['auto_posting_enabled'] = $autoPostingEnabled;
             $input['auto_posting_accounts'] = $autoPostingAccountIds;
             $input['auto_posting_purchase_tax_recoverable'] = $request->boolean('auto_posting_purchase_tax_recoverable');
+            $input['auto_posting_assets_enabled'] = $autoPostingAssetsEnabled;
+            $input['auto_posting_asset_accounts'] = $autoPostingAssetAccountIds;
 
             Business::where('id', $business_id)
                         ->update(['accounting_settings' => json_encode($input)]);

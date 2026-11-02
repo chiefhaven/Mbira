@@ -43,6 +43,14 @@ class EventServiceProvider extends ServiceProvider
             \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handleExpense',
         ],
 
+        \App\Events\PayrollCreatedOrModified::class => [
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handlePayroll',
+        ],
+
+        \Modules\AssetManagement\Events\AssetCreatedOrModified::class => [
+            \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handleAsset',
+        ],
+
         'eloquent.deleted: App\\Transaction' => [
             \Modules\Accounting\Listeners\SyncAccountingSource::class.'@handleTransactionDeleted',
         ],

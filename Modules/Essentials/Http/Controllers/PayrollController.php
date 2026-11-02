@@ -6,6 +6,7 @@ use App\AccountTransaction;
 use App\BusinessLocation;
 use App\Category;
 use App\Events\TransactionPaymentAdded;
+use App\Events\PayrollCreatedOrModified;
 use App\Exports\StandardBankReportExport;
 use App\Transaction;
 use App\TransactionPayment;
@@ -371,6 +372,11 @@ class PayrollController extends Controller
 
             $payroll_group->payrollGroupTransactions()->sync($transaction_ids);
 
+            foreach ($transaction_ids as $transaction_id) {
+                $transaction = Transaction::where('business_id', $business_id)->findOrFail($transaction_id);
+                event(new PayrollCreatedOrModified($transaction));
+            }
+
             DB::commit();
 
             $output = ['success' => true,
@@ -579,6 +585,7 @@ class PayrollController extends Controller
                                 ->findOrFail($id);
 
             $payroll->update($input);
+            event(new PayrollCreatedOrModified($payroll));
 
             $payroll->action = 'updated';
             $payroll->transaction_for->notify(new PayrollNotification($payroll));
@@ -915,6 +922,7 @@ class PayrollController extends Controller
 
                 if (! empty($payroll_trans)) {
                     $payroll_trans->update($payroll);
+                    event(new PayrollCreatedOrModified($payroll_trans));
 
                     if ($notify_employee && $payroll_group->status == 'final') {
                         $payroll_trans->action = 'updated';

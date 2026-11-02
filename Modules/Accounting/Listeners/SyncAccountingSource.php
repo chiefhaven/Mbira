@@ -3,8 +3,10 @@
 namespace Modules\Accounting\Listeners;
 
 use App\Events\ExpenseCreatedOrModified;
+use App\Events\PayrollCreatedOrModified;
 use App\Events\PurchaseCreatedOrModified;
 use App\Events\SellCreatedOrModified;
+use Modules\AssetManagement\Events\AssetCreatedOrModified;
 use App\Events\TransactionPaymentAdded;
 use App\Events\TransactionPaymentDeleted;
 use App\Events\TransactionPaymentUpdated;
@@ -38,6 +40,16 @@ class SyncAccountingSource
         }
 
         $this->postingService->syncTransaction($event->expense, (bool) $event->isDeleted);
+    }
+
+    public function handlePayroll(PayrollCreatedOrModified $event): void
+    {
+        $this->postingService->syncTransaction($event->transaction);
+    }
+
+    public function handleAsset(AssetCreatedOrModified $event): void
+    {
+        $this->postingService->syncAssetAcquisition($event->asset, (bool) $event->isDeleted);
     }
 
     public function handlePaymentAdded(TransactionPaymentAdded $event): void

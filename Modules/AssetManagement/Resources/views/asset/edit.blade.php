@@ -59,6 +59,11 @@
                     {!! Form::select('purchase_type', $purchase_types, $asset->purchase_type, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'style' => 'width: 100%;']); !!}
                 </div>
                 <div class="col-md-4">
+                    {!! Form::label('purchase_transaction_id', 'Received purchase bill:') !!}
+                    {!! Form::select('purchase_transaction_id', $purchase_transactions, $asset->purchase_transaction_id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'style' => 'width: 100%;']); !!}
+                    <p class="help-block">Linked owned assets are capitalized at quantity x unit price and reclassified from inventory.</p>
+                </div>
+                <div class="col-md-4">
                     <div class="form-group">
                         {!! Form::label('unit_price', __('sale.unit_price') . ':*' )!!}
                         {!! Form::text('unit_price', !empty($asset->unit_price) ? @num_format($asset->unit_price) : null, ['class' => 'form-control input_number', 'placeholder' => __('sale.unit_price'), 'required']); !!}
