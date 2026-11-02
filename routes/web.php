@@ -107,6 +107,7 @@ Route::middleware(['setData'])->group(function () {
 Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 'AdminSidebarMenu', 'CheckUserLogin'])->group(function () {
     Route::get('/admin/eis-migrations', [\App\Http\Controllers\Install\EisMigrationController::class, 'index'])->name('eis-migrations.index');
     Route::post('/admin/eis-migrations', [\App\Http\Controllers\Install\EisMigrationController::class, 'store'])->name('eis-migrations.store')->middleware('throttle:3,1');
+    Route::get('/admin/clear-cache', [\App\Http\Controllers\Install\MaintenanceController::class, 'clearCache'])->name('maintenance.clear-cache')->middleware('throttle:3,1');
     Route::get('pos/payment/{id}', [SellPosController::class, 'edit'])->name('edit-pos-payment');
     Route::get('service-staff-availability', [SellPosController::class, 'showServiceStaffAvailibility']);
     Route::get('pause-resume-service-staff-timer/{user_id}', [SellPosController::class, 'pauseResumeServiceStaffTimer']);
