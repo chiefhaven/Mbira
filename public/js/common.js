@@ -5,8 +5,6 @@ $(document).on('submit', 'form', function (e) {
         toastr.error(LANG.not_connected_to_a_network);
         return false;
     }
-
-    $(this).find('button[type="submit"]').attr('disabled', true);
 });
 $(document).ready(function () {
     window.addEventListener('online', updateOnlineStatus);
