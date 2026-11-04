@@ -28,6 +28,44 @@ use Yajra\DataTables\Facades\DataTables;
 class JobSheetController extends Controller
 {
     /**
+     * Parse the submitted delivery date leniently.
+     *
+     * The datetimepicker format follows the business time format, but stale
+     * pages or manual edits can submit the other clock style or a date-only
+     * value; Carbon then throws and the job sheet silently fails to save.
+     */
+    private function parseDeliveryDate($value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        $date_format = session('business.date_format');
+        $formats = [];
+        if (! empty($date_format)) {
+            $formats = [
+                $date_format.' H:i',
+                $date_format.' h:i A',
+                $date_format.'|',
+            ];
+        }
+        foreach ($formats as $format) {
+            try {
+                return \Carbon\Carbon::createFromFormat($format, $value)->format('Y-m-d H:i:s');
+            } catch (\Throwable $e) {
+                // Try the next known format.
+            }
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
      * All Utils instance.
      */
     protected $repairUtil;
@@ -359,7 +397,13 @@ class JobSheetController extends Controller
             $input = $request->only('contact_id', 'service_type', 'brand_id', 'device_id', 'device_model_id', 'security_pwd', 'security_pattern', 'serial_no', 'status_id', 'delivery_date', 'estimated_cost', 'product_configuration', 'defects', 'product_condition', 'service_staff', 'location_id', 'pick_up_on_site_addr', 'comment_by_ss', 'custom_field_1', 'custom_field_2', 'custom_field_3', 'custom_field_4', 'custom_field_5');
 
             if (! empty($input['delivery_date'])) {
-                $input['delivery_date'] = $this->commonUtil->uf_date($input['delivery_date'], true);
+                $input['delivery_date'] = $this->parseDeliveryDate($input['delivery_date']);
+                if (empty($input['delivery_date'])) {
+                    return redirect()->back()->withInput()
+                        ->with('status', ['success' => false,
+                            'msg' => 'Invalid due date. Please re-select the due date and try again.',
+                        ]);
+                }
             }
 
             if (! empty($input['estimated_cost'])) {
@@ -436,6 +480,8 @@ class JobSheetController extends Controller
                     'msg' => __('lang_v1.success'), ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            \Log::emergency('File:'.$e->getFile().' Line:'.$e->getLine().' Message:'.$e->getMessage());
 
             return redirect()->back()
                 ->with('status', ['success' => false,
@@ -548,7 +594,13 @@ class JobSheetController extends Controller
             $input = $request->only('contact_id', 'service_type', 'brand_id', 'device_id', 'device_model_id', 'security_pwd', 'security_pattern', 'serial_no', 'status_id', 'delivery_date', 'estimated_cost', 'product_configuration', 'defects', 'product_condition', 'service_staff', 'pick_up_on_site_addr', 'comment_by_ss', 'custom_field_1', 'custom_field_2', 'custom_field_3', 'custom_field_4', 'custom_field_5');
 
             if (! empty($input['delivery_date'])) {
-                $input['delivery_date'] = $this->commonUtil->uf_date($input['delivery_date'], true);
+                $input['delivery_date'] = $this->parseDeliveryDate($input['delivery_date']);
+                if (empty($input['delivery_date'])) {
+                    return redirect()->back()->withInput()
+                        ->with('status', ['success' => false,
+                            'msg' => 'Invalid due date. Please re-select the due date and try again.',
+                        ]);
+                }
             }
 
             if (! empty($input['estimated_cost'])) {

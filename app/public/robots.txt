@@ -1,4 +1,0 @@
-User-agents: *
-Allow: /
- 
-Sitemap:https://mbira.havenplustechnologies.co.mw/

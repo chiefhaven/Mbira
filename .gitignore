@@ -52,6 +52,7 @@ npm-debug.log
 /public/js/icons/
 storage.zip
 vendor.zip
+/app.zip
 storage/logs/laravel.log
 *.log
 /storage

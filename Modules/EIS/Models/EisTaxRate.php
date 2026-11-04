@@ -4,9 +4,14 @@ namespace Modules\EIS\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EisTaxRate extends Model
 {
+    // The shared tax_rates table is soft-deleting (see App\TaxRate): rows are
+    // referenced by products/transactions and must never be hard-deleted.
+    use SoftDeletes;
+
     protected $table = 'tax_rates';
 
     protected $fillable = [

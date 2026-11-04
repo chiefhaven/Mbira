@@ -768,20 +768,26 @@ class EisTerminalActivationService
                 }
             }
 
-            $rate = EisTaxRate::updateOrCreate(
+            $rate = EisTaxRate::withTrashed()->updateOrCreate(
                 [
                     'configuration_id' => $configuration->id,
                     'tax_rate_id' => $taxRate->id
                 ],
                 [
+                    'business_id' => $configuration->business_id,
                     'name' => $taxRate->name ?? null,
                     'charge_mode' => $taxRate->chargeMode ?? 'Item',
                     'ordinal' => $taxRate->ordinal ?? 100,
+                    // "amount" is the column the POS uses for tax calculations.
+                    'amount' => (float) ($taxRate->rate ?? 0),
                     'rate' => $taxRate->rate ?? 0,
                     'is_activated' => $isActivated,
                     'activation_id' => $activationDetails->id ?? null,
                 ]
             );
+            if ($rate->trashed()) {
+                $rate->restore();
+            }
             
             $syncedIds[] = $rate->id;
         }

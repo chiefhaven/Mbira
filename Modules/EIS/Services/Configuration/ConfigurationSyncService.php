@@ -361,14 +361,20 @@ class ConfigurationSyncService
             'data' => $data
         ]);
 
-        // Update or create
-        return EisTaxRate::updateOrCreate(
-            [   'business_id' => $configuration->business_id,
-                'configuration_id' => $configuration->id,
+        // Update or create; revive a previously removed rate if EIS returns it again.
+        // Match on configuration + EIS rate id only (business_id is repaired via
+        // $data) so rows created by other sync paths are reused, not duplicated.
+        $rate = EisTaxRate::withTrashed()->updateOrCreate(
+            [   'configuration_id' => $configuration->id,
                 'tax_rate_id' => $taxRate->id
             ],
             $data
         );
+        if ($rate->trashed()) {
+            $rate->restore();
+        }
+
+        return $rate;
     }
 
     /**
