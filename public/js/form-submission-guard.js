@@ -137,7 +137,10 @@
         }
         accept(event, form, event.submitter);
         // Wait until validation and submit handlers decide whether navigation occurs.
-        Promise.resolve().then(function () {
+        // A microtask is not enough: for user-initiated events it runs right after
+        // this capture listener, before jQuery handlers such as jquery-validate's
+        // submitHandler can call form.submit().
+        setTimeout(function () {
             if (!event.defaultPrevented && !state(form).navigating) {
                 state(form).navigating = true;
                 lock(form, event.submitter);
