@@ -43,8 +43,8 @@
 						@if(!empty($business_name))
 							<b style="display: block !important" class="text-uppercase">{{$business_name}}</b>
 						@endif
-						@if(!empty($details['details']->contact->name))
-							<small>@lang('contact.customer'): {{$details['details']->contact->name}}</small><br>
+						@if($customer_label_name !== null && $customer_label_name !== '')
+							<small>@lang('contact.customer'): {{$customer_label_name}}</small><br>
 						@endif
 						@if(!empty($details['details']->repair_model))
 							<small>@lang('repair::lang.model'): {{$details['details']->repair_model}}</small><br>

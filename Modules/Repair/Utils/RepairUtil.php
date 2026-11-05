@@ -4,6 +4,7 @@ namespace Modules\Repair\Utils;
 
 use App\Business;
 use App\Charts\CommonChart;
+use App\Contact;
 use App\Utils\Util;
 use DB;
 use Modules\Repair\Entities\JobSheet;
@@ -12,6 +13,19 @@ use Notification;
 
 class RepairUtil extends Util
 {
+    public function getCustomerLabelName(Contact $customer): string
+    {
+        $name = trim((string) $customer->name);
+        $business_name = trim((string) $customer->supplier_business_name);
+
+        // Older business contacts may not have a contact type.
+        if ($customer->contact_type !== 'individual' && $business_name !== '') {
+            return $business_name;
+        }
+
+        return $name !== '' ? $name : $business_name;
+    }
+
     public function replaceModuleTags($business_id, $data, $job_sheet)
     {
         $id = empty($job_sheet->repair_job_sheet_id) ? $job_sheet->id : $job_sheet->repair_job_sheet_id;

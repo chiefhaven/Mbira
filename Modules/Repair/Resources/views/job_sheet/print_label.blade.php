@@ -89,6 +89,9 @@ $jobsheet_settings['contact_custom_fields'] : [];
             <span class="font-12">
                 <b>@lang('repair::lang.job_sheet_no'):</b> {{$job_sheet->job_sheet_no}}<br>
             </span>
+            <span class="font-12">
+                <b>@lang('contact.customer'):</b> {{$customer_label_name}}<br>
+            </span>
             @if(!empty($jobsheet_settings['show_brand_in_label']))
                 <span class="font-12">
                     {{$job_sheet->brand?->name}} {{$job_sheet->deviceModel?->name}}<br>
@@ -147,13 +150,6 @@ $jobsheet_settings['contact_custom_fields'] : [];
             @if(!empty($jobsheet_settings['show_sr_no_in_label']))
                 <span class="font-12">
                     <b>@lang('repair::lang.imei_sr_no'):</b> {{$job_sheet->serial_no ?? ''}}<br>
-                </span>
-            @endif
-
-            @if(!empty($jobsheet_settings['show_customer_name_in_label']))
-                <span class="font-12">
-                    <b>@lang('contact.customer'):</b>
-                    {{$job_sheet->customer->name}}<br>
                 </span>
             @endif
 

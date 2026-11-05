@@ -1044,9 +1044,10 @@ class JobSheetController extends Controller
 
         $label_width = isset($jobsheet_settings['label_width']) ? $jobsheet_settings['label_width'] : 75;
         $label_height = isset($jobsheet_settings['label_height']) ? $jobsheet_settings['label_height'] : 50;
+        $customer_label_name = $this->repairUtil->getCustomerLabelName($job_sheet->customer);
 
         $html = view('repair::job_sheet.print_label')
-        ->with(compact('job_sheet', 'repair_settings', 'jobsheet_settings'))->render();
+        ->with(compact('job_sheet', 'repair_settings', 'jobsheet_settings', 'customer_label_name'))->render();
         $mpdf = new \Mpdf\Mpdf([
             'format' => [$label_width, $label_height],
             'tempDir' => public_path('uploads/temp'),

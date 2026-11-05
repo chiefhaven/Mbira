@@ -132,7 +132,7 @@ class RepairSettingsController extends Controller
             $input = $request->only(['customer_label', 'client_id_label', 'client_tax_label', 'label_width', 'label_height']);
 
             $checkboxes = ['contact_custom_fields', 'show_customer', 'show_client_id',
-                'show_customer_name_in_label', 'show_customer_address_in_label', 'show_customer_phone_in_label',
+                'show_customer_address_in_label', 'show_customer_phone_in_label',
                 'show_customer_alt_phone_in_label', 'show_customer_email_in_label', 'show_sales_person_in_label',
                 'show_barcode_in_label', 'show_status_in_label', 'show_due_date_in_label', 'show_technician_in_label',
                 'show_problem_in_label', 'show_sr_no_in_label', 'show_brand_in_label', 'show_location_in_label',

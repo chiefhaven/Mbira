@@ -115,14 +115,7 @@ $contact_custom_fields = !empty($jobsheet_pdf_settings['contact_custom_fields'])
 <div class="row">
     <div class="col-sm-3">
         <h4>@lang('repair::lang.customer_information'):</h4>
-        <div class="form-group">
-            <div class="checkbox">
-                <label>
-                    {!! Form::checkbox('show_customer_name_in_label', 1, 
-                        !empty($jobsheet_pdf_settings['show_customer_name_in_label']), 
-                        ['class' => 'input-icheck']); !!} @lang('sale.customer_name')</label>
-            </div>
-        </div>
+        <p class="help-block">@lang('sale.customer_name') / @lang('business.business_name'): @lang('lang_v1.required')</p>
         <div class="form-group">
             <div class="checkbox">
                 <label>

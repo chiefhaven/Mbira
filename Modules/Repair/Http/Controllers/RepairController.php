@@ -975,6 +975,9 @@ class RepairController extends Controller
             $barcode_details = Barcode::find($repair_settings['barcode_id']);
 
             $business_name = request()->session()->get('business.name');
+            $customer_label_name = $transaction->contact
+                ? $this->repairUtil->getCustomerLabelName($transaction->contact)
+                : null;
 
             $product_details = [];
             $total_qty = 0;
@@ -988,7 +991,7 @@ class RepairController extends Controller
             }
 
             return view('repair::repair.partials.preview_label')
-                ->with(compact('product_details', 'business_name', 'barcode_details', 'page_height', 'barcode_type'));
+                ->with(compact('product_details', 'business_name', 'customer_label_name', 'barcode_details', 'page_height', 'barcode_type'));
         } catch (\Exception $e) {
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
